@@ -56,7 +56,7 @@ fn enum_service_types(state: State<Daemon>) -> Vec<String> {
 }
 
 #[cfg(target_os = "linux")]
-fn setup_hook() {
+fn platform_setup() {
     let sessiopn_type_key = "XDG_SESSION_TYPE";
     match std::env::var(sessiopn_type_key) {
         Ok(val) => {
@@ -72,10 +72,10 @@ fn setup_hook() {
 }
 
 #[cfg(not(target_os = "linux"))]
-fn setup_hook() {}
+fn platform_setup() {}
 
 fn main() {
-    setup_hook();
+    platform_setup();
     tauri::Builder::default()
         .manage(Daemon {
             shared: get_shared_daemon(),
