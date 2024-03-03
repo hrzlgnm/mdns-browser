@@ -3,8 +3,8 @@ name: "publish"
 # This will trigger the action on each push to the `release` branch.
 on:
   push:
-    branches:
-      - release
+    tags:
+      - 'v*'
 
 jobs:
   publish-tauri:
