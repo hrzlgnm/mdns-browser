@@ -33,8 +33,16 @@ jobs:
       - name: install frontend dependencies
         run: |
           rustup target add wasm32-unknown-unknown
-          cargo install trunk --locked
-          cargo install tauri-cli --locked
+
+      - uses: taiki-e/cache-cargo-install-action@v1
+        with:
+          tool: trunk
+          locked: true
+
+      - uses: taiki-e/cache-cargo-install-action@v1
+        with:
+          tool: tauri-cli
+          locked: true
 
       - uses: tauri-apps/tauri-action@v0
         env:
