@@ -61,7 +61,7 @@ fn setup_hook() {
     match std::env::var(sessiopn_type_key) {
         Ok(val) => {
             if val == "x11" {
-                log::info!(
+                println!(
                     "Setting WEBKIT_DISABLE_COMPOSITING_MODE=1 to workaround rendering issues with x11 session"
                 );
                 std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1")
@@ -70,8 +70,9 @@ fn setup_hook() {
         Err(_e) => {}
     }
 }
+
 #[cfg(not(target_os = "linux"))]
-fn setup() {}
+fn setup_hook() {}
 
 fn main() {
     setup_hook();
@@ -86,10 +87,6 @@ fn main() {
                 .level(LevelFilter::Info)
                 .build(),
         )
-        .setup(|_| {
-            setup_hook();
-            Ok(())
-        })
         .invoke_handler(tauri::generate_handler![enum_service_types])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
