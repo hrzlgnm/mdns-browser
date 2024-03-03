@@ -1,13 +1,15 @@
-name: "publish"
+name: "CI Build"
 
-# This will trigger the action on each push to the `release` branch.
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  publish-tauri:
+  build-tauri:
     permissions:
       contents: write
     strategy:
@@ -18,11 +20,6 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -35,6 +32,7 @@ jobs:
 
       - name: install frontend dependencies
         run: |
+          rustup target add wasm32-unknown-unknown
           cargo install trunk --locked
           cargo install tauri-cli --locked
 
@@ -45,5 +43,5 @@ jobs:
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
           releaseName: "App v__VERSION__"
           releaseBody: "See the assets to download this version and install."
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false

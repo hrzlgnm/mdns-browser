@@ -56,12 +56,12 @@ fn enum_service_types(state: State<Daemon>) -> Vec<String> {
 }
 
 #[cfg(target_os = "linux")]
-fn setup_hook() {
+fn platform_setup() {
     let sessiopn_type_key = "XDG_SESSION_TYPE";
     match std::env::var(sessiopn_type_key) {
         Ok(val) => {
             if val == "x11" {
-                log::info!(
+                println!(
                     "Setting WEBKIT_DISABLE_COMPOSITING_MODE=1 to workaround rendering issues with x11 session"
                 );
                 std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1")
@@ -70,11 +70,12 @@ fn setup_hook() {
         Err(_e) => {}
     }
 }
+
 #[cfg(not(target_os = "linux"))]
-fn setup() {}
+fn platform_setup() {}
 
 fn main() {
-    setup_hook();
+    platform_setup();
     tauri::Builder::default()
         .manage(Daemon {
             shared: get_shared_daemon(),
@@ -86,10 +87,6 @@ fn main() {
                 .level(LevelFilter::Info)
                 .build(),
         )
-        .setup(|_| {
-            setup_hook();
-            Ok(())
-        })
         .invoke_handler(tauri::generate_handler![enum_service_types])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
