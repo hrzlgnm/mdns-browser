@@ -32,6 +32,7 @@ jobs:
 
       - name: install frontend dependencies
         run: |
+          rustup target add wasm32-unknown-unknown
           cargo install trunk --locked
           cargo install tauri-cli --locked
 
