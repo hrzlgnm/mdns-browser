@@ -36,7 +36,12 @@ jobs:
 
       - uses: taiki-e/cache-cargo-install-action@v1
         with:
-          tool: trunk, tauri-cli
+          tool: trunk
+          locked: true
+
+      - uses: taiki-e/cache-cargo-install-action@v1
+        with:
+          tool: tauri-cli
           locked: true
 
       - uses: tauri-apps/tauri-action@v0
