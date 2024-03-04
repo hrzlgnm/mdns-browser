@@ -32,12 +32,14 @@ jobs:
         run: |
           rustup target add wasm32-unknown-unknown
 
-      - uses: taiki-e/cache-cargo-install-action@v1
+      - name: cached install trunk
+        uses: taiki-e/cache-cargo-install-action@v1.3.0
         with:
           tool: trunk
           locked: true
 
-      - uses: taiki-e/cache-cargo-install-action@v1
+      - name: cached install tauri-cli
+        uses: taiki-e/cache-cargo-install-action@v1.3.0
         with:
           tool: tauri-cli
           locked: true
