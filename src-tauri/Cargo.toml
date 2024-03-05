@@ -1,11 +1,9 @@
 [package]
 name = "mdns-browser"
 version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "mDNS browser"
+authors = ["hrzlgnm"]
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
 tauri-build = { version = "1", features = [] }
