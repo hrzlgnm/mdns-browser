@@ -1,10 +1,14 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::sync::{Arc, Mutex};
-
 use log::LevelFilter;
 use mdns_sd::{ServiceDaemon, ServiceEvent};
+use serde::{Deserialize, Serialize};
+use std::{
+    collections::HashSet,
+    net::IpAddr,
+    sync::{Arc, Mutex},
+};
 use tauri::State;
 use tauri_plugin_log::LogTarget;
 
@@ -17,6 +21,48 @@ struct Daemon {
 fn get_shared_daemon() -> SharedServiceDaemon {
     let daemon = ServiceDaemon::new().expect("Failed to create daemon");
     Arc::new(Mutex::new(daemon))
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+struct ResolvedService {
+    instance_name: String,
+    hostname: String,
+    port: u16,
+    addresses: HashSet<IpAddr>,
+}
+
+#[tauri::command]
+fn resolve_service(service_type: String, state: State<Daemon>) -> Vec<ResolvedService> {
+    log::info!("Resolving {}", service_type);
+    let mdns = state.shared.lock().unwrap();
+    let receiver = mdns
+        .browse(service_type.as_str())
+        .expect("Failed to browse");
+    let mut result = vec![];
+    let mut done = false;
+    while let Ok(event) = receiver.recv() {
+        match event {
+            ServiceEvent::ServiceResolved(info) => {
+                result.push(ResolvedService {
+                    instance_name: info.get_fullname().into(),
+                    hostname: info.get_hostname().into(),
+                    port: info.get_port(),
+                    addresses: info.get_addresses().clone(),
+                });
+            }
+            ServiceEvent::SearchStarted(_) => {
+                if done {
+                    let _ = mdns.stop_browse(service_type.as_str());
+                }
+                done = true;
+            }
+            ServiceEvent::SearchStopped(_) => {
+                break;
+            }
+            _ => {}
+        }
+    }
+    result
 }
 
 #[tauri::command]
@@ -87,7 +133,10 @@ fn main() {
                 .level(LevelFilter::Info)
                 .build(),
         )
-        .invoke_handler(tauri::generate_handler![enum_service_types])
+        .invoke_handler(tauri::generate_handler![
+            enum_service_types,
+            resolve_service
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
