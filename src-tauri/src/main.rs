@@ -3,7 +3,7 @@
 
 use log::LevelFilter;
 use mdns_sd::{ServiceDaemon, ServiceEvent};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::{
     net::IpAddr,
     sync::{Arc, Mutex},
@@ -22,13 +22,20 @@ fn get_shared_daemon() -> SharedServiceDaemon {
     Arc::new(Mutex::new(daemon))
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
+struct TxtRecord {
+    key: String,
+    val: String,
+}
+
+#[derive(Serialize, Clone, Debug)]
 struct ResolvedService {
     instance_name: String,
     hostname: String,
     port: u16,
     addresses: Vec<IpAddr>,
     subtype: Option<String>,
+    txt: Vec<TxtRecord>,
 }
 
 #[tauri::command]
@@ -50,12 +57,22 @@ fn resolve_service(service_type: String, state: State<Daemon>) -> Vec<ResolvedSe
                 let mut sorted_addresses: Vec<IpAddr> =
                     info.get_addresses().clone().drain().collect();
                 sorted_addresses.sort();
+                let mut sorted_txt: Vec<TxtRecord> = info
+                    .get_properties()
+                    .iter()
+                    .map(|r| TxtRecord {
+                        key: r.key().into(),
+                        val: r.val_str().into(),
+                    })
+                    .collect();
+                sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
                 result.push(ResolvedService {
                     instance_name: info.get_fullname().into(),
                     hostname: info.get_hostname().into(),
                     port: info.get_port(),
                     addresses: sorted_addresses,
                     subtype: info.get_subtype().clone(),
+                    txt: sorted_txt,
                 });
             }
             ServiceEvent::SearchStarted(_) => {

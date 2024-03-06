@@ -1,4 +1,4 @@
-use std::net::IpAddr;
+use std::{fmt::Display, net::IpAddr};
 
 use leptos::{html::Input, *};
 use serde::{Deserialize, Serialize};
@@ -19,13 +19,30 @@ async fn enum_service_types() -> ServiceTypes {
     service_types
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Deserialize, Clone, Debug)]
+struct TxtRecord {
+    key: String,
+    val: String,
+}
+
+impl Display for TxtRecord {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.val.is_empty() {
+            write!(f, "{}", self.key)
+        } else {
+            write!(f, "{}={}", self.key, self.val)
+        }
+    }
+}
+
+#[derive(Deserialize, Debug, Clone)]
 struct ResolvedService {
     instance_name: String,
     hostname: String,
     port: u16,
     addresses: Vec<IpAddr>,
     subtype: Option<String>,
+    txt: Vec<TxtRecord>,
 }
 type ResolvedServices = Vec<ResolvedService>;
 
@@ -53,7 +70,7 @@ fn ShowServicesTypes(services: ServiceTypes) -> impl IntoView {
     view! {
         <ul>
             {services.into_iter()
-                .map(|n| view! { <li>{n}</li>})
+                .map(|n| view! { <div>{n}</div>})
                 .collect::<Vec<_>>()}
         </ul>
     }
@@ -87,18 +104,29 @@ fn EnumerateServiceTypes() -> impl IntoView {
 #[component]
 fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
     view! {
-        <ul>
-            {services.into_iter()
-                .map(|n|
-                     view! {
-                    <div>Instance name: {n.instance_name}</div>
-                    <div>Subtype: {n.subtype}</div>
-                    <div>Hostname: {n.hostname}</div>
-                    <div>Port: {n.port}</div>
-                    <div>IPs: {n.addresses.iter().map(|n|n.to_string()).collect::<Vec<String>>().join(", ")}</div>
-                })
-                .collect::<Vec<_>>()}
-        </ul>
+    <table>
+        <thead>
+            <th>Instance</th>
+            <th>Subtype</th>
+            <th>Hostname</th>
+            <th>Port</th>
+            <th>IPs</th>
+            <th>txt</th>
+        </thead>
+        <tbody>
+        {services.into_iter()
+            .map(|n| view! {
+            <tr>
+                <td>{n.instance_name}</td>
+                <td>{n.subtype}</td>
+                <td>{n.hostname}</td>
+                <td>{n.port}</td>
+                <td>{n.addresses.iter().map(|n|n.to_string()).collect::<Vec<String>>().join(", ")}</td>
+                <td>{n.txt.iter().map(|n|n.to_string()).collect::<Vec<String>>().join(", ")}</td>
+            </tr>
+            }).collect::<Vec<_>>()}
+        </tbody>
+    </table>
     }
 }
 
