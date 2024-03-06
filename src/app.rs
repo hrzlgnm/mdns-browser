@@ -25,6 +25,7 @@ struct ResolvedService {
     hostname: String,
     port: u16,
     addresses: Vec<IpAddr>,
+    subtype: Option<String>,
 }
 type ResolvedServices = Vec<ResolvedService>;
 
@@ -48,7 +49,7 @@ async fn resolve_service(service_type: String) -> ResolvedServices {
 }
 
 #[component]
-fn ShowServices(services: ServiceTypes) -> impl IntoView {
+fn ShowServicesTypes(services: ServiceTypes) -> impl IntoView {
     view! {
         <ul>
             {services.into_iter()
@@ -59,7 +60,7 @@ fn ShowServices(services: ServiceTypes) -> impl IntoView {
 }
 
 #[component]
-fn ServiceTypeList() -> impl IntoView {
+fn EnumerateServiceTypes() -> impl IntoView {
     let enum_action = create_action(|_input: &()| async move { enum_service_types().await });
     let value = enum_action.value();
     view! { <form
@@ -76,7 +77,7 @@ fn ServiceTypeList() -> impl IntoView {
             None => view! { <p>"Click on button above."</p> }.into_view(),
             Some(services) => {
                 view! {
-                    <ShowServices services />
+                    <ShowServicesTypes services />
                 }.into_view()
             }
          }}
@@ -91,6 +92,7 @@ fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
                 .map(|n|
                      view! {
                     <div>Instance name: {n.instance_name}</div>
+                    <div>Subtype: {n.subtype}</div>
                     <div>Hostname: {n.hostname}</div>
                     <div>Port: {n.port}</div>
                     <div>IPs: {n.addresses.iter().map(|n|n.to_string()).collect::<Vec<String>>().join(", ")}</div>
@@ -140,7 +142,7 @@ pub fn App() -> impl IntoView {
     view! {
         <main class="container">
             <ResolveService />
-            <ServiceTypeList />
+            <EnumerateServiceTypes />
         </main>
     }
 }
