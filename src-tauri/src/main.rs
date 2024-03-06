@@ -35,6 +35,10 @@ struct ResolvedService {
 fn resolve_service(service_type: String, state: State<Daemon>) -> Vec<ResolvedService> {
     log::info!("Resolving {}", service_type);
     let mdns = state.shared.lock().unwrap();
+    let mut service_type = service_type;
+    if !service_type.ends_with(".local.") {
+        service_type.push_str(".local.");
+    }
     let receiver = mdns
         .browse(service_type.as_str())
         .expect("Failed to browse");
@@ -76,7 +80,7 @@ fn enum_service_types(state: State<Daemon>) -> Vec<String> {
             match event {
                 ServiceEvent::ServiceFound(service_type, full_name) => {
                     if !full_name.starts_with(&service_type) {
-                        found.push(full_name.replace(".local.", ""));
+                        found.push(full_name);
                     }
                 }
                 ServiceEvent::SearchStarted(_service) => {
