@@ -73,7 +73,6 @@ button {
 button {
   cursor: pointer;
 }
-
 button:hover {
   border-color: #396cd8;
 }
@@ -85,10 +84,6 @@ button:active {
 input,
 button {
   outline: none;
-}
-
-#greet-input {
-  margin-right: 5px;
 }
 
 @media (prefers-color-scheme: dark) {
