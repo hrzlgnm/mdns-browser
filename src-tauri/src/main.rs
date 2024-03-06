@@ -28,6 +28,7 @@ struct ResolvedService {
     hostname: String,
     port: u16,
     addresses: Vec<IpAddr>,
+    subtype: Option<String>,
 }
 
 #[tauri::command]
@@ -54,6 +55,7 @@ fn resolve_service(service_type: String, state: State<Daemon>) -> Vec<ResolvedSe
                     hostname: info.get_hostname().into(),
                     port: info.get_port(),
                     addresses: sorted_addresses,
+                    subtype: info.get_subtype().clone(),
                 });
             }
             ServiceEvent::SearchStarted(_) => {
