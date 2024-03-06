@@ -5,7 +5,6 @@ use log::LevelFilter;
 use mdns_sd::{ServiceDaemon, ServiceEvent};
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::HashSet,
     net::IpAddr,
     sync::{Arc, Mutex},
 };
@@ -28,7 +27,7 @@ struct ResolvedService {
     instance_name: String,
     hostname: String,
     port: u16,
-    addresses: HashSet<IpAddr>,
+    addresses: Vec<IpAddr>,
 }
 
 #[tauri::command]
@@ -43,11 +42,14 @@ fn resolve_service(service_type: String, state: State<Daemon>) -> Vec<ResolvedSe
     while let Ok(event) = receiver.recv() {
         match event {
             ServiceEvent::ServiceResolved(info) => {
+                let mut sorted_addresses: Vec<IpAddr> =
+                    info.get_addresses().clone().drain().collect();
+                sorted_addresses.sort();
                 result.push(ResolvedService {
                     instance_name: info.get_fullname().into(),
                     hostname: info.get_hostname().into(),
                     port: info.get_port(),
-                    addresses: info.get_addresses().clone(),
+                    addresses: sorted_addresses,
                 });
             }
             ServiceEvent::SearchStarted(_) => {

@@ -1,4 +1,4 @@
-use std::{collections::HashSet, net::IpAddr};
+use std::net::IpAddr;
 
 use leptos::{html::Input, *};
 use serde::{Deserialize, Serialize};
@@ -24,7 +24,7 @@ struct ResolvedService {
     instance_name: String,
     hostname: String,
     port: u16,
-    addresses: HashSet<IpAddr>,
+    addresses: Vec<IpAddr>,
 }
 type ResolvedServices = Vec<ResolvedService>;
 
