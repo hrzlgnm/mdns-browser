@@ -1,8 +1,10 @@
 use std::{fmt::Display, net::IpAddr};
 
-use leptos::{html::Input, *};
+use leptos::*;
+use leptos_meta::provide_meta_context;
 use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::{from_value, to_value};
+use thaw::{Button, GlobalStyle, Input, Layout, Space, Table, Theme, ThemeProvider};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -68,11 +70,18 @@ async fn resolve_service(service_type: String) -> ResolvedServices {
 #[component]
 fn ShowServicesTypes(services: ServiceTypes) -> impl IntoView {
     view! {
-        <ul>
+    <Table>
+        <thead>
+            <tr>
+                <th>"Service type"</th>
+            </tr>
+        </thead>
+        <tbody>
             {services.into_iter()
-                .map(|n| view! { <div>{n}</div>})
+                .map(|n| view! { <tr><td>{n}</td></tr>})
                 .collect::<Vec<_>>()}
-        </ul>
+        </tbody>
+    </Table>
     }
 }
 
@@ -80,38 +89,40 @@ fn ShowServicesTypes(services: ServiceTypes) -> impl IntoView {
 fn EnumerateServiceTypes() -> impl IntoView {
     let enum_action = create_action(|_input: &()| async move { enum_service_types().await });
     let value = enum_action.value();
-    view! { <form
-             on:submit=move |ev| {
-                 ev.prevent_default(); // don't reload the page...
-                 enum_action.dispatch(());
-             } >
-            <button type="submit">"Enum service types"</button>
-        </form>
-        <p>
-             "Service types"
-         </p>
-         {move || match value.get() {
-            None => view! { <p>"Click on button above."</p> }.into_view(),
+    let on_click = move |_| {
+        enum_action.dispatch(());
+    };
+    view! {
+        <Layout style="padding: 20px;">
+        <Space vertical=true>
+        <Button on_click>"Enumerate service types"</Button>
+        {move || match value.get() {
+            None => view! { "" }.into_view(),
             Some(services) => {
                 view! {
                     <ShowServicesTypes services />
                 }.into_view()
             }
-         }}
+            }
+        }
+        </Space>
+        </Layout>
     }
 }
 
 #[component]
 fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
     view! {
-    <table>
+    <Table>
         <thead>
-            <th>Instance</th>
-            <th>Subtype</th>
-            <th>Hostname</th>
-            <th>Port</th>
-            <th>IPs</th>
-            <th>txt</th>
+            <tr>
+                <th>"Instance"</th>
+                <th>"Subtype"</th>
+                <th>"Hostname"</th>
+                <th>"Port"</th>
+                <th>"IPs"</th>
+                <th>"txt"</th>
+            </tr>
         </thead>
         <tbody>
         {services.into_iter()
@@ -126,51 +137,52 @@ fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
             </tr>
             }).collect::<Vec<_>>()}
         </tbody>
-    </table>
+    </Table>
     }
 }
 
 #[component]
 fn ResolveService() -> impl IntoView {
-    let (service, _) = create_signal("".to_string());
+    let value = create_rw_signal(String::from(""));
     let resolve_action = create_action(|input: &String| {
         let input = input.clone();
         async move { resolve_service(input.clone()).await }
     });
-    let input_element: NodeRef<Input> = create_node_ref();
-    let on_submit = move |ev: ev::SubmitEvent| {
-        ev.prevent_default();
-        let value = input_element.get().expect("<input> to exist").value();
+
+    let on_click = move |_| {
+        let value = value.get();
         resolve_action.dispatch(value);
     };
 
-    let value = resolve_action.value();
+    let action = resolve_action.value();
 
     view! {
-        <form on:submit=on_submit>
-            <input type="text"
-                value=service
-                node_ref=input_element
-            />
-            <button type="submit">"Resolve"</button>
-        </form>
-         {move || match value.get() {
-            None => view! { <p>Click on Resolve</p> }.into_view(),
-            Some(services) => {
-                view! {
-                    <ShowResolvedServices services />
-                }.into_view()
-            }
-         }}
+    <Layout style="padding: 20px;">
+    <Space>
+        <Input value/>
+        <Button on_click>"Resolve"</Button>
+    </Space>
+    {move || match action.get() {
+        None => view! { "" }.into_view(),
+        Some(services) => {
+            view! {
+                <ShowResolvedServices services />
+            }.into_view()
+        }
+    }}
+    </Layout>
     }
 }
 
 #[component]
 pub fn App() -> impl IntoView {
+    provide_meta_context();
+    let theme = create_rw_signal(Theme::dark());
     view! {
-        <main class="container">
+        <ThemeProvider theme>
+            <GlobalStyle />
             <ResolveService />
             <EnumerateServiceTypes />
-        </main>
+        </ThemeProvider>
     }
 }
