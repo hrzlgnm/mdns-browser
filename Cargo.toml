@@ -1,6 +1,6 @@
 [package]
 name = "mdns-browser-ui"
-version = "0.0.3"
+ersion = "0.0.4"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -14,6 +14,8 @@ serde-wasm-bindgen = "0.6"
 log = "^0.4.21"
 console_error_panic_hook = "0.1.7"
 console_log = "1.0.0"
+thaw = { version = "0.2.3", features = ["csr"] }
+leptos_meta = { version = "0.6.9", features = ["csr"] }
 
 [workspace]
 members = ["src-tauri"]
