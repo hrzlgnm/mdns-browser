@@ -68,18 +68,7 @@ fn resolve_service(service_type: String, state: State<Daemon>) -> Vec<ResolvedSe
                     .collect();
                 sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
                 result
-                    .entry(info.get_fullname().to_string())
-                    .and_modify(|a| {
-                        *a = ResolvedService {
-                            instance_name: info.get_fullname().into(),
-                            hostname: info.get_hostname().into(),
-                            port: info.get_port(),
-                            addresses: sorted_addresses.clone(),
-                            subtype: info.get_subtype().clone(),
-                            txt: sorted_txt.clone(),
-                        }
-                    })
-                    .or_insert(ResolvedService {
+                    .insert(info.get_fullname().to_string(), ResolvedService {
                         instance_name: info.get_fullname().into(),
                         hostname: info.get_hostname().into(),
                         port: info.get_port(),
