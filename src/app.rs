@@ -4,7 +4,10 @@ use leptos::*;
 use leptos_meta::provide_meta_context;
 use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::{from_value, to_value};
-use thaw::{Button, GlobalStyle, Input, Layout, Space, Table, Theme, ThemeProvider};
+use thaw::{
+    AutoComplete, AutoCompleteOption, Button, GlobalStyle, Layout, Space, Table, Theme,
+    ThemeProvider,
+};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -68,49 +71,6 @@ async fn resolve_service(service_type: String) -> ResolvedServices {
 }
 
 #[component]
-fn ShowServicesTypes(services: ServiceTypes) -> impl IntoView {
-    view! {
-    <Table>
-        <thead>
-            <tr>
-                <th>"Service type"</th>
-            </tr>
-        </thead>
-        <tbody>
-            {services.into_iter()
-                .map(|n| view! { <tr><td>{n}</td></tr>})
-                .collect::<Vec<_>>()}
-        </tbody>
-    </Table>
-    }
-}
-
-#[component]
-fn EnumerateServiceTypes() -> impl IntoView {
-    let enum_action = create_action(|_input: &()| async move { enum_service_types().await });
-    let value = enum_action.value();
-    let on_click = move |_| {
-        enum_action.dispatch(());
-    };
-    view! {
-        <Layout style="padding: 20px;">
-        <Space vertical=true>
-        <Button on_click>"Enumerate service types"</Button>
-        {move || match value.get() {
-            None => view! { "" }.into_view(),
-            Some(services) => {
-                view! {
-                    <ShowServicesTypes services />
-                }.into_view()
-            }
-            }
-        }
-        </Space>
-        </Layout>
-    }
-}
-
-#[component]
 fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
     view! {
     <Table>
@@ -143,7 +103,27 @@ fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
 
 #[component]
 fn ResolveService() -> impl IntoView {
-    let value = create_rw_signal(String::from(""));
+    let value = create_rw_signal(String::new());
+    let enum_action = create_action(|_input: &()| async move { enum_service_types().await });
+    let action = enum_action.value();
+    enum_action.dispatch(());
+    let options = create_memo(move |_| {
+        if let Some(values) = action.get() {
+            values
+                .into_iter()
+                .map(|service_type| AutoCompleteOption {
+                    label: service_type.clone(),
+                    value: service_type.clone(),
+                })
+                .collect()
+        } else {
+            vec![AutoCompleteOption {
+                label: String::from("_http._tcp.local."),
+                value: String::from("_http._tcp.local."),
+            }]
+        }
+    });
+
     let resolve_action = create_action(|input: &String| {
         let input = input.clone();
         async move { resolve_service(input.clone()).await }
@@ -154,15 +134,14 @@ fn ResolveService() -> impl IntoView {
         resolve_action.dispatch(value);
     };
 
-    let action = resolve_action.value();
-
+    let resolve_value = resolve_action.value();
     view! {
     <Layout style="padding: 20px;">
     <Space>
-        <Input value/>
+        <AutoComplete value options placeholder="Service type"/>
         <Button on_click>"Resolve"</Button>
     </Space>
-    {move || match action.get() {
+    {move || match resolve_value.get() {
         None => view! { "" }.into_view(),
         Some(services) => {
             view! {
@@ -182,7 +161,6 @@ pub fn App() -> impl IntoView {
         <ThemeProvider theme>
             <GlobalStyle />
             <ResolveService />
-            <EnumerateServiceTypes />
         </ThemeProvider>
     }
 }
