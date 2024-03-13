@@ -5,6 +5,7 @@ use log::LevelFilter;
 use mdns_sd::{ServiceDaemon, ServiceEvent};
 use serde::Serialize;
 use std::{
+    collections::HashMap,
     net::IpAddr,
     sync::{Arc, Mutex},
 };
@@ -49,7 +50,7 @@ fn resolve_service(service_type: String, state: State<Daemon>) -> Vec<ResolvedSe
     let receiver = mdns
         .browse(service_type.as_str())
         .expect("Failed to browse");
-    let mut result = vec![];
+    let mut result = HashMap::new();
     let mut done = false;
     while let Ok(event) = receiver.recv() {
         match event {
@@ -66,14 +67,26 @@ fn resolve_service(service_type: String, state: State<Daemon>) -> Vec<ResolvedSe
                     })
                     .collect();
                 sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
-                result.push(ResolvedService {
-                    instance_name: info.get_fullname().into(),
-                    hostname: info.get_hostname().into(),
-                    port: info.get_port(),
-                    addresses: sorted_addresses,
-                    subtype: info.get_subtype().clone(),
-                    txt: sorted_txt,
-                });
+                result
+                    .entry(info.get_fullname().to_string())
+                    .and_modify(|a| {
+                        *a = ResolvedService {
+                            instance_name: info.get_fullname().into(),
+                            hostname: info.get_hostname().into(),
+                            port: info.get_port(),
+                            addresses: sorted_addresses.clone(),
+                            subtype: info.get_subtype().clone(),
+                            txt: sorted_txt.clone(),
+                        }
+                    })
+                    .or_insert(ResolvedService {
+                        instance_name: info.get_fullname().into(),
+                        hostname: info.get_hostname().into(),
+                        port: info.get_port(),
+                        addresses: sorted_addresses,
+                        subtype: info.get_subtype().clone(),
+                        txt: sorted_txt,
+                    });
             }
             ServiceEvent::SearchStarted(_) => {
                 if done {
@@ -87,7 +100,7 @@ fn resolve_service(service_type: String, state: State<Daemon>) -> Vec<ResolvedSe
             _ => {}
         }
     }
-    result
+    result.values().cloned().collect()
 }
 
 #[tauri::command]
