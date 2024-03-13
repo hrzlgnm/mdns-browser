@@ -1,12 +1,13 @@
 name: "CI Build"
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
+
+concurrency:
+  # On main, we want all builds to complete even if merging happens faster to make it easier to discover at which point something broke.
+  group: ${{ github.ref == 'refs/heads/main' && format('ci-main-{0}', github.sha) || format('ci-{0}', github.ref) }}
 
 jobs:
   build-tauri:
@@ -49,9 +50,3 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
-          releaseName: "mDNS-Browser Pre-Release v__VERSION__"
-          releaseBody: "See the assets to download this version and install."
-          releaseDraft: false
-          prerelease: true
