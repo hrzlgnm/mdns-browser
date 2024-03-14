@@ -4,7 +4,7 @@ name: "Publish release assets"
 on:
   push:
     tags:
-      - "v*"
+      - "mdns-browser-v*"
 
 jobs:
   publish-tauri:
