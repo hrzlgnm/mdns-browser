@@ -73,31 +73,49 @@ async fn resolve_service(service_type: String) -> ResolvedServices {
 #[component]
 fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
     view! {
-    <Table>
-        <thead>
-            <tr>
-                <th>"Instance"</th>
-                <th>"Subtype"</th>
-                <th>"Hostname"</th>
-                <th>"Port"</th>
-                <th>"IPs"</th>
-                <th>"txt"</th>
-            </tr>
-        </thead>
-        <tbody>
-        {services.into_iter()
-            .map(|n| view! {
-            <tr>
-                <td>{n.instance_name}</td>
-                <td>{n.subtype}</td>
-                <td>{n.hostname}</td>
-                <td>{n.port}</td>
-                <td>{n.addresses.iter().map(|n|n.to_string()).collect::<Vec<String>>().join(", ")}</td>
-                <td>{n.txt.iter().map(|n|n.to_string()).collect::<Vec<String>>().join(", ")}</td>
-            </tr>
-            }).collect::<Vec<_>>()}
-        </tbody>
-    </Table>
+        <Table>
+            <thead>
+                <tr>
+                    <th>"Instance"</th>
+                    <th>"Subtype"</th>
+                    <th>"Hostname"</th>
+                    <th>"Port"</th>
+                    <th>"IPs"</th>
+                    <th>"txt"</th>
+                </tr>
+            </thead>
+            <tbody>
+                {services
+                    .into_iter()
+                    .map(|n| {
+                        view! {
+                            <tr>
+                                <td>{n.instance_name}</td>
+                                <td>{n.subtype}</td>
+                                <td>{n.hostname}</td>
+                                <td>{n.port}</td>
+                                <td>
+                                    {n
+                                        .addresses
+                                        .iter()
+                                        .map(|n| n.to_string())
+                                        .collect::<Vec<String>>()
+                                        .join(", ")}
+                                </td>
+                                <td>
+                                    {n
+                                        .txt
+                                        .iter()
+                                        .map(|n| n.to_string())
+                                        .collect::<Vec<String>>()
+                                        .join(", ")}
+                                </td>
+                            </tr>
+                        }
+                    })
+                    .collect::<Vec<_>>()}
+            </tbody>
+        </Table>
     }
 }
 
@@ -136,20 +154,17 @@ fn ResolveService() -> impl IntoView {
 
     let resolve_value = resolve_action.value();
     view! {
-    <Layout style="padding: 20px;">
-    <Space>
-        <AutoComplete value options placeholder="Service type"/>
-        <Button on_click>"Resolve"</Button>
-    </Space>
-    {move || match resolve_value.get() {
-        None => view! { "" }.into_view(),
-        Some(services) => {
-            view! {
-                <ShowResolvedServices services />
-            }.into_view()
-        }
-    }}
-    </Layout>
+        <Layout style="padding: 20px;">
+            <Space>
+                <AutoComplete value options placeholder="Service type"/>
+                <Button on_click>"Resolve"</Button>
+            </Space>
+            {move || match resolve_value.get() {
+                None => view! { "" }.into_view(),
+                Some(services) => view! { <ShowResolvedServices services/> }.into_view(),
+            }}
+
+        </Layout>
     }
 }
 
@@ -159,8 +174,8 @@ pub fn App() -> impl IntoView {
     let theme = create_rw_signal(Theme::dark());
     view! {
         <ThemeProvider theme>
-            <GlobalStyle />
-            <ResolveService />
+            <GlobalStyle/>
+            <ResolveService/>
         </ThemeProvider>
     }
 }
