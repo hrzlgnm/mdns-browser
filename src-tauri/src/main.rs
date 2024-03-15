@@ -9,6 +9,7 @@ use std::{
     net::IpAddr,
     sync::{Arc, Mutex},
 };
+use tauri::Manager;
 use tauri::State;
 use tauri_plugin_log::LogTarget;
 
@@ -67,15 +68,17 @@ fn resolve_service(service_type: String, state: State<Daemon>) -> Vec<ResolvedSe
                     })
                     .collect();
                 sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
-                result
-                    .insert(info.get_fullname().to_string(), ResolvedService {
+                result.insert(
+                    info.get_fullname().to_string(),
+                    ResolvedService {
                         instance_name: info.get_fullname().into(),
                         hostname: info.get_hostname().into(),
                         port: info.get_port(),
                         addresses: sorted_addresses,
                         subtype: info.get_subtype().clone(),
                         txt: sorted_txt,
-                    });
+                    },
+                );
             }
             ServiceEvent::SearchStarted(_) => {
                 if done {
@@ -150,6 +153,16 @@ fn platform_setup() {}
 fn main() {
     platform_setup();
     tauri::Builder::default()
+        .setup(|app| {
+            let main_window = app.get_window("main").unwrap();
+            let ver = app.config().package.version.clone();
+            main_window
+                .set_title(
+                    format!("mDNS-Browser v{}", ver.unwrap_or(String::from("Unknown"))).as_str(),
+                )
+                .expect("title to be set");
+            Ok(())
+        })
         .manage(Daemon {
             shared: get_shared_daemon(),
         })
