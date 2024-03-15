@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "mdns-browser",
-    "version": "0.1.7"
+    "version": "0.1.8"
   },
   "tauri": {
     "allowlist": {
@@ -22,9 +22,16 @@
         "ask": true
       },
       "http": {
-        "all": true,
+        "all": false,
         "request": true,
-        "scope": ["https://gist.githubusercontent.com/hrzlgnm/261433a660b7c056dc49b3ea6350689a/raw/516662d3954eb11d590ca2556a51c77d31b7df29/*"]
+        "scope": ["https://mdns-browser-updates.knulp.duckdns.org/*"]
+      },
+      "window": {
+        "all": true
+      },
+      "process": {
+        "exit": true,
+        "relaunch": true
       }
     },
     "windows": [
@@ -40,7 +47,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://gist.githubusercontent.com/hrzlgnm/261433a660b7c056dc49b3ea6350689a/raw/516662d3954eb11d590ca2556a51c77d31b7df29/updates.json"
+        "https://mdns-browser-updates.knulp.duckdns.org/updates.json"
       ],
       "dialog": true,
       "windows": {
