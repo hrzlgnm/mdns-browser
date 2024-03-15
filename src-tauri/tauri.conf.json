@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "mdns-browser",
-    "version": "0.1.5"
+    "version": "0.1.6"
   },
   "tauri": {
     "allowlist": {
@@ -20,6 +20,11 @@
       "dialog": {
         "all": false,
         "ask": true
+      },
+      "http": {
+        "all": true,
+        "request": true,
+        "scope": ["https://gist.githubusercontent.com/hrzlgnm/261433a660b7c056dc49b3ea6350689a/raw/516662d3954eb11d590ca2556a51c77d31b7df29/*"]
       }
     },
     "windows": [
