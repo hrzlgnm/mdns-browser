@@ -57,7 +57,7 @@
     },
     "bundle": {
       "active": true,
-      "targets": "all",
+      "targets": ["deb", "appimage", "msi", "dmg", "app", "updater"],
       "identifier": "net.hrzlgnm.mdns-browser",
       "icon": [
         "icons/32x32.png",
