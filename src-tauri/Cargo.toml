@@ -9,7 +9,13 @@ edition = "2021"
 tauri-build = { version = "1", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = ["shell-open", "updater", "dialog", "http-all"] }
+tauri = { version = "1", features = [
+    "dialog-ask",
+    "shell-open",
+    "updater",
+    "http-api",
+    "http-request",
+] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 mdns-sd = "0.10.4"
