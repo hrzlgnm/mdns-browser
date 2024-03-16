@@ -1,6 +1,6 @@
 name: "Publish release assets"
 
-# This will trigger the action on each push to the `release` branch.
+# This will trigger the action on each tag matching 'mdns-browser-v*'
 on:
   push:
     tags:

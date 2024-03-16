@@ -1,12 +1,12 @@
-use std::{fmt::Display, net::IpAddr};
+use std::{collections::HashSet, fmt::Display, net::IpAddr};
 
 use leptos::*;
 use leptos_meta::provide_meta_context;
 use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::{from_value, to_value};
 use thaw::{
-    AutoComplete, AutoCompleteOption, Button, GlobalStyle, Layout, Space, Table, Theme,
-    ThemeProvider,
+    AutoComplete, AutoCompleteOption, Button, CheckboxGroup, CheckboxItem, GlobalStyle, Layout,
+    Space, Table, Text, Theme, ThemeProvider,
 };
 use wasm_bindgen::prelude::*;
 
@@ -22,6 +22,25 @@ async fn enum_service_types() -> ServiceTypes {
     let service_types: ServiceTypes =
         from_value(invoke("enum_service_types", JsValue::UNDEFINED).await).unwrap();
     service_types
+}
+
+type Interfaces = Vec<String>;
+
+async fn get_interfaces() -> Interfaces {
+    let interfaces: Interfaces =
+        from_value(invoke("get_interfaces", JsValue::UNDEFINED).await).unwrap();
+
+    interfaces
+}
+
+#[derive(Serialize, Deserialize)]
+struct SetInterfacesArgs {
+    itfs: Vec<String>,
+}
+
+async fn set_interfaces(itfs: Interfaces) {
+    let args = to_value(&SetInterfacesArgs { itfs }).unwrap();
+    invoke("set_interfaces", args).await;
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -121,25 +140,35 @@ fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
 
 #[component]
 fn ResolveService() -> impl IntoView {
-    let value = create_rw_signal(String::new());
-    let enum_action = create_action(|_input: &()| async move { enum_service_types().await });
-    let action = enum_action.value();
-    enum_action.dispatch(());
-    let options = create_memo(move |_| {
-        if let Some(values) = action.get() {
-            values
-                .into_iter()
-                .map(|service_type| AutoCompleteOption {
-                    label: service_type.clone(),
-                    value: service_type.clone(),
-                })
-                .collect()
-        } else {
-            vec![AutoCompleteOption {
-                label: String::from("_http._tcp.local."),
-                value: String::from("_http._tcp.local."),
-            }]
-        }
+    let interfaces = create_rw_signal(HashSet::<String>::new());
+    let itfs = create_resource(
+        move || interfaces,
+        |_| async move { get_interfaces().await },
+    );
+    let set_interfaces_action = create_action(|input: &HashSet<String>| {
+        let itfs = input.clone().into_iter().collect();
+        async move { set_interfaces(itfs).await }
+    });
+    let service_type = create_rw_signal(String::new());
+    let stys = create_resource(|| (), |_| async move { enum_service_types().await });
+
+    create_effect(move |_| {
+        log::debug!("Setting interfaces: {:#?}", interfaces.get());
+        set_interfaces_action.dispatch(interfaces.get());
+    });
+
+    let options = create_memo(move |_| match stys.get() {
+        Some(stys) => stys
+            .into_iter()
+            .map(|service_type| AutoCompleteOption {
+                label: service_type.clone(),
+                value: service_type.clone(),
+            })
+            .collect(),
+        None => vec![AutoCompleteOption {
+            label: String::from("_http._tcp.local"),
+            value: String::from("_http._tcp.local"),
+        }],
     });
 
     let resolve_action = create_action(|input: &String| {
@@ -148,22 +177,42 @@ fn ResolveService() -> impl IntoView {
     });
 
     let on_click = move |_| {
-        let value = value.get();
+        let value = service_type.get();
         resolve_action.dispatch(value);
     };
 
     let resolve_value = resolve_action.value();
+
     view! {
         <Layout style="padding: 20px;">
+            <Suspense fallback=move || view! {<Space><Text>"Loading..."</Text></Space>}>
             <Space>
-                <AutoComplete value options placeholder="Service type"/>
+                <AutoComplete value=service_type options=options placeholder="Service type"/>
                 <Button on_click>"Resolve"</Button>
-            </Space>
+                <CheckboxGroup value=interfaces>
+                <For
+                    each=move|| {
+                        let itfs = itfs.get().unwrap_or_else(|| vec![String::from("None")]);
+                        let mut sm = HashSet::new();
+                        sm.extend(itfs.clone());
+                        interfaces.set(sm);
+
+                        itfs
+                    }
+                    key=move |itf| itf.clone()
+                    children=move |itf| {
+                        view! {
+                            <CheckboxItem label=itf.clone() key=itf.clone()/>
+                        }
+                    }
+                />
+                </CheckboxGroup>
+           </Space>
             {move || match resolve_value.get() {
                 None => view! { "" }.into_view(),
                 Some(services) => view! { <ShowResolvedServices services/> }.into_view(),
             }}
-
+            </Suspense>
         </Layout>
     }
 }

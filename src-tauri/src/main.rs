@@ -1,8 +1,9 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use if_addrs::get_if_addrs;
 use log::LevelFilter;
-use mdns_sd::{ServiceDaemon, ServiceEvent};
+use mdns_sd::{IfKind, ServiceDaemon, ServiceEvent};
 use serde::Serialize;
 use std::{
     collections::HashMap,
@@ -12,7 +13,6 @@ use std::{
 use tauri::Manager;
 use tauri::State;
 use tauri_plugin_log::LogTarget;
-
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
 struct Daemon {
@@ -131,6 +131,54 @@ fn enum_service_types(state: State<Daemon>) -> Vec<String> {
     found
 }
 
+fn get_all_interface_names_except_loopback() -> Vec<String> {
+    let ifaces = get_if_addrs().unwrap();
+
+    ifaces
+        .into_iter()
+        .filter(|itf| !itf.is_loopback())
+        .map(|itf| itf.name)
+        .collect()
+}
+
+#[tauri::command]
+fn get_interfaces() -> Vec<String> {
+    let itfs = get_all_interface_names_except_loopback();
+
+    log::debug!("Got interfacs: {:#?}", itfs);
+
+    itfs
+}
+
+#[tauri::command]
+fn set_interfaces(itfs: Vec<String>, state: State<Daemon>) {
+    if let Ok(mdns) = state.shared.lock() {
+        let itfs_to_disable = get_all_interface_names_except_loopback()
+            .into_iter()
+            .filter(|itf| !itfs.contains(itf));
+
+        log::debug!(
+            "Enabling interfaces: {:#?}, disabling interfaces {:#?}",
+            itfs,
+            itfs_to_disable
+        );
+        mdns.enable_interface(
+            itfs.clone()
+                .into_iter()
+                .map(IfKind::Name)
+                .collect::<Vec<_>>(),
+        )
+        .expect("to enable interfaces");
+        mdns.disable_interface(
+            itfs_to_disable
+                .into_iter()
+                .map(IfKind::Name)
+                .collect::<Vec<_>>(),
+        )
+        .expect("to disable interfaces");
+    }
+}
+
 #[cfg(target_os = "linux")]
 fn platform_setup() {
     let sessiopn_type_key = "XDG_SESSION_TYPE";
@@ -175,7 +223,9 @@ fn main() {
         )
         .invoke_handler(tauri::generate_handler![
             enum_service_types,
-            resolve_service
+            resolve_service,
+            get_interfaces,
+            set_interfaces
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
