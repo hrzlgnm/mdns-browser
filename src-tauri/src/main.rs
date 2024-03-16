@@ -4,8 +4,10 @@
 use if_addrs::get_if_addrs;
 use log::LevelFilter;
 use mdns_sd::{IfKind, ServiceDaemon, ServiceEvent};
+use network_interface::{NetworkInterface, NetworkInterfaceConfig};
 use serde::Serialize;
 use std::{
+    borrow::Borrow,
     collections::HashMap,
     net::IpAddr,
     sync::{Arc, Mutex},
@@ -131,13 +133,24 @@ fn enum_service_types(state: State<Daemon>) -> Vec<String> {
     found
 }
 
-fn get_all_interface_names_except_loopback() -> Vec<String> {
+fn get_all_interface_names_except_loopback() -> Vec<(String, String)> {
     let ifaces = get_if_addrs().unwrap();
 
+    // if_addrs unfortunately shows the GUID of the interface as name,
+    // so we workaround here by using network_interface in addition, as mdns_sd expects name from
+    // if_addrs
+    let nwifs = NetworkInterface::show().unwrap();
+    let mut index_to_name = HashMap::new();
+    for nwif in nwifs.iter() {
+        index_to_name.insert(nwif.index, nwif.name.clone());
+    }
     ifaces
         .into_iter()
         .filter(|itf| !itf.is_loopback())
-        .map(|itf| itf.name)
+        .map(|itf| {
+            let idx = itf.index.unwrap();
+            (itf.name, index_to_name.get(&idx).unwrap().clone())
+        })
         .collect()
 }
 
@@ -147,23 +160,34 @@ fn get_interfaces() -> Vec<String> {
 
     log::debug!("Got interfacs: {:#?}", itfs);
 
-    itfs
+    itfs.into_iter().map(|i| i.1).collect()
 }
 
 #[tauri::command]
 fn set_interfaces(itfs: Vec<String>, state: State<Daemon>) {
     if let Ok(mdns) = state.shared.lock() {
-        let itfs_to_disable = get_all_interface_names_except_loopback()
+        let all_ifpairs = get_all_interface_names_except_loopback();
+
+        let itfs_to_disable = all_ifpairs
+            .clone()
             .into_iter()
-            .filter(|itf| !itfs.contains(itf));
+            .filter(|p| !itfs.contains(&p.1))
+            .map(|p| p.0)
+            .collect::<Vec<_>>();
+
+        let itfs_to_enable = all_ifpairs
+            .into_iter()
+            .filter(|p| itfs.contains(&p.1))
+            .map(|p| p.0)
+            .collect::<Vec<_>>();
 
         log::debug!(
             "Enabling interfaces: {:#?}, disabling interfaces {:#?}",
-            itfs,
+            itfs_to_enable,
             itfs_to_disable
         );
         mdns.enable_interface(
-            itfs.clone()
+            itfs_to_enable
                 .into_iter()
                 .map(IfKind::Name)
                 .collect::<Vec<_>>(),
