@@ -27,7 +27,7 @@ impl MdnsState {
     fn new() -> Self {
         Self {
             shared: get_shared_daemon(),
-            enabled_interfaces: Arc::new(Mutex::new(get_all_interfaces_except_loopback()))
+            enabled_interfaces: Arc::new(Mutex::new(get_all_interfaces_except_loopback())),
         }
     }
 }
@@ -106,10 +106,10 @@ fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<Resolve
         }
     }
 
-    filter_resolved_service_by_interfaces_addresses(result
-        .values()
-        .cloned()
-        .collect(), state.enabled_interfaces.lock().unwrap().clone())
+    filter_resolved_service_by_interfaces_addresses(
+        result.values().cloned().collect(),
+        state.enabled_interfaces.lock().unwrap().clone(),
+    )
 }
 
 fn valid_ip_on_interface(addr: &IpAddr, interface: &Interface) -> bool {
@@ -137,12 +137,18 @@ fn get_addresses_on_interface(addr: &Vec<IpAddr>, interface: &Interface) -> Vec<
         .collect()
 }
 
-fn filter_resolved_service_by_interfaces_addresses(resolved_services: Vec<ResolvedService>, interfaces: Vec<Interface>) -> Vec<ResolvedService> {
+fn filter_resolved_service_by_interfaces_addresses(
+    resolved_services: Vec<ResolvedService>,
+    interfaces: Vec<Interface>,
+) -> Vec<ResolvedService> {
     let mut result = Vec::<ResolvedService>::new();
     for resolved_service in resolved_services.iter() {
         let mut unique_addresses = HashSet::<IpAddr>::new();
         for interface in interfaces.iter() {
-            unique_addresses.extend(get_addresses_on_interface(&resolved_service.addresses, &interface));
+            unique_addresses.extend(get_addresses_on_interface(
+                &resolved_service.addresses,
+                &interface,
+            ));
         }
         let mut addresses = unique_addresses.into_iter().collect::<Vec<_>>();
         if !addresses.is_empty() {
@@ -224,7 +230,7 @@ fn get_all_interface_names_except_loopback() -> Vec<String> {
 
     interface_addresses
         .into_iter()
-        .map(|interface|interface.name)
+        .map(|interface| interface.name)
         .collect::<HashSet<_>>()
         .into_iter()
         .collect()
