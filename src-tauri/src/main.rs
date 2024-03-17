@@ -206,8 +206,7 @@ fn get_all_interfaces_except_loopback() -> Vec<Interface> {
     let interface_addresses = get_if_addrs().unwrap();
 
     // if_addrs unfortunately shows the GUID of the interface as name,
-    // so we work around here by using network_interface in addition, as mdns_sd expects name from
-    // if_addrs
+    // so we work around here by using network_interface in addition to get user friendly names
     let network_interfaces = NetworkInterface::show().unwrap();
     let mut index_to_name = HashMap::new();
     for network_interface in network_interfaces.iter() {
@@ -250,7 +249,7 @@ fn set_interfaces(interfaces: Vec<String>, state: State<MdnsState>) {
 
     let enabled_interface_names = interface_names
         .into_iter()
-        .filter(|name| interfaces.contains(&name))
+        .filter(|name| interfaces.contains(name))
         .collect::<Vec<_>>();
     let enabled_interfaces = get_all_interfaces_except_loopback()
         .into_iter()
