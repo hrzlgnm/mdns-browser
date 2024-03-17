@@ -35,11 +35,11 @@ async fn get_interfaces() -> Interfaces {
 
 #[derive(Serialize, Deserialize)]
 struct SetInterfacesArgs {
-    itfs: Vec<String>,
+    interfaces: Vec<String>,
 }
 
-async fn set_interfaces(itfs: Interfaces) {
-    let args = to_value(&SetInterfacesArgs { itfs }).unwrap();
+async fn set_interfaces(interfaces: Interfaces) {
+    let args = to_value(&SetInterfacesArgs { interfaces }).unwrap();
     invoke("set_interfaces", args).await;
 }
 
