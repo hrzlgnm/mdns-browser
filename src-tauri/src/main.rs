@@ -1,24 +1,35 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use if_addrs::get_if_addrs;
+use if_addrs::{get_if_addrs, IfAddr, Interface};
 use log::LevelFilter;
-use mdns_sd::{IfKind, ServiceDaemon, ServiceEvent};
+use mdns_sd::{ServiceDaemon, ServiceEvent};
 use network_interface::{NetworkInterface, NetworkInterfaceConfig};
 use serde::Serialize;
 use std::{
-    borrow::Borrow,
     collections::HashMap,
+    collections::HashSet,
     net::IpAddr,
     sync::{Arc, Mutex},
 };
 use tauri::Manager;
 use tauri::State;
 use tauri_plugin_log::LogTarget;
+
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
-struct Daemon {
+struct MdnsState {
     shared: SharedServiceDaemon,
+    enabled_interfaces: Arc<Mutex<Vec<Interface>>>,
+}
+
+impl MdnsState {
+    fn new() -> Self {
+        Self {
+            shared: get_shared_daemon(),
+            enabled_interfaces: Arc::new(Mutex::new(get_all_interfaces_except_loopback()))
+        }
+    }
 }
 
 fn get_shared_daemon() -> SharedServiceDaemon {
@@ -33,17 +44,17 @@ struct TxtRecord {
 }
 
 #[derive(Serialize, Clone, Debug)]
-struct ResolvedService {
+pub struct ResolvedService {
     instance_name: String,
     hostname: String,
     port: u16,
-    addresses: Vec<IpAddr>,
+    pub addresses: Vec<IpAddr>,
     subtype: Option<String>,
     txt: Vec<TxtRecord>,
 }
 
 #[tauri::command]
-fn resolve_service(service_type: String, state: State<Daemon>) -> Vec<ResolvedService> {
+fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<ResolvedService> {
     log::info!("Resolving {}", service_type);
     let mdns = state.shared.lock().unwrap();
     let mut service_type = service_type;
@@ -94,11 +105,63 @@ fn resolve_service(service_type: String, state: State<Daemon>) -> Vec<ResolvedSe
             _ => {}
         }
     }
-    result.values().cloned().collect()
+
+    filter_resolved_service_by_interfaces_addresses(result
+        .values()
+        .cloned()
+        .collect(), state.enabled_interfaces.lock().unwrap().clone())
+}
+
+fn valid_ip_on_interface(addr: &IpAddr, interface: &Interface) -> bool {
+    match (addr, &interface.addr) {
+        (IpAddr::V4(addr), IfAddr::V4(interface_address)) => {
+            let netmask = u32::from(interface_address.netmask);
+            let interface_net = u32::from(interface_address.ip) & netmask;
+            let addr_net = u32::from(*addr) & netmask;
+            addr_net == interface_net
+        }
+        (IpAddr::V6(addr), IfAddr::V6(interface_address)) => {
+            let netmask = u128::from(interface_address.netmask);
+            let interface_net = u128::from(interface_address.ip) & netmask;
+            let addr_net = u128::from(*addr) & netmask;
+            addr_net == interface_net
+        }
+        _ => false,
+    }
+}
+
+fn get_addresses_on_interface(addr: &Vec<IpAddr>, interface: &Interface) -> Vec<IpAddr> {
+    addr.iter()
+        .filter(|a| valid_ip_on_interface(a, interface))
+        .copied()
+        .collect()
+}
+
+fn filter_resolved_service_by_interfaces_addresses(resolved_services: Vec<ResolvedService>, interfaces: Vec<Interface>) -> Vec<ResolvedService> {
+    let mut result = Vec::<ResolvedService>::new();
+    for resolved_service in resolved_services.iter() {
+        let mut unique_addresses = HashSet::<IpAddr>::new();
+        for interface in interfaces.iter() {
+            unique_addresses.extend(get_addresses_on_interface(&resolved_service.addresses, &interface));
+        }
+        let mut addresses = unique_addresses.into_iter().collect::<Vec<_>>();
+        if !addresses.is_empty() {
+            addresses.sort();
+            result.push(ResolvedService {
+                instance_name: resolved_service.instance_name.clone(),
+                hostname: resolved_service.hostname.clone(),
+                port: resolved_service.port,
+                addresses,
+                subtype: resolved_service.subtype.clone(),
+                txt: resolved_service.txt.clone(),
+            });
+        }
+    }
+    result
 }
 
 #[tauri::command]
-fn enum_service_types(state: State<Daemon>) -> Vec<String> {
+fn enum_service_types(state: State<MdnsState>) -> Vec<String> {
     let mut found = vec![];
     if let Ok(mdns) = state.shared.lock() {
         let meta_service = "_services._dns-sd._udp.local.";
@@ -128,79 +191,66 @@ fn enum_service_types(state: State<Daemon>) -> Vec<String> {
             log::debug!("Metrics {:#?}", metrics);
         }
         found.sort();
-        log::debug!("Found service types: {:#?}", found);
+        log::debug!("Found service types: {:?}", found);
     }
     found
 }
 
-fn get_all_interface_names_except_loopback() -> Vec<(String, String)> {
-    let ifaces = get_if_addrs().unwrap();
+fn get_all_interfaces_except_loopback() -> Vec<Interface> {
+    let interface_addresses = get_if_addrs().unwrap();
 
     // if_addrs unfortunately shows the GUID of the interface as name,
-    // so we workaround here by using network_interface in addition, as mdns_sd expects name from
+    // so we work around here by using network_interface in addition, as mdns_sd expects name from
     // if_addrs
-    let nwifs = NetworkInterface::show().unwrap();
+    let network_interfaces = NetworkInterface::show().unwrap();
     let mut index_to_name = HashMap::new();
-    for nwif in nwifs.iter() {
-        index_to_name.insert(nwif.index, nwif.name.clone());
+    for network_interface in network_interfaces.iter() {
+        index_to_name.insert(network_interface.index, network_interface.name.clone());
     }
-    ifaces
+
+    interface_addresses
         .into_iter()
         .filter(|itf| !itf.is_loopback())
-        .map(|itf| {
-            let idx = itf.index.unwrap();
-            (itf.name, index_to_name.get(&idx).unwrap().clone())
+        .map(|itf| Interface {
+            name: index_to_name.get(&itf.index.unwrap()).unwrap().clone(),
+            addr: itf.addr,
+            index: itf.index,
         })
+        .collect()
+}
+
+fn get_all_interface_names_except_loopback() -> Vec<String> {
+    let interface_addresses = get_all_interfaces_except_loopback();
+
+    interface_addresses
+        .into_iter()
+        .map(|interface|interface.name)
+        .collect::<HashSet<_>>()
+        .into_iter()
         .collect()
 }
 
 #[tauri::command]
 fn get_interfaces() -> Vec<String> {
-    let itfs = get_all_interface_names_except_loopback();
+    let mut interface_names = get_all_interface_names_except_loopback();
+    interface_names.sort();
 
-    log::debug!("Got interfacs: {:#?}", itfs);
-
-    itfs.into_iter().map(|i| i.1).collect()
+    interface_names
 }
 
 #[tauri::command]
-fn set_interfaces(itfs: Vec<String>, state: State<Daemon>) {
-    if let Ok(mdns) = state.shared.lock() {
-        let all_ifpairs = get_all_interface_names_except_loopback();
+fn set_interfaces(interfaces: Vec<String>, state: State<MdnsState>) {
+    let interface_names = get_all_interface_names_except_loopback();
 
-        let itfs_to_disable = all_ifpairs
-            .clone()
-            .into_iter()
-            .filter(|p| !itfs.contains(&p.1))
-            .map(|p| p.0)
-            .collect::<Vec<_>>();
-
-        let itfs_to_enable = all_ifpairs
-            .into_iter()
-            .filter(|p| itfs.contains(&p.1))
-            .map(|p| p.0)
-            .collect::<Vec<_>>();
-
-        log::debug!(
-            "Enabling interfaces: {:#?}, disabling interfaces {:#?}",
-            itfs_to_enable,
-            itfs_to_disable
-        );
-        mdns.enable_interface(
-            itfs_to_enable
-                .into_iter()
-                .map(IfKind::Name)
-                .collect::<Vec<_>>(),
-        )
-        .expect("to enable interfaces");
-        mdns.disable_interface(
-            itfs_to_disable
-                .into_iter()
-                .map(IfKind::Name)
-                .collect::<Vec<_>>(),
-        )
-        .expect("to disable interfaces");
-    }
+    let enabled_interface_names = interface_names
+        .into_iter()
+        .filter(|name| interfaces.contains(&name))
+        .collect::<Vec<_>>();
+    let enabled_interfaces = get_all_interfaces_except_loopback()
+        .into_iter()
+        .filter(|interface| enabled_interface_names.contains(&interface.name))
+        .collect::<Vec<_>>();
+    *state.enabled_interfaces.lock().unwrap() = enabled_interfaces;
 }
 
 #[cfg(target_os = "linux")]
@@ -235,9 +285,7 @@ fn main() {
                 .expect("title to be set");
             Ok(())
         })
-        .manage(Daemon {
-            shared: get_shared_daemon(),
-        })
+        .manage(MdnsState::new())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(
             tauri_plugin_log::Builder::default()
