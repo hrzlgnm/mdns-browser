@@ -97,7 +97,7 @@ fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<Resolve
                 if done {
                     let _ = mdns.stop_browse(service_type.as_str());
                 }
-                done = true;
+                done = !result.is_empty();
             }
             ServiceEvent::SearchStopped(_) => {
                 break;
