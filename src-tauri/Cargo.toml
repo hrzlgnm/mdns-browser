@@ -18,7 +18,7 @@ tauri = { version = "1", features = [ "window-all", "process-relaunch", "process
 ] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-mdns-sd = { version = "0.10.4", features = ["log"] }
+mdns-sd = { version = "0.10.5", features = ["log"] }
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 log = "^0.4.21"
