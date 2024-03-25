@@ -65,7 +65,6 @@ fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<Resolve
         .browse(service_type.as_str())
         .expect("Failed to browse");
     let mut result = HashMap::new();
-    let mut done = false;
     while let Ok(event) = receiver.recv() {
         match event {
             ServiceEvent::ServiceResolved(info) => {
@@ -94,10 +93,11 @@ fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<Resolve
                 );
             }
             ServiceEvent::SearchStarted(_) => {
-                if done {
-                    let _ = mdns.stop_browse(service_type.as_str());
+                if !result.is_empty() {
+                    let _ = mdns
+                        .stop_browse(service_type.as_str())
+                        .expect("To stop browsing");
                 }
-                done = !result.is_empty();
             }
             ServiceEvent::SearchStopped(_) => {
                 break;
