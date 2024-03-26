@@ -2,7 +2,6 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    "helpers:pinGitHubActionDigests",
     ":dependencyDashboard",
     ":automergeMinor",
     ":automergePr",
@@ -11,7 +10,6 @@
     ":semanticPrefixChore",
     ":separateMajorReleases"
   ],
-
   "lockFileMaintenance": {
     "enabled": true,
     "automerge": true
