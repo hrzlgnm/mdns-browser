@@ -23,7 +23,7 @@ tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", br
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 log = "^0.4.21"
 if-addrs = { version = "0.11.1", features = ["link-local"] }
-network-interface = "1.1.1"
+network-interface = "1.1.2"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
