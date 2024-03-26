@@ -3,12 +3,14 @@
   "extends": [
     "config:recommended",
     "helpers:pinGitHubActionDigests",
-    "github>actions",
-    ":dependencyDashboard"
+    ":dependencyDashboard",
+    ":automergeMinor",
+    ":automergePr",
+    ":rebaseStalePrs",
+    ":semanticCommits",
+    ":semanticPrefixChore",
+    ":separateMajorReleases"
   ],
-  "automerge": true,
-  "automergeSchedule": ["at any time"],
-  "labels": ["github-actions"],
 
   "lockFileMaintenance": {
     "enabled": true,
