@@ -3,8 +3,13 @@
   "extends": [
     "config:recommended",
     "helpers:pinGitHubActionDigests",
+    "github>actions",
     ":dependencyDashboard"
   ],
+  "automerge": true,
+  "automergeSchedule": ["at any time"],
+  "labels": ["github-actions"],
+
   "lockFileMaintenance": {
     "enabled": true,
     "automerge": true
