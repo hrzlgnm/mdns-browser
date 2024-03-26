@@ -20,7 +20,7 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -44,18 +44,18 @@ jobs:
           rustup target add wasm32-unknown-unknown
 
       - name: cached install trunk
-        uses: taiki-e/cache-cargo-install-action@v1.3.0
+        uses: taiki-e/cache-cargo-install-action@e57d133d3c2bc6196d57ce056266ea53dd4feb6d # v1.3.0
         with:
           tool: trunk
           locked: true
 
       - name: cached install tauri-cli
-        uses: taiki-e/cache-cargo-install-action@v1.3.0
+        uses: taiki-e/cache-cargo-install-action@e57d133d3c2bc6196d57ce056266ea53dd4feb6d # v1.3.0
         with:
           tool: tauri-cli
           locked: true
 
-      - uses: tauri-apps/tauri-action@v0
+      - uses: tauri-apps/tauri-action@d3b2759c553ebe71be2c4072209be6da0aa6808b # v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
