@@ -55,6 +55,9 @@ pub struct ResolvedService {
 
 #[tauri::command]
 fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<ResolvedService> {
+    if service_type.is_empty() {
+        return vec![];
+    }
     log::info!("Resolving {}", service_type);
     let mdns = state.shared.lock().unwrap();
     let mut service_type = service_type;
@@ -65,6 +68,7 @@ fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<Resolve
         .browse(service_type.as_str())
         .expect("Failed to browse");
     let mut result = HashMap::new();
+    let mut searches_started = 0;
     while let Ok(event) = receiver.recv() {
         match event {
             ServiceEvent::ServiceResolved(info) => {
@@ -93,11 +97,11 @@ fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<Resolve
                 );
             }
             ServiceEvent::SearchStarted(_) => {
-                if !result.is_empty() {
-                    let _ = mdns
-                        .stop_browse(service_type.as_str())
+                if searches_started > 3 || !result.is_empty() {
+                    mdns.stop_browse(service_type.as_str())
                         .expect("To stop browsing");
                 }
+                searches_started += 1;
             }
             ServiceEvent::SearchStopped(_) => {
                 break;
