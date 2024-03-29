@@ -134,7 +134,7 @@ fn valid_ip_on_interface(addr: &IpAddr, interface: &Interface) -> bool {
     }
 }
 
-fn get_addresses_on_interface(addr: &Vec<IpAddr>, interface: &Interface) -> Vec<IpAddr> {
+fn get_addresses_on_interface(addr: &[IpAddr], interface: &Interface) -> Vec<IpAddr> {
     addr.iter()
         .filter(|a| valid_ip_on_interface(a, interface))
         .copied()
@@ -145,13 +145,16 @@ fn filter_resolved_service_by_interfaces_addresses(
     resolved_services: Vec<ResolvedService>,
     interfaces: Vec<Interface>,
 ) -> Vec<ResolvedService> {
+    if interfaces.is_empty() {
+        return resolved_services;
+    }
     let mut result = Vec::<ResolvedService>::new();
     for resolved_service in resolved_services.iter() {
         let mut unique_addresses = HashSet::<IpAddr>::new();
         for interface in interfaces.iter() {
             unique_addresses.extend(get_addresses_on_interface(
                 &resolved_service.addresses,
-                &interface,
+                interface,
             ));
         }
         let mut addresses = unique_addresses.into_iter().collect::<Vec<_>>();
