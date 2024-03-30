@@ -28,10 +28,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - name: install frontend dependencies
-        run: |
-          rustup target add wasm32-unknown-unknown
-
       - name: Run rustfmt and fail if any warnings
         run: |
           cargo fmt -- --check
@@ -43,6 +39,10 @@ jobs:
           cargo clippy -- -D warnings
           cd src-tauri
           cargo clippy -- -D warnings
+
+      - name: install frontend dependencies
+        run: |
+          rustup target add wasm32-unknown-unknown
 
       - name: cached install trunk
         uses: taiki-e/cache-cargo-install-action@v1.3.0

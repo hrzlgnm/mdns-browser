@@ -27,6 +27,12 @@ jobs:
         with:
           components: rustfmt, clippy
 
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-20.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
       - name: Run rustfmt and fail if any warnings
         run: |
           cargo fmt -- --check
@@ -38,12 +44,6 @@ jobs:
           cargo clippy -- -D warnings
           cd src-tauri
           cargo clippy -- -D warnings
-
-      - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: install frontend dependencies
         run: |
