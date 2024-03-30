@@ -28,10 +28,16 @@ jobs:
           components: rustfmt, clippy
 
       - name: Run rustfmt and fail if any warnings
-        run: cargo fmt -- --check
+        run: |
+          cargo fmt -- --check
+          cd src-tauri
+          cargo fmt -- --check
 
       - name: Run clippy and fail if any warnings
-        run: cargo clippy -- -D warnings
+        run: |
+          cargo clippy -- -D warnings
+          cd src-tauri
+          cargo clippy -- -D warnings
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-20.04'

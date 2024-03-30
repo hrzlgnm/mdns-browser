@@ -32,6 +32,18 @@ jobs:
         run: |
           rustup target add wasm32-unknown-unknown
 
+      - name: Run rustfmt and fail if any warnings
+        run: |
+          cargo fmt -- --check
+          cd src-tauri
+          cargo fmt -- --check
+
+      - name: Run clippy and fail if any warnings
+        run: |
+          cargo clippy -- -D warnings
+          cd src-tauri
+          cargo clippy -- -D warnings
+
       - name: cached install trunk
         uses: taiki-e/cache-cargo-install-action@v1.3.0
         with:
