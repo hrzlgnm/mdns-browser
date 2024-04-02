@@ -4,7 +4,6 @@
 use if_addrs::{get_if_addrs, IfAddr, Interface};
 use log::LevelFilter;
 use mdns_sd::{ServiceDaemon, ServiceEvent};
-use network_interface::{NetworkInterface, NetworkInterfaceConfig};
 use serde::Serialize;
 use std::{
     collections::HashMap,
@@ -212,22 +211,9 @@ fn enum_service_types(state: State<MdnsState>) -> Vec<String> {
 fn get_all_interfaces_except_loopback() -> Vec<Interface> {
     let interface_addresses = get_if_addrs().unwrap();
 
-    // if_addrs unfortunately shows the GUID of the interface as name,
-    // so we work around here by using network_interface in addition to get user friendly names
-    let network_interfaces = NetworkInterface::show().unwrap();
-    let mut index_to_name = HashMap::new();
-    for network_interface in network_interfaces.iter() {
-        index_to_name.insert(network_interface.index, network_interface.name.clone());
-    }
-
     interface_addresses
         .into_iter()
         .filter(|itf| !itf.is_loopback())
-        .map(|itf| Interface {
-            name: index_to_name.get(&itf.index.unwrap()).unwrap().clone(),
-            addr: itf.addr,
-            index: itf.index,
-        })
         .collect()
 }
 

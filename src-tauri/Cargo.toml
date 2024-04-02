@@ -9,7 +9,10 @@ edition = "2021"
 tauri-build = { version = "1", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = [ "window-all", "process-relaunch", "process-exit",
+tauri = { version = "1", features = [
+    "window-all",
+    "process-relaunch",
+    "process-exit",
     "dialog-ask",
     "shell-open",
     "updater",
@@ -23,7 +26,6 @@ tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", br
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 log = "^0.4.21"
 if-addrs = { version = "0.12.0", features = ["link-local"] }
-network-interface = "1.1.2"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
