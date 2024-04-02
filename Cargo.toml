@@ -15,7 +15,7 @@ log = "^0.4.21"
 console_error_panic_hook = "0.1.7"
 console_log = "1.0.0"
 thaw = { version = "0.2.6", features = ["csr"] }
-leptos_meta = { version = "0.6.9", features = ["csr"] }
+leptos_meta = { version = "0.6.10", features = ["csr"] }
 
 [workspace]
 members = ["src-tauri"]
