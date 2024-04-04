@@ -109,10 +109,13 @@ fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<Resolve
         }
     }
 
-    filter_resolved_service_by_interfaces_addresses(
+    let mut filtered = filter_resolved_service_by_interfaces_addresses(
         result.values().cloned().collect(),
         state.enabled_interfaces.lock().unwrap().clone(),
-    )
+    );
+    filtered.sort_by(|a, b| a.instance_name.cmp(&b.instance_name));
+
+    filtered
 }
 
 fn valid_ip_on_interface(addr: &IpAddr, interface: &Interface) -> bool {
