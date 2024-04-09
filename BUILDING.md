@@ -2,21 +2,27 @@
 
 ## Prerequisites
 
-### Additional rustc target
+More information is available in [Tauri-Prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux)
+
+### Additional targets for rust
 
 - wasm32-unknown-unknown
 
-Can be installed using rustup
+Installation using rustup
 
 ```console
-rustup add target wasm32-unknown-unknown
+rustup target add wasm32-unknown-unknown
 ```
 
 ### Development libraries
 
 - wegkit2gkt-devel curl wget file openssl gtk+3-devel libsvg-devel gcc pkg-config
 
-Can be installed using package-manager
+Installation using package-manager
+
+See also official [tauri-instructions](https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux)
+
+#### xbps
 
 ```console
 sudo xbps-install -Syu
