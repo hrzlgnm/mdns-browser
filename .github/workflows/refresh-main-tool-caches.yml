@@ -1,0 +1,33 @@
+name: "Ensures caches are fresh for trunk and tauri-cli"
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  # On main, we want all builds to complete even if merging happens faster to make it easier to discover at which point something broke.
+  group: ${{ github.ref == 'refs/heads/main' && format('ci-main-{0}', github.sha) || format('ci-{0}', github.ref) }}
+
+jobs:
+  build-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-20.04, ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: cached install trunk
+        uses: taiki-e/cache-cargo-install-action@v2.0.0
+        with:
+          tool: trunk
+          locked: true
+
+      - name: cached install tauri-cli
+        uses: taiki-e/cache-cargo-install-action@v2.0.0
+        with:
+          tool: tauri-cli
+          locked: true
