@@ -141,7 +141,7 @@ fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
 #[component]
 fn ResolveService() -> impl IntoView {
     let interfaces = create_rw_signal(HashSet::<String>::new());
-    let itfs = create_resource(
+    let itfs_res = create_resource(
         move || interfaces,
         |_| async move { get_interfaces().await },
     );
@@ -150,15 +150,15 @@ fn ResolveService() -> impl IntoView {
         async move { set_interfaces(itfs).await }
     });
     let service_type = create_rw_signal(String::new());
-    let stys = create_resource(|| (), |_| async move { enum_service_types().await });
+    let service_type_res = create_resource(|| (), |_| async move { enum_service_types().await });
 
     create_effect(move |_| {
         log::debug!("Setting interfaces: {:#?}", interfaces.get());
         set_interfaces_action.dispatch(interfaces.get());
     });
 
-    let options = create_memo(move |_| match stys.get() {
-        Some(stys) => stys
+    let service_type_options = create_memo(move |_| match service_type_res.get() {
+        Some(service_types) => service_types
             .into_iter()
             .map(|service_type| AutoCompleteOption {
                 label: service_type.clone(),
@@ -187,12 +187,12 @@ fn ResolveService() -> impl IntoView {
         <Layout style="padding: 20px;">
             <Suspense fallback=move || view! {<Space><Text>"Loading..."</Text></Space>}>
             <Space>
-                <AutoComplete value=service_type options=options placeholder="Service type"/>
+                <AutoComplete value=service_type options=service_type_options placeholder="Service type"/>
                 <Button on_click>"Resolve"</Button>
                 <CheckboxGroup value=interfaces>
                 <For
                     each=move|| {
-                        let itfs = itfs.get().unwrap_or_else(|| vec![String::from("None")]);
+                        let itfs = itfs_res.get().unwrap_or_else(|| vec![String::from("None")]);
                         let mut sm = HashSet::new();
                         sm.extend(itfs.clone());
                         interfaces.set(sm);

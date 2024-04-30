@@ -57,7 +57,7 @@ fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<Resolve
     if service_type.is_empty() {
         return vec![];
     }
-    log::info!("Resolving {}", service_type);
+    log::debug!("Resolving {}", service_type);
     let mdns = state.shared.lock().unwrap();
     let mut service_type = service_type;
     if !service_type.ends_with(".local.") {
@@ -200,10 +200,6 @@ fn enum_service_types(state: State<MdnsState>) -> Vec<String> {
                 }
                 _ => {}
             }
-        }
-        let mr = mdns.get_metrics().expect("Failed to get metrics");
-        if let Ok(metrics) = mr.recv() {
-            log::debug!("Metrics {:#?}", metrics);
         }
         found.sort();
         log::debug!("Found service types: {:?}", found);
