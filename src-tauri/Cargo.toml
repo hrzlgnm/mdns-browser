@@ -6,10 +6,10 @@ authors = ["hrzlgnm"]
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "1", features = [] }
+tauri-build = { version = "1.5.1", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = [
+tauri = { version = "1.6.2", features = [
     "window-all",
     "process-relaunch",
     "process-exit",
