@@ -19,14 +19,14 @@ type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
 struct MdnsState {
     shared: SharedServiceDaemon,
-    enabled_interfaces: Arc<Mutex<Vec<Interface>>>,
+    resolved_address_filters: Arc<Mutex<Vec<Interface>>>,
 }
 
 impl MdnsState {
     fn new() -> Self {
         Self {
             shared: get_shared_daemon(),
-            enabled_interfaces: Arc::new(Mutex::new(get_all_interfaces_except_loopback())),
+            resolved_address_filters: Arc::new(Mutex::new(get_all_interfaces_except_loopback())),
         }
     }
 }
@@ -111,7 +111,7 @@ fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<Resolve
 
     let mut filtered = filter_resolved_service_by_interfaces_addresses(
         result.values().cloned().collect(),
-        state.enabled_interfaces.lock().unwrap().clone(),
+        state.resolved_address_filters.lock().unwrap().clone(),
     );
     filtered.sort_by(|a, b| a.instance_name.cmp(&b.instance_name));
 
@@ -228,7 +228,7 @@ fn get_all_interface_names_except_loopback() -> Vec<String> {
 }
 
 #[tauri::command]
-fn get_interfaces() -> Vec<String> {
+fn list_filter_interfaces() -> Vec<String> {
     let mut interface_names = get_all_interface_names_except_loopback();
     interface_names.sort();
 
@@ -236,7 +236,20 @@ fn get_interfaces() -> Vec<String> {
 }
 
 #[tauri::command]
-fn set_interfaces(interfaces: Vec<String>, state: State<MdnsState>) {
+fn get_filter_interface(state: State<MdnsState>) -> HashSet<String> {
+    if let Ok(filters) = state.resolved_address_filters.lock() {
+        return filters
+            .clone()
+            .into_iter()
+            .map(|itf| itf.name.clone())
+            .collect::<HashSet<_>>();
+    }
+
+    HashSet::new()
+}
+
+#[tauri::command]
+fn set_filter_interfaces(interfaces: HashSet<String>, state: State<MdnsState>) {
     let interface_names = get_all_interface_names_except_loopback();
 
     let enabled_interface_names = interface_names
@@ -247,7 +260,7 @@ fn set_interfaces(interfaces: Vec<String>, state: State<MdnsState>) {
         .into_iter()
         .filter(|interface| enabled_interface_names.contains(&interface.name))
         .collect::<Vec<_>>();
-    *state.enabled_interfaces.lock().unwrap() = enabled_interfaces;
+    *state.resolved_address_filters.lock().unwrap() = enabled_interfaces;
 }
 
 #[cfg(target_os = "linux")]
@@ -292,9 +305,10 @@ fn main() {
         )
         .invoke_handler(tauri::generate_handler![
             enum_service_types,
+            get_filter_interface,
+            list_filter_interfaces,
             resolve_service,
-            get_interfaces,
-            set_interfaces
+            set_filter_interfaces
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
