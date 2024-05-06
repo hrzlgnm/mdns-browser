@@ -97,6 +97,7 @@ async fn listen_on_metrics_event(event_writer: WriteSignal<HashMap<String, i64>>
     }
 }
 
+/// Component that allows setting filters to apply to resolved services
 #[component]
 fn InterfaceFilter() -> impl IntoView {
     let interface_filters = create_rw_signal(HashSet::new());
@@ -141,6 +142,7 @@ fn InterfaceFilter() -> impl IntoView {
     }
 }
 
+/// Component that displays ResolvedServices
 #[component]
 fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
     view! {
@@ -192,6 +194,7 @@ fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
     }
 }
 
+/// Component to resolve services
 #[component]
 fn ResolveService() -> impl IntoView {
     let service_type = create_rw_signal(String::new());
@@ -250,6 +253,7 @@ fn ResolveService() -> impl IntoView {
     }
 }
 
+/// Component for metrics
 #[component]
 pub fn Metrics() -> impl IntoView {
     let (metrics, set_metrics) = create_signal(HashMap::new());
@@ -290,6 +294,7 @@ pub fn Metrics() -> impl IntoView {
     }
 }
 
+/// The main app component
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
