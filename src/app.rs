@@ -1,46 +1,41 @@
-use std::{collections::HashSet, fmt::Display, net::IpAddr};
+use std::{
+    collections::{HashMap, HashSet},
+    fmt::Display,
+    net::IpAddr,
+};
 
+use futures::StreamExt;
 use leptos::*;
 use leptos_meta::provide_meta_context;
 use serde::{Deserialize, Serialize};
-use serde_wasm_bindgen::{from_value, to_value};
+use tauri_sys::event::listen;
+use tauri_sys::tauri::invoke;
 use thaw::{
     AutoComplete, AutoCompleteOption, Button, CheckboxGroup, CheckboxItem, Collapse, CollapseItem,
     GlobalStyle, Layout, Space, Table, Text, Theme, ThemeProvider,
 };
-use wasm_bindgen::prelude::*;
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
-    async fn invoke(cmd: &str, args: JsValue) -> JsValue;
-}
 
 type ServiceTypes = Vec<String>;
 
 async fn enum_service_types() -> ServiceTypes {
-    let service_types: ServiceTypes =
-        from_value(invoke("enum_service_types", JsValue::UNDEFINED).await).unwrap();
-    service_types
+    invoke("enum_service_types", &()).await.unwrap()
 }
 
 type Interfaces = Vec<String>;
 
 async fn list_filter_interfaces() -> Interfaces {
-    let interfaces: Interfaces =
-        from_value(invoke("list_filter_interfaces", JsValue::UNDEFINED).await).unwrap();
-
-    interfaces
+    invoke("list_filter_interfaces", &()).await.unwrap()
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 struct SetInterfacesArgs {
     interfaces: Vec<String>,
 }
 
 async fn set_filter_interfaces(interfaces: Interfaces) {
-    let args = to_value(&SetInterfacesArgs { interfaces }).unwrap();
-    invoke("set_filter_interfaces", args).await;
+    let _: () = invoke("set_filter_interfaces", &SetInterfacesArgs { interfaces })
+        .await
+        .unwrap();
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -77,16 +72,29 @@ struct ResolveServiceArgs<'a> {
 }
 
 async fn resolve_service(service_type: String) -> ResolvedServices {
-    log::debug!("resolve service: {}", service_type);
+    invoke(
+        "resolve_service",
+        &ResolveServiceArgs {
+            serviceType: &service_type,
+        },
+    )
+    .await
+    .unwrap()
+}
 
-    let args = to_value(&ResolveServiceArgs {
-        serviceType: &service_type,
-    })
-    .unwrap();
-    let resolved_services: ResolvedServices =
-        from_value(invoke("resolve_service", args).await).unwrap();
-    log::debug!("Resolved: {:#?}", resolved_services);
-    resolved_services
+#[derive(Deserialize, PartialEq, Eq, Clone, Debug)]
+pub struct MetricsEventRes {
+    metrics: HashMap<String, i64>,
+}
+
+async fn listen_on_metrics_event(event_writer: WriteSignal<HashMap<String, i64>>) {
+    let mut events = listen::<MetricsEventRes>("metrics").await.unwrap();
+    while let Some(event) = events.next().await {
+        log::debug!("Received metrics-event: {:#?}", event);
+        event_writer.update(|evts| {
+            evts.extend(event.payload.metrics);
+        });
+    }
 }
 
 #[component]
@@ -101,31 +109,34 @@ fn InterfaceFilter() -> impl IntoView {
     });
     view! {
         <Space>
-        <Collapse accordion=true>
-            <CollapseItem title="Filter" key="subnets">
-                <Space vertical=true>
-                    <Text>
-                        "Check an interface to filter IPs of resolved records to be in the subnet of the selected interface."
-                    </Text>
-                    <Text>"The filter is applied to new resolved records. Note: IPv6 addresses with the scope link-local are not filtered."</Text>
-                    <CheckboxGroup value=interface_filters>
-                        <Await
-                            future=list_filter_interfaces
-                            children=|itfs| {
-                                {
-                                    itfs.clone()
-                                        .into_iter()
-                                        .map(|itf| {
-                                            view! { <CheckboxItem label=itf.clone() key=itf.clone()/> }
-                                        })
-                                        .collect_view()
+            <Collapse accordion=true>
+                <CollapseItem title="Filter" key="subnets">
+                    <Space vertical=true>
+                        <Text>
+                            "Check an interface to filter IPs of resolved records to be in the subnet of the selected interface."
+                        </Text>
+                        <Text>
+                            "The filter is applied to new resolved records. Note: IPv6 addresses with the scope link-local are not filtered."
+                        </Text>
+                        <CheckboxGroup value=interface_filters>
+                            <Await
+                                future=list_filter_interfaces
+                                children=|itfs| {
+                                    {
+                                        itfs.clone()
+                                            .into_iter()
+                                            .map(|itf| {
+                                                view! { <CheckboxItem label=itf.clone() key=itf.clone()/> }
+                                            })
+                                            .collect_view()
+                                    }
                                 }
-                            }
-                        />
-                    </CheckboxGroup>
-                </Space>
-            </CollapseItem>
-        </Collapse>
+                            />
+
+                        </CheckboxGroup>
+                    </Space>
+                </CollapseItem>
+            </Collapse>
         </Space>
     }
 }
@@ -134,49 +145,49 @@ fn InterfaceFilter() -> impl IntoView {
 fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
     view! {
         <Layout style="padding: 10px 0 0 0;">
-        <Table>
-            <thead>
-                <tr>
-                    <th>"Instance"</th>
-                    <th>"Subtype"</th>
-                    <th>"Hostname"</th>
-                    <th>"Port"</th>
-                    <th>"IPs"</th>
-                    <th>"txt"</th>
-                </tr>
-            </thead>
-            <tbody>
-                {services
-                    .into_iter()
-                    .map(|n| {
-                        view! {
-                            <tr>
-                                <td>{n.instance_name}</td>
-                                <td>{n.subtype}</td>
-                                <td>{n.hostname}</td>
-                                <td>{n.port}</td>
-                                <td>
-                                    {n
-                                        .addresses
-                                        .iter()
-                                        .map(|n| n.to_string())
-                                        .collect::<Vec<String>>()
-                                        .join(", ")}
-                                </td>
-                                <td>
-                                    {n
-                                        .txt
-                                        .iter()
-                                        .map(|n| n.to_string())
-                                        .collect::<Vec<String>>()
-                                        .join(", ")}
-                                </td>
-                            </tr>
-                        }
-                    })
-                    .collect::<Vec<_>>()}
-            </tbody>
-        </Table>
+            <Table>
+                <thead>
+                    <tr>
+                        <th>"Instance"</th>
+                        <th>"Subtype"</th>
+                        <th>"Hostname"</th>
+                        <th>"Port"</th>
+                        <th>"IPs"</th>
+                        <th>"txt"</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {services
+                        .into_iter()
+                        .map(|n| {
+                            view! {
+                                <tr>
+                                    <td>{n.instance_name}</td>
+                                    <td>{n.subtype}</td>
+                                    <td>{n.hostname}</td>
+                                    <td>{n.port}</td>
+                                    <td>
+                                        {n
+                                            .addresses
+                                            .iter()
+                                            .map(|n| n.to_string())
+                                            .collect::<Vec<String>>()
+                                            .join(", ")}
+                                    </td>
+                                    <td>
+                                        {n
+                                            .txt
+                                            .iter()
+                                            .map(|n| n.to_string())
+                                            .collect::<Vec<String>>()
+                                            .join(", ")}
+                                    </td>
+                                </tr>
+                            }
+                        })
+                        .collect::<Vec<_>>()}
+                </tbody>
+            </Table>
         </Layout>
     }
 }
@@ -212,7 +223,7 @@ fn ResolveService() -> impl IntoView {
     let resolve_value = resolve_action.value();
 
     view! {
-        <Layout style="padding: 20px;">
+        <Layout style="padding: 10px;">
             <Suspense fallback=move || {
                 view! {
                     <Space>
@@ -240,12 +251,53 @@ fn ResolveService() -> impl IntoView {
 }
 
 #[component]
+pub fn Metrics() -> impl IntoView {
+    let (metrics, set_metrics) = create_signal(HashMap::new());
+    create_local_resource(move || set_metrics, listen_on_metrics_event);
+    view! {
+        <Layout style="padding: 10px;">
+            <Collapse accordion=true>
+                <CollapseItem title="mDNS-SD-metrics" key="metrics">
+                    <Space vertical=true>
+                        <Table>
+                            <thead>
+                                <tr>
+                                    <th>"Metric"</th>
+                                    <th>"Counter"</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {move || {
+                                    metrics
+                                        .get()
+                                        .into_iter()
+                                        .map(|(k, v)| {
+                                            view! {
+                                                <tr>
+                                                    <td>{k}</td>
+                                                    <td>{v}</td>
+                                                </tr>
+                                            }
+                                        })
+                                        .collect::<Vec<_>>()
+                                }}
+                            </tbody>
+                        </Table>
+                    </Space>
+                </CollapseItem>
+            </Collapse>
+        </Layout>
+    }
+}
+
+#[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
     let theme = create_rw_signal(Theme::dark());
     view! {
         <ThemeProvider theme>
             <GlobalStyle/>
+            <Metrics/>
             <ResolveService/>
         </ThemeProvider>
     }

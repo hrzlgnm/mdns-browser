@@ -11,21 +11,20 @@ use std::{
     net::IpAddr,
     sync::{Arc, Mutex},
 };
-use tauri::Manager;
-use tauri::State;
+use tauri::{Manager, State, Window};
 use tauri_plugin_log::LogTarget;
 
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
 struct MdnsState {
-    shared: SharedServiceDaemon,
+    daemon: SharedServiceDaemon,
     resolved_address_filters: Arc<Mutex<Vec<Interface>>>,
 }
 
 impl MdnsState {
     fn new() -> Self {
         Self {
-            shared: get_shared_daemon(),
+            daemon: get_shared_daemon(),
             resolved_address_filters: Arc::new(Mutex::new(get_all_interfaces_except_loopback())),
         }
     }
@@ -52,13 +51,30 @@ pub struct ResolvedService {
     txt: Vec<TxtRecord>,
 }
 
+#[derive(Serialize, Clone, Debug)]
+pub struct MetricsEvent {
+    metrics: HashMap<String, i64>,
+}
+
+fn update_metrics(window: &Window, mdns: &ServiceDaemon) {
+    if let Ok(metrics_receiver) = mdns.get_metrics() {
+        if let Ok(metrics) = metrics_receiver.recv() {
+            let _ = window.emit("metrics", MetricsEvent { metrics });
+        }
+    }
+}
+
 #[tauri::command]
-fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<ResolvedService> {
+fn resolve_service(
+    service_type: String,
+    window: Window,
+    state: State<MdnsState>,
+) -> Vec<ResolvedService> {
     if service_type.is_empty() {
         return vec![];
     }
     log::debug!("Resolving {}", service_type);
-    let mdns = state.shared.lock().unwrap();
+    let mdns = state.daemon.lock().unwrap();
     let mut service_type = service_type;
     if !service_type.ends_with(".local.") {
         service_type.push_str(".local.");
@@ -108,7 +124,7 @@ fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<Resolve
             _ => {}
         }
     }
-
+    update_metrics(&window, &mdns);
     let mut filtered = filter_resolved_service_by_interfaces_addresses(
         result.values().cloned().collect(),
         state.resolved_address_filters.lock().unwrap().clone(),
@@ -176,9 +192,9 @@ fn filter_resolved_service_by_interfaces_addresses(
 }
 
 #[tauri::command]
-fn enum_service_types(state: State<MdnsState>) -> Vec<String> {
+fn enum_service_types(window: Window, state: State<MdnsState>) -> Vec<String> {
     let mut found = vec![];
-    if let Ok(mdns) = state.shared.lock() {
+    if let Ok(mdns) = state.daemon.lock() {
         let meta_service = "_services._dns-sd._udp.local.";
         let receiver = mdns.browse(meta_service).expect("Failed to browse");
         let mut search_done = false;
@@ -203,6 +219,7 @@ fn enum_service_types(state: State<MdnsState>) -> Vec<String> {
         }
         found.sort();
         log::debug!("Found service types: {:?}", found);
+        update_metrics(&window, &mdns);
     }
     found
 }
@@ -265,8 +282,8 @@ fn set_filter_interfaces(interfaces: HashSet<String>, state: State<MdnsState>) {
 
 #[cfg(target_os = "linux")]
 fn platform_setup() {
-    let sessiopn_type_key = "XDG_SESSION_TYPE";
-    match std::env::var(sessiopn_type_key) {
+    let session_type_key = "XDG_SESSION_TYPE";
+    match std::env::var(session_type_key) {
         Ok(val) => {
             if val == "x11" {
                 println!(
@@ -308,7 +325,7 @@ fn main() {
             get_filter_interface,
             list_filter_interfaces,
             resolve_service,
-            set_filter_interfaces
+            set_filter_interfaces,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
