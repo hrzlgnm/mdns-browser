@@ -5,6 +5,10 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
+tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", rev = "3e93a42", features = [
+    "event",
+    "tauri",
+] }
 leptos = { version = "0.6.11", features = ["csr"] }
 js-sys = "0.3.69"
 serde = { version = "1.0.200", features = ["derive"] }
@@ -14,9 +18,6 @@ console_error_panic_hook = "0.1.7"
 console_log = "1.0.0"
 thaw = { version = "0.3.1", features = ["csr"] }
 leptos_meta = { version = "0.6.11", features = ["csr"] }
-tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", rev = "3e93a42", features = [
-    "all",
-] }
 futures = "0.3.30"
 
 [workspace]
