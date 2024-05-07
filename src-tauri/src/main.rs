@@ -99,8 +99,10 @@ fn resolve_service(
                     })
                     .collect();
                 sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
+                let mut key = info.get_fullname().to_string();
+                key.push_str(info.get_hostname());
                 result.insert(
-                    info.get_fullname().to_string(),
+                    key,
                     ResolvedService {
                         instance_name: info.get_fullname().into(),
                         hostname: info.get_hostname().into(),
