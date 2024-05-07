@@ -96,7 +96,6 @@ type SearchStoppedEvent = SearchStartedEvent;
 #[derive(Serialize, Clone, Debug)]
 pub struct ServiceRemovedEvent {
     instance_name: String,
-    service_type: String,
 }
 
 type ServiceFoundEvent = ServiceRemovedEvent;
@@ -141,15 +140,9 @@ fn browse(service_type: String, window: Window, state: State<MdnsState>) {
                     while let Ok(event) = receiver.recv() {
                         update_metrics(&window, &mdns_for_thread);
                         match event {
-                            ServiceEvent::ServiceFound(service_type, instance_name) => {
+                            ServiceEvent::ServiceFound(_service_type, instance_name) => {
                                 window
-                                    .emit(
-                                        "service-found",
-                                        &ServiceFoundEvent {
-                                            instance_name,
-                                            service_type,
-                                        },
-                                    )
+                                    .emit("service-found", &ServiceFoundEvent { instance_name })
                                     .expect("To emit");
                             }
                             ServiceEvent::SearchStarted(service_type) => {
@@ -167,15 +160,9 @@ fn browse(service_type: String, window: Window, state: State<MdnsState>) {
                                     )
                                     .expect("To emit");
                             }
-                            ServiceEvent::ServiceRemoved(service_type, instance_name) => {
+                            ServiceEvent::ServiceRemoved(_service_type, instance_name) => {
                                 window
-                                    .emit(
-                                        "service-removed",
-                                        &ServiceRemovedEvent {
-                                            instance_name,
-                                            service_type,
-                                        },
-                                    )
+                                    .emit("service-removed", &ServiceRemovedEvent { instance_name })
                                     .expect("To emit");
                             }
                             ServiceEvent::SearchStopped(service_type) => {

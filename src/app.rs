@@ -4,7 +4,7 @@ use std::{
     net::IpAddr,
 };
 
-use futures::StreamExt;
+use futures::{select, StreamExt};
 use leptos::*;
 use leptos_meta::provide_meta_context;
 use serde::{Deserialize, Serialize};
@@ -106,28 +106,34 @@ pub struct ResolvedServiceEventRes {
 #[derive(Deserialize, Clone, Debug)]
 pub struct ServiceRemovedEventRes {
     instance_name: String,
-    service_type: String,
 }
 
-async fn listen_on_service_browse_events(event_writer: WriteSignal<Vec<ResolvedService>>) {
-    let mut resolved = listen::<ResolvedServiceEventRes>("service-resolved")
+async fn listen_on_browse_events(event_writer: WriteSignal<Vec<ResolvedService>>) {
+    let resolved = listen::<ResolvedServiceEventRes>("service-resolved")
         .await
         .unwrap();
-    while let Some(event) = resolved.next().await {
-        log::debug!("Received event 'service-resovlved': {:#?}", event);
-        event_writer.update(|evts| evts.push(event.payload.service));
-    }
-    let mut removed = listen::<ServiceRemovedEventRes>("service-removed")
+    let removed = listen::<ServiceRemovedEventRes>("service-removed")
         .await
         .unwrap();
-    while let Some(event) = removed.next().await {
-        log::debug!("Received event 'service-removed': {:#?}", event);
-        event_writer.update(|evts| {
-            evts.retain(|s| {
-                !s.instance_name.starts_with(&event.payload.instance_name)
-                    && s.instance_name.ends_with(&event.payload.service_type)
-            })
-        });
+
+    let mut resolved_fused = resolved.fuse();
+    let mut removed_fused = removed.fuse();
+    loop {
+        select! {
+            event = resolved_fused.next() => {
+                if let Some(event) = event {
+                    log::debug!("Received event 'service-resovlved': {:#?}", event);
+                    event_writer.update(|evts| evts.push(event.payload.service));
+                }
+            }
+            event = removed_fused.next() => {
+                if let Some(event) = event {
+                    log::debug!("Received event 'service-removed': {:#?}", event);
+                    event_writer.update(|evts| evts.retain(|r| r.instance_name != event.payload.instance_name));
+                }
+            }
+            complete => break,
+        }
     }
 }
 
@@ -166,7 +172,7 @@ fn Browse() -> impl IntoView {
     let service_type = create_rw_signal(String::new());
     let browsing = create_rw_signal(false);
     let not_browsing = Signal::derive(move || !browsing.get());
-    create_local_resource(move || set_resolved, listen_on_service_browse_events);
+    create_local_resource(move || set_resolved, listen_on_browse_events);
 
     let browse_action = create_action(|input: &String| {
         let input = input.clone();
@@ -328,6 +334,8 @@ fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
 }
 
 /// Component that auto completes service types
+/// @todo create and fetch the service types resoure once in an upper scope and pass it on via
+/// context
 #[component]
 fn AutoCompleteServiceType(
     #[prop(optional, into)] value: Model<String>,
