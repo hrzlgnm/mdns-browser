@@ -199,39 +199,49 @@ fn Browse() -> impl IntoView {
 
     view! {
         <Layout style="padding: 10px;">
-            <Space>
-                <AutoCompleteServiceType value=service_type disabled=browsing/>
-                <Button on_click=on_browse_click disabled=browsing>
-                    "Browse"
-                </Button>
-                <Button on_click=on_stop_click disabled=not_browsing>
-                    "Stop"
-                </Button>
-            </Space>
-            <Layout style="padding: 10px 0 0 0;">
-                {move || {
-                    resolved
-                        .get()
-                        .into_iter()
-                        .map(|n| {
-                            view! {
-                                <Space>
-                                <Text code=true>
-                                    {n.instance_name} " - " {n.hostname} " - ["
-                                    {n
-                                        .addresses
-                                        .iter()
-                                        .map(|a| a.to_string())
-                                        .collect::<Vec<_>>()
-                                        .join(", ")} "]"
-                                </Text>
-                                </Space>
-                            }
-                        })
-                        .collect_view()
-                }}
+            <Suspense fallback=move || {
+                view! {
+                    <Space>
+                        <Text>"Loading..."</Text>
+                    </Space>
+                }
+            }>
+                <Space>
+                    <AutoCompleteServiceType value=service_type disabled=browsing/>
+                    <Button on_click=on_browse_click disabled=browsing>
+                        "Browse"
+                    </Button>
+                    <Button on_click=on_stop_click disabled=not_browsing>
+                        "Stop"
+                    </Button>
+                </Space>
+                <Layout style="padding: 10px 0 0 0;">
+                    {move || {
+                        resolved
+                            .get()
+                            .into_iter()
+                            .map(|n| {
+                                let mut hostname = n.hostname;
+                                hostname.pop();
+                                view! {
+                                    <Space>
+                                        <Text code=true>
+                                            {n.instance_name} " - " {hostname} ":" {n.port} " - ["
+                                            {n
+                                                .addresses
+                                                .iter()
+                                                .map(|a| a.to_string())
+                                                .collect::<Vec<_>>()
+                                                .join(", ")} "]"
+                                        </Text>
+                                    </Space>
+                                }
+                            })
+                            .collect_view()
+                    }}
 
-            </Layout>
+                </Layout>
+            </Suspense>
         </Layout>
     }
 }
@@ -355,7 +365,14 @@ fn AutoCompleteServiceType(
             value: String::from("_http._tcp.local"),
         }],
     });
-    view! { <AutoComplete value=value disabled=disabled options=service_type_options placeholder="Service type"/> }
+    view! {
+        <AutoComplete
+            value=value
+            disabled=disabled
+            options=service_type_options
+            placeholder="Service type"
+        />
+    }
 }
 
 /// Component to resolve services
