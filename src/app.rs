@@ -14,6 +14,7 @@ use thaw::{
     AutoComplete, AutoCompleteOption, Button, CheckboxGroup, CheckboxItem, Collapse, CollapseItem,
     GlobalStyle, Layout, Space, Table, Text, Theme, ThemeProvider,
 };
+use thaw_utils::Model;
 
 type ServiceTypes = Vec<String>;
 
@@ -90,10 +91,142 @@ pub struct MetricsEventRes {
 async fn listen_on_metrics_event(event_writer: WriteSignal<HashMap<String, i64>>) {
     let mut events = listen::<MetricsEventRes>("metrics").await.unwrap();
     while let Some(event) = events.next().await {
-        log::debug!("Received metrics-event: {:#?}", event);
+        log::debug!("Received event 'metrics': {:#?}", event);
         event_writer.update(|evts| {
             evts.extend(event.payload.metrics);
         });
+    }
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct ResolvedServiceEventRes {
+    service: ResolvedService,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct ServiceRemovedEventRes {
+    instance_name: String,
+    service_type: String,
+}
+
+async fn listen_on_service_browse_events(event_writer: WriteSignal<Vec<ResolvedService>>) {
+    let mut resolved = listen::<ResolvedServiceEventRes>("service-resolved")
+        .await
+        .unwrap();
+    while let Some(event) = resolved.next().await {
+        log::debug!("Received event 'service-resovlved': {:#?}", event);
+        event_writer.update(|evts| evts.push(event.payload.service));
+    }
+    let mut removed = listen::<ServiceRemovedEventRes>("service-removed")
+        .await
+        .unwrap();
+    while let Some(event) = removed.next().await {
+        log::debug!("Received event 'service-removed': {:#?}", event);
+        event_writer.update(|evts| {
+            evts.retain(|s| {
+                !s.instance_name.starts_with(&event.payload.instance_name)
+                    && s.instance_name.ends_with(&event.payload.service_type)
+            })
+        });
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+#[allow(non_snake_case)]
+struct BrowseArgs<'a> {
+    serviceType: &'a str,
+}
+
+async fn browse(service_type: String) {
+    let _: () = invoke(
+        "browse",
+        &BrowseArgs {
+            serviceType: &service_type,
+        },
+    )
+    .await
+    .unwrap();
+}
+
+async fn stop_browse(service_type: String) {
+    let _: () = invoke(
+        "stop_browse",
+        &BrowseArgs {
+            serviceType: &service_type,
+        },
+    )
+    .await
+    .unwrap();
+}
+
+/// Component that allows for mdns browsing using events
+#[component]
+fn Browse() -> impl IntoView {
+    let (resolved, set_resolved) = create_signal(Vec::new());
+    let service_type = create_rw_signal(String::new());
+    let browsing = create_rw_signal(false);
+    let not_browsing = Signal::derive(move || !browsing.get());
+    create_local_resource(move || set_resolved, listen_on_service_browse_events);
+
+    let browse_action = create_action(|input: &String| {
+        let input = input.clone();
+        async move { browse(input.clone()).await }
+    });
+
+    let on_browse_click = move |_| {
+        browsing.set(true);
+        let value = service_type.get();
+        browse_action.dispatch(value);
+    };
+
+    let stop_browse_action = create_action(|input: &String| {
+        let input = input.clone();
+        async move { stop_browse(input.clone()).await }
+    });
+
+    let on_stop_click = move |_| {
+        browsing.set(false);
+        set_resolved.set(Vec::new());
+        let value = service_type.get();
+        stop_browse_action.dispatch(value);
+    };
+
+    view! {
+        <Layout style="padding: 10px;">
+            <Space>
+                <AutoCompleteServiceType value=service_type disabled=browsing/>
+                <Button on_click=on_browse_click disabled=browsing>
+                    "Browse"
+                </Button>
+                <Button on_click=on_stop_click disabled=not_browsing>
+                    "Stop"
+                </Button>
+            </Space>
+            <Layout style="padding: 10px 0 0 0;">
+                {move || {
+                    resolved
+                        .get()
+                        .into_iter()
+                        .map(|n| {
+                            view! {
+                                <Space>
+                                <Text code=true>
+                                    {n.instance_name} " - " {n.hostname} " - ["
+                                    {n
+                                        .addresses
+                                        .iter()
+                                        .map(|a| a.to_string())
+                                        .collect::<Vec<_>>()
+                                        .join(", ")} "]"
+                                </Text>
+                                </Space>
+                            }
+                        })
+                        .collect_view()
+                }}
+
+            </Layout>
+        </Layout>
     }
 }
 
@@ -194,10 +327,12 @@ fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
     }
 }
 
-/// Component to resolve services
+/// Component that auto completes service types
 #[component]
-fn ResolveService() -> impl IntoView {
-    let service_type = create_rw_signal(String::new());
+fn AutoCompleteServiceType(
+    #[prop(optional, into)] value: Model<String>,
+    #[prop(optional, into)] disabled: MaybeSignal<bool>,
+) -> impl IntoView {
     let service_type_res = create_resource(|| (), |_| async move { enum_service_types().await });
     let service_type_options = create_memo(move |_| match service_type_res.get() {
         Some(service_types) => service_types
@@ -212,7 +347,13 @@ fn ResolveService() -> impl IntoView {
             value: String::from("_http._tcp.local"),
         }],
     });
+    view! { <AutoComplete value=value disabled=disabled options=service_type_options placeholder="Service type"/> }
+}
 
+/// Component to resolve services
+#[component]
+fn ResolveService() -> impl IntoView {
+    let service_type = create_rw_signal(String::new());
     let resolve_action = create_action(|input: &String| {
         let input = input.clone();
         async move { resolve_service(input.clone()).await }
@@ -235,11 +376,7 @@ fn ResolveService() -> impl IntoView {
                 }
             }>
                 <Space>
-                    <AutoComplete
-                        value=service_type
-                        options=service_type_options
-                        placeholder="Service type"
-                    />
+                    <AutoCompleteServiceType value=service_type/>
                     <Button on_click>"Resolve"</Button>
                     <InterfaceFilter/>
                 </Space>
@@ -285,6 +422,7 @@ pub fn Metrics() -> impl IntoView {
                                         })
                                         .collect::<Vec<_>>()
                                 }}
+
                             </tbody>
                         </Table>
                     </Space>
@@ -304,6 +442,7 @@ pub fn App() -> impl IntoView {
             <GlobalStyle/>
             <Metrics/>
             <ResolveService/>
+            <Browse/>
         </ThemeProvider>
     }
 }
