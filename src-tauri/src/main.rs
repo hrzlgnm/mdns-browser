@@ -3,11 +3,10 @@
 
 use if_addrs::{get_if_addrs, IfAddr, Interface};
 use log::LevelFilter;
-use mdns_sd::{ServiceDaemon, ServiceEvent};
+use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
 use serde::Serialize;
 use std::{
-    collections::HashMap,
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     net::IpAddr,
     sync::{Arc, Mutex},
 };
@@ -19,6 +18,7 @@ type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 struct MdnsState {
     daemon: SharedServiceDaemon,
     resolved_address_filters: Arc<Mutex<Vec<Interface>>>,
+    running_browsers: Arc<Mutex<Vec<String>>>,
 }
 
 impl MdnsState {
@@ -26,6 +26,7 @@ impl MdnsState {
         Self {
             daemon: get_shared_daemon(),
             resolved_address_filters: Arc::new(Mutex::new(get_all_interfaces_except_loopback())),
+            running_browsers: Arc::new(Mutex::new(Vec::new())),
         }
     }
 }
@@ -51,15 +52,130 @@ pub struct ResolvedService {
     txt: Vec<TxtRecord>,
 }
 
+impl From<&ServiceInfo> for ResolvedService {
+    fn from(info: &ServiceInfo) -> ResolvedService {
+        let mut sorted_addresses: Vec<IpAddr> = info.get_addresses().clone().drain().collect();
+        sorted_addresses.sort();
+        let mut sorted_txt: Vec<TxtRecord> = info
+            .get_properties()
+            .iter()
+            .map(|r| TxtRecord {
+                key: r.key().into(),
+                val: r.val_str().into(),
+            })
+            .collect();
+        sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
+        ResolvedService {
+            instance_name: info.get_fullname().into(),
+            hostname: info.get_hostname().into(),
+            port: info.get_port(),
+            addresses: sorted_addresses,
+            subtype: info.get_subtype().clone(),
+            txt: sorted_txt,
+        }
+    }
+}
+
 #[derive(Serialize, Clone, Debug)]
 pub struct MetricsEvent {
     metrics: HashMap<String, i64>,
 }
 
+#[derive(Serialize, Clone, Debug)]
+pub struct ServiceResolvedEvent {
+    service: ResolvedService,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct SearchStartedEvent {
+    service_type: String,
+}
+
+type SearchStoppedEvent = SearchStartedEvent;
+
+#[derive(Serialize, Clone, Debug)]
+pub struct ServiceRemovedEvent {
+    instance_name: String,
+}
+
+type ServiceFoundEvent = ServiceRemovedEvent;
+
 fn update_metrics(window: &Window, mdns: &ServiceDaemon) {
     if let Ok(metrics_receiver) = mdns.get_metrics() {
         if let Ok(metrics) = metrics_receiver.recv() {
             let _ = window.emit("metrics", MetricsEvent { metrics });
+        }
+    }
+}
+
+#[tauri::command]
+fn stop_browse(service_type: String, window: Window, state: State<MdnsState>) {
+    if service_type.is_empty() {
+        return;
+    }
+    if let Ok(mdns) = state.daemon.lock() {
+        if let Ok(mut running_browsers) = state.running_browsers.lock() {
+            if running_browsers.contains(&service_type) {
+                mdns.stop_browse(service_type.as_str())
+                    .expect("To stop browsing");
+                running_browsers.retain(|s| s != &service_type);
+                update_metrics(&window, &mdns);
+            }
+        }
+    }
+}
+
+#[tauri::command]
+fn browse(service_type: String, window: Window, state: State<MdnsState>) {
+    if service_type.is_empty() {
+        return;
+    }
+    if let Ok(mdns) = state.daemon.lock() {
+        if let Ok(mut running_browsers) = state.running_browsers.lock() {
+            if !running_browsers.contains(&service_type) {
+                running_browsers.push(service_type.clone());
+                let receiver = mdns.browse(service_type.as_str()).expect("To browse");
+                let mdns_for_thread = mdns.clone();
+                std::thread::spawn(move || {
+                    while let Ok(event) = receiver.recv() {
+                        update_metrics(&window, &mdns_for_thread);
+                        match event {
+                            ServiceEvent::ServiceFound(_service_type, instance_name) => {
+                                window
+                                    .emit("service-found", &ServiceFoundEvent { instance_name })
+                                    .expect("To emit");
+                            }
+                            ServiceEvent::SearchStarted(service_type) => {
+                                window
+                                    .emit("search-started", &SearchStartedEvent { service_type })
+                                    .expect("to emit");
+                            }
+                            ServiceEvent::ServiceResolved(info) => {
+                                window
+                                    .emit(
+                                        "service-resolved",
+                                        &ServiceResolvedEvent {
+                                            service: ResolvedService::from(&info),
+                                        },
+                                    )
+                                    .expect("To emit");
+                            }
+                            ServiceEvent::ServiceRemoved(_service_type, instance_name) => {
+                                window
+                                    .emit("service-removed", &ServiceRemovedEvent { instance_name })
+                                    .expect("To emit");
+                            }
+                            ServiceEvent::SearchStopped(service_type) => {
+                                window
+                                    .emit("search-stopped", &SearchStoppedEvent { service_type })
+                                    .expect("To emit");
+                                break;
+                            }
+                        }
+                    }
+                    log::debug!("Browse thread for {} ending.", &service_type);
+                });
+            }
         }
     }
 }
@@ -85,33 +201,12 @@ fn resolve_service(
     let mut result = HashMap::new();
     let mut searches_started = 0;
     while let Ok(event) = receiver.recv() {
+        update_metrics(&window, &mdns);
         match event {
             ServiceEvent::ServiceResolved(info) => {
-                let mut sorted_addresses: Vec<IpAddr> =
-                    info.get_addresses().clone().drain().collect();
-                sorted_addresses.sort();
-                let mut sorted_txt: Vec<TxtRecord> = info
-                    .get_properties()
-                    .iter()
-                    .map(|r| TxtRecord {
-                        key: r.key().into(),
-                        val: r.val_str().into(),
-                    })
-                    .collect();
-                sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
                 let mut key = info.get_fullname().to_string();
                 key.push_str(info.get_hostname());
-                result.insert(
-                    key,
-                    ResolvedService {
-                        instance_name: info.get_fullname().into(),
-                        hostname: info.get_hostname().into(),
-                        port: info.get_port(),
-                        addresses: sorted_addresses,
-                        subtype: info.get_subtype().clone(),
-                        txt: sorted_txt,
-                    },
-                );
+                result.insert(key, ResolvedService::from(&info));
             }
             ServiceEvent::SearchStarted(_) => {
                 if searches_started > 3 || !result.is_empty() {
@@ -126,7 +221,6 @@ fn resolve_service(
             _ => {}
         }
     }
-    update_metrics(&window, &mdns);
     let mut filtered = filter_resolved_service_by_interfaces_addresses(
         result.values().cloned().collect(),
         state.resolved_address_filters.lock().unwrap().clone(),
@@ -219,9 +313,9 @@ fn enum_service_types(window: Window, state: State<MdnsState>) -> Vec<String> {
                 _ => {}
             }
         }
+        update_metrics(&window, &mdns);
         found.sort();
         log::debug!("Found service types: {:?}", found);
-        update_metrics(&window, &mdns);
     }
     found
 }
@@ -323,11 +417,13 @@ fn main() {
                 .build(),
         )
         .invoke_handler(tauri::generate_handler![
+            browse,
             enum_service_types,
             get_filter_interface,
             list_filter_interfaces,
             resolve_service,
             set_filter_interfaces,
+            stop_browse
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
