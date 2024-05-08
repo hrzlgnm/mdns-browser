@@ -9,6 +9,7 @@ use std::{
     collections::{HashMap, HashSet},
     net::IpAddr,
     sync::{Arc, Mutex},
+    time::Duration,
 };
 use tauri::{Manager, State, Window};
 use tauri_plugin_log::LogTarget;
@@ -100,16 +101,8 @@ pub struct ServiceRemovedEvent {
 
 type ServiceFoundEvent = ServiceRemovedEvent;
 
-fn update_metrics(window: &Window, mdns: &ServiceDaemon) {
-    if let Ok(metrics_receiver) = mdns.get_metrics() {
-        if let Ok(metrics) = metrics_receiver.recv() {
-            let _ = window.emit("metrics", MetricsEvent { metrics });
-        }
-    }
-}
-
 #[tauri::command]
-fn stop_browse(service_type: String, window: Window, state: State<MdnsState>) {
+fn stop_browse(service_type: String, state: State<MdnsState>) {
     if service_type.is_empty() {
         return;
     }
@@ -119,7 +112,6 @@ fn stop_browse(service_type: String, window: Window, state: State<MdnsState>) {
                 mdns.stop_browse(service_type.as_str())
                     .expect("To stop browsing");
                 running_browsers.retain(|s| s != &service_type);
-                update_metrics(&window, &mdns);
             }
         }
     }
@@ -135,10 +127,8 @@ fn browse(service_type: String, window: Window, state: State<MdnsState>) {
             if !running_browsers.contains(&service_type) {
                 running_browsers.push(service_type.clone());
                 let receiver = mdns.browse(service_type.as_str()).expect("To browse");
-                let mdns_for_thread = mdns.clone();
                 std::thread::spawn(move || {
                     while let Ok(event) = receiver.recv() {
-                        update_metrics(&window, &mdns_for_thread);
                         match event {
                             ServiceEvent::ServiceFound(_service_type, instance_name) => {
                                 window
@@ -181,11 +171,7 @@ fn browse(service_type: String, window: Window, state: State<MdnsState>) {
 }
 
 #[tauri::command]
-fn resolve_service(
-    service_type: String,
-    window: Window,
-    state: State<MdnsState>,
-) -> Vec<ResolvedService> {
+fn resolve_service(service_type: String, state: State<MdnsState>) -> Vec<ResolvedService> {
     if service_type.is_empty() {
         return vec![];
     }
@@ -201,7 +187,6 @@ fn resolve_service(
     let mut result = HashMap::new();
     let mut searches_started = 0;
     while let Ok(event) = receiver.recv() {
-        update_metrics(&window, &mdns);
         match event {
             ServiceEvent::ServiceResolved(info) => {
                 let mut key = info.get_fullname().to_string();
@@ -288,7 +273,7 @@ fn filter_resolved_service_by_interfaces_addresses(
 }
 
 #[tauri::command]
-fn enum_service_types(window: Window, state: State<MdnsState>) -> Vec<String> {
+fn enum_service_types(state: State<MdnsState>) -> Vec<String> {
     let mut found = vec![];
     if let Ok(mdns) = state.daemon.lock() {
         let meta_service = "_services._dns-sd._udp.local.";
@@ -313,7 +298,6 @@ fn enum_service_types(window: Window, state: State<MdnsState>) -> Vec<String> {
                 _ => {}
             }
         }
-        update_metrics(&window, &mdns);
         found.sort();
         log::debug!("Found service types: {:?}", found);
     }
@@ -376,6 +360,25 @@ fn set_filter_interfaces(interfaces: HashSet<String>, state: State<MdnsState>) {
     *state.resolved_address_filters.lock().unwrap() = enabled_interfaces;
 }
 
+const METRIC_SEND_INTERVAL: Duration = Duration::from_millis(200);
+
+#[tauri::command]
+fn metrics_sender(window: Window, state: State<MdnsState>) {
+    if let Ok(mdns) = state.daemon.lock() {
+        let mdns_for_thread = mdns.clone();
+        std::thread::spawn(move || loop {
+            if let Ok(metrics_receiver) = mdns_for_thread.get_metrics() {
+                if let Ok(metrics) = metrics_receiver.recv() {
+                    window
+                        .emit("metrics", &MetricsEvent { metrics })
+                        .expect("To emit");
+                }
+            }
+            std::thread::sleep(METRIC_SEND_INTERVAL);
+        });
+    }
+}
+
 #[cfg(target_os = "linux")]
 fn platform_setup() {
     let session_type_key = "XDG_SESSION_TYPE";
@@ -398,6 +401,7 @@ fn platform_setup() {}
 fn main() {
     platform_setup();
     tauri::Builder::default()
+        .manage(MdnsState::new())
         .setup(|app| {
             let main_window = app.get_window("main").unwrap();
             let ver = app.config().package.version.clone();
@@ -408,7 +412,6 @@ fn main() {
                 .expect("title to be set");
             Ok(())
         })
-        .manage(MdnsState::new())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(
             tauri_plugin_log::Builder::default()
@@ -421,6 +424,7 @@ fn main() {
             enum_service_types,
             get_filter_interface,
             list_filter_interfaces,
+            metrics_sender,
             resolve_service,
             set_filter_interfaces,
             stop_browse
