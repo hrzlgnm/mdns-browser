@@ -89,6 +89,7 @@ pub struct MetricsEventRes {
 }
 
 async fn listen_on_metrics_event(event_writer: WriteSignal<HashMap<String, i64>>) {
+    let _: () = invoke("metrics_sender", &()).await.unwrap();
     let mut events = listen::<MetricsEventRes>("metrics").await.unwrap();
     while let Some(event) = events.next().await {
         log::debug!("Received event 'metrics': {:#?}", event);
