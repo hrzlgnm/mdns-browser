@@ -233,7 +233,13 @@ fn Browse() -> impl IntoView {
                                                 .iter()
                                                 .map(|a| a.to_string())
                                                 .collect::<Vec<_>>()
-                                                .join(", ")} "]"
+                                                .join(" ")} "] - {"
+                                            {n
+                                                .txt
+                                                .iter()
+                                                .map(|n| n.to_string())
+                                                .collect::<Vec<String>>()
+                                                .join("|")} "}"
                                         </Text>
                                     </Space>
                                 }
