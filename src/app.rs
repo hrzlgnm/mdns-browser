@@ -109,8 +109,10 @@ async fn listen_on_service_type_event(event_writer: WriteSignal<ServiceTypes>) {
     let _: () = invoke("browse_types", &()).await.unwrap();
     while let Some(event) = events.next().await {
         log::debug!("Received event 'service-type-found': {:#?}", event);
+        let mut set = HashSet::new();
         event_writer.update(|evts| {
             evts.push(event.payload.service_type);
+            evts.retain(|st| set.insert(st.clone()));
             evts.sort();
         });
     }
