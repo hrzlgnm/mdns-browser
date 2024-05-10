@@ -52,8 +52,6 @@ pub struct ResolvedService {
     subtype: Option<String>,
     txt: Vec<TxtRecord>,
     updated_at_ms: u64,
-    host_ttl: u32,
-    other_ttl: u32,
 }
 
 impl From<&ServiceInfo> for ResolvedService {
@@ -80,8 +78,6 @@ impl From<&ServiceInfo> for ResolvedService {
             subtype: info.get_subtype().clone(),
             txt: sorted_txt,
             updated_at_ms: millisseconds,
-            host_ttl: info.get_host_ttl(),
-            other_ttl: info.get_other_ttl(),
         }
     }
 }
@@ -313,8 +309,6 @@ fn filter_resolved_service_by_interfaces_addresses(
                 subtype: resolved_service.subtype.clone(),
                 txt: resolved_service.txt.clone(),
                 updated_at_ms: resolved_service.updated_at_ms,
-                host_ttl: resolved_service.host_ttl,
-                other_ttl: resolved_service.other_ttl,
             });
         }
     }
