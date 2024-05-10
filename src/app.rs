@@ -12,7 +12,7 @@ use tauri_sys::event::listen;
 use tauri_sys::tauri::invoke;
 use thaw::{
     AutoComplete, AutoCompleteOption, Button, CheckboxGroup, CheckboxItem, Collapse, CollapseItem,
-    GlobalStyle, Layout, Space, Table, Text, Theme, ThemeProvider,
+    GlobalStyle, Layout, Popover, PopoverTrigger, Space, Table, Text, Theme, ThemeProvider,
 };
 use thaw_utils::Model;
 
@@ -63,6 +63,9 @@ struct ResolvedService {
     addresses: Vec<IpAddr>,
     subtype: Option<String>,
     txt: Vec<TxtRecord>,
+    updated_at_ms: u64,
+    host_ttl: u32,
+    other_ttl: u32,
 }
 type ResolvedServices = Vec<ResolvedService>;
 
@@ -208,14 +211,29 @@ fn Browse() -> impl IntoView {
                 }
             }>
                 <Space>
-                    <AutoCompleteServiceType value=service_type disabled=browsing/>
-                    <Button on_click=on_browse_click disabled=browsing>
-                        "Browse"
-                    </Button>
-                    <Button on_click=on_stop_click disabled=not_browsing>
+                    <Popover tooltip=true trigger_type=thaw::PopoverTriggerType::Hover>
+                        <PopoverTrigger slot>
+                             <AutoCompleteServiceType value=service_type disabled=browsing/>
+                        </PopoverTrigger>
+                        "Select a service type to browse for"
+                    </Popover>
+                     <Popover tooltip=true>
+                        <PopoverTrigger slot>
+                            <Button on_click=on_browse_click disabled=browsing>
+                                "Browse"
+                            </Button>
+                        </PopoverTrigger>
+                        "Starts browsing"
+                    </Popover>
+                    <Popover tooltip=true>
+                        <PopoverTrigger slot>
+                     <Button on_click=on_stop_click disabled=not_browsing>
                         "Stop"
                     </Button>
-                </Space>
+                        </PopoverTrigger>
+                        "Stops browsing and clears the result"
+                    </Popover>
+                 </Space>
                 <Layout style="padding: 10px 0 0 0;">
                     {move || {
                         resolved
@@ -227,7 +245,8 @@ fn Browse() -> impl IntoView {
                                 view! {
                                     <Space>
                                         <Text code=true>
-                                            {n.instance_name} " - " {hostname} ":" {n.port} " - ["
+                                            {n.updated_at_ms as f64 / 1000.0} " " {n.instance_name}
+                                            " - " {hostname} ":" {n.port} " - ["
                                             {n
                                                 .addresses
                                                 .iter()
@@ -239,7 +258,7 @@ fn Browse() -> impl IntoView {
                                                 .iter()
                                                 .map(|n| n.to_string())
                                                 .collect::<Vec<String>>()
-                                                .join("|")} "}"
+                                                .join("|")} "} ttls: " {n.host_ttl} ", " {n.other_ttl}
                                         </Text>
                                     </Space>
                                 }

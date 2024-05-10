@@ -9,7 +9,7 @@ use std::{
     collections::{HashMap, HashSet},
     net::IpAddr,
     sync::{Arc, Mutex},
-    time::Duration,
+    time::{Duration, SystemTime},
 };
 use tauri::{Manager, State, Window};
 use tauri_plugin_log::LogTarget;
@@ -51,10 +51,16 @@ pub struct ResolvedService {
     pub addresses: Vec<IpAddr>,
     subtype: Option<String>,
     txt: Vec<TxtRecord>,
+    updated_at_ms: u64,
+    host_ttl: u32,
+    other_ttl: u32,
 }
 
 impl From<&ServiceInfo> for ResolvedService {
     fn from(info: &ServiceInfo) -> ResolvedService {
+        let now = SystemTime::now();
+        let since_epoch = now.duration_since(SystemTime::UNIX_EPOCH).unwrap();
+        let millisseconds = since_epoch.as_secs() * 1000 + u64::from(since_epoch.subsec_millis());
         let mut sorted_addresses: Vec<IpAddr> = info.get_addresses().clone().drain().collect();
         sorted_addresses.sort();
         let mut sorted_txt: Vec<TxtRecord> = info
@@ -73,6 +79,9 @@ impl From<&ServiceInfo> for ResolvedService {
             addresses: sorted_addresses,
             subtype: info.get_subtype().clone(),
             txt: sorted_txt,
+            updated_at_ms: millisseconds,
+            host_ttl: info.get_host_ttl(),
+            other_ttl: info.get_other_ttl(),
         }
     }
 }
@@ -266,6 +275,9 @@ fn filter_resolved_service_by_interfaces_addresses(
                 addresses,
                 subtype: resolved_service.subtype.clone(),
                 txt: resolved_service.txt.clone(),
+                updated_at_ms: resolved_service.updated_at_ms,
+                host_ttl: resolved_service.host_ttl,
+                other_ttl: resolved_service.other_ttl,
             });
         }
     }
