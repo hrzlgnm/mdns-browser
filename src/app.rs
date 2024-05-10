@@ -18,10 +18,6 @@ use thaw_utils::Model;
 
 type ServiceTypes = Vec<String>;
 
-async fn enum_service_types() -> ServiceTypes {
-    invoke("enum_service_types", &()).await.unwrap()
-}
-
 type Interfaces = Vec<String>;
 
 async fn list_filter_interfaces() -> Interfaces {
@@ -92,16 +88,33 @@ pub struct MetricsEventRes {
 }
 
 async fn listen_on_metrics_event(event_writer: WriteSignal<HashMap<String, i64>>) {
-    let _: () = invoke("metrics_sender", &()).await.unwrap();
     let mut events = listen::<MetricsEventRes>("metrics").await.unwrap();
+    let _: () = invoke("metrics_sender", &()).await.unwrap();
     while let Some(event) = events.next().await {
-        log::debug!("Received event 'metrics': {:#?}", event);
         event_writer.update(|evts| {
             evts.extend(event.payload.metrics);
         });
     }
 }
 
+#[derive(Deserialize, Clone, Debug)]
+pub struct ServiceTypeFoundEventRes {
+    service_type: String,
+}
+
+async fn listen_on_service_type_event(event_writer: WriteSignal<ServiceTypes>) {
+    let mut events = listen::<ServiceTypeFoundEventRes>("service-type-found")
+        .await
+        .unwrap();
+    let _: () = invoke("browse_types", &()).await.unwrap();
+    while let Some(event) = events.next().await {
+        log::debug!("Received event 'service-type-found': {:#?}", event);
+        event_writer.update(|evts| {
+            evts.push(event.payload.service_type);
+            evts.sort();
+        });
+    }
+}
 #[derive(Deserialize, Clone, Debug)]
 pub struct ResolvedServiceEventRes {
     service: ResolvedService,
@@ -173,10 +186,11 @@ async fn stop_browse(service_type: String) {
 #[component]
 fn Browse() -> impl IntoView {
     let (resolved, set_resolved) = create_signal(Vec::new());
-    let service_type = create_rw_signal(String::new());
-    let browsing = create_rw_signal(false);
-    let not_browsing = Signal::derive(move || !browsing.get());
     create_local_resource(move || set_resolved, listen_on_browse_events);
+
+    let service_type = use_context::<ServiceTypesSignal>().unwrap().0;
+    let browsing = use_context::<BrowsingSignal>().unwrap().0;
+    let not_browsing = Signal::derive(move || !browsing.get());
 
     let browse_action = create_action(|input: &String| {
         let input = input.clone();
@@ -211,13 +225,7 @@ fn Browse() -> impl IntoView {
                 }
             }>
                 <Space>
-                    <Popover tooltip=true trigger_type=thaw::PopoverTriggerType::Hover>
-                        <PopoverTrigger slot>
-                             <AutoCompleteServiceType value=service_type disabled=browsing/>
-                        </PopoverTrigger>
-                        "Select a service type to browse for"
-                    </Popover>
-                     <Popover tooltip=true>
+                    <Popover tooltip=true>
                         <PopoverTrigger slot>
                             <Button on_click=on_browse_click disabled=browsing>
                                 "Browse"
@@ -227,13 +235,13 @@ fn Browse() -> impl IntoView {
                     </Popover>
                     <Popover tooltip=true>
                         <PopoverTrigger slot>
-                     <Button on_click=on_stop_click disabled=not_browsing>
-                        "Stop"
-                    </Button>
+                            <Button on_click=on_stop_click disabled=not_browsing>
+                                "Stop"
+                            </Button>
                         </PopoverTrigger>
                         "Stops browsing and clears the result"
                     </Popover>
-                 </Space>
+                </Space>
                 <Layout style="padding: 10px 0 0 0;">
                     {move || {
                         resolved
@@ -370,26 +378,22 @@ fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
 }
 
 /// Component that auto completes service types
-/// @todo create and fetch the service types resoure once in an upper scope and pass it on via
-/// context
 #[component]
 fn AutoCompleteServiceType(
     #[prop(optional, into)] value: Model<String>,
     #[prop(optional, into)] disabled: MaybeSignal<bool>,
 ) -> impl IntoView {
-    let service_type_res = create_resource(|| (), |_| async move { enum_service_types().await });
-    let service_type_options = create_memo(move |_| match service_type_res.get() {
-        Some(service_types) => service_types
+    let (service_types, set_service_types) = create_signal(ServiceTypes::new());
+    create_local_resource(move || set_service_types, listen_on_service_type_event);
+    let service_type_options = create_memo(move |_| {
+        service_types
+            .get()
             .into_iter()
             .map(|service_type| AutoCompleteOption {
                 label: service_type.clone(),
                 value: service_type.clone(),
             })
-            .collect(),
-        None => vec![AutoCompleteOption {
-            label: String::from("_http._tcp.local"),
-            value: String::from("_http._tcp.local"),
-        }],
+            .collect()
     });
     view! {
         <AutoComplete
@@ -404,13 +408,16 @@ fn AutoCompleteServiceType(
 /// Component to resolve services
 #[component]
 fn ResolveService() -> impl IntoView {
-    let service_type = create_rw_signal(String::new());
     let resolve_action = create_action(|input: &String| {
         let input = input.clone();
         async move { resolve_service(input.clone()).await }
     });
 
+    let service_type = use_context::<ServiceTypesSignal>().unwrap().0;
+    let browsing = use_context::<BrowsingSignal>().unwrap().0;
+
     let on_click = move |_| {
+        browsing.set(true);
         let value = service_type.get();
         resolve_action.dispatch(value);
     };
@@ -427,13 +434,18 @@ fn ResolveService() -> impl IntoView {
                 }
             }>
                 <Space>
-                    <AutoCompleteServiceType value=service_type/>
-                    <Button on_click>"Resolve"</Button>
+                    // <AutoCompleteServiceType value=service_type/>
+                    <Button on_click disabled=browsing>
+                        "Resolve"
+                    </Button>
                     <InterfaceFilter/>
                 </Space>
                 {move || match resolve_value.get() {
                     None => view! { "" }.into_view(),
-                    Some(services) => view! { <ShowResolvedServices services/> }.into_view(),
+                    Some(services) => {
+                        browsing.set(false);
+                        view! { <ShowResolvedServices services/> }.into_view()
+                    }
                 }}
 
             </Suspense>
@@ -483,15 +495,33 @@ pub fn Metrics() -> impl IntoView {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct ServiceTypesSignal(RwSignal<String>);
+
+#[derive(Clone, Debug)]
+pub struct BrowsingSignal(RwSignal<bool>);
+
 /// The main app component
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
     let theme = create_rw_signal(Theme::dark());
+    let browsing = create_rw_signal(false);
+    let service_type = create_rw_signal(String::new());
+    provide_context(BrowsingSignal(browsing));
+    provide_context(ServiceTypesSignal(service_type));
     view! {
         <ThemeProvider theme>
             <GlobalStyle/>
             <Metrics/>
+            <Layout style="padding: 10px">
+                <Popover tooltip=true trigger_type=thaw::PopoverTriggerType::Hover>
+                    <PopoverTrigger slot>
+                        <AutoCompleteServiceType value=service_type disabled=browsing/>
+                    </PopoverTrigger>
+                    "Select a service type"
+                </Popover>
+            </Layout>
             <ResolveService/>
             <Browse/>
         </ThemeProvider>

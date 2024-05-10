@@ -109,6 +109,43 @@ pub struct ServiceRemovedEvent {
 }
 
 type ServiceFoundEvent = ServiceRemovedEvent;
+type ServiceTypeFoundEvent = SearchStartedEvent;
+
+#[tauri::command]
+fn browse_types(window: Window, state: State<MdnsState>) {
+    if let Ok(mdns) = state.daemon.lock() {
+        let mdns_for_thread = mdns.clone();
+        std::thread::spawn(move || {
+            let meta_service = "_services._dns-sd._udp.local.";
+            let receiver = mdns_for_thread
+                .browse(meta_service)
+                .expect("Failed to browse");
+            while let Ok(event) = receiver.recv() {
+                match event {
+                    ServiceEvent::ServiceFound(service_type, full_name) => {
+                        if !full_name.starts_with(&service_type) {
+                            window
+                                .emit(
+                                    "service-type-found",
+                                    &ServiceTypeFoundEvent {
+                                        service_type: full_name,
+                                    },
+                                )
+                                .expect("To emit");
+                        }
+                    }
+                    ServiceEvent::SearchStopped(service_type) => {
+                        if service_type == meta_service {
+                            break;
+                        }
+                    }
+                    _ => (),
+                }
+            }
+            log::debug!("Browse type thread ending.");
+        });
+    }
+}
 
 #[tauri::command]
 fn stop_browse(service_type: String, state: State<MdnsState>) {
@@ -284,38 +321,6 @@ fn filter_resolved_service_by_interfaces_addresses(
     result
 }
 
-#[tauri::command]
-fn enum_service_types(state: State<MdnsState>) -> Vec<String> {
-    let mut found = vec![];
-    if let Ok(mdns) = state.daemon.lock() {
-        let meta_service = "_services._dns-sd._udp.local.";
-        let receiver = mdns.browse(meta_service).expect("Failed to browse");
-        let mut search_done = false;
-        while let Ok(event) = receiver.recv() {
-            match event {
-                ServiceEvent::ServiceFound(service_type, full_name) => {
-                    if !full_name.starts_with(&service_type) {
-                        found.push(full_name);
-                    }
-                }
-                ServiceEvent::SearchStarted(_service) => {
-                    if search_done {
-                        let _ = mdns.stop_browse(meta_service);
-                    }
-                    search_done = true;
-                }
-                ServiceEvent::SearchStopped(_service) => {
-                    break;
-                }
-                _ => {}
-            }
-        }
-        found.sort();
-        log::debug!("Found service types: {:?}", found);
-    }
-    found
-}
-
 fn get_all_interfaces_except_loopback() -> Vec<Interface> {
     let interface_addresses = get_if_addrs().unwrap();
 
@@ -433,7 +438,7 @@ fn main() {
         )
         .invoke_handler(tauri::generate_handler![
             browse,
-            enum_service_types,
+            browse_types,
             get_filter_interface,
             list_filter_interfaces,
             metrics_sender,
