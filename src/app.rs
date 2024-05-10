@@ -4,6 +4,7 @@ use std::{
     net::IpAddr,
 };
 
+use chrono::{format, DateTime};
 use futures::{select, StreamExt};
 use leptos::*;
 use leptos_meta::provide_meta_context;
@@ -11,8 +12,10 @@ use serde::{Deserialize, Serialize};
 use tauri_sys::event::listen;
 use tauri_sys::tauri::invoke;
 use thaw::{
-    AutoComplete, AutoCompleteOption, Button, CheckboxGroup, CheckboxItem, Collapse, CollapseItem,
-    GlobalStyle, Layout, Popover, PopoverTrigger, Space, Table, Text, Theme, ThemeProvider,
+    AutoComplete, AutoCompleteOption, Button, ButtonSize, Card, CardFooter, CardHeaderExtra,
+    CheckboxGroup, CheckboxItem, Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Layout,
+    Modal, Popover, PopoverTrigger, Space, SpaceAlign, Table, Tag, TagVariant, Text, Theme,
+    ThemeProvider,
 };
 use thaw_utils::Model;
 
@@ -60,8 +63,6 @@ struct ResolvedService {
     subtype: Option<String>,
     txt: Vec<TxtRecord>,
     updated_at_ms: u64,
-    host_ttl: u32,
-    other_ttl: u32,
 }
 type ResolvedServices = Vec<ResolvedService>;
 
@@ -127,7 +128,7 @@ pub struct ServiceRemovedEventRes {
     instance_name: String,
 }
 
-async fn listen_on_browse_events(event_writer: WriteSignal<Vec<ResolvedService>>) {
+async fn listen_on_browse_events(event_writer: WriteSignal<ResolvedServices>) {
     let resolved = listen::<ResolvedServiceEventRes>("service-resolved")
         .await
         .unwrap();
@@ -187,12 +188,14 @@ async fn stop_browse(service_type: String) {
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
-    let (resolved, set_resolved) = create_signal(Vec::new());
+    let (resolved, set_resolved) = create_signal(ResolvedServices::new());
     create_local_resource(move || set_resolved, listen_on_browse_events);
 
     let service_type = use_context::<ServiceTypesSignal>().unwrap().0;
     let browsing = use_context::<BrowsingSignal>().unwrap().0;
     let not_browsing = Signal::derive(move || !browsing.get());
+    let browsing_or_service_type_empty =
+        Signal::derive(move || browsing.get() || service_type.get().is_empty());
 
     let browse_action = create_action(|input: &String| {
         let input = input.clone();
@@ -229,7 +232,10 @@ fn Browse() -> impl IntoView {
                 <Space>
                     <Popover tooltip=true>
                         <PopoverTrigger slot>
-                            <Button on_click=on_browse_click disabled=browsing>
+                            <Button
+                                on_click=on_browse_click
+                                disabled=browsing_or_service_type_empty
+                            >
                                 "Browse"
                             </Button>
                         </PopoverTrigger>
@@ -244,38 +250,92 @@ fn Browse() -> impl IntoView {
                         "Stops browsing and clears the result"
                     </Popover>
                 </Space>
-                <Layout style="padding: 10px 0 0 0;">
-                    {move || {
-                        resolved
-                            .get()
-                            .into_iter()
-                            .map(|n| {
-                                let mut hostname = n.hostname;
+                <Layout style="padding: 5px">
+                    <Grid cols=3 x_gap=5 y_gap=5>
+                        <For
+                            each=move || resolved.get()
+                            key=|rs| rs.instance_name.clone()
+                            children=move |rs| {
+                                let mut hostname = rs.hostname;
                                 hostname.pop();
+                                let updated_at = DateTime::from_timestamp_millis(
+                                        rs.updated_at_ms as i64,
+                                    )
+                                    .unwrap();
+                                let addrs = rs
+                                    .addresses
+                                    .iter()
+                                    .map(|a| a.to_string())
+                                    .collect::<Vec<_>>();
+                                let txts = rs.txt.iter().map(|t| t.to_string()).collect::<Vec<_>>();
+                                let a = addrs.clone();
+                                let show = create_rw_signal(false);
                                 view! {
-                                    <Space>
-                                        <Text code=true>
-                                            {n.updated_at_ms as f64 / 1000.0} " " {n.instance_name}
-                                            " - " {hostname} ":" {n.port} " - ["
-                                            {n
-                                                .addresses
-                                                .iter()
-                                                .map(|a| a.to_string())
-                                                .collect::<Vec<_>>()
-                                                .join(" ")} "] - {"
-                                            {n
-                                                .txt
-                                                .iter()
-                                                .map(|n| n.to_string())
-                                                .collect::<Vec<String>>()
-                                                .join("|")} "} ttls: " {n.host_ttl} ", " {n.other_ttl}
-                                        </Text>
-                                    </Space>
+                                    <GridItem>
+                                        <Card title=rs.instance_name.clone()>
+                                            <CardHeaderExtra slot>
+                                                {updated_at
+                                                    .to_rfc3339_opts(format::SecondsFormat::Millis, true)}
+                                            </CardHeaderExtra>
+                                            <Space align=SpaceAlign::Center>
+                                                <Tag variant=TagVariant::Success>
+                                                    {hostname} ":" {rs.port}
+                                                </Tag>
+                                                <Button
+                                                    size=ButtonSize::Medium
+                                                    on_click=move |_| show.set(true)
+                                                >
+                                                    "Details"
+                                                </Button>
+                                                <Modal title=rs.instance_name.clone() show>
+                                                    <Table>
+                                                        <thead>
+                                                            <tr>
+                                                                <th>"IPs"</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {addrs
+                                                                .into_iter()
+                                                                .map(|n| {
+                                                                    view! {
+                                                                        <tr>
+                                                                            <td>{n}</td>
+                                                                        </tr>
+                                                                    }
+                                                                })
+                                                                .collect::<Vec<_>>()}
+                                                        </tbody>
+                                                    </Table>
+                                                    <Table>
+                                                        <thead>
+                                                            <tr>
+                                                                <th>"txt"</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {txts
+                                                                .into_iter()
+                                                                .map(|n| {
+                                                                    view! {
+                                                                        <tr>
+                                                                            <td>{n}</td>
+                                                                        </tr>
+                                                                    }
+                                                                })
+                                                                .collect::<Vec<_>>()}
+                                                        </tbody>
+                                                    </Table>
+                                                </Modal>
+                                            </Space>
+                                            <CardFooter slot>{a.first()}</CardFooter>
+                                        </Card>
+                                    </GridItem>
                                 }
-                            })
-                            .collect_view()
-                    }}
+                            }
+                        />
 
+                    </Grid>
                 </Layout>
             </Suspense>
         </Layout>
@@ -417,6 +477,8 @@ fn ResolveService() -> impl IntoView {
 
     let service_type = use_context::<ServiceTypesSignal>().unwrap().0;
     let browsing = use_context::<BrowsingSignal>().unwrap().0;
+    let browsing_or_service_type_empty =
+        Signal::derive(move || browsing.get() || service_type.get().is_empty());
 
     let on_click = move |_| {
         browsing.set(true);
@@ -436,8 +498,7 @@ fn ResolveService() -> impl IntoView {
                 }
             }>
                 <Space>
-                    // <AutoCompleteServiceType value=service_type/>
-                    <Button on_click disabled=browsing>
+                    <Button on_click disabled=browsing_or_service_type_empty>
                         "Resolve"
                     </Button>
                     <InterfaceFilter/>
