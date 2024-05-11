@@ -28,7 +28,6 @@ mdns-sd = { version = "0.11.0", default-features = false, features = [
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 log = "^0.4.21"
-if-addrs = { version = "0.12.0", features = ["link-local"] }
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
