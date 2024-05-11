@@ -21,7 +21,7 @@ tauri = { version = "1.6.5", features = [
 ] }
 serde = { version = "1.0.201", features = ["derive"] }
 serde_json = "1.0.117"
-mdns-sd = { version = "0.11.0", default-features = false, features = [
+mdns-sd = { git = "https://github.com/keepsimple1/mdns-sd.git", rev = "5eb74b50", default-features = false, features = [
     "async",
     "log",
 ] }
