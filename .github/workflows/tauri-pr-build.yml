@@ -33,13 +33,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - name: Run rustfmt and fail if any warnings
+      - name: Run rustfmt and fail if any warnings (macos only)
+        if: contains(matrix.platform, 'macos')
         run: |
           cargo fmt -- --check
           cd src-tauri
           cargo fmt -- --check
 
-      - name: Run clippy and fail if any warnings
+      - name: Run clippy and fail if any warnings (macos only)
+        if: contains(matrix.platform, 'macos')
         run: |
           cargo clippy -- -D warnings
           cd src-tauri
