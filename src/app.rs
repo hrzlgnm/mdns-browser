@@ -112,7 +112,10 @@ async fn listen_on_browse_events(event_writer: WriteSignal<ResolvedServices>) {
             event = resolved_fused.next() => {
                 if let Some(event) = event {
                     log::debug!("Received event 'service-resovlved': {:#?}", event);
-                    event_writer.update(|evts| evts.push(event.payload.service));
+                    event_writer.update(|evts| {
+                         evts.retain(|r| r.instance_name != event.payload.service.instance_name);
+                         evts.push(event.payload.service);
+                    });
                 }
             }
             event = removed_fused.next() => {
@@ -276,7 +279,7 @@ fn Browse() -> impl IntoView {
             <Grid cols=3 x_gap=5 y_gap=5>
                 <For
                     each=move || resolved.get()
-                    key=|rs| rs.instance_name.clone()
+                    key=|rs| format!("{}{}",rs.instance_name.clone(), rs.updated_at_ms)
                     children=move |rs| {
                         let mut hostname = rs.hostname;
                         hostname.pop();
@@ -299,7 +302,10 @@ fn Browse() -> impl IntoView {
                                     </CardHeaderExtra>
                                     <Space align=SpaceAlign::Center>
                                         <Tag variant=TagVariant::Success>
-                                            {hostname} ":" {rs.port}
+                                            {hostname}
+                                        </Tag>
+                                        <Tag variant=TagVariant::Warning>
+                                            {rs.port}
                                         </Tag>
                                         <Button
                                             size=ButtonSize::Tiny
