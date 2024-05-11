@@ -13,30 +13,12 @@ use tauri_sys::event::listen;
 use tauri_sys::tauri::invoke;
 use thaw::{
     AutoComplete, AutoCompleteOption, Button, ButtonSize, Card, CardFooter, CardHeaderExtra,
-    CheckboxGroup, CheckboxItem, Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Layout,
-    Modal, Popover, PopoverTrigger, Space, SpaceAlign, Table, Tag, TagVariant, Text, Theme,
-    ThemeProvider,
+    Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Layout, Modal, Popover, PopoverPlacement,
+    PopoverTrigger, Space, SpaceAlign, Table, Tag, TagVariant, Theme, ThemeProvider,
 };
 use thaw_utils::Model;
 
 type ServiceTypes = Vec<String>;
-
-type Interfaces = Vec<String>;
-
-async fn list_filter_interfaces() -> Interfaces {
-    invoke("list_filter_interfaces", &()).await.unwrap()
-}
-
-#[derive(Serialize)]
-struct SetInterfacesArgs {
-    interfaces: Vec<String>,
-}
-
-async fn set_filter_interfaces(interfaces: Interfaces) {
-    let _: () = invoke("set_filter_interfaces", &SetInterfacesArgs { interfaces })
-        .await
-        .unwrap();
-}
 
 #[derive(Deserialize, Clone, Debug)]
 struct TxtRecord {
@@ -66,31 +48,18 @@ struct ResolvedService {
 }
 type ResolvedServices = Vec<ResolvedService>;
 
-#[derive(Serialize, Deserialize)]
-#[allow(non_snake_case)]
-struct ResolveServiceArgs<'a> {
-    serviceType: &'a str,
-}
-
-async fn resolve_service(service_type: String) -> ResolvedServices {
-    invoke(
-        "resolve_service",
-        &ResolveServiceArgs {
-            serviceType: &service_type,
-        },
-    )
-    .await
-    .unwrap()
-}
-
 #[derive(Deserialize, PartialEq, Eq, Clone, Debug)]
 pub struct MetricsEventRes {
     metrics: HashMap<String, i64>,
 }
 
+async fn invoke_unit(cmd: &str) {
+    let _: () = invoke(cmd, &()).await.unwrap();
+}
+
 async fn listen_on_metrics_event(event_writer: WriteSignal<HashMap<String, i64>>) {
     let mut events = listen::<MetricsEventRes>("metrics").await.unwrap();
-    let _: () = invoke("metrics_sender", &()).await.unwrap();
+    invoke_unit("send_metrics").await;
     while let Some(event) = events.next().await {
         event_writer.update(|evts| {
             evts.extend(event.payload.metrics);
@@ -107,7 +76,7 @@ async fn listen_on_service_type_event(event_writer: WriteSignal<ServiceTypes>) {
     let mut events = listen::<ServiceTypeFoundEventRes>("service-type-found")
         .await
         .unwrap();
-    let _: () = invoke("browse_types", &()).await.unwrap();
+    invoke_unit("browse_types").await;
     while let Some(event) = events.next().await {
         log::debug!("Received event 'service-type-found': {:#?}", event);
         let mut set = HashSet::new();
@@ -185,6 +154,65 @@ async fn stop_browse(service_type: String) {
     .unwrap();
 }
 
+/// Component to render a string vector into a table
+#[component]
+fn ValuesTable(values: Vec<String>, #[prop(into)] title: String) -> impl IntoView {
+    if values.is_empty() {
+        view! { <p></p> }.into_view()
+    } else {
+        view! {
+            <Table>
+                <thead>
+                    <tr>
+                        <th>{title}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {values
+                        .into_iter()
+                        .map(|n| {
+                            view! {
+                                <tr>
+                                    <td>{n}</td>
+                                </tr>
+                            }
+                        })
+                        .collect::<Vec<_>>()}
+                </tbody>
+            </Table>
+        }
+        .into_view()
+    }
+}
+
+/// Component that auto completes service types
+#[component]
+fn AutoCompleteServiceType(
+    #[prop(optional, into)] value: Model<String>,
+    #[prop(optional, into)] disabled: MaybeSignal<bool>,
+) -> impl IntoView {
+    let (service_types, set_service_types) = create_signal(ServiceTypes::new());
+    create_local_resource(move || set_service_types, listen_on_service_type_event);
+    let service_type_options = create_memo(move |_| {
+        service_types
+            .get()
+            .into_iter()
+            .map(|service_type| AutoCompleteOption {
+                label: service_type.clone(),
+                value: service_type.clone(),
+            })
+            .collect()
+    });
+    view! {
+        <AutoComplete
+            value=value
+            disabled=disabled
+            options=service_type_options
+            placeholder="Service type"
+        />
+    }
+}
+
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
@@ -222,296 +250,77 @@ fn Browse() -> impl IntoView {
 
     view! {
         <Layout style="padding: 10px;">
-            <Suspense fallback=move || {
-                view! {
-                    <Space>
-                        <Text>"Loading..."</Text>
-                    </Space>
-                }
-            }>
-                <Space>
-                    <Popover tooltip=true>
-                        <PopoverTrigger slot>
-                            <Button
-                                on_click=on_browse_click
-                                disabled=browsing_or_service_type_empty
-                            >
-                                "Browse"
-                            </Button>
-                        </PopoverTrigger>
-                        "Starts browsing"
-                    </Popover>
-                    <Popover tooltip=true>
-                        <PopoverTrigger slot>
-                            <Button on_click=on_stop_click disabled=not_browsing>
-                                "Stop"
-                            </Button>
-                        </PopoverTrigger>
-                        "Stops browsing and clears the result"
-                    </Popover>
-                </Space>
-                <Layout style="padding: 5px">
-                    <Grid cols=3 x_gap=5 y_gap=5>
-                        <For
-                            each=move || resolved.get()
-                            key=|rs| rs.instance_name.clone()
-                            children=move |rs| {
-                                let mut hostname = rs.hostname;
-                                hostname.pop();
-                                let updated_at = DateTime::from_timestamp_millis(
-                                        rs.updated_at_ms as i64,
-                                    )
-                                    .unwrap();
-                                let addrs = rs
-                                    .addresses
-                                    .iter()
-                                    .map(|a| a.to_string())
-                                    .collect::<Vec<_>>();
-                                let txts = rs.txt.iter().map(|t| t.to_string()).collect::<Vec<_>>();
-                                let a = addrs.clone();
-                                let show = create_rw_signal(false);
-                                view! {
-                                    <GridItem>
-                                        <Card title=rs.instance_name.clone()>
-                                            <CardHeaderExtra slot>
-                                                {updated_at
-                                                    .to_rfc3339_opts(format::SecondsFormat::Millis, true)}
-                                            </CardHeaderExtra>
-                                            <Space align=SpaceAlign::Center>
-                                                <Tag variant=TagVariant::Success>
-                                                    {hostname} ":" {rs.port}
-                                                </Tag>
-                                                <Button
-                                                    size=ButtonSize::Medium
-                                                    on_click=move |_| show.set(true)
-                                                >
-                                                    "Details"
-                                                </Button>
-                                                <Modal title=rs.instance_name.clone() show>
-                                                    <Table>
-                                                        <thead>
-                                                            <tr>
-                                                                <th>"IPs"</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {addrs
-                                                                .into_iter()
-                                                                .map(|n| {
-                                                                    view! {
-                                                                        <tr>
-                                                                            <td>{n}</td>
-                                                                        </tr>
-                                                                    }
-                                                                })
-                                                                .collect::<Vec<_>>()}
-                                                        </tbody>
-                                                    </Table>
-                                                    <Table>
-                                                        <thead>
-                                                            <tr>
-                                                                <th>"txt"</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {txts
-                                                                .into_iter()
-                                                                .map(|n| {
-                                                                    view! {
-                                                                        <tr>
-                                                                            <td>{n}</td>
-                                                                        </tr>
-                                                                    }
-                                                                })
-                                                                .collect::<Vec<_>>()}
-                                                        </tbody>
-                                                    </Table>
-                                                </Modal>
-                                            </Space>
-                                            <CardFooter slot>{a.first()}</CardFooter>
-                                        </Card>
-                                    </GridItem>
-                                }
-                            }
-                        />
-
-                    </Grid>
-                </Layout>
-            </Suspense>
-        </Layout>
-    }
-}
-
-/// Component that allows setting filters to apply to resolved services
-#[component]
-fn InterfaceFilter() -> impl IntoView {
-    let interface_filters = create_rw_signal(HashSet::new());
-    let set_interfaces_action = create_action(|input: &HashSet<String>| {
-        let itfs = input.clone().into_iter().collect();
-        async move { set_filter_interfaces(itfs).await }
-    });
-    create_effect(move |_| {
-        set_interfaces_action.dispatch(interface_filters.get());
-    });
-    view! {
-        <Space>
-            <Collapse accordion=true>
-                <CollapseItem title="Filter" key="subnets">
-                    <Space vertical=true>
-                        <Text>
-                            "Check an interface to filter IPs of resolved records to be in the subnet of the selected interface."
-                        </Text>
-                        <Text>
-                            "The filter is applied to new resolved records. Note: IPv6 addresses with the scope link-local are not filtered."
-                        </Text>
-                        <CheckboxGroup value=interface_filters>
-                            <Await
-                                future=list_filter_interfaces
-                                children=|itfs| {
-                                    {
-                                        itfs.clone()
-                                            .into_iter()
-                                            .map(|itf| {
-                                                view! { <CheckboxItem label=itf.clone() key=itf.clone()/> }
-                                            })
-                                            .collect_view()
-                                    }
-                                }
-                            />
-
-                        </CheckboxGroup>
-                    </Space>
-                </CollapseItem>
-            </Collapse>
-        </Space>
-    }
-}
-
-/// Component that displays ResolvedServices
-#[component]
-fn ShowResolvedServices(services: ResolvedServices) -> impl IntoView {
-    view! {
-        <Layout style="padding: 10px 0 0 0;">
-            <Table>
-                <thead>
-                    <tr>
-                        <th>"Instance"</th>
-                        <th>"Subtype"</th>
-                        <th>"Hostname"</th>
-                        <th>"Port"</th>
-                        <th>"IPs"</th>
-                        <th>"txt"</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {services
-                        .into_iter()
-                        .map(|n| {
-                            view! {
-                                <tr>
-                                    <td>{n.instance_name}</td>
-                                    <td>{n.subtype}</td>
-                                    <td>{n.hostname}</td>
-                                    <td>{n.port}</td>
-                                    <td>
-                                        {n
-                                            .addresses
-                                            .iter()
-                                            .map(|n| n.to_string())
-                                            .collect::<Vec<String>>()
-                                            .join(", ")}
-                                    </td>
-                                    <td>
-                                        {n
-                                            .txt
-                                            .iter()
-                                            .map(|n| n.to_string())
-                                            .collect::<Vec<String>>()
-                                            .join(", ")}
-                                    </td>
-                                </tr>
-                            }
-                        })
-                        .collect::<Vec<_>>()}
-                </tbody>
-            </Table>
-        </Layout>
-    }
-}
-
-/// Component that auto completes service types
-#[component]
-fn AutoCompleteServiceType(
-    #[prop(optional, into)] value: Model<String>,
-    #[prop(optional, into)] disabled: MaybeSignal<bool>,
-) -> impl IntoView {
-    let (service_types, set_service_types) = create_signal(ServiceTypes::new());
-    create_local_resource(move || set_service_types, listen_on_service_type_event);
-    let service_type_options = create_memo(move |_| {
-        service_types
-            .get()
-            .into_iter()
-            .map(|service_type| AutoCompleteOption {
-                label: service_type.clone(),
-                value: service_type.clone(),
-            })
-            .collect()
-    });
-    view! {
-        <AutoComplete
-            value=value
-            disabled=disabled
-            options=service_type_options
-            placeholder="Service type"
-        />
-    }
-}
-
-/// Component to resolve services
-#[component]
-fn ResolveService() -> impl IntoView {
-    let resolve_action = create_action(|input: &String| {
-        let input = input.clone();
-        async move { resolve_service(input.clone()).await }
-    });
-
-    let service_type = use_context::<ServiceTypesSignal>().unwrap().0;
-    let browsing = use_context::<BrowsingSignal>().unwrap().0;
-    let browsing_or_service_type_empty =
-        Signal::derive(move || browsing.get() || service_type.get().is_empty());
-
-    let on_click = move |_| {
-        browsing.set(true);
-        let value = service_type.get();
-        resolve_action.dispatch(value);
-    };
-
-    let resolve_value = resolve_action.value();
-
-    view! {
-        <Layout style="padding: 10px;">
-            <Suspense fallback=move || {
-                view! {
-                    <Space>
-                        <Text>"Loading..."</Text>
-                    </Space>
-                }
-            }>
-                <Space>
-                    <Button on_click disabled=browsing_or_service_type_empty>
-                        "Resolve"
-                    </Button>
-                    <InterfaceFilter/>
-                </Space>
-                {move || match resolve_value.get() {
-                    None => view! { "" }.into_view(),
-                    Some(services) => {
-                        browsing.set(false);
-                        view! { <ShowResolvedServices services/> }.into_view()
+            <Space>
+                <Popover
+                    tooltip=true
+                    placement=PopoverPlacement::Bottom
+                    trigger_type=thaw::PopoverTriggerType::Hover
+                >
+                    <PopoverTrigger slot>
+                        <AutoCompleteServiceType value=service_type disabled=browsing/>
+                    </PopoverTrigger>
+                    "Select a service type to browse"
+                </Popover>
+                <Button on_click=on_browse_click disabled=browsing_or_service_type_empty>
+                    "Browse"
+                </Button>
+                <Popover tooltip=true placement=PopoverPlacement::Bottom>
+                    <PopoverTrigger slot>
+                        <Button on_click=on_stop_click disabled=not_browsing>
+                            "Stop"
+                        </Button>
+                    </PopoverTrigger>
+                    "Stops browsing and clears the result"
+                </Popover>
+            </Space>
+            <Grid cols=3 x_gap=5 y_gap=5>
+                <For
+                    each=move || resolved.get()
+                    key=|rs| rs.instance_name.clone()
+                    children=move |rs| {
+                        let mut hostname = rs.hostname;
+                        hostname.pop();
+                        let updated_at = DateTime::from_timestamp_millis(rs.updated_at_ms as i64)
+                            .unwrap();
+                        let addrs = rs.addresses.iter().map(|a| a.to_string()).collect::<Vec<_>>();
+                        let addrs_cloned = addrs.clone();
+                        let txts = rs.txt.iter().map(|t| t.to_string()).collect::<Vec<_>>();
+                        let subtype = match rs.subtype {
+                            None => vec![],
+                            Some(s) => vec![s],
+                        };
+                        let show = create_rw_signal(false);
+                        view! {
+                            <GridItem>
+                                <Card title=rs.instance_name.clone()>
+                                    <CardHeaderExtra slot>
+                                        {updated_at
+                                            .to_rfc3339_opts(format::SecondsFormat::Millis, true)}
+                                    </CardHeaderExtra>
+                                    <Space align=SpaceAlign::Center>
+                                        <Tag variant=TagVariant::Success>
+                                            {hostname} ":" {rs.port}
+                                        </Tag>
+                                        <Button
+                                            size=ButtonSize::Tiny
+                                            on_click=move |_| show.set(true)
+                                        >
+                                            "Details"
+                                        </Button>
+                                        <Modal title=rs.instance_name.clone() show>
+                                            <ValuesTable values=subtype title="subtype"/>
+                                            <ValuesTable values=addrs title="IPs"/>
+                                            <ValuesTable values=txts title="txt"/>
+                                        </Modal>
+                                    </Space>
+                                    <CardFooter slot>{addrs_cloned.first()}</CardFooter>
+                                </Card>
+                            </GridItem>
+                        }
                     }
-                }}
+                />
 
-            </Suspense>
+            </Grid>
         </Layout>
     }
 }
@@ -577,15 +386,6 @@ pub fn App() -> impl IntoView {
         <ThemeProvider theme>
             <GlobalStyle/>
             <Metrics/>
-            <Layout style="padding: 10px">
-                <Popover tooltip=true trigger_type=thaw::PopoverTriggerType::Hover>
-                    <PopoverTrigger slot>
-                        <AutoCompleteServiceType value=service_type disabled=browsing/>
-                    </PopoverTrigger>
-                    "Select a service type"
-                </Popover>
-            </Layout>
-            <ResolveService/>
             <Browse/>
         </ThemeProvider>
     }
