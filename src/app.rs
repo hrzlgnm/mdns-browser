@@ -4,7 +4,7 @@ use std::{
     net::IpAddr,
 };
 
-use chrono::{format, DateTime};
+use chrono::{DateTime, Local};
 use futures::{select, StreamExt};
 use leptos::*;
 use leptos_meta::provide_meta_context;
@@ -285,6 +285,7 @@ fn Browse() -> impl IntoView {
                         hostname.pop();
                         let updated_at = DateTime::from_timestamp_millis(rs.updated_at_ms as i64)
                             .unwrap();
+                        let as_local_datetime : DateTime<Local> =updated_at.with_timezone(&Local);
                         let addrs = rs.addresses.iter().map(|a| a.to_string()).collect::<Vec<_>>();
                         let addrs_cloned = addrs.clone();
                         let txts = rs.txt.iter().map(|t| t.to_string()).collect::<Vec<_>>();
@@ -297,8 +298,8 @@ fn Browse() -> impl IntoView {
                             <GridItem>
                                 <Card title=rs.instance_name.clone()>
                                     <CardHeaderExtra slot>
-                                        {updated_at
-                                            .to_rfc3339_opts(format::SecondsFormat::Millis, true)}
+                                        {as_local_datetime
+                                            .format("%Y-%m-%d %H:%M:%S").to_string()}
                                     </CardHeaderExtra>
                                     <Space align=SpaceAlign::Center>
                                         <Tag variant=TagVariant::Success>
