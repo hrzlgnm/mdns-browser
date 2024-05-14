@@ -50,18 +50,18 @@ jobs:
           git push --set-upstream origin bump-version-${{ env.new_version }}
 
       - name: Create Pull Request
-        uses: actions/github-script@v7
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const newVersion = process.env.new_version;
-            const branchName = `bump-version-${newVersion}`;
-            const { data: pullRequest } = await github.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `chore(version): bump version to ${newVersion}`,
-              head: branchName,
-              base: 'main',
-              body: `This PR bumps the minor version to ${newVersion}.`
-            });
-            console.log(`Created PR: ${pullRequest.html_url}`);
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(version) : bump to ${{ env.new_version }}"
+          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+          signoff: false
+          branch: bump-version-${{ env.new_version }}
+          delete-branch: true
+          title: "chore(version): bump version to ${{ env.new_version }}"
+          labels: |
+            automated pr
+          reviewers: hrzlgnm
+          draft: false
