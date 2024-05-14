@@ -59,10 +59,8 @@ jobs:
           author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
           signoff: false
           base: main
-          branch: bump-version-${{ env.new_version }}
-          delete-branch: true
+          branch: chore/bump-version-${{ env.new_version }}
+          branch-suffix: random
           title: "chore(version): bump version to ${{ env.new_version }}"
-          labels: |
-            automated pr
           reviewers: hrzlgnm
           draft: false
