@@ -64,4 +64,4 @@ jobs:
               base: 'main',  // Change to your default branch if it's not `main`
               body: `This PR bumps the minor version to ${newVersion}.`
             });
-            console.log(`Created PR: ${pullRequest.html_url}`);     - name: Commit changes
+            console.log(`Created PR: ${pullRequest.html_url}`);
