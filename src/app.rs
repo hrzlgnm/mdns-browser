@@ -38,6 +38,10 @@ impl Display for TxtRecord {
     }
 }
 
+fn default_dead() -> bool {
+    false
+}
+
 #[derive(Deserialize, Debug, Clone)]
 struct ResolvedService {
     instance_name: String,
@@ -47,6 +51,15 @@ struct ResolvedService {
     subtype: Option<String>,
     txt: Vec<TxtRecord>,
     updated_at_ms: u64,
+    #[serde(default = "default_dead")]
+    dead: bool,
+}
+
+impl ResolvedService {
+    fn die_at(&mut self, at_ms: u64) {
+        self.dead = true;
+        self.updated_at_ms = at_ms;
+    }
 }
 type ResolvedServices = Vec<ResolvedService>;
 
@@ -97,6 +110,7 @@ pub struct ResolvedServiceEventRes {
 #[derive(Deserialize, Clone, Debug)]
 pub struct ServiceRemovedEventRes {
     instance_name: String,
+    at_ms: u64,
 }
 
 async fn listen_on_browse_events(event_writer: WriteSignal<ResolvedServices>) {
@@ -123,7 +137,14 @@ async fn listen_on_browse_events(event_writer: WriteSignal<ResolvedServices>) {
             event = removed_fused.next() => {
                 if let Some(event) = event {
                     log::debug!("Received event 'service-removed': {:#?}", event);
-                    event_writer.update(|evts| evts.retain(|r| r.instance_name != event.payload.instance_name));
+                    event_writer.update(|evts| {
+                        for item in evts.iter_mut() {
+                            if item.instance_name == event.payload.instance_name {
+                                item.die_at(event.payload.at_ms);
+                                break;
+                            }
+                        }
+                    });
                 }
             }
             complete => break,
@@ -190,6 +211,14 @@ fn ValuesTable(values: Vec<String>, #[prop(into)] title: String) -> impl IntoVie
     }
 }
 
+fn remove_trailing_local(input: &str) -> String {
+    if let Some(stripped) = input.strip_suffix(".local.") {
+        stripped.to_string()
+    } else {
+        input.to_string()
+    }
+}
+
 /// Component that auto completes service types
 #[component]
 fn AutoCompleteServiceType(
@@ -215,6 +244,67 @@ fn AutoCompleteServiceType(
             options=service_type_options
             placeholder="Service type"
         />
+    }
+}
+
+/// Component that shows a service as a card
+#[component]
+fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
+    let mut hostname = resolved_service.hostname;
+    hostname.pop(); // remove the trailing dot
+    let updated_at =
+        DateTime::from_timestamp_millis(resolved_service.updated_at_ms as i64).unwrap();
+    let as_local_datetime: DateTime<Local> = updated_at.with_timezone(&Local);
+    let addrs = resolved_service
+        .addresses
+        .iter()
+        .map(|a| a.to_string())
+        .collect::<Vec<_>>();
+    let txts = resolved_service
+        .txt
+        .iter()
+        .map(|t| t.to_string())
+        .collect::<Vec<_>>();
+    let subtype = match resolved_service.subtype {
+        None => vec![],
+        Some(s) => vec![s],
+    };
+    let card_title = remove_trailing_local(resolved_service.instance_name.as_str());
+    let details_title = resolved_service.instance_name.clone();
+    let show_details = create_rw_signal(false);
+    let hostname_variant = match resolved_service.dead {
+        true => TagVariant::Default,
+        false => TagVariant::Success,
+    };
+    let port_variant = match resolved_service.dead {
+        true => TagVariant::Default,
+        false => TagVariant::Warning,
+    };
+    let addrs_footer = match resolved_service.dead {
+        true => vec![],
+        false => addrs.clone(),
+    };
+    view! {
+        <GridItem>
+            <Card title=card_title>
+                <CardHeaderExtra slot>
+                    {as_local_datetime.format("%Y-%m-%d %H:%M:%S").to_string()}
+                </CardHeaderExtra>
+                <Space align=SpaceAlign::Center>
+                    <Tag variant=hostname_variant>{hostname}</Tag>
+                    <Tag variant=port_variant>{resolved_service.port}</Tag>
+                    <Button size=ButtonSize::Tiny disabled=resolved_service.dead on_click=move |_| show_details.set(true)>
+                        "Details"
+                    </Button>
+                    <Modal title=details_title show=show_details>
+                        <ValuesTable values=subtype title="subtype"/>
+                        <ValuesTable values=addrs title="IPs"/>
+                        <ValuesTable values=txts title="txt"/>
+                    </Modal>
+                </Space>
+                <CardFooter slot>{addrs_footer.first()}</CardFooter>
+            </Card>
+        </GridItem>
     }
 }
 
@@ -282,51 +372,14 @@ fn Browse() -> impl IntoView {
                 <For
                     each=move || resolved.get()
                     key=|rs| format!("{}{}", rs.instance_name.clone(), rs.updated_at_ms)
-                    children=move |rs| {
-                        let mut hostname = rs.hostname;
-                        hostname.pop();
-                        let updated_at = DateTime::from_timestamp_millis(rs.updated_at_ms as i64)
-                            .unwrap();
-                        let as_local_datetime: DateTime<Local> = updated_at.with_timezone(&Local);
-                        let addrs = rs.addresses.iter().map(|a| a.to_string()).collect::<Vec<_>>();
-                        let addrs_cloned = addrs.clone();
-                        let txts = rs.txt.iter().map(|t| t.to_string()).collect::<Vec<_>>();
-                        let subtype = match rs.subtype {
-                            None => vec![],
-                            Some(s) => vec![s],
-                        };
-                        let show = create_rw_signal(false);
-                        view! {
-                            <GridItem>
-                                <Card title=rs.instance_name.clone()>
-                                    <CardHeaderExtra slot>
-                                        {as_local_datetime.format("%Y-%m-%d %H:%M:%S").to_string()}
-                                    </CardHeaderExtra>
-                                    <Space align=SpaceAlign::Center>
-                                        <Tag variant=TagVariant::Success>{hostname}</Tag>
-                                        <Tag variant=TagVariant::Warning>{rs.port}</Tag>
-                                        <Button
-                                            size=ButtonSize::Tiny
-                                            on_click=move |_| show.set(true)
-                                        >
-                                            "Details"
-                                        </Button>
-                                        <Modal title=rs.instance_name.clone() show>
-                                            <ValuesTable values=subtype title="subtype"/>
-                                            <ValuesTable values=addrs title="IPs"/>
-                                            <ValuesTable values=txts title="txt"/>
-                                        </Modal>
-                                    </Space>
-                                    <CardFooter slot>{addrs_cloned.first()}</CardFooter>
-                                </Card>
-                            </GridItem>
-                        }
+                    children=move |resolved_service| {
+                        view! { <ResolvedServiceGridItem resolved_service/> }
                     }
                 />
-
             </Grid>
             <Style>
-                ".responsivegrid {
+                "
+                 .responsivegrid {
                      grid-template-columns: repeat(5, 1fr) !important;
                      grid-gap: 10px 10px !important;
                  }
@@ -350,7 +403,7 @@ fn Browse() -> impl IntoView {
                          grid-template-columns: 1fr !important;
                     }
                  }
-                 "
+                "
             </Style>
         </Layout>
     }

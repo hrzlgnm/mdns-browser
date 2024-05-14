@@ -51,11 +51,15 @@ pub struct ResolvedService {
     updated_at_ms: u64,
 }
 
+fn timestamp_millis() -> u64 {
+    let now = SystemTime::now();
+    let since_epoch = now.duration_since(SystemTime::UNIX_EPOCH).unwrap();
+
+    since_epoch.as_secs() * 1000 + u64::from(since_epoch.subsec_millis())
+}
+
 impl From<&ServiceInfo> for ResolvedService {
     fn from(info: &ServiceInfo) -> ResolvedService {
-        let now = SystemTime::now();
-        let since_epoch = now.duration_since(SystemTime::UNIX_EPOCH).unwrap();
-        let millisseconds = since_epoch.as_secs() * 1000 + u64::from(since_epoch.subsec_millis());
         let mut sorted_addresses: Vec<IpAddr> = info.get_addresses().clone().drain().collect();
         sorted_addresses.sort();
         let mut sorted_txt: Vec<TxtRecord> = info
@@ -74,7 +78,7 @@ impl From<&ServiceInfo> for ResolvedService {
             addresses: sorted_addresses,
             subtype: info.get_subtype().clone(),
             txt: sorted_txt,
-            updated_at_ms: millisseconds,
+            updated_at_ms: timestamp_millis(),
         }
     }
 }
@@ -99,6 +103,7 @@ type SearchStoppedEvent = SearchStartedEvent;
 #[derive(Serialize, Clone, Debug)]
 pub struct ServiceRemovedEvent {
     instance_name: String,
+    at_ms: u64,
 }
 
 type ServiceFoundEvent = ServiceRemovedEvent;
@@ -171,7 +176,13 @@ fn browse(service_type: String, window: Window, state: State<MdnsState>) {
                         match event {
                             ServiceEvent::ServiceFound(_service_type, instance_name) => {
                                 window
-                                    .emit("service-found", &ServiceFoundEvent { instance_name })
+                                    .emit(
+                                        "service-found",
+                                        &ServiceFoundEvent {
+                                            instance_name,
+                                            at_ms: timestamp_millis(),
+                                        },
+                                    )
                                     .expect("To emit");
                             }
                             ServiceEvent::SearchStarted(service_type) => {
@@ -191,7 +202,13 @@ fn browse(service_type: String, window: Window, state: State<MdnsState>) {
                             }
                             ServiceEvent::ServiceRemoved(_service_type, instance_name) => {
                                 window
-                                    .emit("service-removed", &ServiceRemovedEvent { instance_name })
+                                    .emit(
+                                        "service-removed",
+                                        &ServiceRemovedEvent {
+                                            instance_name,
+                                            at_ms: timestamp_millis(),
+                                        },
+                                    )
                                     .expect("To emit");
                             }
                             ServiceEvent::SearchStopped(service_type) => {
