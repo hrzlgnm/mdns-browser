@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "mdns-browser",
-    "version": "0.5.3"
+    "version": "0.6.0"
   },
   "tauri": {
     "allowlist": {
@@ -37,8 +37,8 @@
     "windows": [
       {
         "title": "mDNS-Browser",
-        "width": 800,
-        "height": 600
+        "width": 1600,
+        "height": 900
       }
     ],
     "security": {
