@@ -170,7 +170,6 @@ fn browse(service_type: String, window: Window, state: State<MdnsState>) {
                     while let Ok(event) = receiver.recv() {
                         match event {
                             ServiceEvent::ServiceFound(_service_type, instance_name) => {
-                                log::debug!("Service {} found: {}", _service_type, instance_name);
                                 window
                                     .emit("service-found", &ServiceFoundEvent { instance_name })
                                     .expect("To emit");
@@ -181,7 +180,6 @@ fn browse(service_type: String, window: Window, state: State<MdnsState>) {
                                     .expect("to emit");
                             }
                             ServiceEvent::ServiceResolved(info) => {
-                                log::debug!("Service resolved: {:#?}", info);
                                 window
                                     .emit(
                                         "service-resolved",
@@ -192,7 +190,6 @@ fn browse(service_type: String, window: Window, state: State<MdnsState>) {
                                     .expect("To emit");
                             }
                             ServiceEvent::ServiceRemoved(_service_type, instance_name) => {
-                                log::debug!("Service {} removed: {}", _service_type, instance_name);
                                 window
                                     .emit("service-removed", &ServiceRemovedEvent { instance_name })
                                     .expect("To emit");
