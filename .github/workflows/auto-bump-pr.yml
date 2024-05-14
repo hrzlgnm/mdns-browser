@@ -11,34 +11,21 @@ permissions:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
 
-      - name: Bump minor version in tauri.conf.json
+      - name: Bump version in tauri.conf.json
         id: bump_version
         run: |
-          # Read the current version from tauri.conf.json
           CURRENT_VERSION=$(jq -r '.package.version' src-tauri/tauri.conf.json)
-
-          # Split the version into components
           IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
-
-          # Increment the minor version
           MAJOR=${VERSION_PARTS[0]}
           MINOR=${VERSION_PARTS[1]}
           PATCH=${VERSION_PARTS[2]}
-
           NEW_PATCH=$((PATCH + 1))
           NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
-
-          # Update the version in tauri.conf.json
           jq ".package.version = \"$NEW_VERSION\"" src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp && mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
-
-          # Print the updated tauri.conf.json for verification
-          cat src-tauri/tauri.conf.json
-
           echo "new_version=$NEW_VERSION" >> "$GITHUB_ENV"
 
       - name: Create Pull Request
@@ -54,5 +41,4 @@ jobs:
           branch: chore/bump-version-${{ env.new_version }}
           branch-suffix: random
           title: "chore(version): bump version to ${{ env.new_version }}"
-          reviewers: hrzlgnm
           draft: false
