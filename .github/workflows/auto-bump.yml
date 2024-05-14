@@ -40,12 +40,6 @@ jobs:
           cat src-tauri/tauri.conf.json
 
           echo "new_version=$NEW_VERSION" >> "$GITHUB_ENV"
-      - name: Commit changes
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add src-tauri/tauri.conf.json
-          git commit -m "chore(version): bump version to ${{ env.new_version }}"
 
       - name: Create Pull Request
         id: cpr
