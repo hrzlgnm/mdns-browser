@@ -141,6 +141,7 @@ async fn listen_on_browse_events(event_writer: WriteSignal<ResolvedServices>) {
                         for item in evts.iter_mut() {
                             if item.instance_name == event.payload.instance_name {
                                 item.die_at(event.payload.at_ms);
+                                break;
                             }
                         }
                     });
