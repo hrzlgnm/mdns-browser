@@ -325,7 +325,6 @@ fn Browse() -> impl IntoView {
                 />
 
             </Grid>
-            /// this is hack using !important to overwrite the thaw-grid props
             <Style>
                 ".responsivegrid {
                      grid-template-columns: repeat(5, 1fr) !important;
