@@ -40,11 +40,24 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          git checkout -b bump-version-${{ steps.bump_version.outputs.new_version }}
           git add src-tauri/tauri.conf.json
-          git commit -m "chore(bump): minor version to ${{ steps.bump_version.outputs.new_version }}"
+          git commit -m "chore(version): bump version to ${{ steps.bump_version.outputs.new_version }}"
+          git push --set-upstream origin bump-version-${{ steps.bump_version.outputs.new_version }}
 
-      - name: Push changes
-        uses: ad-m/github-push-action@v0.8.0
+      - name: Create Pull Request
+        uses: actions/github-script@v6
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main # Change to your default branch if it's not `main`
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const newVersion = '${{ steps.bump_version.outputs.new_version }}';
+            const branchName = `bump-version-${newVersion}`;
+            const { data: pullRequest } = await github.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `chore(version): bump version to ${newVersion}`,
+              head: branchName,
+              base: 'main',  // Change to your default branch if it's not `main`
+              body: `This PR bumps the minor version to ${newVersion}.`
+            });
+            console.log(`Created PR: ${pullRequest.html_url}`);     - name: Commit changes
