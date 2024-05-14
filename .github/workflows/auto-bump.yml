@@ -1,0 +1,50 @@
+name: Auto Bump Patch
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Bump minor version in tauri.conf.json
+        id: bump_version
+        run: |
+          # Read the current version from tauri.conf.json
+          CURRENT_VERSION=$(jq -r '.package.version' src-tauri/tauri.conf.json)
+
+          # Split the version into components
+          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
+
+          # Increment the minor version
+          MAJOR=${VERSION_PARTS[0]}
+          MINOR=${VERSION_PARTS[1]}
+          PATCH=${VERSION_PARTS[2]}
+
+          NEW_PATCH=$((PATCH + 1))
+          NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+
+          # Update the version in tauri.conf.json
+          jq ".package.version = \"$NEW_VERSION\"" src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp && mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
+
+          # Print the updated tauri.conf.json for verification
+          cat src-tauri/tauri.conf.json
+
+          echo "::set-output name=new_version::$NEW_VERSION"
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add src-tauri/tauri.conf.json
+          git commit -m "chore(bump): minor version to ${{ steps.bump_version.outputs.new_version }}"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main # Change to your default branch if it's not `main`
