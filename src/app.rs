@@ -1,3 +1,5 @@
+use leptos::*;
+
 use std::{
     collections::{HashMap, HashSet},
     fmt::Display,
@@ -6,8 +8,8 @@ use std::{
 
 use chrono::{DateTime, Local};
 use futures::{select, StreamExt};
-use leptos::*;
 use leptos_meta::provide_meta_context;
+use leptos_meta::Style;
 use serde::{Deserialize, Serialize};
 use tauri_sys::event::listen;
 use tauri_sys::tauri::invoke;
@@ -276,16 +278,16 @@ fn Browse() -> impl IntoView {
                     "Stops browsing and clears the result"
                 </Popover>
             </Space>
-            <Grid cols=3 x_gap=5 y_gap=5>
+            <Grid class="responsivegrid">
                 <For
                     each=move || resolved.get()
-                    key=|rs| format!("{}{}",rs.instance_name.clone(), rs.updated_at_ms)
+                    key=|rs| format!("{}{}", rs.instance_name.clone(), rs.updated_at_ms)
                     children=move |rs| {
                         let mut hostname = rs.hostname;
                         hostname.pop();
                         let updated_at = DateTime::from_timestamp_millis(rs.updated_at_ms as i64)
                             .unwrap();
-                        let as_local_datetime : DateTime<Local> =updated_at.with_timezone(&Local);
+                        let as_local_datetime: DateTime<Local> = updated_at.with_timezone(&Local);
                         let addrs = rs.addresses.iter().map(|a| a.to_string()).collect::<Vec<_>>();
                         let addrs_cloned = addrs.clone();
                         let txts = rs.txt.iter().map(|t| t.to_string()).collect::<Vec<_>>();
@@ -298,16 +300,11 @@ fn Browse() -> impl IntoView {
                             <GridItem>
                                 <Card title=rs.instance_name.clone()>
                                     <CardHeaderExtra slot>
-                                        {as_local_datetime
-                                            .format("%Y-%m-%d %H:%M:%S").to_string()}
+                                        {as_local_datetime.format("%Y-%m-%d %H:%M:%S").to_string()}
                                     </CardHeaderExtra>
                                     <Space align=SpaceAlign::Center>
-                                        <Tag variant=TagVariant::Success>
-                                            {hostname}
-                                        </Tag>
-                                        <Tag variant=TagVariant::Warning>
-                                            {rs.port}
-                                        </Tag>
+                                        <Tag variant=TagVariant::Success>{hostname}</Tag>
+                                        <Tag variant=TagVariant::Warning>{rs.port}</Tag>
                                         <Button
                                             size=ButtonSize::Tiny
                                             on_click=move |_| show.set(true)
@@ -328,6 +325,34 @@ fn Browse() -> impl IntoView {
                 />
 
             </Grid>
+            /// this is hack using !important to overwrite the thaw-grid props
+            <Style>
+                ".responsivegrid {
+                     grid-template-columns: repeat(5, 1fr) !important;
+                     grid-gap: 10px 10px !important;
+                 }
+                 @media (max-width: 2400px) {
+                    .responsivegrid {
+                        grid-template-columns: repeat(4, 1fr) !important;
+                     }
+                 }
+                  @media (max-width: 1800px) {
+                    .responsivegrid {
+                        grid-template-columns: repeat(3, 1fr) !important;
+                     }
+                 }
+                  @media (max-width: 1280px) {
+                    .responsivegrid {
+                        grid-template-columns: repeat(2, 1fr) !important;
+                     }
+                 }
+                 @media (max-width: 768px) {
+                    .responsivegrid {
+                         grid-template-columns: 1fr !important;
+                    }
+                 }
+                 "
+            </Style>
         </Layout>
     }
 }
