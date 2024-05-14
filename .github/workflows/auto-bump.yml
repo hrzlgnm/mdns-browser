@@ -58,6 +58,7 @@ jobs:
           committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
           signoff: false
+          base: main
           branch: bump-version-${{ env.new_version }}
           delete-branch: true
           title: "chore(version): bump version to ${{ env.new_version }}"
