@@ -261,7 +261,6 @@ fn main() {
                 .expect("title to be set");
             Ok(())
         })
-        .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(
             tauri_plugin_log::Builder::default()
                 .targets([LogTarget::LogDir, LogTarget::Stdout, LogTarget::Webview])
