@@ -4,6 +4,10 @@ on:
   release:
     types: [created]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   bump-version:
     runs-on: ubuntu-latest
