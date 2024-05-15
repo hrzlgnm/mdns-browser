@@ -9,7 +9,7 @@ edition = "2021"
 tauri-build = { version = "1.5.2", features = [] }
 
 [dependencies]
-tauri = { version = "1.6.5", features = [
+tauri = { version = "1.6.6", features = [
     "window-all",
     "process-relaunch",
     "process-exit",
@@ -26,7 +26,7 @@ mdns-sd = { version = "0.11.1", default-features = false, features = [
     "log",
 ] }
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
-log = "^0.4.21"
+log = "0.4.21"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
