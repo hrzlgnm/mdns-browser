@@ -226,7 +226,7 @@ fn browse(service_type: String, window: Window, state: State<MdnsState>) {
     }
 }
 
-const METRIC_SEND_INTERVAL: Duration = Duration::from_millis(200);
+const METRIC_SEND_INTERVAL: Duration = Duration::from_secs(10);
 
 #[tauri::command]
 fn send_metrics(window: Window, state: State<MdnsState>) {
