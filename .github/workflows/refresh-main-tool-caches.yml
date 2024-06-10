@@ -21,13 +21,13 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - name: cached install trunk
-        uses: taiki-e/cache-cargo-install-action@v2.0.0
+        uses: taiki-e/cache-cargo-install-action@v2.0.1
         with:
           tool: trunk
           locked: true
 
       - name: cached install tauri-cli
-        uses: taiki-e/cache-cargo-install-action@v2.0.0
+        uses: taiki-e/cache-cargo-install-action@v2.0.1
         with:
           tool: tauri-cli
           locked: true
