@@ -2,12 +2,15 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    ":dependencyDashboard",
     ":automergeMinor",
     ":automergePr",
+    ":combinePatchMinorReleases"
+    ":dependencyDashboard",
+    ":enableVulnerabilityAlerts",
     ":rebaseStalePrs",
     ":semanticCommits",
     ":semanticPrefixChore",
-    ":separateMajorReleases"
+    ":separateMajorReleases",
+    ":prImmediately"
   ]
 }
