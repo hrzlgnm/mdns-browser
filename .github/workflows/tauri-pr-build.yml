@@ -40,7 +40,7 @@ jobs:
           tool: cargo-make
           locked: true
 
-      - name: Run codespell (unbuntu only)
+      - name: Run codespell (ubuntu only)
         if: contains(matrix.platform, 'ubuntu')
         run: |
           cargo make codespell
