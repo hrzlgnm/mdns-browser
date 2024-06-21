@@ -20,6 +20,13 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     steps:
+      - name: cached install cargo-make (ubuntu only)
+        if: contains(matrix.platform, 'ubuntu')
+        uses: taiki-e/cache-cargo-install-action@v2.0.1
+        with:
+          tool: cargo-make
+          locked: true
+
       - name: cached install trunk
         uses: taiki-e/cache-cargo-install-action@v2.0.1
         with:
