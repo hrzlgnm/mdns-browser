@@ -25,20 +25,21 @@ jobs:
           components: rustfmt, clippy
 
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: contains(matrix.platform, 'ubuntu')
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf codespell
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf python3-pip
+          sudo python3 -m pip install codespell
 
       - name: cached install cargo-make (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: contains(matrix.platform, 'ubuntu')
         uses: taiki-e/cache-cargo-install-action@v2.0.1
         with:
           tool: cargo-make
           locked: true
 
       - name: Run codespell (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: contains(matrix.platform, 'ubuntu')
         run: |
           cargo make codespell
 
