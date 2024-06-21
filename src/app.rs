@@ -127,7 +127,7 @@ async fn listen_on_browse_events(event_writer: WriteSignal<ResolvedServices>) {
         select! {
             event = resolved_fused.next() => {
                 if let Some(event) = event {
-                    log::debug!("Received event 'service-resovlved': {:#?}", event);
+                    log::debug!("Received event 'service-resolved': {:#?}", event);
                     event_writer.update(|evts| {
                          evts.retain(|r| r.instance_name != event.payload.service.instance_name);
                          evts.push(event.payload.service);

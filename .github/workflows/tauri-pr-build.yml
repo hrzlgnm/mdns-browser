@@ -31,7 +31,19 @@ jobs:
         if: contains(matrix.platform, 'ubuntu')
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf codespell
+
+      - name: cached install cargo-make (ubuntu only)
+        if: contains(matrix.platform, 'ubuntu')
+        uses: taiki-e/cache-cargo-install-action@v2.0.1
+        with:
+          tool: cargo-make
+          locked: true
+
+      - name: Run codespell (unbuntu only)
+        if: contains(matrix.platform, 'ubuntu')
+        run: |
+          cargo make codespell
 
       - name: Run rustfmt and fail if any warnings (macos only)
         if: contains(matrix.platform, 'macos')
