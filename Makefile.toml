@@ -6,4 +6,3 @@ skip_crate_env_info = true
 
 [tasks.codespell]
 command = "codespell"
-args = ["src/*.rs", "src-tauri/**/*.rs"]
