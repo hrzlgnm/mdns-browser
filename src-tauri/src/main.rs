@@ -37,7 +37,7 @@ fn get_shared_daemon() -> SharedServiceDaemon {
 #[derive(Serialize, Clone, Debug)]
 struct TxtRecord {
     key: String,
-    val: String,
+    val: Option<String>,
 }
 
 #[derive(Serialize, Clone, Debug)]
@@ -58,6 +58,39 @@ fn timestamp_millis() -> u64 {
     since_epoch.as_secs() * 1000 + u64::from(since_epoch.subsec_millis())
 }
 
+fn string_with_control_characters_escaped(input: String) -> String {
+    input
+        .chars()
+        .map(|ch| {
+            if ch.is_control() {
+                format!(r"\u{:04x}", ch as u32)
+            } else {
+                ch.to_string()
+            }
+        })
+        .collect()
+}
+
+fn bytes_option_to_string_option_with_escaping(maybe_bytes: Option<&[u8]>) -> Option<String> {
+    maybe_bytes.map(|bytes| match String::from_utf8(bytes.to_vec()) {
+        Ok(utf8_string) => {
+            let result = string_with_control_characters_escaped(utf8_string);
+            log::info!("bytes {:#?} -> str {}", bytes, result);
+
+            result
+        }
+        Err(_) => byte_array_hexlified(bytes),
+    })
+}
+
+fn byte_array_hexlified(byte_array: &[u8]) -> String {
+    byte_array
+        .iter()
+        .map(|byte| format!("{:02x}", byte))
+        .collect::<Vec<String>>()
+        .join("")
+}
+
 impl From<&ServiceInfo> for ResolvedService {
     fn from(info: &ServiceInfo) -> ResolvedService {
         let mut sorted_addresses: Vec<IpAddr> = info.get_addresses().clone().drain().collect();
@@ -65,9 +98,12 @@ impl From<&ServiceInfo> for ResolvedService {
         let mut sorted_txt: Vec<TxtRecord> = info
             .get_properties()
             .iter()
-            .map(|r| TxtRecord {
-                key: r.key().into(),
-                val: r.val_str().into(),
+            .map(|r| {
+                log::info!("txt prop {:#?}", r.val());
+                TxtRecord {
+                    key: r.key().into(),
+                    val: bytes_option_to_string_option_with_escaping(r.val()),
+                }
             })
             .collect();
         sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
