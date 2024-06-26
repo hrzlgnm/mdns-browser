@@ -25,15 +25,15 @@ type ServiceTypes = Vec<String>;
 #[derive(Deserialize, Clone, Debug)]
 struct TxtRecord {
     key: String,
-    val: String,
+    val: Option<String>,
 }
 
 impl Display for TxtRecord {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.val.is_empty() {
+        if self.val.is_none() {
             write!(f, "{}", self.key)
         } else {
-            write!(f, "{}={}", self.key, self.val)
+            write!(f, "{}={}", self.key, self.val.clone().unwrap())
         }
     }
 }
