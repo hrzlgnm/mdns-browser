@@ -75,7 +75,7 @@ fn bytes_option_to_string_option_with_escaping(maybe_bytes: Option<&[u8]>) -> Op
     maybe_bytes.map(|bytes| match String::from_utf8(bytes.to_vec()) {
         Ok(utf8_string) => {
             let result = string_with_control_characters_escaped(utf8_string);
-            log::info!("bytes {:#?} -> str {}", bytes, result);
+            log::debug!("bytes {:#?} -> str {}", bytes, result);
 
             result
         }
@@ -99,7 +99,7 @@ impl From<&ServiceInfo> for ResolvedService {
             .get_properties()
             .iter()
             .map(|r| {
-                log::info!("txt prop {:#?}", r.val());
+                log::debug!("txt prop {:#?}", r.val());
                 TxtRecord {
                     key: r.key().into(),
                     val: bytes_option_to_string_option_with_escaping(r.val()),
