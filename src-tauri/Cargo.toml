@@ -6,10 +6,10 @@ authors = ["hrzlgnm"]
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "1.5.2", features = [] }
+tauri-build = { version = "1.5.3", features = [] }
 
 [dependencies]
-tauri = { version = "1.6.8", features = [
+tauri = { version = "1.7.1", features = [
     "window-all",
     "process-relaunch",
     "process-exit",
@@ -19,14 +19,14 @@ tauri = { version = "1.6.8", features = [
     "http-api",
     "http-request",
 ] }
-serde = { version = "1.0.203", features = ["derive"] }
-serde_json = "1.0.117"
+serde = { version = "1.0.204", features = ["derive"] }
+serde_json = "1.0.121"
 mdns-sd = { version = "0.11.1", default-features = false, features = [
     "async",
     "log",
 ] }
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
-log = "0.4.21"
+log = "0.4.22"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
