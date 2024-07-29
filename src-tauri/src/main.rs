@@ -305,13 +305,20 @@ fn main() {
     tauri::Builder::default()
         .manage(MdnsState::new())
         .setup(|app| {
+            let splashscreen_window = app.get_window("splashscreen").unwrap();
             let main_window = app.get_window("main").unwrap();
             let ver = app.config().package.version.clone();
-            main_window
-                .set_title(
-                    format!("mDNS-Browser v{}", ver.unwrap_or(String::from("Unknown"))).as_str(),
-                )
-                .expect("title to be set");
+            tauri::async_runtime::spawn(async move {
+                std::thread::sleep(std::time::Duration::from_secs(6));
+                main_window.show().unwrap();
+                main_window
+                    .set_title(
+                        format!("mDNS-Browser v{}", ver.unwrap_or(String::from("Unknown")))
+                            .as_str(),
+                    )
+                    .expect("title to be set");
+                splashscreen_window.close().unwrap();
+            });
             Ok(())
         })
         .plugin(

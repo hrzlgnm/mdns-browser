@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mDNS-Browser loading...</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgb(26, 29, 30);
+        }
+        .splash-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: rgb(255, 193, 49);
+        }
+        .spinner {
+            border: 12px solid rgb(26, 29, 30);
+            border-top: 12px solid rgb(36, 200, 219);
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            animation: spin 2s linear infinite;
+            margin-top: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-screen">
+        <div class="spinner"></div>
+        <div id="loading-text">Joining multicast group...</div>
+    </div>
+    <script>
+        const loadingMessages = [
+            "Counting to infinity...",
+            "Summoning the algorithm...",
+            "Loading the flux capacitor...",
+            "Locating the nearest pizza...",
+            "Do not panic, we are panicking for you...",
+            "Pretending to work...",
+            "Finding the end of the internet...",
+            "Broadcasting multicast...",
+            "Resolving mDNS...",
+            "Querying multicast DNS...",
+            "Sending mDNS queries...",
+            "Listening for multicast responses...",
+            "Mapping network services...",
+            "Propagating multicast packets...",
+            "Negotiating network discovery...",
+        ];
+
+        function changeLoadingText() {
+            const loadingTextElement = document.getElementById('loading-text');
+            const randomIndex = Math.floor(Math.random() * loadingMessages.length);
+            loadingTextElement.textContent = loadingMessages[randomIndex];
+        }
+        setInterval(changeLoadingText, 1500);
+    </script>
+</body>
+</html>
