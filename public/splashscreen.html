@@ -39,25 +39,27 @@
 <body>
     <div class="splash-screen">
         <div class="spinner"></div>
-        <div id="loading-text">Joining multicast group...</div>
+        <div id="loading-text"/>
     </div>
     <script>
         const loadingMessages = [
+            "Joining multicast groups...",
             "Counting to infinity...",
-            "Summoning the algorithm...",
-            "Loading the flux capacitor...",
             "Locating the nearest pizza...",
-            "Do not panic, we are panicking for you...",
             "Pretending to work...",
             "Finding the end of the internet...",
-            "Broadcasting multicast...",
+            "Casting packets into the void...",
+            "Responding to mDNS queries...",
             "Resolving mDNS...",
-            "Querying multicast DNS...",
             "Sending mDNS queries...",
-            "Listening for multicast responses...",
-            "Mapping network services...",
-            "Propagating multicast packets...",
-            "Negotiating network discovery...",
+            "Refreshing PTR records...",
+            "Browsing SRV records...",
+            "Resolving AAAA records...",
+            "Resolving A records...",
+            "Enumerating TXT records...",
+            "Instantiating mDNS resolver...",
+            "Setting up IPC channels...",
+            "Enumerating service types...",
         ];
 
         function changeLoadingText() {
@@ -66,6 +68,7 @@
             loadingTextElement.textContent = loadingMessages[randomIndex];
         }
         setInterval(changeLoadingText, 1500);
+        changeLoadingText();
     </script>
 </body>
 </html>
