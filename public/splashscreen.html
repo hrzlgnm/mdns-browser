@@ -93,8 +93,9 @@
             const loadingTextElement = document.getElementById('loading-text');
             const randomIndex = Math.floor(Math.random() * loadingMessages.length);
             loadingTextElement.textContent = loadingMessages[randomIndex];
+            const randomDelay = Math.floor(Math.random() * 200) + 100;
+            setTimeout(changeLoadingText, randomDelay);
         }
-        setInterval(changeLoadingText, 200);
         changeLoadingText();
     </script>
 </body>

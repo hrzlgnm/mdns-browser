@@ -49,12 +49,14 @@
                 "title": "Splashscreen",
                 "url": "public/splashscreen.html",
                 "label": "splashscreen",
-                "width": 640,
-                "height": 480,
+                "width": 528,
+                "height": 297,
                 "decorations": false,
                 "resizable": false,
                 "transparent": true,
-                "visible": true
+                "visible": true,
+                "center": true,
+                "focus": false
             }
         ],
         "security": {
