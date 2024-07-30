@@ -309,7 +309,8 @@ fn main() {
             let main_window = app.get_window("main").unwrap();
             let ver = app.config().package.version.clone();
             tauri::async_runtime::spawn(async move {
-                std::thread::sleep(std::time::Duration::from_secs(6));
+                std::thread::sleep(std::time::Duration::from_secs(3));
+                splashscreen_window.close().unwrap();
                 main_window.show().unwrap();
                 main_window
                     .set_title(
@@ -317,7 +318,6 @@ fn main() {
                             .as_str(),
                     )
                     .expect("title to be set");
-                splashscreen_window.close().unwrap();
             });
             Ok(())
         })
