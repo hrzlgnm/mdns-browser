@@ -6,27 +6,23 @@ authors = ["hrzlgnm"]
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "1.5.3", features = [] }
+tauri-build = { version = "2.0.0-rc.0", features = [] }
 
 [dependencies]
 mdns-sd = { git = "https://github.com/hrzlgnm/mdns-sd.git", branch = "track-already-queried-subnets-by-interface-name", default-features = false, features = [
     "async",
     "log",
 ] }
-tauri = { version = "1.7.1", features = [
-    "window-all",
-    "process-relaunch",
-    "process-exit",
-    "dialog-ask",
-    "shell-open",
-    "updater",
-    "http-api",
-    "http-request",
-] }
+tauri = { version = "2.0.0-rc.0", features = [] }
 serde = { version = "1.0.204", features = ["derive"] }
-serde_json = "1.0.121"
-tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+serde_json = "1.0.122"
+tauri-plugin-log = "2.0.0-rc.0"
 log = "0.4.22"
+tauri-plugin-shell = "2.0.0-rc.0"
+
+[lib]
+name = "mdns_browser_lib"
+crate-type = ["staticlib", "cdylib", "lib"]
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
