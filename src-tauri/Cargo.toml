@@ -9,6 +9,10 @@ edition = "2021"
 tauri-build = { version = "1.5.3", features = [] }
 
 [dependencies]
+mdns-sd = { git = "https://github.com/hrzlgnm/mdns-sd.git", branch = "track-already-queried-subnets-by-interface-name", default-features = false, features = [
+    "async",
+    "log",
+] }
 tauri = { version = "1.7.1", features = [
     "window-all",
     "process-relaunch",
@@ -21,10 +25,6 @@ tauri = { version = "1.7.1", features = [
 ] }
 serde = { version = "1.0.204", features = ["derive"] }
 serde_json = "1.0.121"
-mdns-sd = { version = "0.11.1", default-features = false, features = [
-    "async",
-    "log",
-] }
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 log = "0.4.22"
 
