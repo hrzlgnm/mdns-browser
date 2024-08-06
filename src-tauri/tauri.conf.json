@@ -95,4 +95,33 @@
             ]
         }
     }
-}
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "mDNS-Browser",
+        "url": "index.html",
+        "width": 1600,
+        "height": 900,
+        "label": "main",
+        "visible": false
+      },
+      {
+        "title": "Splashscreen",
+        "url": "public/splashscreen.html",
+        "label": "splashscreen",
+        "width": 528,
+        "height": 297,
+        "decorations": false,
+        "resizable": false,
+        "transparent": true,
+        "visible": true,
+        "center": true,
+        "focus": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }

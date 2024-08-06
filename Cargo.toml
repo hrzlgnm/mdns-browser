@@ -25,6 +25,7 @@ serde = { version = "1.0.210", features = ["derive"] }
 serde-wasm-bindgen = "0.6.5"
 strsim = "0.11.1"
 tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", rev = "3e93a42", features = [
+tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", rev = "4da2b00", features = [
     "event",
     "tauri",
 ] }
