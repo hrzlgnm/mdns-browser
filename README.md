@@ -7,7 +7,7 @@
   - [Where EXE?](#where-exe)
     - [github releases](#github-releases)
     - [winget](#winget)
-  - [Acknowledgements](#acknowledgements)
+  - [Acknowledgments](#acknowledgments)
   <!--toc:end-->
 
 This app allows for browsing of services using mDNS
@@ -28,7 +28,7 @@ The latest release can be downloaded here [Release](https://github.com/hrzlgnm/m
 winget install mdns-browser
 ```
 
-## Acknowledgements
+## Acknowledgments
 
 The main workhorse of this application is the great library [mdns-sd](https://github.com/keepsimple1/mdns-sd) used to do all the mDNS magic happening in the backend of the app.
 Consider giving the repo a star if you like this application.
