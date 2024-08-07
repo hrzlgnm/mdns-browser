@@ -2,6 +2,6 @@
 builtin = clear,rare,en-GB_to_en-US,names,informal,code
 check-filenames = src/*.rs src-tauri/src/*.rs
 ignore-words = .codespellignore
-skip = */.git,*/target,*.lock
+skip = */.git,*/target,*.lock,./src-tauri/gen/schemas/*.json
 quiet-level = 2
 
