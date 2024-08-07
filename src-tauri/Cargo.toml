@@ -9,7 +9,7 @@ edition = "2021"
 tauri-build = { version = "1.5.3", features = [] }
 
 [dependencies]
-mdns-sd = { git = "https://github.com/hrzlgnm/mdns-sd.git", branch = "track-already-queried-subnets-by-interface-name", default-features = false, features = [
+mdns-sd = { git = "https://github.com/keepsimple1/mdns-sd.git", branch = "main", default-features = false, features = [
     "async",
     "log",
 ] }
