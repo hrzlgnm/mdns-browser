@@ -11,8 +11,8 @@ use futures::{select, StreamExt};
 use leptos_meta::provide_meta_context;
 use leptos_meta::Style;
 use serde::{Deserialize, Serialize};
+use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
-use tauri_sys::tauri::invoke;
 use thaw::{
     AutoComplete, AutoCompleteOption, Button, ButtonSize, Card, CardFooter, CardHeaderExtra,
     Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Layout, Modal, Popover, PopoverPlacement,
@@ -69,7 +69,7 @@ pub struct MetricsEventRes {
 }
 
 async fn invoke_unit(cmd: &str) {
-    let _: () = invoke(cmd, &()).await.unwrap();
+    let _ = invoke::<()>(cmd, &()).await;
 }
 
 async fn listen_on_metrics_event(event_writer: WriteSignal<HashMap<String, i64>>) {
@@ -159,25 +159,23 @@ struct BrowseArgs<'a> {
 }
 
 async fn browse(service_type: String) {
-    let _: () = invoke(
+    let _ = invoke::<()>(
         "browse",
         &BrowseArgs {
             serviceType: &service_type,
         },
     )
-    .await
-    .unwrap();
+    .await;
 }
 
 async fn stop_browse(service_type: String) {
-    let _: () = invoke(
+    let _ = invoke::<()>(
         "stop_browse",
         &BrowseArgs {
             serviceType: &service_type,
         },
     )
-    .await
-    .unwrap();
+    .await;
 }
 
 /// Component to render a string vector into a table
