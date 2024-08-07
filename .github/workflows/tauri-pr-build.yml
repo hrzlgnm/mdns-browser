@@ -85,12 +85,11 @@ jobs:
       - name: cached install tauri-cli
         uses: taiki-e/cache-cargo-install-action@v2.0.1
         with:
-          tool: tauri-cli
+          tool: tauri-cli@2.0.0-rc.2
           locked: true
 
       - uses: tauri-apps/tauri-action@v0.5.14
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-          tauriScript: cargo tauri
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}

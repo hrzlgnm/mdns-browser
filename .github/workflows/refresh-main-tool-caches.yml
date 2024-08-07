@@ -36,5 +36,5 @@ jobs:
       - name: cached install tauri-cli
         uses: taiki-e/cache-cargo-install-action@v2.0.1
         with:
-          tool: tauri-cli
+          tool: tauri-cli@2.0.0-rc.2
           locked: true
