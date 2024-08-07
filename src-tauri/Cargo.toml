@@ -25,7 +25,3 @@ tracing-subscriber = "0.3.18"
 [lib]
 name = "mdns_browser_lib"
 crate-type = ["staticlib", "cdylib", "lib"]
-
-[features]
-# This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
-# custom-protocol = ["tauri/custom-protocol"]
