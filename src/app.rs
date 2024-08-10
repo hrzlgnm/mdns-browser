@@ -11,6 +11,7 @@ use futures::{select, StreamExt};
 use leptos_meta::provide_meta_context;
 use leptos_meta::Style;
 use serde::{Deserialize, Serialize};
+use strsim::jaro_winkler;
 use tauri_sys::event::listen;
 use tauri_sys::tauri::invoke;
 use thaw::{
@@ -219,6 +220,32 @@ fn remove_trailing_local(input: &str) -> String {
     }
 }
 
+fn is_subsequence(search_term: &str, target: &str) -> bool {
+    let mut search_chars = search_term.chars();
+    let mut current_char = search_chars.next();
+
+    for c in target.chars() {
+        if let Some(sc) = current_char {
+            if sc == c {
+                current_char = search_chars.next();
+            }
+        } else {
+            break;
+        }
+    }
+
+    current_char.is_none()
+}
+
+fn get_prefix(s: &str) -> &str {
+    let prefix = s.split('.').next().unwrap_or(s);
+    if let Some(end) = s.strip_prefix('_') {
+        end
+    } else {
+        prefix
+    }
+}
+
 /// Component that auto completes service types
 #[component]
 fn AutoCompleteServiceType(
@@ -231,6 +258,15 @@ fn AutoCompleteServiceType(
         service_types
             .get()
             .into_iter()
+            .filter(|s| {
+                let input = value.get().clone();
+                if input.len() < 3 {
+                    return true;
+                }
+                let lookup = get_prefix(input.as_str());
+                let prefix = get_prefix(s.split('.').next().unwrap_or(s));
+                jaro_winkler(lookup, prefix) >= 0.75 || is_subsequence(lookup, prefix)
+            })
             .map(|service_type| AutoCompleteOption {
                 label: service_type.clone(),
                 value: service_type.clone(),
