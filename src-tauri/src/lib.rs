@@ -283,7 +283,7 @@ fn send_metrics(window: Window, state: State<MdnsState>) {
 }
 
 #[cfg(target_os = "linux")]
-fn platform_setup() {
+fn x11_workaround() {
     let session_type_key = "XDG_SESSION_TYPE";
     match std::env::var(session_type_key) {
         Ok(val) => {
@@ -298,32 +298,36 @@ fn platform_setup() {
     }
 }
 
-#[cfg(not(target_os = "linux"))]
-fn platform_setup() {}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    platform_setup();
+    #[cfg(target_os = "linux")]
+    x11_workaround();
     tauri::Builder::default()
         .manage(MdnsState::new())
         .setup(|app| {
             #[cfg(desktop)]
-            app.handle()
-                .plugin(tauri_plugin_updater::Builder::new().build())?;
-            let splashscreen_window = app.get_webview_window("splashscreen").unwrap();
-            let main_window = app.get_webview_window("main").unwrap();
-            let ver = app.config().version.clone();
-            tauri::async_runtime::spawn(async move {
-                std::thread::sleep(std::time::Duration::from_secs(3));
-                splashscreen_window.close().unwrap();
-                main_window.show().unwrap();
-                main_window
-                    .set_title(
-                        format!("mDNS-Browser v{}", ver.unwrap_or(String::from("Unknown")))
-                            .as_str(),
-                    )
-                    .expect("title to be set");
-            });
+            {
+                app.handle()
+                    .plugin(tauri_plugin_updater::Builder::new().build())?;
+                let splashscreen_window = app.get_webview_window("splashscreen").unwrap();
+                let main_window = app.get_webview_window("main").unwrap();
+                let ver = app.config().version.clone();
+                tauri::async_runtime::spawn(async move {
+                    std::thread::sleep(std::time::Duration::from_secs(3));
+                    splashscreen_window.close().unwrap();
+                    main_window.show().unwrap();
+                    main_window
+                        .set_title(
+                            format!("mDNS-Browser v{}", ver.unwrap_or(String::from("Unknown")))
+                                .as_str(),
+                        )
+                        .expect("title to be set");
+                });
+            }
+            #[cfg(not(desktop))]
+            {
+                let _main_window = app.get_webview_window("main").unwrap();
+            }
             Ok(())
         })
         .plugin(

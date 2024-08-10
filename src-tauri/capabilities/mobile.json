@@ -1,0 +1,14 @@
+{
+    "identifier": "mobile",
+    "description": "permissions for mobile",
+    "local": true,
+    "windows": [
+        "main"
+    ],
+    "permissions": [
+        "core:default"
+    ],
+    "platforms": [
+        "android"
+    ]
+}

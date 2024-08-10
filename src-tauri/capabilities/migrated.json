@@ -1,13 +1,17 @@
 {
-  "identifier": "migrated",
-  "description": "permissions that were migrated from v1",
-  "local": true,
-  "windows": [
-    "main",
-    "splashscreen"
-  ],
-  "permissions": [
-    "core:default",
-    "updater:default"
-  ]
+    "identifier": "migrated",
+    "description": "permissions that were migrated from v1",
+    "local": true,
+    "windows": [
+        "main"
+    ],
+    "permissions": [
+        "core:default",
+        "updater:default"
+    ],
+    "platforms": [
+        "macOS",
+        "windows",
+        "linux"
+    ]
 }
