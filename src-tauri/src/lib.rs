@@ -307,6 +307,8 @@ pub fn run() {
     tauri::Builder::default()
         .manage(MdnsState::new())
         .setup(|app| {
+            #[cfg(desktop)]
+            app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
             let splashscreen_window = app.get_webview_window("splashscreen").unwrap();
             let main_window = app.get_webview_window("main").unwrap();
             let ver = app.config().version.clone();

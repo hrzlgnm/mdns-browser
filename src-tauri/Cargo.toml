@@ -8,6 +8,9 @@ edition = "2021"
 [build-dependencies]
 tauri-build = { version = "2.0.0-rc.1", features = [] }
 
+[target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
+tauri-plugin-updater = "2.0.0-rc"
+
 [dependencies]
 mdns-sd = { git = "https://github.com/keepsimple1/mdns-sd.git", rev = "1e9840f5", default-features = false, features = [
     "async",
