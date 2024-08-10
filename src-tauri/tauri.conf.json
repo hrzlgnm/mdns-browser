@@ -25,7 +25,7 @@
     },
     "productName": "mdns-browser",
     "version": "0.7.7",
-    "identifier": "net.hrzlgnm.mdns-browser",
+    "identifier": "net.hrzlgnm.mdnsbrowser",
     "plugins": {
         "updater": {
             "windows": {
