@@ -16,8 +16,8 @@ use tauri_sys::event::listen;
 use tauri_sys::tauri::invoke;
 use thaw::{
     AutoComplete, AutoCompleteOption, Button, ButtonSize, Card, CardFooter, CardHeaderExtra,
-    Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Layout, Modal, Popover, PopoverPlacement,
-    PopoverTrigger, Space, SpaceAlign, Table, Tag, TagVariant, Theme, ThemeProvider,
+    Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Layout, Modal, Space, SpaceAlign, Table,
+    Tag, TagVariant, Theme, ThemeProvider,
 };
 use thaw_utils::Model;
 
@@ -289,7 +289,7 @@ fn AutoCompleteServiceType(
             value=value
             disabled=disabled
             options=service_type_options
-            placeholder="Service type"
+            placeholder="Click to select or start typing"
         />
     }
 }
@@ -393,17 +393,8 @@ fn Browse() -> impl IntoView {
     view! {
         <Layout style="padding: 10px;">
             <Space>
-                <Popover
-                    tooltip=true
-                    placement=PopoverPlacement::TopStart
-                    trigger_type=thaw::PopoverTriggerType::Click
-                >
-                    <PopoverTrigger slot>
-                        <AutoCompleteServiceType value=service_type disabled=browsing/>
-                    </PopoverTrigger>
-                    "Select a service type to browse or start typing"
-                </Popover>
-                <Button on_click=on_browse_click disabled=browsing_or_service_type_empty>
+               <AutoCompleteServiceType value=service_type disabled=browsing/>
+               <Button on_click=on_browse_click disabled=browsing_or_service_type_empty>
                     "Browse"
                 </Button>
                 <Button on_click=on_stop_click disabled=not_browsing>
