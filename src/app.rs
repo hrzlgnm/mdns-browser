@@ -207,14 +207,25 @@ fn ValuesTable(values: Vec<String>, #[prop(into)] title: String) -> impl IntoVie
                         .collect::<Vec<_>>()}
                 </tbody>
             </Table>
+            <Style>
+            "
+            td
+            {
+                max-width: 70vw;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            "
+            </Style>
         }
         .into_view()
     }
 }
 
-fn remove_trailing_local(input: &str) -> String {
-    if let Some(stripped) = input.strip_suffix(".local.") {
-        stripped.to_string()
+fn get_instance_name(input: &str) -> String {
+    if let Some(prefix) = input.split('.').next() {
+        prefix.to_string()
     } else {
         input.to_string()
     }
@@ -305,8 +316,8 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
         None => vec![],
         Some(s) => vec![s],
     };
-    let card_title = remove_trailing_local(resolved_service.instance_name.as_str());
-    let details_title = resolved_service.instance_name.clone();
+    let card_title = get_instance_name(resolved_service.instance_name.as_str());
+    let details_title = card_title.clone();
     let show_details = create_rw_signal(false);
     let hostname_variant = match resolved_service.dead {
         true => TagVariant::Default,
@@ -332,7 +343,7 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                     <Button size=ButtonSize::Tiny disabled=resolved_service.dead on_click=move |_| show_details.set(true)>
                         "Details"
                     </Button>
-                    <Modal title=details_title show=show_details>
+                    <Modal width="90vw" title=details_title show=show_details>
                         <ValuesTable values=subtype title="subtype"/>
                         <ValuesTable values=addrs title="IPs"/>
                         <ValuesTable values=txts title="txt"/>
@@ -390,7 +401,7 @@ fn Browse() -> impl IntoView {
                     <PopoverTrigger slot>
                         <AutoCompleteServiceType value=service_type disabled=browsing/>
                     </PopoverTrigger>
-                    "Select a service type to browse"
+                    "Service type"
                 </Popover>
                 <Button on_click=on_browse_click disabled=browsing_or_service_type_empty>
                     "Browse"
