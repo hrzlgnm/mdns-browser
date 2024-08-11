@@ -72,6 +72,10 @@ jobs:
         run: |
           rustup target add wasm32-unknown-unknown
 
+      - name: run tests
+        run: |
+          cargo tests
+
       - name: cached install trunk
         uses: taiki-e/cache-cargo-install-action@v2.0.1
         with:
