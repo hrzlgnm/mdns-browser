@@ -401,7 +401,7 @@ fn Browse() -> impl IntoView {
                     <PopoverTrigger slot>
                         <AutoCompleteServiceType value=service_type disabled=browsing/>
                     </PopoverTrigger>
-                    "Service type"
+                    "Select a service type to browse or start typing"
                 </Popover>
                 <Button on_click=on_browse_click disabled=browsing_or_service_type_empty>
                     "Browse"
