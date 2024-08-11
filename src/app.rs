@@ -460,14 +460,13 @@ fn Browse() -> impl IntoView {
     let service_type = use_context::<ServiceTypesSignal>().unwrap().0;
 
     let service_type_invalid = Signal::derive(move || {
-        // todo report a meaningfull error to the user
+        // TODO: report a meaningful error to the user
         check_mdns_service_type(service_type.get().clone().as_str()).is_err()
     });
     let browsing = use_context::<BrowsingSignal>().unwrap().0;
     let not_browsing = Signal::derive(move || !browsing.get());
-    let browsing_or_service_type_invalid = Signal::derive(move || {
-        browsing.get() || service_type.get().is_empty() || service_type_invalid.get()
-    });
+    let browsing_or_service_type_invalid =
+        Signal::derive(move || browsing.get() || service_type_invalid.get());
 
     let browse_action = create_action(|input: &String| {
         let input = input.clone();
