@@ -371,39 +371,48 @@ enum MdnsError {
     IncorrectFormat,
 }
 
-fn check_mdns_label(service: &str, is_subtype: bool) -> Result<(), MdnsError> {
-    // The service type must start with an underscore and contain only valid DNS characters
+fn check_mdns_label(label: &str, is_subtype: bool) -> Result<(), MdnsError> {
     let valid_dns_chars = |c: char| c.is_ascii_alphanumeric() || c == '-' || c == '_';
     let error = if is_subtype {
         MdnsError::InvalidSubtype
     } else {
         MdnsError::InvalidService
     };
-    if &service[0..1] != "_" {
+
+    if !label.starts_with('_') {
         return Err(error);
     }
 
-    let service = &service[1..];
-    if &service[0..1] == "_" {
+    let label_content = &label[1..];
+
+    // Ensure the label content doesn't start with an underscore
+    if label_content.starts_with('_') {
         return Err(error);
     }
 
-    if !service.chars().all(valid_dns_chars) {
+    // Ensure the label content doesn't end with an underscore
+    if label_content.ends_with('_') {
         return Err(error);
     }
 
-    if service.contains("--") {
+    if !label_content.chars().all(valid_dns_chars) {
         return Err(error);
     }
 
-    if service.starts_with('-') || service.ends_with('-') {
+    // Ensure no double hyphens are present
+    if label_content.contains("--") {
+        return Err(error);
+    }
+
+    // Ensure the label does not start or end with a hyphen
+    if label_content.starts_with('-') || label_content.ends_with('-') {
         return Err(error);
     }
 
     Ok(())
 }
 
-fn check_mdns_full_service_type(service_type: &str) -> Result<(), MdnsError> {
+fn check_service_type_fully_qualified(service_type: &str) -> Result<(), MdnsError> {
     // The service type must end with a trailing dot
     if !service_type.ends_with('.') {
         return Err(MdnsError::MissingTrailingDot);
@@ -417,27 +426,39 @@ fn check_mdns_full_service_type(service_type: &str) -> Result<(), MdnsError> {
 
     // Validate the number of parts for formats:
     // 1) _service._protocol.local
-    // 2) _service._sub._protocol.local
-    if parts.len() != 3 && parts.len() != 4 {
+    // 2) _subtype._sub._service._protocol.local
+    if parts.len() != 3 && parts.len() != 5 {
         return Err(MdnsError::IncorrectFormat);
     }
 
-    let service = parts[0];
-    let protocol = if parts.len() == 3 { parts[1] } else { parts[2] };
-    let domain = parts.last().unwrap();
+    let domain = parts.last().unwrap(); // Domain is always the last component
+    let protocol = parts[parts.len() - 2]; // Protocol is the second-to-last component
 
-    check_mdns_label(service, false)?;
-    if parts.len() == 4 {
-        let subtype = parts[1];
-        check_mdns_label(subtype, true)?;
-    }
-
+    // Validate protocol name (must be either _tcp or _udp)
     if protocol != "_tcp" && protocol != "_udp" {
         return Err(MdnsError::InvalidProtocol);
     }
 
-    if domain != &"local" {
+    // Validate domain (must be "local")
+    if *domain != "local" {
         return Err(MdnsError::InvalidDomain);
+    }
+
+    // Validate service name
+    let service = if parts.len() == 3 { parts[0] } else { parts[2] };
+    check_mdns_label(service, false)?;
+
+    // Validate optional subtype if present
+    if parts.len() == 5 {
+        let sub_label = parts[1];
+        let subtype = parts[0];
+
+        // Ensure the second part is "_sub"
+        if sub_label != "_sub" {
+            return Err(MdnsError::IncorrectFormat);
+        }
+
+        check_mdns_label(subtype, true)?;
     }
 
     Ok(())
@@ -449,76 +470,75 @@ mod tests {
 
     #[test]
     fn test_valid_service_types() {
-        assert!(check_mdns_full_service_type("_http._tcp.local.").is_ok());
-        assert!(check_mdns_full_service_type("_printer._udp.local.").is_ok());
-        assert!(check_mdns_full_service_type("_http._sub._tcp.local.").is_ok());
-        // With subtype
+        assert!(check_service_type_fully_qualified("_http._tcp.local.").is_ok());
+        assert!(check_service_type_fully_qualified("_printer._udp.local.").is_ok());
+        assert!(check_service_type_fully_qualified("_myprinter._sub._http._tcp.local.").is_ok());
     }
-
     #[test]
     fn test_invalid_service_types() {
         assert_eq!(
-            check_mdns_full_service_type("_http._tcp.local"),
+            check_service_type_fully_qualified("_http._tcp.local"),
             Err(MdnsError::MissingTrailingDot)
         );
         assert_eq!(
-            check_mdns_full_service_type("_http._tcp."),
+            check_service_type_fully_qualified("_http._tcp."),
             Err(MdnsError::IncorrectFormat)
         );
         assert_eq!(
-            check_mdns_full_service_type("_http._ftp.local."),
+            check_service_type_fully_qualified("_http._ftp.local."),
             Err(MdnsError::InvalidProtocol)
         );
         assert_eq!(
-            check_mdns_full_service_type("http._tcp.local."),
+            check_service_type_fully_qualified("http._tcp.local."),
             Err(MdnsError::InvalidService)
         );
         assert_eq!(
-            check_mdns_full_service_type("_h--ttp._tcp.local."),
+            check_service_type_fully_qualified("_http_._tcp.local."),
             Err(MdnsError::InvalidService)
         );
         assert_eq!(
-            check_mdns_full_service_type("_-http._tcp.local."),
-            Err(MdnsError::InvalidService)
-        );
-        assert_eq!(
-            check_mdns_full_service_type("_http-._tcp.local."),
-            Err(MdnsError::InvalidService)
-        );
-        assert_eq!(
-            check_mdns_full_service_type("_http._tcp.nonlocal."),
+            check_service_type_fully_qualified("_http._tcp.nonlocal."),
             Err(MdnsError::InvalidDomain)
         );
         assert_eq!(
-            check_mdns_full_service_type("____._tcp.local."),
+            check_service_type_fully_qualified("__._tcp.local."),
             Err(MdnsError::InvalidService)
         );
         assert_eq!(
-            check_mdns_full_service_type("_http._sub._ftp.local."),
+            check_service_type_fully_qualified("_myprinter._sub._http._ftp.local."),
             Err(MdnsError::InvalidProtocol)
-        );
+        ); // Invalid protocol with subtype
         assert_eq!(
-            check_mdns_full_service_type("_http._sub._tcp.nonlocal."),
-            Err(MdnsError::InvalidDomain)
-        );
+            check_service_type_fully_qualified("_myprinter._sub._tcp.nonlocal."),
+            Err(MdnsError::IncorrectFormat)
+        ); // Missing service in format
         assert_eq!(
-            check_mdns_full_service_type("_http._sub-._tcp.local."),
+            check_service_type_fully_qualified("_-http_tcp._tcp.local."),
+            Err(MdnsError::InvalidService)
+        ); // Invalid service name format
+        assert_eq!(
+            check_service_type_fully_qualified("_-printer._sub._http._tcp.local."),
             Err(MdnsError::InvalidSubtype)
-        );
+        ); // Invalid subtype name format
         assert_eq!(
-            check_mdns_full_service_type("_http._-sub-type._tcp.local."),
+            check_service_type_fully_qualified("_printer-._sub._http._tcp.local."),
             Err(MdnsError::InvalidSubtype)
-        );
+        ); // Invalid subtype name format
         assert_eq!(
-            check_mdns_full_service_type("_http._-sub-type._tcp.local."),
-            Err(MdnsError::InvalidSubtype)
-        );
+            check_service_type_fully_qualified("_http-._tcp.local."),
+            Err(MdnsError::InvalidService)
+        ); // Invalid service name format
         assert_eq!(
-            check_mdns_full_service_type("_http.____._tcp.local."),
-            Err(MdnsError::InvalidSubtype)
-        );
+            check_service_type_fully_qualified("_myprinter._sub-type._tcp.local."),
+            Err(MdnsError::IncorrectFormat)
+        ); // Invalid subtype without _sub keyword
+        assert_eq!(
+            check_service_type_fully_qualified("_myprinter.____._sub._tcp.local."),
+            Err(MdnsError::IncorrectFormat)
+        ); // Invalid subtype format
     }
 }
+
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
@@ -529,7 +549,7 @@ fn Browse() -> impl IntoView {
 
     let service_type_invalid = Signal::derive(move || {
         // TODO: report a meaningful error to the user
-        check_mdns_full_service_type(service_type.get().clone().as_str()).is_err()
+        check_service_type_fully_qualified(service_type.get().clone().as_str()).is_err()
     });
     let browsing = use_context::<BrowsingSignal>().unwrap().0;
     let not_browsing = Signal::derive(move || !browsing.get());
