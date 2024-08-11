@@ -15,9 +15,9 @@ use strsim::jaro_winkler;
 use tauri_sys::event::listen;
 use tauri_sys::tauri::invoke;
 use thaw::{
-    AutoComplete, AutoCompleteOption, Button, ButtonSize, Card, CardFooter, CardHeaderExtra,
-    Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Layout, Modal, Space, SpaceAlign, Table,
-    Tag, TagVariant, Theme, ThemeProvider,
+    AutoComplete, AutoCompleteOption, AutoCompleteSuffix, Button, ButtonSize, Card, CardFooter,
+    CardHeaderExtra, Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Icon, Layout, Modal,
+    Space, SpaceAlign, Table, Tag, TagVariant, Theme, ThemeProvider,
 };
 use thaw_utils::Model;
 
@@ -262,6 +262,7 @@ fn get_prefix(s: &str) -> &str {
 fn AutoCompleteServiceType(
     #[prop(optional, into)] value: Model<String>,
     #[prop(optional, into)] disabled: MaybeSignal<bool>,
+    #[prop(optional, into)] invalid: MaybeSignal<bool>,
 ) -> impl IntoView {
     let (service_types, set_service_types) = create_signal(ServiceTypes::new());
     create_local_resource(move || set_service_types, listen_on_service_type_event);
@@ -288,9 +289,14 @@ fn AutoCompleteServiceType(
         <AutoComplete
             value=value
             disabled=disabled
+            invalid=invalid
             options=service_type_options
-            placeholder="Click to select or start typing"
-        />
+            placeholder="Service type..."
+        >
+            <AutoCompleteSuffix slot>
+                <Icon icon=icondata::CgSearchLoading/>
+            </AutoCompleteSuffix>
+        </AutoComplete>
     }
 }
 
@@ -355,6 +361,184 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     }
 }
 
+#[derive(Debug, PartialEq)]
+enum MdnsError {
+    MissingTrailingDot,
+    InvalidService,
+    InvalidSubtype,
+    InvalidProtocol,
+    InvalidDomain,
+    IncorrectFormat,
+}
+
+fn check_mdns_label(label: &str, is_subtype: bool) -> Result<(), MdnsError> {
+    let valid_dns_chars = |c: char| c.is_ascii_alphanumeric() || c == '-' || c == '_';
+    let error = if is_subtype {
+        MdnsError::InvalidSubtype
+    } else {
+        MdnsError::InvalidService
+    };
+
+    if !label.starts_with('_') {
+        return Err(error);
+    }
+
+    let label_content = &label[1..];
+
+    // Ensure the label content doesn't start with an underscore
+    if label_content.starts_with('_') {
+        return Err(error);
+    }
+
+    // Ensure the label content doesn't end with an underscore
+    if label_content.ends_with('_') {
+        return Err(error);
+    }
+
+    if !label_content.chars().all(valid_dns_chars) {
+        return Err(error);
+    }
+
+    // Ensure no double hyphens are present
+    if label_content.contains("--") {
+        return Err(error);
+    }
+
+    // Ensure the label does not start or end with a hyphen
+    if label_content.starts_with('-') || label_content.ends_with('-') {
+        return Err(error);
+    }
+
+    Ok(())
+}
+
+fn check_service_type_fully_qualified(service_type: &str) -> Result<(), MdnsError> {
+    // The service type must end with a trailing dot
+    if !service_type.ends_with('.') {
+        return Err(MdnsError::MissingTrailingDot);
+    }
+
+    // Remove the trailing dot for validation purposes
+    let service_type = service_type.strip_suffix('.').unwrap();
+
+    // Split into parts based on dots
+    let parts: Vec<&str> = service_type.split('.').collect();
+
+    // Validate the number of parts for formats:
+    // 1) _service._protocol.local
+    // 2) _subtype._sub._service._protocol.local
+    if parts.len() != 3 && parts.len() != 5 {
+        return Err(MdnsError::IncorrectFormat);
+    }
+
+    let domain = parts.last().unwrap(); // Domain is always the last component
+    let protocol = parts[parts.len() - 2]; // Protocol is the second-to-last component
+
+    // Validate protocol name (must be either _tcp or _udp)
+    if protocol != "_tcp" && protocol != "_udp" {
+        return Err(MdnsError::InvalidProtocol);
+    }
+
+    // Validate domain (must be "local")
+    if *domain != "local" {
+        return Err(MdnsError::InvalidDomain);
+    }
+
+    // Validate service name
+    let service = if parts.len() == 3 { parts[0] } else { parts[2] };
+    check_mdns_label(service, false)?;
+
+    // Validate optional subtype if present
+    if parts.len() == 5 {
+        let sub_label = parts[1];
+        let subtype = parts[0];
+
+        // Ensure the second part is "_sub"
+        if sub_label != "_sub" {
+            return Err(MdnsError::IncorrectFormat);
+        }
+
+        check_mdns_label(subtype, true)?;
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_service_types() {
+        assert!(check_service_type_fully_qualified("_http._tcp.local.").is_ok());
+        assert!(check_service_type_fully_qualified("_printer._udp.local.").is_ok());
+        assert!(check_service_type_fully_qualified("_myprinter._sub._http._tcp.local.").is_ok());
+    }
+    #[test]
+    fn test_invalid_service_types() {
+        assert_eq!(
+            check_service_type_fully_qualified("_http._tcp.local"),
+            Err(MdnsError::MissingTrailingDot)
+        );
+        assert_eq!(
+            check_service_type_fully_qualified("_http._tcp."),
+            Err(MdnsError::IncorrectFormat)
+        );
+        assert_eq!(
+            check_service_type_fully_qualified("_http._ftp.local."),
+            Err(MdnsError::InvalidProtocol)
+        );
+        assert_eq!(
+            check_service_type_fully_qualified("http._tcp.local."),
+            Err(MdnsError::InvalidService)
+        );
+        assert_eq!(
+            check_service_type_fully_qualified("_http_._tcp.local."),
+            Err(MdnsError::InvalidService)
+        );
+        assert_eq!(
+            check_service_type_fully_qualified("_http._tcp.nonlocal."),
+            Err(MdnsError::InvalidDomain)
+        );
+        assert_eq!(
+            check_service_type_fully_qualified("__._tcp.local."),
+            Err(MdnsError::InvalidService)
+        );
+        assert_eq!(
+            check_service_type_fully_qualified("_myprinter._sub._http._ftp.local."),
+            Err(MdnsError::InvalidProtocol)
+        ); // Invalid protocol with subtype
+        assert_eq!(
+            check_service_type_fully_qualified("_myprinter._sub._tcp.nonlocal."),
+            Err(MdnsError::IncorrectFormat)
+        ); // Missing service in format
+        assert_eq!(
+            check_service_type_fully_qualified("_-http_tcp._tcp.local."),
+            Err(MdnsError::InvalidService)
+        ); // Invalid service name format
+        assert_eq!(
+            check_service_type_fully_qualified("_-printer._sub._http._tcp.local."),
+            Err(MdnsError::InvalidSubtype)
+        ); // Invalid subtype name format
+        assert_eq!(
+            check_service_type_fully_qualified("_printer-._sub._http._tcp.local."),
+            Err(MdnsError::InvalidSubtype)
+        ); // Invalid subtype name format
+        assert_eq!(
+            check_service_type_fully_qualified("_http-._tcp.local."),
+            Err(MdnsError::InvalidService)
+        ); // Invalid service name format
+        assert_eq!(
+            check_service_type_fully_qualified("_myprinter._sub-type._tcp.local."),
+            Err(MdnsError::IncorrectFormat)
+        ); // Invalid subtype without _sub keyword
+        assert_eq!(
+            check_service_type_fully_qualified("_myprinter.____._sub._tcp.local."),
+            Err(MdnsError::IncorrectFormat)
+        ); // Invalid subtype format
+    }
+}
+
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
@@ -362,10 +546,15 @@ fn Browse() -> impl IntoView {
     create_local_resource(move || set_resolved, listen_on_browse_events);
 
     let service_type = use_context::<ServiceTypesSignal>().unwrap().0;
+
+    let service_type_invalid = Signal::derive(move || {
+        // TODO: report a meaningful error to the user
+        check_service_type_fully_qualified(service_type.get().clone().as_str()).is_err()
+    });
     let browsing = use_context::<BrowsingSignal>().unwrap().0;
     let not_browsing = Signal::derive(move || !browsing.get());
-    let browsing_or_service_type_empty =
-        Signal::derive(move || browsing.get() || service_type.get().is_empty());
+    let browsing_or_service_type_invalid =
+        Signal::derive(move || browsing.get() || service_type_invalid.get());
 
     let browse_action = create_action(|input: &String| {
         let input = input.clone();
@@ -393,8 +582,8 @@ fn Browse() -> impl IntoView {
     view! {
         <Layout style="padding: 10px;">
             <Space>
-               <AutoCompleteServiceType value=service_type disabled=browsing/>
-               <Button on_click=on_browse_click disabled=browsing_or_service_type_empty>
+               <AutoCompleteServiceType value=service_type disabled=browsing invalid=service_type_invalid/>
+               <Button on_click=on_browse_click disabled=browsing_or_service_type_invalid>
                     "Browse"
                 </Button>
                 <Button on_click=on_stop_click disabled=not_browsing>
