@@ -74,7 +74,7 @@ jobs:
 
       - name: run tests
         run: |
-          cargo tests
+          cargo test
 
       - name: cached install trunk
         uses: taiki-e/cache-cargo-install-action@v2.0.1
