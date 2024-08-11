@@ -395,7 +395,7 @@ fn Browse() -> impl IntoView {
             <Space>
                 <Popover
                     tooltip=true
-                    placement=PopoverPlacement::Bottom
+                    placement=PopoverPlacement::RightStart
                     trigger_type=thaw::PopoverTriggerType::Hover
                 >
                     <PopoverTrigger slot>
