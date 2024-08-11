@@ -395,8 +395,8 @@ fn Browse() -> impl IntoView {
             <Space>
                 <Popover
                     tooltip=true
-                    placement=PopoverPlacement::RightStart
-                    trigger_type=thaw::PopoverTriggerType::Hover
+                    placement=PopoverPlacement::TopStart
+                    trigger_type=thaw::PopoverTriggerType::Click
                 >
                     <PopoverTrigger slot>
                         <AutoCompleteServiceType value=service_type disabled=browsing/>
@@ -406,14 +406,9 @@ fn Browse() -> impl IntoView {
                 <Button on_click=on_browse_click disabled=browsing_or_service_type_empty>
                     "Browse"
                 </Button>
-                <Popover tooltip=true placement=PopoverPlacement::Bottom>
-                    <PopoverTrigger slot>
-                        <Button on_click=on_stop_click disabled=not_browsing>
-                            "Stop"
-                        </Button>
-                    </PopoverTrigger>
-                    "Stops browsing and clears the result"
-                </Popover>
+                <Button on_click=on_stop_click disabled=not_browsing>
+                    "Stop"
+                </Button>
             </Space>
             <Grid class="responsivegrid">
                 <For
