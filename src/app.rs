@@ -15,9 +15,9 @@ use strsim::jaro_winkler;
 use tauri_sys::event::listen;
 use tauri_sys::tauri::invoke;
 use thaw::{
-    AutoComplete, AutoCompleteOption, Button, ButtonSize, Card, CardFooter, CardHeaderExtra,
-    Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Layout, Modal, Space, SpaceAlign, Table,
-    Tag, TagVariant, Theme, ThemeProvider,
+    AutoComplete, AutoCompleteOption, AutoCompleteSuffix, Button, ButtonSize, Card, CardFooter,
+    CardHeaderExtra, Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Icon, Layout, Modal,
+    Space, SpaceAlign, Table, Tag, TagVariant, Theme, ThemeProvider,
 };
 use thaw_utils::Model;
 
@@ -262,6 +262,7 @@ fn get_prefix(s: &str) -> &str {
 fn AutoCompleteServiceType(
     #[prop(optional, into)] value: Model<String>,
     #[prop(optional, into)] disabled: MaybeSignal<bool>,
+    #[prop(optional, into)] invalid: MaybeSignal<bool>,
 ) -> impl IntoView {
     let (service_types, set_service_types) = create_signal(ServiceTypes::new());
     create_local_resource(move || set_service_types, listen_on_service_type_event);
@@ -288,9 +289,14 @@ fn AutoCompleteServiceType(
         <AutoComplete
             value=value
             disabled=disabled
+            invalid=invalid
             options=service_type_options
-            placeholder="Click to select or start typing"
-        />
+            placeholder="Service type..."
+        >
+            <AutoCompleteSuffix slot>
+                <Icon icon=icondata::CgSearchLoading/>
+            </AutoCompleteSuffix>
+        </AutoComplete>
     }
 }
 
@@ -355,6 +361,96 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     }
 }
 
+#[derive(Debug, PartialEq)]
+enum MdnsServiceTypeValidationError {
+    MissingTrailingDot,
+    InvalidServiceType,
+    InvalidProtocolType,
+    InvalidDomain,
+}
+
+fn check_mdns_service_type(service_type: &str) -> Result<(), MdnsServiceTypeValidationError> {
+    // The service type must end with a trailing dot
+    if !service_type.ends_with('.') {
+        return Err(MdnsServiceTypeValidationError::MissingTrailingDot);
+    }
+
+    // Remove the trailing dot for validation purposes
+    let service_type = service_type.strip_suffix('.').unwrap();
+
+    // The service type must start with an underscore and contain only valid DNS characters
+    let valid_dns_chars = |c: char| c.is_ascii_alphanumeric() || c == '-' || c == '_';
+
+    // The service type must be in the format "_service._protocol.local"
+    if !service_type.starts_with('_') {
+        return Err(MdnsServiceTypeValidationError::InvalidServiceType);
+    }
+
+    // Split into parts based on dots
+    let parts: Vec<&str> = service_type.split('.').collect();
+
+    // Validate the number of parts
+    if parts.len() != 3 {
+        return Err(MdnsServiceTypeValidationError::InvalidServiceType);
+    }
+
+    let service = parts[0];
+    let protocol = parts[1];
+    let domain = parts[2];
+
+    // Validate service name
+    if !service.chars().all(valid_dns_chars) || service.len() < 2 {
+        return Err(MdnsServiceTypeValidationError::InvalidServiceType);
+    }
+
+    // Validate protocol name (must be either _tcp or _udp)
+    if protocol != "_tcp" && protocol != "_udp" {
+        return Err(MdnsServiceTypeValidationError::InvalidProtocolType);
+    }
+
+    // Validate domain (must be "local")
+    if domain != "local" {
+        return Err(MdnsServiceTypeValidationError::InvalidDomain);
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_service_types() {
+        assert!(check_mdns_service_type("_http._tcp.local.").is_ok());
+        assert!(check_mdns_service_type("_printer._udp.local.").is_ok());
+    }
+
+    #[test]
+    fn test_invalid_service_types() {
+        assert_eq!(
+            check_mdns_service_type("_http._tcp.local"),
+            Err(MdnsServiceTypeValidationError::MissingTrailingDot)
+        );
+        assert_eq!(
+            check_mdns_service_type("_._tcp.local."),
+            Err(MdnsServiceTypeValidationError::InvalidServiceType)
+        );
+        assert_eq!(
+            check_mdns_service_type("_http._ftp.local."),
+            Err(MdnsServiceTypeValidationError::InvalidProtocolType)
+        );
+        assert_eq!(
+            check_mdns_service_type("http._tcp.local."),
+            Err(MdnsServiceTypeValidationError::InvalidServiceType)
+        );
+        assert_eq!(
+            check_mdns_service_type("_http._tcp.nonlocal."),
+            Err(MdnsServiceTypeValidationError::InvalidDomain)
+        );
+    }
+}
+
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
@@ -362,10 +458,16 @@ fn Browse() -> impl IntoView {
     create_local_resource(move || set_resolved, listen_on_browse_events);
 
     let service_type = use_context::<ServiceTypesSignal>().unwrap().0;
+
+    let service_type_invalid = Signal::derive(move || {
+        // todo report a meaningfull error to the user
+        check_mdns_service_type(service_type.get().clone().as_str()).is_err()
+    });
     let browsing = use_context::<BrowsingSignal>().unwrap().0;
     let not_browsing = Signal::derive(move || !browsing.get());
-    let browsing_or_service_type_empty =
-        Signal::derive(move || browsing.get() || service_type.get().is_empty());
+    let browsing_or_service_type_invalid = Signal::derive(move || {
+        browsing.get() || service_type.get().is_empty() || service_type_invalid.get()
+    });
 
     let browse_action = create_action(|input: &String| {
         let input = input.clone();
@@ -393,8 +495,8 @@ fn Browse() -> impl IntoView {
     view! {
         <Layout style="padding: 10px;">
             <Space>
-               <AutoCompleteServiceType value=service_type disabled=browsing/>
-               <Button on_click=on_browse_click disabled=browsing_or_service_type_empty>
+               <AutoCompleteServiceType value=service_type disabled=browsing invalid=service_type_invalid/>
+               <Button on_click=on_browse_click disabled=browsing_or_service_type_invalid>
                     "Browse"
                 </Button>
                 <Button on_click=on_stop_click disabled=not_browsing>
