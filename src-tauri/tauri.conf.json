@@ -23,9 +23,9 @@
         ],
         "createUpdaterArtifacts": "v1Compatible"
     },
-    "productName": "mdns-browser",
+    "productName": "mDNS Browser",
     "version": "0.7.7",
-    "identifier": "net.hrzlgnm.mdnsbrowser",
+    "identifier": "io.github.hrzlgnm.mdnsbrowser",
     "plugins": {
         "updater": {
             "windows": {
