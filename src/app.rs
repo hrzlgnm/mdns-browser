@@ -292,6 +292,7 @@ fn AutoCompleteServiceType(
             invalid=invalid
             options=service_type_options
             placeholder="Service type..."
+            attrs=vec![("autofocus", Attribute::Bool(true)),("autocapitalize", Attribute::String(Oco::Owned("none".to_string())))]
         >
             <AutoCompleteSuffix slot>
                 <Icon icon=icondata::CgSearchLoading/>
