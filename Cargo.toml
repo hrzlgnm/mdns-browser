@@ -17,11 +17,11 @@ console_error_panic_hook = "0.1.7"
 console_log = "1.0.0"
 futures = "0.3.30"
 icondata = "0.4.0"
-js-sys = "0.3.69"
-leptos = { version = "0.6.13", features = ["csr"] }
-leptos_meta = { version = "0.6.13", features = ["csr"] }
+js-sys = "0.3.70"
+leptos = { version = "0.6.14", features = ["csr"] }
+leptos_meta = { version = "0.6.14", features = ["csr"] }
 log = "0.4.22"
-serde = { version = "1.0.204", features = ["derive"] }
+serde = { version = "1.0.208", features = ["derive"] }
 serde-wasm-bindgen = "0.6.5"
 strsim = "0.11.1"
 tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", rev = "3e93a42", features = [
