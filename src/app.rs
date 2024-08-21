@@ -88,21 +88,48 @@ pub struct ServiceTypeFoundEventRes {
     service_type: String,
 }
 
-async fn listen_on_service_type_event(event_writer: WriteSignal<ServiceTypes>) {
-    let mut events = listen::<ServiceTypeFoundEventRes>("service-type-found")
+type ServiceTypeRemovedEventRes = ServiceTypeFoundEventRes;
+
+async fn listen_on_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
+    let found = listen::<ServiceTypeFoundEventRes>("service-type-found")
         .await
         .unwrap();
+    let removed = listen::<ServiceTypeRemovedEventRes>("service-type-removed")
+        .await
+        .unwrap();
+
+    let mut found_fused = found.fuse();
+    let mut removed_fused = removed.fuse();
+
     invoke_unit("browse_types").await;
-    while let Some(event) = events.next().await {
-        log::debug!("Received event 'service-type-found': {:#?}", event);
-        let mut set = HashSet::new();
-        event_writer.update(|evts| {
-            evts.push(event.payload.service_type);
-            evts.retain(|st| set.insert(st.clone()));
-            evts.sort();
-        });
+
+    loop {
+        select! {
+            event = found_fused.next() => {
+                if let Some(event) = event {
+                    log::debug!("Received event 'service-type-found': {:#?}", event);
+                    let mut set = HashSet::new();
+                    event_writer.update(|sts| {
+                        sts.push(event.payload.service_type);
+                        sts.retain(|st| set.insert(st.clone()));
+                        sts.sort();
+                    });
+               }
+            }
+            event = removed_fused.next() => {
+                if let Some(event) = event {
+                    log::debug!("Received event 'service-type-removed': {:#?}", event);
+                    event_writer.update(|evts| {
+                        evts.retain(|st| st != &event.payload.service_type);
+                        evts.sort();
+                    });
+                }
+            }
+            complete => break,
+        }
     }
 }
+
 #[derive(Deserialize, Clone, Debug)]
 pub struct ResolvedServiceEventRes {
     service: ResolvedService,
@@ -265,7 +292,7 @@ fn AutoCompleteServiceType(
     #[prop(optional, into)] invalid: MaybeSignal<bool>,
 ) -> impl IntoView {
     let (service_types, set_service_types) = create_signal(ServiceTypes::new());
-    create_local_resource(move || set_service_types, listen_on_service_type_event);
+    create_local_resource(move || set_service_types, listen_on_service_type_events);
     let service_type_options = create_memo(move |_| {
         service_types
             .get()
