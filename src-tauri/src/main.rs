@@ -336,7 +336,7 @@ fn main() {
         .plugin(
             tauri_plugin_log::Builder::default()
                 .targets([LogTarget::LogDir, LogTarget::Stdout, LogTarget::Webview])
-                .level(LevelFilter::Debug)
+                .level(LevelFilter::Info)
                 .build(),
         )
         .invoke_handler(tauri::generate_handler![
