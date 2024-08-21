@@ -144,32 +144,44 @@ pub struct ServiceRemovedEvent {
 
 type ServiceFoundEvent = ServiceRemovedEvent;
 type ServiceTypeFoundEvent = SearchStartedEvent;
+type ServiceTypeRemovedEvent = SearchStartedEvent;
+
+const META_SERVICE: &str = "_services._dns-sd._udp.local.";
 
 #[tauri::command]
 fn browse_types(window: Window, state: State<MdnsState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_thread = mdns.clone();
         std::thread::spawn(move || {
-            let meta_service = "_services._dns-sd._udp.local.";
             let receiver = mdns_for_thread
-                .browse(meta_service)
+                .browse(META_SERVICE)
                 .expect("Failed to browse");
             while let Ok(event) = receiver.recv() {
                 match event {
-                    ServiceEvent::ServiceFound(service_type, full_name) => {
-                        if !full_name.starts_with(&service_type) {
-                            window
-                                .emit(
-                                    "service-type-found",
-                                    &ServiceTypeFoundEvent {
-                                        service_type: full_name,
-                                    },
-                                )
-                                .expect("To emit");
-                        }
+                    ServiceEvent::ServiceFound(_service_type, full_name) => {
+                        log::debug!("Service type found: {}", full_name);
+                        window
+                            .emit(
+                                "service-type-found",
+                                &ServiceTypeFoundEvent {
+                                    service_type: full_name,
+                                },
+                            )
+                            .expect("To emit");
+                    }
+                    ServiceEvent::ServiceRemoved(_service_type, full_name) => {
+                        log::debug!("Service type removed: {}", full_name);
+                        window
+                            .emit(
+                                "service-type-removed",
+                                &ServiceTypeRemovedEvent {
+                                    service_type: full_name,
+                                },
+                            )
+                            .expect("To emit");
                     }
                     ServiceEvent::SearchStopped(service_type) => {
-                        if service_type == meta_service {
+                        if service_type == META_SERVICE {
                             break;
                         }
                     }
