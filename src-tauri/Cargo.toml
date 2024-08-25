@@ -9,10 +9,7 @@ edition = "2021"
 tauri-build = { version = "1.5.3", features = [] }
 
 [dependencies]
-mdns-sd = { git = "https://github.com/keepsimple1/mdns-sd.git", rev = "f055c78", default-features = false, features = [
-    "async",
-    "log",
-] }
+mdns-sd = { version = "0.11.3", features = ["async", "log"] }
 tauri = { version = "1.7.1", features = [
     "window-all",
     "process-relaunch",
