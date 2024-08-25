@@ -304,6 +304,15 @@ pub fn run() {
     x11_workaround();
     tauri::Builder::default()
         .manage(MdnsState::new())
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .targets([
+                    Target::new(TargetKind::Stdout),
+                    Target::new(TargetKind::Webview),
+                ])
+                .level(LevelFilter::Info)
+                .build(),
+        )
         .setup(|app| {
             #[cfg(desktop)]
             {
@@ -324,21 +333,8 @@ pub fn run() {
                         .expect("title to be set");
                 });
             }
-            #[cfg(not(desktop))]
-            {
-                let _main_window = app.get_webview_window("main").unwrap();
-            }
             Ok(())
         })
-        .plugin(
-            tauri_plugin_log::Builder::default()
-                .targets([
-                    Target::new(TargetKind::Stdout),
-                    Target::new(TargetKind::Webview),
-                ])
-                .level(LevelFilter::Info)
-                .build(),
-        )
         .invoke_handler(tauri::generate_handler![
             browse,
             browse_types,
