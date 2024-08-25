@@ -1,7 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use log::LevelFilter;
+use clap::builder::TypedValueParser as _;
+use clap::Parser;
 use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
 use serde::Serialize;
 use std::{
@@ -16,12 +17,12 @@ use tauri_plugin_log::{Target, TargetKind};
 
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
-struct MdnsState {
+struct ManagedState {
     daemon: SharedServiceDaemon,
     running_browsers: Arc<Mutex<Vec<String>>>,
 }
 
-impl MdnsState {
+impl ManagedState {
     fn new() -> Self {
         Self {
             daemon: get_shared_daemon(),
@@ -74,12 +75,7 @@ fn string_with_control_characters_escaped(input: String) -> String {
 
 fn bytes_option_to_string_option_with_escaping(maybe_bytes: Option<&[u8]>) -> Option<String> {
     maybe_bytes.map(|bytes| match String::from_utf8(bytes.to_vec()) {
-        Ok(utf8_string) => {
-            let result = string_with_control_characters_escaped(utf8_string);
-            log::debug!("bytes {:#?} -> str {}", bytes, result);
-
-            result
-        }
+        Ok(utf8_string) => string_with_control_characters_escaped(utf8_string),
         Err(_) => byte_array_hexlified(bytes),
     })
 }
@@ -99,12 +95,9 @@ impl From<&ServiceInfo> for ResolvedService {
         let mut sorted_txt: Vec<TxtRecord> = info
             .get_properties()
             .iter()
-            .map(|r| {
-                log::debug!("txt prop {:#?}", r.val());
-                TxtRecord {
-                    key: r.key().into(),
-                    val: bytes_option_to_string_option_with_escaping(r.val()),
-                }
+            .map(|r| TxtRecord {
+                key: r.key().into(),
+                val: bytes_option_to_string_option_with_escaping(r.val()),
             })
             .collect();
         sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
@@ -145,32 +138,44 @@ pub struct ServiceRemovedEvent {
 
 type ServiceFoundEvent = ServiceRemovedEvent;
 type ServiceTypeFoundEvent = SearchStartedEvent;
+type ServiceTypeRemovedEvent = SearchStartedEvent;
+
+const META_SERVICE: &str = "_services._dns-sd._udp.local.";
 
 #[tauri::command]
-fn browse_types(window: Window, state: State<MdnsState>) {
+fn browse_types(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_thread = mdns.clone();
         std::thread::spawn(move || {
-            let meta_service = "_services._dns-sd._udp.local.";
             let receiver = mdns_for_thread
-                .browse(meta_service)
+                .browse(META_SERVICE)
                 .expect("Failed to browse");
             while let Ok(event) = receiver.recv() {
                 match event {
-                    ServiceEvent::ServiceFound(service_type, full_name) => {
-                        if !full_name.starts_with(&service_type) {
-                            window
-                                .emit(
-                                    "service-type-found",
-                                    &ServiceTypeFoundEvent {
-                                        service_type: full_name,
-                                    },
-                                )
-                                .expect("To emit");
-                        }
+                    ServiceEvent::ServiceFound(_service_type, full_name) => {
+                        log::debug!("Service type found: {}", full_name);
+                        window
+                            .emit(
+                                "service-type-found",
+                                &ServiceTypeFoundEvent {
+                                    service_type: full_name,
+                                },
+                            )
+                            .expect("To emit");
+                    }
+                    ServiceEvent::ServiceRemoved(_service_type, full_name) => {
+                        log::debug!("Service type removed: {}", full_name);
+                        window
+                            .emit(
+                                "service-type-removed",
+                                &ServiceTypeRemovedEvent {
+                                    service_type: full_name,
+                                },
+                            )
+                            .expect("To emit");
                     }
                     ServiceEvent::SearchStopped(service_type) => {
-                        if service_type == meta_service {
+                        if service_type == META_SERVICE {
                             break;
                         }
                     }
@@ -181,9 +186,8 @@ fn browse_types(window: Window, state: State<MdnsState>) {
         });
     }
 }
-
 #[tauri::command]
-fn stop_browse(service_type: String, state: State<MdnsState>) {
+fn stop_browse(service_type: String, state: State<ManagedState>) {
     if service_type.is_empty() {
         return;
     }
@@ -199,7 +203,7 @@ fn stop_browse(service_type: String, state: State<MdnsState>) {
 }
 
 #[tauri::command]
-fn browse(service_type: String, window: Window, state: State<MdnsState>) {
+fn browse(service_type: String, window: Window, state: State<ManagedState>) {
     if service_type.is_empty() {
         return;
     }
@@ -266,7 +270,7 @@ fn browse(service_type: String, window: Window, state: State<MdnsState>) {
 const METRIC_SEND_INTERVAL: Duration = Duration::from_secs(10);
 
 #[tauri::command]
-fn send_metrics(window: Window, state: State<MdnsState>) {
+fn send_metrics(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_thread = mdns.clone();
         std::thread::spawn(move || loop {
@@ -298,19 +302,81 @@ fn x11_workaround() {
     }
 }
 
+#[derive(Parser, Debug)]
+struct Args {
+    #[arg(
+        short = 'l',
+        long,
+        default_value_t = foreign_crate::LevelFilter::Info,
+        value_parser = clap::builder::PossibleValuesParser::new(["trace", "debug", "info", "warn", "error"])
+            .map(|s| s.parse::<foreign_crate::LevelFilter>().unwrap_or(foreign_crate::LevelFilter::Info)),
+    )]
+    log_level: foreign_crate::LevelFilter,
+}
+
+mod foreign_crate {
+    #[derive(Copy, Clone, PartialEq, Eq, Debug)]
+    pub(crate) enum LevelFilter {
+        Trace,
+        Debug,
+        Info,
+        Warn,
+        Error,
+    }
+
+    impl std::fmt::Display for LevelFilter {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            let s = match self {
+                Self::Trace => "trace",
+                Self::Debug => "debug",
+                Self::Info => "info",
+                Self::Warn => "warn",
+                Self::Error => "error",
+            };
+            s.fmt(f)
+        }
+    }
+    impl std::str::FromStr for LevelFilter {
+        type Err = String;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            match s {
+                "trace" => Ok(Self::Trace),
+                "debug" => Ok(Self::Debug),
+                "info" => Ok(Self::Info),
+                "warn" => Ok(Self::Warn),
+                "error" => Ok(Self::Error),
+                _ => Err(format!("Unknown log level: {s}")),
+            }
+        }
+    }
+    impl From<LevelFilter> for log::LevelFilter {
+        fn from(val: LevelFilter) -> Self {
+            match val {
+                LevelFilter::Trace => log::LevelFilter::Trace,
+                LevelFilter::Debug => log::LevelFilter::Debug,
+                LevelFilter::Info => log::LevelFilter::Info,
+                LevelFilter::Warn => log::LevelFilter::Warn,
+                LevelFilter::Error => log::LevelFilter::Error,
+            }
+        }
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     #[cfg(target_os = "linux")]
     x11_workaround();
+    let args = Args::parse();
     tauri::Builder::default()
-        .manage(MdnsState::new())
+        .manage(ManagedState::new())
         .plugin(
             tauri_plugin_log::Builder::default()
                 .targets([
                     Target::new(TargetKind::Stdout),
                     Target::new(TargetKind::Webview),
                 ])
-                .level(LevelFilter::Info)
+                .level(args.log_level)
                 .build(),
         )
         .setup(|app| {
