@@ -12,7 +12,9 @@ use std::{
     time::{Duration, SystemTime},
 };
 use tauri::Emitter;
-use tauri::{Manager, State, Window};
+#[cfg(desktop)]
+use tauri::Manager;
+use tauri::{State, Window};
 use tauri_plugin_log::{Target, TargetKind};
 
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
@@ -398,6 +400,10 @@ pub fn run() {
                         )
                         .expect("title to be set");
                 });
+            }
+            #[cfg(not(desktop))]
+            {
+                let _dummy = app.handle();
             }
             Ok(())
         })
