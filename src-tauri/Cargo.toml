@@ -12,15 +12,16 @@ tauri-build = { version = "2.0.0-rc", features = [] }
 tauri-plugin-updater = "2.0.0-rc"
 
 [dependencies]
-mdns-sd = { git = "https://github.com/keepsimple1/mdns-sd.git", rev = "1e9840f5", default-features = false, features = [
+clap = { version = "4.5.16", features = ["derive"] }
+log = "0.4.22"
+mdns-sd = { git = "https://github.com/keepsimple1/mdns-sd.git", rev = "f055c78", default-features = false, features = [
     "async",
     "log",
 ] }
-tauri = { version = "2.0.0-rc", features = [] }
 serde = { version = "1.0.208", features = ["derive"] }
 serde_json = "1.0.125"
+tauri = { version = "2.0.0-rc", features = [] }
 tauri-plugin-log = "2.0.0-rc"
-log = "0.4.22"
 tauri-plugin-shell = "2.0.0-rc"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
