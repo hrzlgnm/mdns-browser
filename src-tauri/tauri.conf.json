@@ -25,7 +25,7 @@
     },
     "productName": "mnds-browser",
     "version": "0.8.0",
-    "identifier": "io.github.hrzlgnm.mdnsbrowser",
+    "identifier": "io.github.hrzlgnm.mdns-browser",
     "plugins": {
         "updater": {
             "windows": {
