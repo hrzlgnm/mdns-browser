@@ -9,16 +9,17 @@ edition = "2021"
 tauri-build = { version = "1.5.3", features = [] }
 
 [dependencies]
+clap = { version = "4.5.16", features = ["derive"] }
 mdns-sd = { version = "0.11.3", features = ["async", "log"] }
 tauri = { version = "1.7.1", features = [
-    "window-all",
-    "process-relaunch",
-    "process-exit",
     "dialog-ask",
-    "shell-open",
-    "updater",
     "http-api",
     "http-request",
+    "process-exit",
+    "process-relaunch",
+    "shell-open",
+    "updater",
+    "window-all",
 ] }
 serde = { version = "1.0.208", features = ["derive"] }
 serde_json = "1.0.125"
