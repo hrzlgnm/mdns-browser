@@ -6,12 +6,12 @@ authors = ["hrzlgnm"]
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "1.5.3", features = [] }
+tauri-build = { version = "1.5.4", features = [] }
 
 [dependencies]
-clap = { version = "4.5.16", features = ["derive"] }
+clap = { version = "4.5.17", features = ["derive"] }
 mdns-sd = { version = "0.11.3", features = ["async", "log"] }
-tauri = { version = "1.7.1", features = [
+tauri = { version = "1.7.2", features = [
     "dialog-ask",
     "http-api",
     "http-request",
@@ -21,8 +21,8 @@ tauri = { version = "1.7.1", features = [
     "updater",
     "window-all",
 ] }
-serde = { version = "1.0.208", features = ["derive"] }
-serde_json = "1.0.125"
+serde = { version = "1.0.210", features = ["derive"] }
+serde_json = "1.0.128"
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 log = "0.4.22"
 
