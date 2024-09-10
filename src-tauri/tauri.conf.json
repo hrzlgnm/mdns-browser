@@ -25,7 +25,8 @@
                 "all": false,
                 "request": true,
                 "scope": [
-                    "https://mdns-browser-updates.knulp.duckdns.org/*"
+                    "https://mdns-browser-updates.knulp.duckdns.org/*",
+                    "https://mdns-browser-updates.knulp.v6.rocks/*"
                 ]
             },
             "window": {
@@ -65,7 +66,8 @@
         "updater": {
             "active": true,
             "endpoints": [
-                "https://mdns-browser-updates.knulp.duckdns.org/updates.json"
+                "https://mdns-browser-updates.knulp.duckdns.org/updates.json",
+                "https://mdns-browser-updates.knulp.v6.rocks/updates.json"
             ],
             "dialog": true,
             "windows": {
