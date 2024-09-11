@@ -29,7 +29,7 @@ tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", rev = "3e93
     "tauri",
 ] }
 thaw = { version = "0.3.3", features = ["csr"] }
-thaw_utils = { version = "0.0.5", features = ["csr"] }
+thaw_utils = { version = "0.0.6", features = ["csr"] }
 
 [workspace]
 members = ["src-tauri"]
