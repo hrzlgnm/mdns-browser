@@ -2,9 +2,9 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
+    ":automergePatch",
     ":automergeMinor",
     ":automergePr",
-    ":combinePatchMinorReleases",
     ":dependencyDashboard",
     ":enableVulnerabilityAlerts",
     ":rebaseStalePrs",
