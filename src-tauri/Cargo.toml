@@ -10,7 +10,7 @@ tauri-build = { version = "1.5.4", features = [] }
 
 [dependencies]
 clap = { version = "4.5.17", features = ["derive"] }
-mdns-sd = { version = "0.11.3", features = ["async", "log"] }
+mdns-sd = { version = "0.11.4", features = ["async", "log"] }
 tauri = { version = "1.7.2", features = [
     "dialog-ask",
     "http-api",

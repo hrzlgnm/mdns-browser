@@ -18,17 +18,17 @@ console_log = "1.0.0"
 futures = "0.3.30"
 icondata = "0.4.0"
 js-sys = "0.3.70"
-leptos = { version = "0.6.14", features = ["csr"] }
-leptos_meta = { version = "0.6.14", features = ["csr"] }
+leptos = { version = "0.6.15", features = ["csr"] }
+leptos_meta = { version = "0.6.15", features = ["csr"] }
 log = "0.4.22"
-serde = { version = "1.0.208", features = ["derive"] }
+serde = { version = "1.0.210", features = ["derive"] }
 serde-wasm-bindgen = "0.6.5"
 strsim = "0.11.1"
 tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", rev = "3e93a42", features = [
     "event",
     "tauri",
 ] }
-thaw = { version = "0.3.3", features = ["csr"] }
+thaw = { version = "0.3.4", features = ["csr"] }
 thaw_utils = { version = "0.0.6", features = ["csr"] }
 
 [workspace]
