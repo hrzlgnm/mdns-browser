@@ -1,10 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "automergeType": "pr",
+  "patch": {
+    "automerge": true
+  },
+  "minor": {
+    "automerge": true
+  },
   "extends": [
     "config:recommended",
-    ":automergePatch",
-    ":automergeMinor",
-    ":automergePr",
     ":dependencyDashboard",
     ":enableVulnerabilityAlerts",
     ":rebaseStalePrs",
