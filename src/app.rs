@@ -611,14 +611,16 @@ fn Browse() -> impl IntoView {
     view! {
         <Layout style="padding: 10px;">
             <Space>
-               <AutoCompleteServiceType value=service_type disabled=browsing invalid=service_type_invalid/>
-               <Button on_click=on_browse_click disabled=browsing_or_service_type_invalid>
-                    "Browse"
-                </Button>
-                <Button on_click=on_stop_click disabled=not_browsing>
-                    "Stop"
-                </Button>
-            </Space>
+                <Layout class="auto-complete-320">
+                <AutoCompleteServiceType value=service_type disabled=browsing invalid=service_type_invalid/>
+                </Layout>
+                <Button on_click=on_browse_click disabled=browsing_or_service_type_invalid>
+                        "Browse"
+                    </Button>
+                    <Button on_click=on_stop_click disabled=not_browsing>
+                        "Stop"
+                    </Button>
+                </Space>
             <Grid class="responsivegrid">
                 <For
                     each=move || resolved.get()
@@ -639,12 +641,12 @@ fn Browse() -> impl IntoView {
                         grid-template-columns: repeat(4, 1fr) !important;
                      }
                  }
-                  @media (max-width: 1800px) {
+                 @media (max-width: 1800px) {
                     .responsivegrid {
                         grid-template-columns: repeat(3, 1fr) !important;
                      }
                  }
-                  @media (max-width: 1280px) {
+                 @media (max-width: 1280px) {
                     .responsivegrid {
                         grid-template-columns: repeat(2, 1fr) !important;
                      }
@@ -653,6 +655,9 @@ fn Browse() -> impl IntoView {
                     .responsivegrid {
                          grid-template-columns: 1fr !important;
                     }
+                 }
+                 .auto-complete-320 {
+                    min-width: 320px;
                  }
                 "
             </Style>
