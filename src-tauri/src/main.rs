@@ -142,6 +142,11 @@ type ServiceTypeRemovedEvent = SearchStartedEvent;
 const META_SERVICE: &str = "_services._dns-sd._udp.local.";
 
 #[tauri::command]
+fn open(url: String) {
+    let _ = open::that(url.clone()).map_err(|e| log::error!("Failed to open {}: {}", url, e));
+}
+
+#[tauri::command]
 fn browse_types(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_thread = mdns.clone();
@@ -398,7 +403,8 @@ fn main() {
             browse,
             browse_types,
             send_metrics,
-            stop_browse
+            stop_browse,
+            open,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

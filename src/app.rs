@@ -665,6 +665,37 @@ fn Browse() -> impl IntoView {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+struct OpenArgs<'a> {
+    url: &'a str,
+}
+
+async fn open(url: &str) {
+    let _: () = invoke("open", &OpenArgs { url }).await.unwrap();
+}
+
+/// Component for info about the app
+#[component]
+pub fn About() -> impl IntoView {
+    let github_action =
+        create_action(|_: &()| async move { open("http://github.com/hrzlgnm/mdns-browser").await });
+    let on_github_click = move |_| {
+        github_action.dispatch(());
+    };
+
+    view! {
+        <Layout style="padding: 10px;">
+            <Collapse accordion=true>
+                <CollapseItem title="About" key="about">
+                <Space>
+                        <Button size=ButtonSize::Tiny on_click=on_github_click icon=icondata::AiGithubOutlined>"GitHub"</Button>
+                        <Button size=ButtonSize::Tiny icon=icondata::TbWorldCheck>"Check for Updates"</Button>
+                </Space>
+                </CollapseItem>
+            </Collapse>
+        </Layout>
+    }
+}
 /// Component for metrics
 #[component]
 pub fn Metrics() -> impl IntoView {
@@ -725,6 +756,7 @@ pub fn App() -> impl IntoView {
     view! {
         <ThemeProvider theme>
             <GlobalStyle/>
+            <About/>
             <Metrics/>
             <Browse/>
         </ThemeProvider>
