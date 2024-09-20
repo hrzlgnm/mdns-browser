@@ -11,7 +11,7 @@ use std::{
     sync::{Arc, Mutex},
     time::{Duration, SystemTime},
 };
-use tauri::{Manager, State, Window};
+use tauri::{AppHandle, Manager, State, Window};
 use tauri_plugin_log::LogTarget;
 
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
@@ -140,11 +140,6 @@ type ServiceTypeFoundEvent = SearchStartedEvent;
 type ServiceTypeRemovedEvent = SearchStartedEvent;
 
 const META_SERVICE: &str = "_services._dns-sd._udp.local.";
-
-#[tauri::command]
-fn open(url: String) {
-    let _ = open::that(url.clone()).map_err(|e| log::error!("Failed to open {}: {}", url, e));
-}
 
 #[tauri::command]
 fn browse_types(window: Window, state: State<ManagedState>) {
@@ -291,6 +286,22 @@ fn send_metrics(window: Window, state: State<ManagedState>) {
     }
 }
 
+#[tauri::command]
+fn open(url: String) {
+    let _ = open::that(url.clone()).map_err(|e| log::error!("Failed to open {}: {}", url, e));
+}
+
+#[tauri::command]
+fn version(window: Window) -> String {
+    window
+        .app_handle()
+        .config()
+        .package
+        .version
+        .clone()
+        .unwrap_or(String::from("Unknown"))
+}
+
 #[cfg(target_os = "linux")]
 fn platform_setup() {
     let session_type_key = "XDG_SESSION_TYPE";
@@ -385,26 +396,20 @@ fn main() {
         .setup(|app| {
             let splashscreen_window = app.get_window("splashscreen").unwrap();
             let main_window = app.get_window("main").unwrap();
-            let ver = app.config().package.version.clone();
             tauri::async_runtime::spawn(async move {
                 std::thread::sleep(std::time::Duration::from_secs(3));
                 splashscreen_window.close().unwrap();
                 main_window.show().unwrap();
-                main_window
-                    .set_title(
-                        format!("mDNS-Browser v{}", ver.unwrap_or(String::from("Unknown")))
-                            .as_str(),
-                    )
-                    .expect("title to be set");
             });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             browse,
             browse_types,
+            open,
             send_metrics,
             stop_browse,
-            open,
+            version
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

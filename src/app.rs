@@ -17,7 +17,7 @@ use tauri_sys::tauri::invoke;
 use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteSuffix, Button, ButtonSize, Card, CardFooter,
     CardHeaderExtra, Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Icon, Layout, Modal,
-    Space, SpaceAlign, Table, Tag, TagVariant, Theme, ThemeProvider,
+    Space, SpaceAlign, Table, Tag, TagVariant, Text, Theme, ThemeProvider,
 };
 use thaw_utils::Model;
 
@@ -674,22 +674,47 @@ async fn open(url: &str) {
     let _: () = invoke("open", &OpenArgs { url }).await.unwrap();
 }
 
+async fn get_version(writer: WriteSignal<String>) {
+    let ver: String = invoke("version", &()).await.unwrap();
+    log::debug!("Got version {}", ver);
+    writer.update(|v| *v = ver);
+}
+
+const GITHUB_BASE_URL: &str = "https://github.com/hrzlgnm/mdns-browser";
+
 /// Component for info about the app
 #[component]
 pub fn About() -> impl IntoView {
-    let github_action =
-        create_action(|_: &()| async move { open("http://github.com/hrzlgnm/mdns-browser").await });
-    let on_github_click = move |_| {
-        github_action.dispatch(());
+    let github_action = create_action(|action: &String| {
+        let action = action.clone();
+        log::debug!("Opening {}", action);
+        async move { open(action.clone().as_str()).await }
+    });
+    let on_issues_click = move |_| {
+        github_action.dispatch(format!(
+            "{}/issues?q=is%3Aopen+is%3Aissue+label%3Abug",
+            GITHUB_BASE_URL
+        ));
     };
+    let on_report_issue_click = move |_| {
+        github_action.dispatch(format!("{}/issues/new", GITHUB_BASE_URL));
+    };
+    let on_releases_click = move |_| {
+        github_action.dispatch(format!("{}/releases/", GITHUB_BASE_URL));
+    };
+
+    let (version, set_version) = create_signal(String::new());
+    create_local_resource(move || set_version, get_version);
 
     view! {
         <Layout style="padding: 10px;">
             <Collapse accordion=true>
                 <CollapseItem title="About" key="about">
                 <Space>
-                        <Button size=ButtonSize::Tiny on_click=on_github_click icon=icondata::AiGithubOutlined>"GitHub"</Button>
-                        <Button size=ButtonSize::Tiny icon=icondata::TbWorldCheck>"Check for Updates"</Button>
+                    <Text>"Version "{move || version.get()}</Text>
+                    <Button size=ButtonSize::Tiny on_click=on_report_issue_click icon=icondata::AiGithubOutlined>"Report an Issue"</Button>
+                    <Button size=ButtonSize::Tiny on_click=on_issues_click icon=icondata::AiGithubOutlined>"Known Issues"</Button>
+                    <Button size=ButtonSize::Tiny on_click=on_releases_click icon=icondata::AiGithubOutlined>"Releases"</Button>
                 </Space>
                 </CollapseItem>
             </Collapse>
