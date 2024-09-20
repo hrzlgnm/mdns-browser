@@ -11,7 +11,7 @@ use std::{
     sync::{Arc, Mutex},
     time::{Duration, SystemTime},
 };
-use tauri::{AppHandle, Manager, State, Window};
+use tauri::{Manager, State, Window};
 use tauri_plugin_log::LogTarget;
 
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
