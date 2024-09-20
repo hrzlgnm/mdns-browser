@@ -685,11 +685,22 @@ const GITHUB_BASE_URL: &str = "https://github.com/hrzlgnm/mdns-browser";
 /// Component for info about the app
 #[component]
 pub fn About() -> impl IntoView {
+    let (version, set_version) = create_signal(String::new());
+    create_local_resource(move || set_version, get_version);
     let github_action = create_action(|action: &String| {
         let action = action.clone();
         log::debug!("Opening {}", action);
         async move { open(action.clone().as_str()).await }
     });
+
+    let on_release_notes_click = move |_| {
+        github_action.dispatch(format!(
+            "{}/releases/tag/mdns-browser-v{}",
+            GITHUB_BASE_URL,
+            version.get()
+        ));
+    };
+
     let on_issues_click = move |_| {
         github_action.dispatch(format!(
             "{}/issues?q=is%3Aopen+is%3Aissue+label%3Abug",
@@ -703,15 +714,13 @@ pub fn About() -> impl IntoView {
         github_action.dispatch(format!("{}/releases/", GITHUB_BASE_URL));
     };
 
-    let (version, set_version) = create_signal(String::new());
-    create_local_resource(move || set_version, get_version);
-
     view! {
         <Layout style="padding: 10px;">
             <Collapse accordion=true>
                 <CollapseItem title="About" key="about">
                 <Space>
                     <Text>"Version "{move || version.get()}</Text>
+                    <Button size=ButtonSize::Tiny on_click=on_release_notes_click icon=icondata::AiGithubOutlined>"Release Notes"</Button>
                     <Button size=ButtonSize::Tiny on_click=on_report_issue_click icon=icondata::AiGithubOutlined>"Report an Issue"</Button>
                     <Button size=ButtonSize::Tiny on_click=on_issues_click icon=icondata::AiGithubOutlined>"Known Issues"</Button>
                     <Button size=ButtonSize::Tiny on_click=on_releases_click icon=icondata::AiGithubOutlined>"Releases"</Button>
