@@ -669,11 +669,11 @@ struct OpenArgs<'a> {
 }
 
 async fn open(url: &str) {
-    let _: () = invoke("open", &OpenArgs { url }).await.unwrap();
+    let _ = invoke::<()>("open", &OpenArgs { url }).await;
 }
 
 async fn get_version(writer: WriteSignal<String>) {
-    let ver: String = invoke("version", &()).await.unwrap();
+    let ver = invoke::<String>("version", &()).await;
     log::debug!("Got version {}", ver);
     writer.update(|v| *v = ver);
 }

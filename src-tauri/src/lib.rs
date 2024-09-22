@@ -288,6 +288,21 @@ fn send_metrics(window: Window, state: State<ManagedState>) {
     }
 }
 
+#[tauri::command]
+fn open(url: String) {
+    let _ = open::that(url.clone()).map_err(|e| log::error!("Failed to open {}: {}", url, e));
+}
+
+#[tauri::command]
+fn version(window: Window) -> String {
+    window
+        .app_handle()
+        .config()
+        .version
+        .clone()
+        .unwrap_or(String::from("Unknown"))
+}
+
 #[cfg(target_os = "linux")]
 fn x11_workaround() {
     let session_type_key = "XDG_SESSION_TYPE";
@@ -388,17 +403,10 @@ pub fn run() {
                     .plugin(tauri_plugin_updater::Builder::new().build())?;
                 let splashscreen_window = app.get_webview_window("splashscreen").unwrap();
                 let main_window = app.get_webview_window("main").unwrap();
-                let ver = app.config().version.clone();
                 tauri::async_runtime::spawn(async move {
                     std::thread::sleep(std::time::Duration::from_secs(3));
                     splashscreen_window.close().unwrap();
                     main_window.show().unwrap();
-                    main_window
-                        .set_title(
-                            format!("mDNS-Browser v{}", ver.unwrap_or(String::from("Unknown")))
-                                .as_str(),
-                        )
-                        .expect("title to be set");
                 });
             }
             #[cfg(not(desktop))]
@@ -410,8 +418,10 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             browse,
             browse_types,
+            open,
             send_metrics,
-            stop_browse
+            stop_browse,
+            version,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
