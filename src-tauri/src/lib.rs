@@ -11,6 +11,7 @@ use std::{
     sync::{Arc, Mutex},
     time::{Duration, SystemTime},
 };
+
 use tauri::Emitter;
 #[cfg(desktop)]
 use tauri::Manager;
@@ -293,6 +294,7 @@ fn open(url: String) {
     let _ = open::that(url.clone()).map_err(|e| log::error!("Failed to open {}: {}", url, e));
 }
 
+#[cfg(desktop)]
 #[tauri::command]
 fn version(window: Window) -> String {
     window
@@ -421,6 +423,7 @@ pub fn run() {
             open,
             send_metrics,
             stop_browse,
+            #[cfg(desktop)]
             version,
         ])
         .run(tauri::generate_context!())
