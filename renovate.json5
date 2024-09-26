@@ -16,5 +16,6 @@
     ":semanticPrefixChore",
     ":separateMajorReleases",
     ":prImmediately"
-  ]
+  ],
+  "prConcurrentLimit": 0
 }
