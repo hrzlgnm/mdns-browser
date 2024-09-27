@@ -97,7 +97,15 @@ jobs:
           tool: cargo-sbom
 
       - name: Generate SBOM
-        run: cargo sbom --output-format=cyclone_dx_json_1_4
+        run: |
+          mkdir -p sbom
+          cargo sbom --output-format=spdx_json_2_3 > sbom/spdx_json_2_3-${{matrix.platform}}.json
+          cargo sbom --output-format=cyclone_dx_json_1_4 > sbom/cyclone_dx_json_1_4-${{matrix.platform}}.json
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          path: sbom
 
       - uses: tauri-apps/tauri-action@v0.5.14
         env:
