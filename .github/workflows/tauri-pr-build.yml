@@ -97,7 +97,7 @@ jobs:
           tool: cargo-sbom
 
       - name: Generate SBOM
-        run: cargo sbom
+        run: cargo sbom --output-format=cyclone_dx_json_1_4
 
       - uses: tauri-apps/tauri-action@v0.5.14
         env:
