@@ -91,6 +91,15 @@ jobs:
 
       - name: Build using tauri action
         uses: tauri-apps/tauri-action@v0.5.14
+      - name: cached install cargo-sbom
+        uses: taiki-e/cache-cargo-install-action@v2.0.1
+        with:
+          tool: cargo-sbom
+
+      - name: Generate SBOM
+        run: cargo sbom
+
+      - uses: tauri-apps/tauri-action@v0.5.14
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
