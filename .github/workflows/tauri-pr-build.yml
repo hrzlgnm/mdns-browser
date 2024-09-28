@@ -104,32 +104,32 @@ jobs:
 
       - name: Generate SBOM
         run: |
-          ls
           mkdir sbom
           cargo cyclonedx --all --format json
+          ls
 
       - name: Merge SBOM Macos Aarch64
         if: contains(matrix.platform, 'macos-latest') && contains(matrix.args, 'aarch64-apple-darwin')
         run: |
           chmod +x cyclonedx-osx*
-          ./cyclonedx-osx-arm64 merge --input-files *.json --output-file "sbom/mdns-browser-${{matrix.platform}}-aarch64-apple-darwin.cdx.json"
+          ./cyclonedx-osx-arm64 merge --input-files **/*.cdx.json --output-file "sbom/mdns-browser-${{matrix.platform}}-aarch64-apple-darwin.cdx.json"
 
       - name: Merge SBOM Macos x64
         if: contains(matrix.platform, 'macos-latest') && contains(matrix.args, 'x86_64-apple-darwin')
         run: |
           chmod +x cyclonedx-osx*
-          ./cyclonedx-osx-arm64 merge --input-files *.json --output-file "sbom/mdns-browser-${{matrix.platform}}-x86_64-apple-darwin.cdx.json"
+          ./cyclonedx-osx-arm64 merge --input-files **/*.cdx.json --output-file "sbom/mdns-browser-${{matrix.platform}}-x86_64-apple-darwin.cdx.json"
 
       - name: Merge SBOM Linux
         if: contains(matrix.platform, 'ubuntu')
         run: |
           chmod +x cyclonedx-linux-x64
-          ./cyclonedx-linux-x64 merge --input-files *.json --output-file sbom/mdns-browser-${{matrix.platform}}.cdx.json
+          ./cyclonedx-linux-x64 merge --input-files **/*.cdx.json --output-file sbom/mdns-browser-${{matrix.platform}}.cdx.json
 
       - name: Merge SBOM Windows
         if: contains(matrix.platform, 'windows')
         run: |
-          cyclonedx-win-x64 merge --input-files *.json --output-file sbom/mdns-browser-${{matrix.platform}}.cdx.json
+          .\cyclonedx-win-x64 merge --input-files **/*.cdx.json --output-file sbom/mdns-browser-${{matrix.platform}}.cdx.json
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
