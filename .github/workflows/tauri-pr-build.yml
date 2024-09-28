@@ -77,15 +77,15 @@ jobs:
         run: |
           cargo test
 
-      - name: Generate SBOM
-        run: |
-          cargo cyclonedx --all --format json
-
       - name: Cached install cargo-cyclonedx
         uses: taiki-e/cache-cargo-install-action@v2.0.1
         with:
           tool: cargo-cyclonedx
           locked: true
+
+      - name: Generate SBOM
+        run: |
+          cargo cyclonedx --all --format json
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
