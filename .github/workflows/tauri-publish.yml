@@ -115,4 +115,4 @@ jobs:
           releaseBody: "See the assets to download this version and install."
           releaseDraft: false
           prerelease: false
-          tauriScript: cargo --locked tauri
+          tauriScript: cargo --locked auditable tauri
