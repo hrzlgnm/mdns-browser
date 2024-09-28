@@ -28,7 +28,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
       - name: Install rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -45,7 +45,7 @@ jobs:
 
       - name: Cached install cargo-make (ubuntu only)
         if: contains(matrix.platform, 'ubuntu')
-        uses: taiki-e/cache-cargo-install-action@v2.0.1
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: cargo-make
           locked: true
@@ -78,7 +78,7 @@ jobs:
           cargo test
 
       - name: Cached install cargo-cyclonedx
-        uses: taiki-e/cache-cargo-install-action@v2.0.1
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: cargo-cyclonedx
           locked: true
@@ -94,19 +94,19 @@ jobs:
           path: "**/*.cdx.json"
 
       - name: Cached install trunk
-        uses: taiki-e/cache-cargo-install-action@v2.0.1
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: trunk
           locked: true
 
       - name: Cached install tauri-cli
-        uses: taiki-e/cache-cargo-install-action@v2.0.1
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: tauri-cli
           locked: true
 
       - name: Build using tauri action
-        uses: tauri-apps/tauri-action@v0.5.14
+        uses: tauri-apps/tauri-action@4ec5841d83495da72c665daa556e6f231b89ae06 # v0.5.14
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
