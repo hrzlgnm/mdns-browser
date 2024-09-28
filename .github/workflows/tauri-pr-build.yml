@@ -109,13 +109,13 @@ jobs:
           cargo cyclonedx --all --format json
 
       - name: Merge SBOM Macos Aarch64
-        if: contains(matrix.platform, 'macos-latest') and contains(matrix.args, 'aarch64-apple-darwin')
+        if: contains(matrix.platform, 'macos-latest') && contains(matrix.args, 'aarch64-apple-darwin')
         run: |
           chmod +x cyclonedx-osx*
           ./cyclonedx-osx-arm64 merge --input-files *.json --output-file "sbom/mdns-browser-${{matrix.platform}}-aarch64-apple-darwin.cdx.json"
 
       - name: Merge SBOM Macos x64
-        if: contains(matrix.platform, 'macos-latest') and contains(matrix.args, 'x86_64-apple-darwin')
+        if: contains(matrix.platform, 'macos-latest') && contains(matrix.args, 'x86_64-apple-darwin')
         run: |
           chmod +x cyclonedx-osx*
           ./cyclonedx-osx-arm64 merge --input-files *.json --output-file "sbom/mdns-browser-${{matrix.platform}}-x86_64-apple-darwin.cdx.json"
