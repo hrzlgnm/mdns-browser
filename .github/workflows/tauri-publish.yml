@@ -32,7 +32,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }} wasm32-unknown-unknown
 
       - name: Install dependencies (ubuntu only)
         if: contains(matrix.platform, 'ubuntu')
@@ -66,10 +66,6 @@ jobs:
           cargo clippy -- -D warnings 
           cd src-tauri
           cargo clippy -- -D warnings
-
-      - name: Install frontend dependencies
-        run: |
-          rustup target add wasm32-unknown-unknown
 
       - name: Run tests
         run: |
