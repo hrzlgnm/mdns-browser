@@ -98,6 +98,6 @@ jobs:
           tauriScript: cargo tauri
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v3.2.1
         with:
           path: target/release/bundle
