@@ -77,6 +77,22 @@ jobs:
         run: |
           cargo test
 
+      - name: Generate SBOM
+        run: |
+          cargo cyclonedx --all --format json
+
+      - name: Cached install cargo-cyclonedx
+        uses: taiki-e/cache-cargo-install-action@v2.0.1
+        with:
+          tool: cargo-cyclonedx
+          locked: true
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          name: "sbom-${{matrix.platform}}${{matrix.args}}"
+          path: **/*.cdx.json
+
       - name: Cached install trunk
         uses: taiki-e/cache-cargo-install-action@v2.0.1
         with:
@@ -89,54 +105,6 @@ jobs:
           tool: tauri-cli
           locked: true
 
-      - name: Cached install cargo-cyclonedx
-        uses: taiki-e/cache-cargo-install-action@v2.0.1
-        with:
-          tool: cargo-cyclonedx
-          locked: true
-
-      - name: Install cycloned-cli
-        uses: robinraju/release-downloader@v1
-        with:
-          repository: CycloneDX/cyclonedx-cli
-          fileName: "cyclonedx-*"
-          latest: true
-
-      - name: Generate SBOM
-        run: |
-          mkdir sbom
-          cargo cyclonedx --all --format json
-          ls
-
-      - name: Merge SBOM Macos Aarch64
-        if: contains(matrix.platform, 'macos-latest') && contains(matrix.args, 'aarch64-apple-darwin')
-        run: |
-          chmod +x cyclonedx-osx*
-          ./cyclonedx-osx-arm64 merge --input-files **/*.cdx.json --output-file "sbom/mdns-browser-${{matrix.platform}}-aarch64-apple-darwin.cdx.json"
-
-      - name: Merge SBOM Macos x64
-        if: contains(matrix.platform, 'macos-latest') && contains(matrix.args, 'x86_64-apple-darwin')
-        run: |
-          chmod +x cyclonedx-osx*
-          ./cyclonedx-osx-arm64 merge --input-files **/*.cdx.json --output-file "sbom/mdns-browser-${{matrix.platform}}-x86_64-apple-darwin.cdx.json"
-
-      - name: Merge SBOM Linux
-        if: contains(matrix.platform, 'ubuntu')
-        run: |
-          chmod +x cyclonedx-linux-x64
-          ./cyclonedx-linux-x64 merge --input-files **/*.cdx.json --output-file sbom/mdns-browser-${{matrix.platform}}.cdx.json
-
-      - name: Merge SBOM Windows
-        if: contains(matrix.platform, 'windows')
-        run: |
-          .\cyclonedx-win-x64 merge --input-files **/*.cdx.json --output-file sbom/mdns-browser-${{matrix.platform}}.cdx.json
-
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3.1.0
-        with:
-          name: "build-artefacts-${{matrix.platform}}${{matrix.args}}"
-          path: sbom
-
       - name: Build using tauri action
         uses: tauri-apps/tauri-action@v0.5.14
         env:
@@ -148,4 +116,5 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3.2.1
         with:
+          name: "bundles-${{matrix.platform}}${{matrix.args}}"
           path: target/release/bundle
