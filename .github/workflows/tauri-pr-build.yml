@@ -27,22 +27,23 @@ jobs:
             args: ""
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: install Rust stable
+      - name: Install rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      - name: install dependencies (ubuntu only)
+      - name: Install dependencies (ubuntu only)
         if: contains(matrix.platform, 'ubuntu')
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf python3-pip
           sudo python3 -m pip install codespell
 
-      - name: cached install cargo-make (ubuntu only)
+      - name: Cached install cargo-make (ubuntu only)
         if: contains(matrix.platform, 'ubuntu')
         uses: taiki-e/cache-cargo-install-action@v2.0.1
         with:
@@ -68,29 +69,35 @@ jobs:
           cd src-tauri
           cargo clippy -- -D warnings
 
-      - name: install frontend dependencies
+      - name: Install frontend dependencies
         run: |
           rustup target add wasm32-unknown-unknown
 
-      - name: run tests
+      - name: Run tests
         run: |
           cargo test
 
-      - name: cached install trunk
+      - name: Cached install trunk
         uses: taiki-e/cache-cargo-install-action@v2.0.1
         with:
           tool: trunk
           locked: true
 
-      - name: cached install tauri-cli
+      - name: Cached install tauri-cli
         uses: taiki-e/cache-cargo-install-action@v2.0.1
         with:
           tool: tauri-cli
           locked: true
 
-      - uses: tauri-apps/tauri-action@v0.5.14
+      - name: Build using tauri action
+        uses: tauri-apps/tauri-action@v0.5.14
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
           tauriScript: cargo tauri
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          path: target/release/bundle
