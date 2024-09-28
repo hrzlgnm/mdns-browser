@@ -7,6 +7,7 @@
   "minor": {
     "automerge": true
   },
+  "pinDigests": true,
   "extends": [
     "config:recommended",
     ":dependencyDashboard",
