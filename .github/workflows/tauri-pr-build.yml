@@ -91,7 +91,7 @@ jobs:
         uses: actions/upload-artifact@v3.1.0
         with:
           name: "sbom-${{matrix.platform}}${{matrix.args}}"
-          path: **/*.cdx.json
+          path: "**/*.cdx.json"
 
       - name: Cached install trunk
         uses: taiki-e/cache-cargo-install-action@v2.0.1
