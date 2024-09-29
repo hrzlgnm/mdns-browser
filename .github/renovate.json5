@@ -1,38 +1,38 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "automergeType": "pr",
-  "patch": {
-    "automerge": true
-  },
-  "minor": {
-    "automerge": true
-  },
-  "pinDigests": true,
-  "extends": [
-    "config:recommended",
-    ":dependencyDashboard",
-    ":enableVulnerabilityAlerts",
-    ":rebaseStalePrs",
-    ":semanticCommits",
-    ":semanticPrefixChore",
-    ":separateMajorReleases",
-    ":prImmediately"
-  ],
-  "prConcurrentLimit": 0,
-  "lockFileMaintenance": {
-    "enabled": true
-  },
-  "customManagers": [
-    {
-      "customType": "regex",
-      "fileMatch": [
-        "^\\.github/workflows/.*\\.yml$"
-      ],
-      "matchStrings": [
-        "tool:\\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)"
-      ],
-      "datasourceTemplate": "crate",
-      "versioningTemplate": "cargo"
-    }
-  ]
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "automergeType": "pr",
+    "patch": {
+        "automerge": true
+    },
+    "minor": {
+        "automerge": true
+    },
+    "pinDigests": true,
+    "extends": [
+        "config:recommended",
+        ":dependencyDashboard",
+        ":enableVulnerabilityAlerts",
+        ":rebaseStalePrs",
+        ":semanticCommits",
+        ":semanticPrefixChore",
+        ":separateMajorReleases",
+        ":prImmediately"
+    ],
+    "prConcurrentLimit": 0,
+    "lockFileMaintenance": {
+        "enabled": true
+    },
+    "customManagers": [
+        {
+            "customType": "regex",
+            "fileMatch": [
+                "^\\.github/workflows/.*\\.yml$"
+            ],
+            "matchStrings": [
+                "tool:\\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)"
+            ],
+            "datasourceTemplate": "crate",
+            "versioningTemplate": "cargo"
+        }
+    ]
 }
