@@ -47,7 +47,7 @@ jobs:
         if: contains(matrix.platform, 'ubuntu')
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
-          tool: cargo-make
+          tool: cargo-make@0.37.17
           locked: true
 
       - name: Run codespell (ubuntu only)
@@ -80,7 +80,7 @@ jobs:
       - name: Cached install cargo-cyclonedx
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
-          tool: cargo-cyclonedx
+          tool: cargo-cyclonedx@0.5.5
           locked: true
 
       - name: Generate SBOM
@@ -96,7 +96,13 @@ jobs:
       - name: Cached install trunk
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
-          tool: trunk
+          tool: trunk@0.20.3
+          locked: true
+
+      - name: Cached install cargo-auditable
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
+        with:
+          tool: cargo-auditable@0.6.4
           locked: true
 
       - name: Cached install tauri-cli
