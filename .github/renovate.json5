@@ -25,14 +25,12 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Update cached install packages in github workflows",
       "fileMatch": [
         "^\\.github/workflows/.*\\.yml$"
       ],
       "matchStrings": [
-        "\\s*tool:\\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)$"
+        "tool:\\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)"
       ],
-      "depNameTemplate": "{{depName}}",
       "datasourceTemplate": "crates",
       "versioningTemplate": "cargo"
     }
