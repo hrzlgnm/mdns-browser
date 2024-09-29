@@ -99,6 +99,12 @@ jobs:
           tool: trunk
           locked: true
 
+      - name: Cached install cargo-auditable
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
+        with:
+          tool: cargo-auditable@0.6.4
+          locked: true
+
       - name: Cached install tauri-cli
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
@@ -111,6 +117,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        with:
           tauriScript: cargo --locked auditable tauri
 
       - name: Upload build artifacts
