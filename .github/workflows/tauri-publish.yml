@@ -25,24 +25,25 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
-      - name: install Rust stable
+      - name: Install rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
 
-      - name: install dependencies (ubuntu only)
+      - name: Install dependencies (ubuntu only)
         if: contains(matrix.platform, 'ubuntu')
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf python3-pip
           sudo python3 -m pip install codespell
 
-      - name: cached install cargo-make (ubuntu only)
+      - name: Cached install cargo-make (ubuntu only)
         if: contains(matrix.platform, 'ubuntu')
-        uses: taiki-e/cache-cargo-install-action@v2.0.1
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: cargo-make
           locked: true
@@ -66,27 +67,40 @@ jobs:
           cd src-tauri
           cargo clippy -- -D warnings
 
-      - name: install frontend dependencies
-        run: |
-          rustup target add wasm32-unknown-unknown
-
-      - name: run tests
+      - name: Run tests
         run: |
           cargo test
 
-      - name: cached install trunk
-        uses: taiki-e/cache-cargo-install-action@v2.0.1
+      - name: Cached install cargo-cyclonedx
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
+        with:
+          tool: cargo-cyclonedx
+          locked: true
+
+      - name: Generate SBOM
+        run: |
+          cargo cyclonedx --all --format json
+
+      - name: Upload sbom artifacts
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        with:
+          name: "sbom-${{matrix.platform}}${{matrix.args}}"
+          path: "**/*.cdx.json"
+
+      - name: Cached install trunk
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: trunk
           locked: true
 
-      - name: cached install tauri-cli
-        uses: taiki-e/cache-cargo-install-action@v2.0.1
+      - name: Cached install tauri-cli
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: tauri-cli@2.0.0-rc.2
           locked: true
 
-      - uses: tauri-apps/tauri-action@v0.5.14
+      - name: Build using tauri action
+        uses: tauri-apps/tauri-action@4ec5841d83495da72c665daa556e6f231b89ae06 # v0.5.14
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
@@ -97,4 +111,4 @@ jobs:
           releaseBody: "See the assets to download this version and install."
           releaseDraft: false
           prerelease: false
-          tauriScript: cargo tauri
+          tauriScript: cargo --locked auditable tauri
