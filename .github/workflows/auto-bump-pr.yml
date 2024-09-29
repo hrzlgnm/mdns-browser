@@ -15,7 +15,7 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
-      - name: Bump version in tauri.conf.json and android.tauri.conf.json
+      - name: Bump version in tauri.conf.json and tauri.android.conf.json
         id: bump_version
         run: |
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
@@ -26,7 +26,7 @@ jobs:
           NEW_PATCH=$((PATCH + 1))
           NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
           jq --indent 4 ".version = \"$NEW_VERSION\"" src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp && mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
-          jq --indent 4 ".version = \"$NEW_VERSION\"" src-tauri/android.tauri.conf.json > src-tauri/android.tauri.conf.json.tmp && mv src-tauri/android.tauri.conf.json.tmp src-tauri/androdi.tauri.conf.json
+          jq --indent 4 ".version = \"$NEW_VERSION\"" src-tauri/tauri.android.conf.json > src-tauri/tauri.android.conf.json.tmp && mv src-tauri/tauri.android.conf.json.tmp src-tauri/tauri.android.conf.json
           echo "new_version=$NEW_VERSION" >> "$GITHUB_ENV"
 
       - name: Create Pull Request
