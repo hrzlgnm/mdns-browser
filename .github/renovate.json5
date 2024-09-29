@@ -30,7 +30,7 @@
         "^\\.github/workflows/.*\\.yml$"
       ],
       "matchStrings": [
-        "tool:\\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)"
+        "\\s*tool:\\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)$"
       ],
       "depNameTemplate": "{{depName}}",
       "datasourceTemplate": "crates",
