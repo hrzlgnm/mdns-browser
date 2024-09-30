@@ -118,3 +118,13 @@ jobs:
           releaseDraft: false
           prerelease: false
           tauriScript: cargo --locked auditable tauri
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v1.4.3
+        with:
+          subject-path: |
+            target/release/bundle/nsis/*
+            target/release/bundle/macos/*.tar.gz*
+            target/release/bundle/dmg/*.dmg
+            target/release/bundle/appimage/*.AppImage.*
+            target/release/bundle/deb/*.deb
