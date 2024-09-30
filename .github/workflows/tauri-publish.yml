@@ -120,7 +120,7 @@ jobs:
           tauriScript: cargo --locked auditable tauri
 
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v1.4.3
+        uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
         with:
           subject-path: |
             target/release/bundle/nsis/*
