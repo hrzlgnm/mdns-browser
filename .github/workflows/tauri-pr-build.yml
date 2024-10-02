@@ -112,7 +112,7 @@ jobs:
           locked: true
 
       - name: Build using tauri action
-        uses: tauri-apps/tauri-action@4ec5841d83495da72c665daa556e6f231b89ae06 # v0.5.14
+        uses: tauri-apps/tauri-action@8c3e0753aa015d00d03631d6d4f64ad59489251d # v0.5.15
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
