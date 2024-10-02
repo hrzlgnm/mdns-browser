@@ -9,7 +9,9 @@ edition = "2021"
 tauri-build = { version = "2.0.0", features = [] }
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
-tauri-plugin-updater = "2.0.0"
+tauri-plugin-updater = "2.0.1"
+tauri-plugin-log = "2.0.0"
+tauri-plugin-shell = "2.0.0"
 
 [dependencies]
 clap = { version = "4.5.19", features = ["derive"] }
@@ -19,8 +21,6 @@ open = "5"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.128"
 tauri = { version = "2.0.0", features = [] }
-tauri-plugin-log = "2.0.0"
-tauri-plugin-shell = "2.0.0"
 
 [lib]
 name = "mdns_browser_lib"
