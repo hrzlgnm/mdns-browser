@@ -17,6 +17,7 @@ use tauri::Emitter;
 use tauri::Manager;
 use tauri::{State, Window};
 use tauri_plugin_log::{Target, TargetKind};
+use tauri_plugin_updater::UpdaterExt;
 
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
@@ -189,6 +190,7 @@ fn browse_types(window: Window, state: State<ManagedState>) {
         });
     }
 }
+
 #[tauri::command]
 fn stop_browse(service_type: String, state: State<ManagedState>) {
     if service_type.is_empty() {
@@ -289,6 +291,7 @@ fn send_metrics(window: Window, state: State<ManagedState>) {
     }
 }
 
+#[cfg(desktop)]
 #[tauri::command]
 fn open(url: String) {
     let _ = open::that(url.clone()).map_err(|e| log::error!("Failed to open {}: {}", url, e));
@@ -382,6 +385,43 @@ mod foreign_crate {
     }
 }
 
+#[cfg(desktop)]
+#[tauri::command]
+fn is_desktop() -> bool {
+    true
+}
+
+#[cfg(not(desktop))]
+#[tauri::command]
+fn is_desktop() -> bool {
+    false
+}
+
+async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
+    if let Some(update) = app.updater()?.check().await? {
+        let mut downloaded = 0;
+
+        update
+            .download_and_install(
+                |chunk_length, content_length| {
+                    downloaded += chunk_length;
+                    log::info!("downloaded {downloaded} from {content_length:?}");
+                },
+                || {
+                    log::info!("download finished");
+                },
+            )
+            .await?;
+
+        log::info!("update installed, restarting");
+        app.restart();
+    } else {
+        log::info!("No updates are available");
+    }
+
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     #[cfg(target_os = "linux")]
@@ -398,11 +438,16 @@ pub fn run() {
                 .level(args.log_level)
                 .build(),
         )
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
             #[cfg(desktop)]
             {
-                app.handle()
-                    .plugin(tauri_plugin_updater::Builder::new().build())?;
+                let handle = app.handle().clone();
+                tauri::async_runtime::spawn(async move {
+                    let _ = update(handle)
+                        .await
+                        .map_err(|err| log::error!("Failed to check for updates: {}", err));
+                });
                 let splashscreen_window = app.get_webview_window("splashscreen").unwrap();
                 let main_window = app.get_webview_window("main").unwrap();
                 tauri::async_runtime::spawn(async move {
@@ -420,6 +465,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             browse,
             browse_types,
+            is_desktop,
+            #[cfg(desktop)]
             open,
             send_metrics,
             stop_browse,
