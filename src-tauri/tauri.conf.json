@@ -32,7 +32,6 @@
                 "installMode": "passive"
             },
             "endpoints": [
-                "https://mdns-browser-updates.knulp.duckdns.org/updates.json",
                 "https://mdns-browser-updates.knulp.home64.de/updates.json",
                 "https://mdns-browser-updates.knulp.v6.rocks/updates.json"
             ],
