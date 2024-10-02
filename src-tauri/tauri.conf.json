@@ -2,41 +2,44 @@
     "build": {
         "beforeDevCommand": "trunk serve",
         "beforeBuildCommand": "trunk build",
-        "devPath": "http://localhost:1420",
-        "distDir": "../dist",
-        "withGlobalTauri": true
+        "frontendDist": "../dist",
+        "devUrl": "http://localhost:1420"
     },
-    "package": {
-        "productName": "mdns-browser",
-        "version": "0.7.18"
+    "bundle": {
+        "active": true,
+        "targets": [
+            "deb",
+            "appimage",
+            "nsis",
+            "dmg",
+            "app"
+        ],
+        "icon": [
+            "icons/32x32.png",
+            "icons/128x128.png",
+            "icons/128x128@2x.png",
+            "icons/icon.icns",
+            "icons/icon.ico"
+        ],
+        "createUpdaterArtifacts": "v1Compatible"
     },
-    "tauri": {
-        "allowlist": {
-            "all": false,
-            "shell": {
-                "all": false,
-                "open": true
+    "productName": "mnds-browser",
+    "version": "0.8.0",
+    "identifier": "io.github.hrzlgnm.mdns-browser",
+    "plugins": {
+        "updater": {
+            "windows": {
+                "installMode": "passive"
             },
-            "dialog": {
-                "all": false,
-                "ask": true
-            },
-            "http": {
-                "all": false,
-                "request": true,
-                "scope": [
-                    "https://mdns-browser-updates.knulp.duckdns.org/*",
-                    "https://mdns-browser-updates.knulp.v6.rocks/*"
-                ]
-            },
-            "window": {
-                "all": true
-            },
-            "process": {
-                "exit": true,
-                "relaunch": true
-            }
-        },
+            "endpoints": [
+                "https://mdns-browser-updates.knulp.duckdns.org/updates.json",
+                "https://mdns-browser-updates.knulp.v6.rocks/updates.json"
+            ],
+            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIwQzYxQzI2MkI3NUI1RDgKUldUWXRYVXJKaHpHSUEvVmhlVGtNZW5HNXRNZ2xEREF3UkNtbXAxTW0zR0JJUVcveEhMZHFNMjgK"
+        }
+    },
+    "app": {
+        "withGlobalTauri": true,
         "windows": [
             {
                 "title": "mDNS-Browser",
@@ -62,37 +65,6 @@
         ],
         "security": {
             "csp": null
-        },
-        "updater": {
-            "active": true,
-            "endpoints": [
-                "https://mdns-browser-updates.knulp.duckdns.org/updates.json",
-                "https://mdns-browser-updates.knulp.v6.rocks/updates.json"
-            ],
-            "dialog": true,
-            "windows": {
-                "installMode": "passive"
-            },
-            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIwQzYxQzI2MkI3NUI1RDgKUldUWXRYVXJKaHpHSUEvVmhlVGtNZW5HNXRNZ2xEREF3UkNtbXAxTW0zR0JJUVcveEhMZHFNMjgK"
-        },
-        "bundle": {
-            "active": true,
-            "targets": [
-                "deb",
-                "appimage",
-                "nsis",
-                "dmg",
-                "app",
-                "updater"
-            ],
-            "identifier": "net.hrzlgnm.mdns-browser",
-            "icon": [
-                "icons/32x32.png",
-                "icons/128x128.png",
-                "icons/128x128@2x.png",
-                "icons/icon.icns",
-                "icons/icon.ico"
-            ]
         }
     }
 }

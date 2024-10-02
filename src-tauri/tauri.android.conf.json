@@ -1,0 +1,31 @@
+{
+    "build": {
+        "beforeDevCommand": "trunk serve",
+        "beforeBuildCommand": "trunk build",
+        "frontendDist": "../dist",
+        "devUrl": "http://localhost:1420"
+    },
+    "bundle": {
+        "active": false
+    },
+    "productName": "mDNS Browser",
+    "version": "0.8.0",
+    "identifier": "io.github.hrzlgnm.mdns-browser",
+    "plugins": {},
+    "app": {
+        "withGlobalTauri": true,
+        "windows": [
+            {
+                "title": "mDNS-Browser",
+                "url": "index.html",
+                "width": 1600,
+                "height": 900,
+                "label": "main",
+                "visible": true
+            }
+        ],
+        "security": {
+            "csp": null
+        }
+    }
+}
