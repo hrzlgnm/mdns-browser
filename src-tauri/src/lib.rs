@@ -403,7 +403,7 @@ fn copy_to_clipboard(window: Window, contents: String) {
     let app = window.app_handle();
     app.clipboard()
         .write_text(contents)
-        .map_err(|err| log::error!("Faile to write to clipboard: {}", err))
+        .map_err(|err| log::error!("Failed to write to clipboard: {}", err))
         .unwrap();
 }
 
