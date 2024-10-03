@@ -15,9 +15,9 @@ use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
 use thaw::{
-    AutoComplete, AutoCompleteOption, AutoCompleteSuffix, Button, ButtonSize, Card, CardFooter,
-    CardHeaderExtra, Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Icon, Layout, Modal,
-    Space, SpaceAlign, Table, Tag, TagVariant, Text, Theme, ThemeProvider,
+    AutoComplete, AutoCompleteOption, AutoCompleteSuffix, Button, ButtonSize, ButtonVariant, Card,
+    CardFooter, CardHeaderExtra, Collapse, CollapseItem, GlobalStyle, Grid, GridItem, Icon, Layout,
+    Modal, Space, SpaceAlign, Table, Tag, TagVariant, Text, Theme, ThemeProvider,
 };
 use thaw_utils::Model;
 
@@ -39,7 +39,7 @@ impl Display for TxtRecord {
     }
 }
 
-fn default_dead() -> bool {
+fn alive() -> bool {
     false
 }
 
@@ -52,7 +52,7 @@ struct ResolvedService {
     subtype: Option<String>,
     txt: Vec<TxtRecord>,
     updated_at_ms: u64,
-    #[serde(default = "default_dead")]
+    #[serde(default = "alive")]
     dead: bool,
 }
 
@@ -225,7 +225,9 @@ fn ValuesTable(values: Vec<String>, #[prop(into)] title: String) -> impl IntoVie
                         .map(|n| {
                             view! {
                                 <tr>
-                                    <td>{n}</td>
+                                    <td>
+                                        <ToClipBoardCopyable text=Some(n) />
+                                    </td>
                                 </tr>
                             }
                         })
@@ -233,15 +235,15 @@ fn ValuesTable(values: Vec<String>, #[prop(into)] title: String) -> impl IntoVie
                 </tbody>
             </Table>
             <Style>
-            "
-            td
-            {
-                max-width: 70vw;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-            "
+                "
+                td
+                {
+                    max-width: 70vw;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                "
             </Style>
         }
         .into_view()
@@ -321,9 +323,49 @@ fn AutoCompleteServiceType(
             attr:autocapitalize="none"
         >
             <AutoCompleteSuffix slot>
-                <Icon icon=icondata::CgSearchLoading/>
+                <Icon icon=icondata::CgSearchLoading />
             </AutoCompleteSuffix>
         </AutoComplete>
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+struct CopyToClipboardArgs<'a> {
+    contents: &'a str,
+}
+
+async fn copy_to_clipboard(contents: String) {
+    let _ = invoke::<()>(
+        "copy_to_clipboard",
+        &CopyToClipboardArgs {
+            contents: &contents,
+        },
+    )
+    .await;
+}
+
+/// Component that allows to copy the shown text to the clipboard
+#[component]
+fn ToClipBoardCopyable(text: Option<String>) -> impl IntoView {
+    let (text_to_copy, _) = create_signal(text.clone().unwrap_or(String::from("")));
+    let copy_to_clipboard_action = create_action(|input: &String| {
+        let input = input.clone();
+        async move { copy_to_clipboard(input.clone()).await }
+    });
+
+    let on_copy_to_clibboard_click = move |_| {
+        let text = text_to_copy.get();
+        copy_to_clipboard_action.dispatch(text);
+    };
+
+    view! {
+        {text}
+        <Button
+            on_click=on_copy_to_clibboard_click
+            variant=ButtonVariant::Text
+            icon=icondata::TbClipboardText
+            size=ButtonSize::Tiny
+        />
     }
 }
 
@@ -373,16 +415,22 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                 <Space align=SpaceAlign::Center>
                     <Tag variant=hostname_variant>{hostname}</Tag>
                     <Tag variant=port_variant>{resolved_service.port}</Tag>
-                    <Button size=ButtonSize::Tiny disabled=resolved_service.dead on_click=move |_| show_details.set(true)>
+                    <Button
+                        size=ButtonSize::Tiny
+                        disabled=resolved_service.dead
+                        on_click=move |_| show_details.set(true)
+                    >
                         "Details"
                     </Button>
                     <Modal width="90vw" title=details_title show=show_details>
-                        <ValuesTable values=subtype title="subtype"/>
-                        <ValuesTable values=addrs title="IPs"/>
-                        <ValuesTable values=txts title="txt"/>
+                        <ValuesTable values=subtype title="subtype" />
+                        <ValuesTable values=addrs title="IPs" />
+                        <ValuesTable values=txts title="txt" />
                     </Modal>
                 </Space>
-                <CardFooter slot>{addrs_footer.first()}</CardFooter>
+                <CardFooter slot>
+                    <ToClipBoardCopyable text=addrs_footer.first().cloned() />
+                </CardFooter>
             </Card>
         </GridItem>
     }
@@ -610,21 +658,25 @@ fn Browse() -> impl IntoView {
         <Layout style="padding: 10px;">
             <Space>
                 <Layout class="auto-complete-320">
-                <AutoCompleteServiceType value=service_type disabled=browsing invalid=service_type_invalid/>
+                    <AutoCompleteServiceType
+                        value=service_type
+                        disabled=browsing
+                        invalid=service_type_invalid
+                    />
                 </Layout>
                 <Button on_click=on_browse_click disabled=browsing_or_service_type_invalid>
-                        "Browse"
-                    </Button>
-                    <Button on_click=on_stop_click disabled=not_browsing>
-                        "Stop"
-                    </Button>
-                </Space>
+                    "Browse"
+                </Button>
+                <Button on_click=on_stop_click disabled=not_browsing>
+                    "Stop"
+                </Button>
+            </Space>
             <Grid class="responsivegrid">
                 <For
                     each=move || resolved.get()
                     key=|rs| format!("{}{}", rs.instance_name.clone(), rs.updated_at_ms)
                     children=move |resolved_service| {
-                        view! { <ResolvedServiceGridItem resolved_service/> }
+                        view! { <ResolvedServiceGridItem resolved_service /> }
                     }
                 />
             </Grid>
@@ -716,13 +768,37 @@ pub fn About() -> impl IntoView {
         <Layout style="padding: 10px;">
             <Collapse accordion=true>
                 <CollapseItem title="About" key="about">
-                <Space>
-                    <Text>"Version "{move || version.get()}</Text>
-                    <Button size=ButtonSize::Tiny on_click=on_release_notes_click icon=icondata::AiGithubOutlined>"Release Notes"</Button>
-                    <Button size=ButtonSize::Tiny on_click=on_report_issue_click icon=icondata::AiGithubOutlined>"Report an Issue"</Button>
-                    <Button size=ButtonSize::Tiny on_click=on_issues_click icon=icondata::AiGithubOutlined>"Known Issues"</Button>
-                    <Button size=ButtonSize::Tiny on_click=on_releases_click icon=icondata::AiGithubOutlined>"Releases"</Button>
-                </Space>
+                    <Space>
+                        <Text>"Version "{move || version.get()}</Text>
+                        <Button
+                            size=ButtonSize::Tiny
+                            on_click=on_release_notes_click
+                            icon=icondata::AiGithubOutlined
+                        >
+                            "Release Notes"
+                        </Button>
+                        <Button
+                            size=ButtonSize::Tiny
+                            on_click=on_report_issue_click
+                            icon=icondata::AiGithubOutlined
+                        >
+                            "Report an Issue"
+                        </Button>
+                        <Button
+                            size=ButtonSize::Tiny
+                            on_click=on_issues_click
+                            icon=icondata::AiGithubOutlined
+                        >
+                            "Known Issues"
+                        </Button>
+                        <Button
+                            size=ButtonSize::Tiny
+                            on_click=on_releases_click
+                            icon=icondata::AiGithubOutlined
+                        >
+                            "Releases"
+                        </Button>
+                    </Space>
                 </CollapseItem>
             </Collapse>
         </Layout>
@@ -787,10 +863,10 @@ pub fn App() -> impl IntoView {
     provide_context(ServiceTypesSignal(service_type));
     view! {
         <ThemeProvider theme>
-            <GlobalStyle/>
-            <About/>
-            <Metrics/>
-            <Browse/>
+            <GlobalStyle />
+            <About />
+            <Metrics />
+            <Browse />
         </ThemeProvider>
     }
 }

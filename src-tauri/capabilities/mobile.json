@@ -6,7 +6,8 @@
         "main"
     ],
     "permissions": [
-        "core:default"
+        "core:default",
+        "clipboard-manager:allow-write-text"
     ],
     "platforms": [
         "android"
