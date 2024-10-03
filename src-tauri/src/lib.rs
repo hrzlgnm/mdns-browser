@@ -16,6 +16,7 @@ use tauri::Emitter;
 #[cfg(desktop)]
 use tauri::Manager;
 use tauri::{State, Window};
+use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_log::{Target, TargetKind};
 use tauri_plugin_updater::UpdaterExt;
 
@@ -397,6 +398,15 @@ fn is_desktop() -> bool {
     false
 }
 
+#[tauri::command]
+fn copy_to_clipboard(window: Window, contents: String) {
+    let app = window.app_handle();
+    app.clipboard()
+        .write_text(contents)
+        .map_err(|err| log::error!("Failed to write to clipboard: {}", err))
+        .unwrap();
+}
+
 async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
     if let Some(update) = app.updater()?.check().await? {
         let mut downloaded = 0;
@@ -428,6 +438,7 @@ pub fn run() {
     x11_workaround();
     let args = Args::parse();
     tauri::Builder::default()
+        .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
         .plugin(
             tauri_plugin_log::Builder::default()
@@ -465,6 +476,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             browse,
             browse_types,
+            copy_to_clipboard,
             is_desktop,
             #[cfg(desktop)]
             open,
