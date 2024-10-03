@@ -10,7 +10,7 @@
     },
     "productName": "mDNS Browser",
     "version": "0.8.4",
-    "identifier": "io.github.hrzlgnm.mdns-browser",
+    "identifier": "com.github.hrzlgnm.mdns-browser",
     "plugins": {},
     "app": {
         "withGlobalTauri": true,
