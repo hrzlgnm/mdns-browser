@@ -116,8 +116,7 @@ jobs:
           name: "bundles-${{matrix.platform}}${{matrix.args}}"
           path: |
             target/release/bundle
-            target/release/mdns-browser
-            target/release/mdns-browser.exe
+            target/release/mdns-browser*
 
       - name: Attest build provenance (publish release only)
         if: (inputs.tagName != '')
