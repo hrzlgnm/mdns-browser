@@ -621,6 +621,15 @@ fn Browse() -> impl IntoView {
     create_local_resource(move || set_resolved, listen_on_browse_events);
 
     let service_type = use_context::<ServiceTypesSignal>().unwrap().0;
+    let is_desktop = use_context::<IsDesktopSignal>().unwrap().0;
+
+    let auto_complete_class = Signal::derive(move || {
+        if is_desktop.get() {
+            String::from("auto-complete-320")
+        } else {
+            String::from("")
+        }
+    });
 
     let service_type_invalid = Signal::derive(move || {
         // TODO: report a meaningful error to the user
@@ -657,7 +666,7 @@ fn Browse() -> impl IntoView {
     view! {
         <Layout style="padding: 10px;">
             <Space>
-                <Layout class="auto-complete-320">
+                <Layout class=auto_complete_class>
                     <AutoCompleteServiceType
                         value=service_type
                         disabled=browsing
@@ -852,19 +861,32 @@ pub struct ServiceTypesSignal(RwSignal<String>);
 #[derive(Clone, Debug)]
 pub struct BrowsingSignal(RwSignal<bool>);
 
+#[derive(Clone, Debug)]
+pub struct IsDesktopSignal(RwSignal<bool>);
+
+async fn get_is_desktop(writer: RwSignal<bool>) {
+    let is_desktop = invoke::<bool>("is_desktop", &()).await;
+    writer.update(|v| *v = is_desktop);
+}
+
 /// The main app component
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
     let theme = create_rw_signal(Theme::dark());
     let browsing = create_rw_signal(false);
+    let is_desktop = create_rw_signal(false);
+    create_local_resource(move || is_desktop, get_is_desktop);
     let service_type = create_rw_signal(String::new());
     provide_context(BrowsingSignal(browsing));
     provide_context(ServiceTypesSignal(service_type));
+    provide_context(IsDesktopSignal(is_desktop));
     view! {
         <ThemeProvider theme>
             <GlobalStyle />
-            <About />
+            <Show when=move || { is_desktop.get() } fallback=|| view! { <div /> }>
+                <About />
+            </Show>
             <Metrics />
             <Browse />
         </ThemeProvider>
