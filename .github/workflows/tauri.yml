@@ -122,15 +122,17 @@ jobs:
         uses: anchore/sbom-action@v0
         with:
           format: "spdx-json"
-          output-file: "sbom.spdx.json"
+          file: Cargo.lock
+          output-file: "${{ matrix.platform }}${{ matrix.args }}.sbom.spdx.json"
 
       - name: Attest sbom
+        if: (inputs.tagName != '')
         uses: actions/attest-sbom@v1
         with:
           subject-path: |
             "${{ github.workspace }}/target/**/release/mdns-browser
             "${{ github.workspace }}/target/**/release/mdns-browser.exe
-          sbom-path: "sbom.spdx.json"
+          sbom-path: "${{ matrix.platform }}${{ matrix.args }}.sbom.spdx.json"
 
       - name: Attest build provenance (publish release only)
         if: (inputs.tagName != '')
