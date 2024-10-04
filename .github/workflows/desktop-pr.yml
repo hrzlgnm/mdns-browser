@@ -1,0 +1,17 @@
+name: "Desktop PR"
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  # On main, we want all builds to complete even if merging happens faster to make it easier to discover at which point something broke.
+  group: ${{ github.ref == 'refs/heads/main' && format('deskop-main-{0}', github.sha) || format('desktop-{0}', github.ref) }}
+
+jobs:
+  pr:
+    permissions:
+      contents: write
+    uses: ./.github/workflows/desktop-tauri.yml
+    secrets: inherit
