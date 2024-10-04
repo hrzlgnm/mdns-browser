@@ -108,7 +108,7 @@ jobs:
           prerelease: false
           tauriScript: cargo --locked auditable tauri
 
-      - name: Attest build provenance
+      - name: Attest build provenance (when publishing a release only)
         if: (inputs.tagName != '')
         uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
         with:
