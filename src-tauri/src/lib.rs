@@ -1,7 +1,6 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
+#[cfg(desktop)]
 use clap::builder::TypedValueParser as _;
+#[cfg(desktop)]
 use clap::Parser;
 use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
 use serde::Serialize;
@@ -13,11 +12,11 @@ use std::{
 };
 
 use tauri::Emitter;
-#[cfg(desktop)]
-use tauri::Manager;
-use tauri::{State, Window};
+use tauri::{Manager, State, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
+#[cfg(desktop)]
 use tauri_plugin_log::{Target, TargetKind};
+#[cfg(desktop)]
 use tauri_plugin_updater::UpdaterExt;
 
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
@@ -309,6 +308,7 @@ fn version(window: Window) -> String {
         .unwrap_or(String::from("Unknown"))
 }
 
+#[cfg(desktop)]
 #[cfg(target_os = "linux")]
 fn x11_workaround() {
     let session_type_key = "XDG_SESSION_TYPE";
@@ -325,6 +325,7 @@ fn x11_workaround() {
     }
 }
 
+#[cfg(desktop)]
 #[derive(Parser, Debug)]
 struct Args {
     #[arg(
@@ -337,6 +338,7 @@ struct Args {
     log_level: foreign_crate::LevelFilter,
 }
 
+#[cfg(desktop)]
 mod foreign_crate {
     #[derive(Copy, Clone, PartialEq, Eq, Debug)]
     pub(crate) enum LevelFilter {
@@ -407,6 +409,7 @@ fn copy_to_clipboard(window: Window, contents: String) {
         .unwrap();
 }
 
+#[cfg(desktop)]
 async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
     if let Some(update) = app.updater()?.check().await? {
         let mut downloaded = 0;
@@ -432,7 +435,7 @@ async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
     Ok(())
 }
 
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
+#[cfg(desktop)]
 pub fn run() {
     #[cfg(target_os = "linux")]
     x11_workaround();
@@ -451,26 +454,19 @@ pub fn run() {
         )
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
-            #[cfg(desktop)]
-            {
-                let handle = app.handle().clone();
-                tauri::async_runtime::spawn(async move {
-                    let _ = update(handle)
-                        .await
-                        .map_err(|err| log::error!("Failed to check for updates: {}", err));
-                });
-                let splashscreen_window = app.get_webview_window("splashscreen").unwrap();
-                let main_window = app.get_webview_window("main").unwrap();
-                tauri::async_runtime::spawn(async move {
-                    std::thread::sleep(std::time::Duration::from_secs(3));
-                    splashscreen_window.close().unwrap();
-                    main_window.show().unwrap();
-                });
-            }
-            #[cfg(not(desktop))]
-            {
-                let _dummy = app.handle();
-            }
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                let _ = update(handle)
+                    .await
+                    .map_err(|err| log::error!("Failed to check for updates: {}", err));
+            });
+            let splashscreen_window = app.get_webview_window("splashscreen").unwrap();
+            let main_window = app.get_webview_window("main").unwrap();
+            tauri::async_runtime::spawn(async move {
+                std::thread::sleep(std::time::Duration::from_secs(3));
+                splashscreen_window.close().unwrap();
+                main_window.show().unwrap();
+            });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -478,12 +474,28 @@ pub fn run() {
             browse_types,
             copy_to_clipboard,
             is_desktop,
-            #[cfg(desktop)]
             open,
             send_metrics,
             stop_browse,
-            #[cfg(desktop)]
             version,
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
+
+#[cfg(not(desktop))]
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run_mobile() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_clipboard_manager::init())
+        .manage(ManagedState::new())
+        .invoke_handler(tauri::generate_handler![
+            browse,
+            browse_types,
+            copy_to_clipboard,
+            is_desktop,
+            send_metrics,
+            stop_browse,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

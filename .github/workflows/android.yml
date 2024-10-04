@@ -4,13 +4,13 @@ on:
   workflow_call:
     secrets:
       ANDROID_RELEASE_KEYSTORE:
-        required: true
+        required: false
       ANDROID_RELEASE_KEY:
-        required: true
+        required: false
       ANDROID_RELEASE_PASSWORD:
-        required: true
+        required: false
       ANDROID_RELEASE_KEY_PASSWORD:
-        required: true
+        required: false
 
 jobs:
   build:
@@ -60,12 +60,20 @@ jobs:
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.11902837
 
+      - name: Get version from tauri.android.conf.json
+        id: get_version
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
+          echo "current_version=$CURRENT_VERSION" >> "$GITHUB_ENV"
+
       - name: Extract android signing key from env
+        if: false
         run: |
           echo "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > src-tauri/gen/android/release.jks.base64
           base64 -d src-tauri/gen/android/release.jks.base64 > src-tauri/gen/android/release.decrypted.jks
 
       - name: Sign APK
+        if: false
         run: |
           ${{ env.ANDROID_HOME }}/build-tools/34.0.0/apksigner sign --ks src-tauri/gen/android/release.decrypted.jks \
             --ks-key-alias ${{ secrets.ANDROID_RELEASE_KEY }} \
@@ -74,17 +82,13 @@ jobs:
             --out src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk \
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
 
-      - name: Get version from tauri.android.conf.json
-        id: get_version
-        run: |
-          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
-          echo "current_version=$CURRENT_VERSION" >> "$GITHUB_ENV"
-
       - name: Rename APK file
+        if: false
         run: |
           mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser-${{ steps.et-version.outputs.current-version }}.apk
 
       - name: Publish
+        if: false
         uses: softprops/action-gh-release@v1
         with:
           draft: true
