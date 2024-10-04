@@ -1,18 +1,21 @@
-name: "CI Build"
+name: "Reusable tauri build workflow"
 
 on:
-  pull_request:
-    branches:
-      - main
-
-concurrency:
-  # On main, we want all builds to complete even if merging happens faster to make it easier to discover at which point something broke.
-  group: ${{ github.ref == 'refs/heads/main' && format('ci-main-{0}', github.sha) || format('ci-{0}', github.ref) }}
-
+  workflow_call:
+    inputs:
+      tagName:
+        required: false
+        type: string
+      releaseBody:
+        required: false
+        type: string
+    secrets:
+      TAURI_PRIVATE_KEY:
+        required: true
+      TAURI_KEY_PASSWORD:
+        required: true
 jobs:
-  build-tauri:
-    permissions:
-      contents: write
+  build:
     strategy:
       fail-fast: false
       matrix:
@@ -21,10 +24,11 @@ jobs:
             args: "--target aarch64-apple-darwin"
           - platform: "macos-latest" # for Intel based macs.
             args: "--target x86_64-apple-darwin"
-          - platform: "ubuntu-latest"
+          - platform: "ubuntu-22.04"
             args: ""
           - platform: "windows-latest"
             args: ""
+
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout
@@ -40,7 +44,7 @@ jobs:
         if: contains(matrix.platform, 'ubuntu')
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf python3-pip
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf python3-pip
           sudo python3 -m pip install codespell
 
       - name: Cached install cargo-make (ubuntu only)
@@ -65,33 +69,13 @@ jobs:
       - name: Run clippy and fail if any warnings (macos only)
         if: contains(matrix.platform, 'macos')
         run: |
-          cargo clippy -- -D warnings
+          cargo clippy -- -D warnings 
           cd src-tauri
           cargo clippy -- -D warnings
-
-      - name: Install frontend dependencies
-        run: |
-          rustup target add wasm32-unknown-unknown
 
       - name: Run tests
         run: |
           cargo test
-
-      - name: Cached install cargo-cyclonedx
-        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
-        with:
-          tool: cargo-cyclonedx@0.5.5
-          locked: true
-
-      - name: Generate SBOM
-        run: |
-          cargo cyclonedx --all --format json
-
-      - name: Upload sbom artifacts
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
-        with:
-          name: "sbom-${{matrix.platform}}${{matrix.args}}"
-          path: "**/*.cdx.json"
 
       - name: Cached install trunk
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
@@ -118,4 +102,32 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
+          tagName: ${{ inputs.tagName }}
+          releaseBody: ${{ inputs.releaseBody }}
+          releaseDraft: false
+          prerelease: false
           tauriScript: cargo --locked auditable tauri
+          args: ${{ matrix.args }}
+
+      - name: Upload build artifacts (pr build only)
+        if: (inputs.tagName == '')
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        with:
+          name: "bundles-${{matrix.platform}}${{matrix.args}}"
+          path: |
+            target/release/bundle
+            target/release/mdns-browser
+            target/release/mdns-browser.exe
+
+      - name: Attest build provenance (publish release only)
+        if: (inputs.tagName != '')
+        uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
+        with:
+          subject-path: |
+            target/release/bundle/nsis/*
+            target/release/bundle/macos/*.tar.gz*
+            target/release/bundle/dmg/*.dmg
+            target/release/bundle/appimage/*.AppImage.*
+            target/release/bundle/deb/*.deb
+            target/release/mdns-browser
+            target/release/mdns-browser.exe
