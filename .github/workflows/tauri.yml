@@ -9,7 +9,10 @@ on:
       releaseBody:
         required: false
         type: string
-    secrets:
+      releaseName:
+        required: false
+        type: string
+     secrets:
       TAURI_PRIVATE_KEY:
         required: true
       TAURI_KEY_PASSWORD:
@@ -104,6 +107,7 @@ jobs:
         with:
           tagName: ${{ inputs.tagName }}
           releaseBody: ${{ inputs.releaseBody }}
+          releaseName: ${{ inputs.releaseName }}
           releaseDraft: false
           prerelease: false
           tauriScript: cargo --locked auditable tauri
