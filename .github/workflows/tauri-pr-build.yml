@@ -14,5 +14,3 @@ jobs:
     permissions:
       contents: write
     uses: ./.github/workflows/tauri-workflow.yml
-    with:
-      inputs: {}
