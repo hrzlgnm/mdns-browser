@@ -15,3 +15,9 @@ jobs:
       contents: write
     uses: ./.github/workflows/tauri.yml
     secrets: inherit
+
+  android-pr:
+    permissions:
+      contents: write
+    uses: ./.github/workflows/android.yml
+    secrets: inherit
