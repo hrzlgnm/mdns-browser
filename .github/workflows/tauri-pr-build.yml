@@ -13,4 +13,4 @@ jobs:
   call-tauri-workflow:
     permissions:
       contents: write
-    uses: .github/workflows/tauri-workflow.yml
+    uses: .github/workflows/tauri-workflow.yml@297-deduplicate-tauri-pipelines
