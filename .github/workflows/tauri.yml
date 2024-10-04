@@ -12,7 +12,7 @@ on:
       releaseName:
         required: false
         type: string
-     secrets:
+    secrets:
       TAURI_PRIVATE_KEY:
         required: true
       TAURI_KEY_PASSWORD:
