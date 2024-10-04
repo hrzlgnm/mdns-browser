@@ -115,8 +115,8 @@ jobs:
         with:
           name: "bundles-${{matrix.platform}}${{matrix.args}}"
           path: |
-            target/release/bundle
-            target/release/mdns-browser*
+            target/**/release/bundle
+            target/**/release/mdns-browser*
 
       - name: Attest build provenance (publish release only)
         if: (inputs.tagName != '')
@@ -124,9 +124,9 @@ jobs:
         with:
           subject-path: |
             target/release/bundle/nsis/*
-            target/release/bundle/macos/*.tar.gz*
-            target/release/bundle/dmg/*.dmg
+            target/**/release/bundle/macos/*.tar.gz*
+            target/**/release/bundle/dmg/*.dmg
             target/release/bundle/appimage/*.AppImage.*
             target/release/bundle/deb/*.deb
-            target/release/mdns-browser
+            target/**/release/mdns-browser
             target/release/mdns-browser.exe
