@@ -46,6 +46,7 @@ jobs:
       - name: Rust Cache
         uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
         with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
           workspaces: |
             .
             src-tauri
