@@ -13,4 +13,4 @@ jobs:
   call-tauri-workflow:
     permissions:
       contents: write
-    uses: hrzlgnm/mdns-browser/.github/workflow/tauri-workflow.yml
+    uses: .github/workflows/tauri-workflow.yml
