@@ -72,7 +72,7 @@ jobs:
       - name: Run clippy and fail if any warnings (macos only)
         if: contains(matrix.platform, 'macos')
         run: |
-          cargo clippy -- -D warnings 
+          cargo clippy -- -D warnings
           cd src-tauri
           cargo clippy -- -D warnings
 
@@ -142,11 +142,38 @@ jobs:
           output-file: "sbom.spdx.json"
           artifact-name: "${{ matrix.platform }}${{ matrix.args }}.sbom.spdx.json"
 
-      - name: Attest sbom
+      - name: Attest sbom (target/release/mdns-browser)
+        if: ${{ exists('target/release/mdns-browser') }}
         #if: (inputs.tagName != '')
         uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
         with:
           subject-path: |
-            "${{ github.workspace }}/target/**/release/mdns-browser
-            "${{ github.workspace }}/target/**/release/mdns-browser.exe
+            "${{ github.workspace }}/target/release/mdns-browser
+          sbom-path: "sbom.spdx.json"
+
+      - name: Attest sbom (target/release/mdns-browser.exe)
+        if: ${{ exists('target/release/mdns-browser.exe') }}
+        #if: (inputs.tagName != '')
+        uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
+        with:
+          subject-path: |
+            "${{ github.workspace }}/target/release/mdns-browser.exe
+          sbom-path: "sbom.spdx.json"
+
+      - name: Attest sbom (target/aarch64-apple-darwin/release/mdns-browser)
+        if: ${{ exists('target/aarch64-apple-darwin/release/mdns-browser') }}
+        #if: (inputs.tagName != '')
+        uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
+        with:
+          subject-path: |
+            "${{ github.workspace }}/target/aarch64-apple-darwin/release/mdns-browser
+          sbom-path: "sbom.spdx.json"
+
+      - name: Attest sbom (target/x86_64-apple-darwin/release/mdns-browser)
+        if: ${{ exists('target/x86_64-apple-darwin/release/mdns-browser') }}
+        #if: (inputs.tagName != '')
+        uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
+        with:
+          subject-path: |
+            "${{ github.workspace }}/target/x86_64-apple-darwin/release/mdns-browser
           sbom-path: "sbom.spdx.json"
