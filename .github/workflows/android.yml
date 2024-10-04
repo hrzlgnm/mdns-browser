@@ -3,7 +3,7 @@ name: "Reusable android workflow"
 on:
   workflow_call:
     inputs:
-      release:
+      publish:
         required: false
         type: boolean
     secrets:
@@ -64,21 +64,21 @@ jobs:
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.11902837
 
-      - name: Get version from tauri.android.conf.json (publish only)
-        if: inputs.release
+      - name: Extract version from tauri.android.conf.json (publish only)
+        if: inputs.publish
         id: get-version
         run: |
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
-          echo "current_version=$CURRENT_VERSION" >> "$GITHUB_ENV"
+          echo "current_version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Extract android signing key from env (publish only)
-        if: inputs.release
+        if: inputs.publish
         run: |
           echo "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > src-tauri/gen/android/release.jks.base64
           base64 -d src-tauri/gen/android/release.jks.base64 > src-tauri/gen/android/release.decrypted.jks
 
       - name: Sign APK (publish only)
-        if: inputs.release
+        if: inputs.publish
         run: |
           ${{ env.ANDROID_HOME }}/build-tools/34.0.0/apksigner sign --ks src-tauri/gen/android/release.decrypted.jks \
             --ks-key-alias ${{ secrets.ANDROID_RELEASE_KEY }} \
@@ -88,15 +88,24 @@ jobs:
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
 
       - name: Rename APK file (publish only)
-        if: inputs.release
+        if: inputs.publish
         run: |
           mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser-v${{ steps.get-version.outputs.current-version }}.apk
 
       - name: Publish (publish only)
-        if: inputs.release
+        if: inputs.publish
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
         with:
           name: mDNS-Browser Release v${{ steps.get-version.outputs.current-version }}
-          tag_name: mdns-browser-v${{ steps.get-version.outputs.current-version }}
+          append_body: true
+          make_latest: false
+          generate_release_notes: false
           files: |
-            ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser-v${{ steps.get-version.outputs.current-version }}.apk
+            src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser-v${{ steps.get-version.outputs.current-version }}.apk
+
+      - name: Attest build provenance (publish only)
+        if: inputs.publish
+        uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
+        with:
+          subject-path: |
+            src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser-v${{ steps.get-version.outputs.current-version }}.apk

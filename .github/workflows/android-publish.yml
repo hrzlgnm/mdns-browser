@@ -15,4 +15,4 @@ jobs:
     uses: ./.github/workflows/android.yml
     secrets: inherit
     with:
-      release: true
+      publish: true
