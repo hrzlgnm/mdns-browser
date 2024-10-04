@@ -12,6 +12,7 @@ jobs:
       id-token: write
       attestations: write
       contents: write
+      actions: read
     uses: ./.github/workflows/tauri.yml
     secrets: inherit
     with:

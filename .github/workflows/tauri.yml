@@ -118,6 +118,20 @@ jobs:
             target/**/release/bundle
             target/**/release/mdns-browser*
 
+      - name: Create sbom
+        uses: anchore/sbom-action@v0
+        with:
+          format: "spdx-json"
+          output-file: "sbom.spdx.json"
+
+      - name: Attest sbom
+        uses: actions/attest-sbom@v1
+        with:
+          subject-path: |
+            "${{ github.workspace }}/target/**/release/mdns-browser
+            "${{ github.workspace }}/target/**/release/mdns-browser.exe
+          sbom-path: "sbom.spdx.json"
+
       - name: Attest build provenance (publish release only)
         if: (inputs.tagName != '')
         uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
