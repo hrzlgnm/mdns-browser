@@ -54,7 +54,9 @@ jobs:
           locked: true
 
       - name: Build app bundle
-        run: cargo --locked auditable tauri android build -v
+        run: |
+          cargo --locked auditable tauri android init
+          cargo --locked auditable tauri android build -v
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.11902837
 
