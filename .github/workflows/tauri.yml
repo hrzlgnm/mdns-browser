@@ -143,32 +143,28 @@ jobs:
           artifact-name: "${{ matrix.platform }}${{ matrix.args }}.sbom.spdx.json"
 
       - name: Attest SBOM (ubuntu)
-        #if: (inputs.tagName != '')
-        if: contains(matrix.platform, 'ubuntu')
+        if: (inputs.tagName != '') && contains(matrix.platform, 'ubuntu')
         uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
         with:
           subject-path: "${{ github.workspace }}/target/release/mdns-browser"
           sbom-path: "sbom.spdx.json"
 
       - name: Attest SBOM (windows)
-        #if: (inputs.tagName != '')
-        if: contains(matrix.platform, 'windows')
+        if: (inputs.tagName != '') && contains(matrix.platform, 'windows')
         uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
         with:
           subject-path: "${{ github.workspace }}/target/release/mdns-browser.exe"
           sbom-path: "sbom.spdx.json"
 
       - name: Attest SBOM (macos x86_64)
-        #if: (inputs.tagName != '')
-        if: contains(matrix.platform, 'macos') && contains(matrix.args, 'x86_64')
+        if: (inputs.tagName != '') && contains(matrix.platform, 'macos') && contains(matrix.args, 'x86_64')
         uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
         with:
           subject-path: "${{ github.workspace }}/target/x86_64-apple-darwin/release/mdns-browser"
           sbom-path: "sbom.spdx.json"
 
       - name: Attest SBOM (macos aarch64)
-        #if: (inputs.tagName != '')
-        if: contains(matrix.platform, 'macos') && contains(matrix.args, 'aarch64')
+        if: (inputs.tagName != '') && contains(matrix.platform, 'macos') && contains(matrix.args, 'aarch64')
         uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
         with:
           subject-path: "${{ github.workspace }}/target/aarch64-apple-darwin/release/mdns-browser"
