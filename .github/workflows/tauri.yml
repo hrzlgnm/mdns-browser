@@ -14,7 +14,7 @@ on:
         type: string
 
 jobs:
-  build-tauri:
+  build:
     strategy:
       fail-fast: false
       matrix:

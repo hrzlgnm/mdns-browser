@@ -10,7 +10,7 @@ concurrency:
   group: ${{ github.ref == 'refs/heads/main' && format('ci-main-{0}', github.sha) || format('ci-{0}', github.ref) }}
 
 jobs:
-  tauri-workflow:
+  build-tauri:
     permissions:
       contents: write
-    uses: ./.github/workflows/tauri-workflow.yml
+    uses: ./.github/workflows/tauri.yml
