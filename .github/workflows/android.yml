@@ -5,9 +5,9 @@ on:
     secrets:
       ANDROID_RELEASE_KEYSTORE:
         required: false
-      ANDROID_RELEASE_KEY:
+      ANDROID_RELEASE_KEYSTORE_PASSWORD:
         required: false
-      ANDROID_RELEASE_PASSWORD:
+      ANDROID_RELEASE_KEY:
         required: false
       ANDROID_RELEASE_KEY_PASSWORD:
         required: false
@@ -67,23 +67,20 @@ jobs:
           echo "current_version=$CURRENT_VERSION" >> "$GITHUB_ENV"
 
       - name: Extract android signing key from env
-        if: false
         run: |
           echo "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > src-tauri/gen/android/release.jks.base64
           base64 -d src-tauri/gen/android/release.jks.base64 > src-tauri/gen/android/release.decrypted.jks
 
       - name: Sign APK
-        if: false
         run: |
           ${{ env.ANDROID_HOME }}/build-tools/34.0.0/apksigner sign --ks src-tauri/gen/android/release.decrypted.jks \
             --ks-key-alias ${{ secrets.ANDROID_RELEASE_KEY }} \
-            --ks-pass pass:${{ secrets.ANDROID_RELEASE_PASSWORD }} \
+            --ks-pass pass:${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }} \
             --key-pass pass:${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }} \
             --out src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk \
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
 
       - name: Rename APK file
-        if: false
         run: |
           mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser-${{ steps.et-version.outputs.current-version }}.apk
 
@@ -92,8 +89,8 @@ jobs:
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
         with:
           draft: true
-          name: Android mDNS Browser-v${{ steps.get_version.outputs.current-version }}
-          tag_name: v${{ steps.get_version.outputs.current-version }}
-          generate_release_notes: true
+          name: mDNS Browser-v${{ steps.get_version.outputs.current-version }}
+          tag_name: mdns-browser-v${{ steps.get_version.outputs.current-version }}
+          generate_release_notes: false
           files: |
             ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser-${{ steps.package-version.outputs.current-version }}.apk
