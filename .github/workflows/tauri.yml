@@ -135,45 +135,16 @@ jobs:
             target/**/release/mdns-browser
             target/release/mdns-browser.exe
 
-      - name: Create sbom
+      - name: Create SBOM
         uses: anchore/sbom-action@61119d458adab75f756bc0b9e4bde25725f86a7a # v0
         with:
           format: "spdx-json"
           output-file: "sbom.spdx.json"
           artifact-name: "${{ matrix.platform }}${{ matrix.args }}.sbom.spdx.json"
 
-      - name: Attest sbom (target/release/mdns-browser)
-        if: ${{ exists('target/release/mdns-browser') }}
+      - name: Attest SBOM
         #if: (inputs.tagName != '')
         uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
         with:
-          subject-path: |
-            "${{ github.workspace }}/target/release/mdns-browser
-          sbom-path: "sbom.spdx.json"
-
-      - name: Attest sbom (target/release/mdns-browser.exe)
-        if: ${{ exists('target/release/mdns-browser.exe') }}
-        #if: (inputs.tagName != '')
-        uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
-        with:
-          subject-path: |
-            "${{ github.workspace }}/target/release/mdns-browser.exe
-          sbom-path: "sbom.spdx.json"
-
-      - name: Attest sbom (target/aarch64-apple-darwin/release/mdns-browser)
-        if: ${{ exists('target/aarch64-apple-darwin/release/mdns-browser') }}
-        #if: (inputs.tagName != '')
-        uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
-        with:
-          subject-path: |
-            "${{ github.workspace }}/target/aarch64-apple-darwin/release/mdns-browser
-          sbom-path: "sbom.spdx.json"
-
-      - name: Attest sbom (target/x86_64-apple-darwin/release/mdns-browser)
-        if: ${{ exists('target/x86_64-apple-darwin/release/mdns-browser') }}
-        #if: (inputs.tagName != '')
-        uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
-        with:
-          subject-path: |
-            "${{ github.workspace }}/target/x86_64-apple-darwin/release/mdns-browser
+          subject-path: "${{ github.workspace }}/target/release/mdns-browser"
           sbom-path: "sbom.spdx.json"
