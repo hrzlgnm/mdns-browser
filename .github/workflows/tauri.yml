@@ -107,6 +107,7 @@ jobs:
           releaseDraft: false
           prerelease: false
           tauriScript: cargo --locked auditable tauri
+          args: ${{ matrix.args }}
 
       - name: Attest build provenance (when publishing a release only)
         if: (inputs.tagName != '')
