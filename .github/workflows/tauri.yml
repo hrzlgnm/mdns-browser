@@ -72,7 +72,7 @@ jobs:
       - name: Run clippy and fail if any warnings (macos only)
         if: contains(matrix.platform, 'macos')
         run: |
-          cargo clippy -- -D warnings 
+          cargo clippy -- -D warnings
           cd src-tauri
           cargo clippy -- -D warnings
 
@@ -122,22 +122,6 @@ jobs:
             target/**/release/bundle
             target/**/release/mdns-browser*
 
-      - name: Create sbom
-        uses: anchore/sbom-action@61119d458adab75f756bc0b9e4bde25725f86a7a # v0
-        with:
-          format: "spdx-json"
-          output-file: "sbom.spdx.json"
-          artifact-name: "${{ matrix.platform }}${{ matrix.args }}.sbom.spdx.json"
-
-      - name: Attest sbom
-        if: (inputs.tagName != '')
-        uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
-        with:
-          subject-path: |
-            "${{ github.workspace }}/target/**/release/mdns-browser
-            "${{ github.workspace }}/target/**/release/mdns-browser.exe
-          sbom-path: "sbom.spdx.json"
-
       - name: Attest build provenance (publish release only)
         if: (inputs.tagName != '')
         uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
@@ -150,3 +134,22 @@ jobs:
             target/release/bundle/deb/*.deb
             target/**/release/mdns-browser
             target/release/mdns-browser.exe
+
+      - name: Create SBOM
+        uses: anchore/sbom-action@61119d458adab75f756bc0b9e4bde25725f86a7a # v0
+        with:
+          format: "spdx-json"
+          output-file: "sbom.spdx.json"
+          artifact-name: "${{ matrix.platform }}${{ matrix.args }}.sbom.spdx.json"
+
+      - name: Attest SBOM
+        if: inputs.tagName != ''
+        uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
+        with:
+          subject-path: ${{
+            contains(matrix.platform, 'ubuntu') && 'target/release/mdns-browser' ||
+            contains(matrix.platform, 'windows') && 'target/release/mdns-browser.exe' ||
+            (contains(matrix.platform, 'macos') && contains(matrix.args, 'x86_64')) && 'target/x86_64-apple-darwin/release/mdns-browser' ||
+            (contains(matrix.platform, 'macos') && contains(matrix.args, 'aarch64')) && 'target/aarch64-apple-darwin/release/mdns-browser'
+            }}
+          sbom-path: "sbom.spdx.json"
