@@ -12,7 +12,6 @@ on:
       releaseBody:
         required: false
         type: string
-    secrets: inherit
 
 jobs:
   build-tauri:
