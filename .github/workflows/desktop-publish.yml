@@ -1,4 +1,4 @@
-name: "Publish release assets"
+name: "Desktop publish release assets"
 
 # This will trigger the action on each tag matching 'mdns-browser-v*'
 on:
@@ -13,7 +13,7 @@ jobs:
       attestations: write
       contents: write
       actions: read
-    uses: ./.github/workflows/tauri.yml
+    uses: ./.github/workflows/desktop-tauri.yml
     secrets: inherit
     with:
       tagName: mdns-browser-v__VERSION__

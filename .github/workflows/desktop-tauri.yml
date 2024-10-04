@@ -1,4 +1,4 @@
-name: "Reusable tauri build workflow"
+name: "Reusable desktop tauri build workflow"
 
 on:
   workflow_call:

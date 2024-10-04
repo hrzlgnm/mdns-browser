@@ -1,4 +1,4 @@
-name: Publish to WinGet
+name: Publish Desktop Release to WinGet
 on:
   release:
     types: [released]
