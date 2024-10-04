@@ -123,7 +123,8 @@ jobs:
         with:
           format: "spdx-json"
           file: Cargo.lock
-          output-file: "${{ matrix.platform }}${{ matrix.args }}.sbom.spdx.json"
+          output-file: "sbom.spdx.json"
+          artifact-name: "${{ matrix.platform }}${{ matrix.args }}.sbom.spdx"
 
       - name: Attest sbom
         if: (inputs.tagName != '')
@@ -132,7 +133,7 @@ jobs:
           subject-path: |
             "${{ github.workspace }}/target/**/release/mdns-browser
             "${{ github.workspace }}/target/**/release/mdns-browser.exe
-          sbom-path: "${{ matrix.platform }}${{ matrix.args }}.sbom.spdx.json"
+          sbom-path: "sbom.spdx.json"
 
       - name: Attest build provenance (publish release only)
         if: (inputs.tagName != '')
