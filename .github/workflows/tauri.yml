@@ -113,7 +113,17 @@ jobs:
           tauriScript: cargo --locked auditable tauri
           args: ${{ matrix.args }}
 
-      - name: Attest build provenance (when publishing a release only)
+      - name: Upload build artifacts (pr build only)
+        if: (inputs.tagName == '')
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        with:
+          name: "bundles-${{matrix.platform}}${{matrix.args}}"
+          path: |
+            target/release/bundle
+            target/release/mdns-browser
+            target/release/mdns-browser.exe
+
+      - name: Attest build provenance (publish release only)
         if: (inputs.tagName != '')
         uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
         with:
@@ -123,3 +133,5 @@ jobs:
             target/release/bundle/dmg/*.dmg
             target/release/bundle/appimage/*.AppImage.*
             target/release/bundle/deb/*.deb
+            target/release/mdns-browser
+            target/release/mdns-browser.exe
