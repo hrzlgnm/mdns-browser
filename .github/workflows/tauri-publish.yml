@@ -7,7 +7,7 @@ on:
       - "mdns-browser-v*"
 
 jobs:
-  publish-tauri:
+  publish:
     permissions:
       id-token: write
       attestations: write
