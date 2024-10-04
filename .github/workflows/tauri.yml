@@ -12,7 +12,13 @@ on:
       releaseBody:
         required: false
         type: string
-
+    secrets:
+      GITHUB_TOKEN:
+        required: true
+      TAURI_PRIVATE_KEY:
+        required: true
+      TAURI_KEY_PASSWORD:
+        required: true
 jobs:
   build:
     strategy:
