@@ -122,6 +122,19 @@ jobs:
             target/**/release/bundle
             target/**/release/mdns-browser*
 
+      - name: Attest build provenance (publish release only)
+        if: (inputs.tagName != '')
+        uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
+        with:
+          subject-path: |
+            target/release/bundle/nsis/*
+            target/**/release/bundle/macos/*.tar.gz*
+            target/**/release/bundle/dmg/*.dmg
+            target/release/bundle/appimage/*.AppImage.*
+            target/release/bundle/deb/*.deb
+            target/**/release/mdns-browser
+            target/release/mdns-browser.exe
+
       - name: Create sbom
         uses: anchore/sbom-action@61119d458adab75f756bc0b9e4bde25725f86a7a # v0
         with:
@@ -137,16 +150,3 @@ jobs:
             "${{ github.workspace }}/target/**/release/mdns-browser
             "${{ github.workspace }}/target/**/release/mdns-browser.exe
           sbom-path: "sbom.spdx.json"
-
-      - name: Attest build provenance (publish release only)
-        if: (inputs.tagName != '')
-        uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
-        with:
-          subject-path: |
-            target/release/bundle/nsis/*
-            target/**/release/bundle/macos/*.tar.gz*
-            target/**/release/bundle/dmg/*.dmg
-            target/release/bundle/appimage/*.AppImage.*
-            target/release/bundle/deb/*.deb
-            target/**/release/mdns-browser
-            target/release/mdns-browser.exe
