@@ -1,0 +1,131 @@
+name: "Reusable tauri build workflow"
+
+on:
+  workflow_call:
+    inputs:
+      tagName:
+        required: false
+        type: string
+      releaseName:
+        required: false
+        type: string
+      releaseBody:
+        required: false
+        type: string
+    secrets: inherit
+
+jobs:
+  build-tauri:
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: "macos-latest" # for Arm based macs (M1 and above).
+            args: "--target aarch64-apple-darwin"
+          - platform: "macos-latest" # for Intel based macs.
+            args: "--target x86_64-apple-darwin"
+          - platform: "ubuntu-22.04"
+            args: ""
+          - platform: "windows-latest"
+            args: ""
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+
+      - name: Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
+
+      - name: Install dependencies (ubuntu only)
+        if: contains(matrix.platform, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf python3-pip
+          sudo python3 -m pip install codespell
+
+      - name: Cached install cargo-make (ubuntu only)
+        if: contains(matrix.platform, 'ubuntu')
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
+        with:
+          tool: cargo-make@0.37.17
+          locked: true
+
+      - name: Run codespell (ubuntu only)
+        if: contains(matrix.platform, 'ubuntu')
+        run: |
+          cargo make codespell
+
+      - name: Run rustfmt and fail if any warnings (macos only)
+        if: contains(matrix.platform, 'macos')
+        run: |
+          cargo fmt -- --check
+          cd src-tauri
+          cargo fmt -- --check
+
+      - name: Run clippy and fail if any warnings (macos only)
+        if: contains(matrix.platform, 'macos')
+        run: |
+          cargo clippy -- -D warnings 
+          cd src-tauri
+          cargo clippy -- -D warnings
+
+      - name: Run tests
+        run: |
+          cargo test
+
+      - name: Cached install cargo-cyclonedx
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
+        with:
+          tool: cargo-cyclonedx@0.5.5
+          locked: true
+
+      - name: Cached install trunk
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
+        with:
+          tool: trunk@0.20.3
+          locked: true
+
+      - name: Cached install cargo-auditable
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
+        with:
+          tool: cargo-auditable@0.6.4
+          locked: true
+
+      - name: Cached install tauri-cli
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
+        with:
+          tool: tauri-cli@2.0.0
+          locked: true
+
+      - name: Build using tauri action
+        uses: tauri-apps/tauri-action@8c3e0753aa015d00d03631d6d4f64ad59489251d # v0.5.15
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        with:
+          tagName: ${{ input.tagName }}
+          releaseName: ${{ inputs.releaseName }}
+          releaseBody: ${{ inputs.releaseBody }}
+          releaseDraft: false
+          prerelease: false
+          tauriScript: cargo --locked auditable tauri
+
+      - name: Attest build provenance
+        if: (inputs.releaseName != '')
+        uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
+        with:
+          subject-path: |
+            target/release/bundle/nsis/*
+            target/release/bundle/macos/*.tar.gz*
+            target/release/bundle/dmg/*.dmg
+            target/release/bundle/appimage/*.AppImage.*
+            target/release/bundle/deb/*.deb
