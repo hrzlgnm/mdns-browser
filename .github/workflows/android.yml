@@ -89,7 +89,7 @@ jobs:
 
       - name: Publish
         if: false
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
         with:
           draft: true
           name: Android mDNS Browser-v${{ steps.get_version.outputs.current-version }}
