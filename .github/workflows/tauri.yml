@@ -123,7 +123,7 @@ jobs:
             target/**/release/mdns-browser*
 
       - name: Create sbom
-        uses: anchore/sbom-action@v0
+        uses: anchore/sbom-action@61119d458adab75f756bc0b9e4bde25725f86a7a # v0
         with:
           format: "spdx-json"
           output-file: "sbom.spdx.json"
@@ -131,7 +131,7 @@ jobs:
 
       - name: Attest sbom
         if: (inputs.tagName != '')
-        uses: actions/attest-sbom@v1
+        uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
         with:
           subject-path: |
             "${{ github.workspace }}/target/**/release/mdns-browser
