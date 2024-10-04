@@ -113,7 +113,7 @@ jobs:
           tauriScript: cargo --locked auditable tauri
           args: ${{ matrix.args }}
 
-      - name: Upload build artifacts (pr build only)
+      - name: Upload build artifacts (push or pr builds only)
         if: (inputs.tagName == '')
         uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
