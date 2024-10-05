@@ -61,7 +61,7 @@ jobs:
         run: |
           cargo --locked auditable tauri android init
           cp -a src-tauri/icons/android/mipmap-* src-tauri/gen/android/app/src/main/res/
-          cargo --locked auditable tauri android build -v
+          cargo --locked auditable tauri android build
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.11902837
 

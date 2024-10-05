@@ -12,8 +12,10 @@ use std::{
 };
 
 use tauri::Emitter;
-use tauri::{Manager, State, Window};
+use tauri::{AppHandle, Manager, State, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
+use tauri_plugin_shell::ShellExt;
+
 #[cfg(desktop)]
 use tauri_plugin_log::{Target, TargetKind};
 #[cfg(desktop)]
@@ -291,10 +293,13 @@ fn send_metrics(window: Window, state: State<ManagedState>) {
     }
 }
 
-#[cfg(desktop)]
 #[tauri::command]
-fn open(url: String) {
-    let _ = open::that(url.clone()).map_err(|e| log::error!("Failed to open {}: {}", url, e));
+fn open(app: AppHandle, url: String) {
+    let shell = app.shell();
+    let r = shell.open(url.clone(), None);
+    if r.is_err() {
+        log::error!("Failed to open {}: {:?}", url, r);
+    }
 }
 
 #[cfg(desktop)]
@@ -441,6 +446,7 @@ pub fn run() {
     x11_workaround();
     let args = Args::parse();
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
         .plugin(
@@ -487,6 +493,7 @@ pub fn run() {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run_mobile() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
         .invoke_handler(tauri::generate_handler![
@@ -494,6 +501,7 @@ pub fn run_mobile() {
             browse_types,
             copy_to_clipboard,
             is_desktop,
+            open,
             send_metrics,
             stop_browse,
         ])
