@@ -70,7 +70,7 @@ jobs:
         id: get-version
         run: |
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
-          echo "current_version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Extract android signing key from env (publish only)
         if: inputs.publish
