@@ -1,0 +1,1966 @@
+
+# cargo-vet audits file
+
+[[audits.addr2line]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.24.1 -> 0.24.2"
+
+[[audits.arbitrary]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.4.0 -> 1.4.1"
+
+[[audits.avif-serialize]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.8.1 -> 0.8.2"
+
+[[audits.brotli]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "6.0.0 -> 7.0.0"
+
+[[audits.built]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.7.4 -> 0.7.5"
+
+[[audits.byte-unit]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "5.1.4 -> 5.1.6"
+
+[[audits.bytemuck]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.19.0 -> 1.20.0"
+
+[[audits.cc]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.1.24 -> 1.1.31"
+
+[[audits.cc]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.1.31 -> 1.1.34"
+
+[[audits.cc]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.1.34 -> 1.1.37"
+
+[[audits.cc]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.1.37 -> 1.2.1"
+
+[[audits.chrono]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.4.38 -> 0.4.39"
+
+[[audits.clap]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "4.5.18 -> 4.5.19"
+
+[[audits.clap_builder]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "4.5.18 -> 4.5.19"
+
+[[audits.colorchoice]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.0.0 -> 1.0.2"
+
+[[audits.const_format]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.33 -> 0.2.34"
+
+[[audits.const_format_proc_macros]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.33 -> 0.2.34"
+
+[[audits.cookie]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.18.1"
+
+[[audits.cpufeatures]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.14 -> 0.2.15"
+
+[[audits.cpufeatures]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.15 -> 0.2.16"
+
+[[audits.ctor]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.8 -> 0.2.9"
+
+[[audits.derivative]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "2.2.0"
+
+[[audits.derive_arbitrary]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.4.0 -> 1.4.1"
+
+[[audits.embed-resource]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.5.0 -> 2.5.1"
+
+[[audits.enumflags2]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.7.10"
+
+[[audits.enumflags2_derive]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.7.10"
+
+[[audits.errno]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.3.9 -> 0.3.10"
+
+[[audits.exr]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.72.0 -> 1.73.0"
+
+[[audits.fastrand]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.1.1 -> 2.2.0"
+
+[[audits.fern]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.6.2 -> 0.7.0"
+
+[[audits.flate2]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.0.34 -> 1.0.35"
+
+[[audits.flume]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.11.0 -> 0.11.1"
+
+[[audits.gimli]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.31.0 -> 0.31.1"
+
+[[audits.hermit-abi]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.3.9 -> 0.4.0"
+
+[[audits.icondata]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.4.0"
+
+[[audits.icondata]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.4.0 -> 0.5.0"
+
+[[audits.icondata_ai]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_bi]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_bs]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_cg]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_ch]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_core]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.1.0"
+
+[[audits.icondata_fa]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_fi]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_hi]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_im]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_io]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_lu]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_mdi]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_oc]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_ri]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_si]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_tb]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_ti]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_ti]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_ti]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_vs]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icondata_wi]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.0.10"
+
+[[audits.icu_properties]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.5.0 -> 1.5.1"
+
+[[audits.idna]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.0.2 -> 1.0.3"
+
+[[audits.idna_adapter]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "1.2.0"
+
+[[audits.image]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.25.2 -> 0.25.4"
+
+[[audits.image]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.25.4 -> 0.25.5"
+
+[[audits.image-webp]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.1.3 -> 0.2.0"
+
+[[audits.imgref]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.10.1 -> 1.11.0"
+
+[[audits.ipnet]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.10.0 -> 2.10.1"
+
+[[audits.json-patch]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.0 -> 3.0.1"
+
+[[audits.jsonptr]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.4.7 -> 0.6.3"
+
+[[audits.libc]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.159 -> 0.2.161"
+
+[[audits.libc]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.161 -> 0.2.162"
+
+[[audits.libc]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.162 -> 0.2.164"
+
+[[audits.litemap]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.7.3 -> 0.7.4"
+
+[[audits.mdns-sd]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.11.5"
+
+[[audits.muda]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.15.1 -> 0.15.2"
+
+[[audits.muda]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.15.2 -> 0.15.3"
+
+[[audits.objc2-cloud-kit]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.2.2"
+
+[[audits.objc2-contacts]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.2.2"
+
+[[audits.objc2-core-location]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.2.2"
+
+[[audits.objc2-link-presentation]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.2.2"
+
+[[audits.objc2-symbols]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.2.2"
+
+[[audits.objc2-ui-kit]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.2.2"
+
+[[audits.objc2-uniform-type-identifiers]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.2.2"
+
+[[audits.objc2-user-notifications]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.2.2"
+
+[[audits.objc2-web-kit]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.2.2"
+
+[[audits.object]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.36.4 -> 0.36.5"
+
+[[audits.open]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "5.3.0 -> 5.3.1"
+
+[[audits.ordered-stream]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.1.4 -> 0.2.0"
+
+[[audits.pathdiff]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.1 -> 0.2.2"
+
+[[audits.pathdiff]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.2 -> 0.2.3"
+
+[[audits.pin-project]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.1.5 -> 1.1.6"
+
+[[audits.pin-project]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.1.6 -> 1.1.7"
+
+[[audits.pin-project-internal]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.1.5 -> 1.1.6"
+
+[[audits.pin-project-internal]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.1.6 -> 1.1.7"
+
+[[audits.pin-project-lite]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.14 -> 0.2.15"
+
+[[audits.profiling]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.0.15 -> 1.0.16"
+
+[[audits.profiling-procmacros]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.0.15 -> 1.0.16"
+
+[[audits.quinn]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.11.5 -> 0.11.6"
+
+[[audits.quinn-proto]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.11.8 -> 0.11.9"
+
+[[audits.quinn-udp]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.5.6 -> 0.5.7"
+
+[[audits.ravif]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.11.10 -> 0.11.11"
+
+[[audits.rustc-hash]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.0 -> 2.1.0"
+
+[[audits.rustls]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.23.13 -> 0.23.15"
+
+[[audits.rustls]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.23.15 -> 0.23.16"
+
+[[audits.rustls]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.23.16 -> 0.23.17"
+
+[[audits.rustls]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.23.17 -> 0.23.19"
+
+[[audits.rustls-pki-types]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.9.0 -> 1.10.0"
+
+[[audits.self_cell]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.0.4 -> 1.1.0"
+
+[[audits.serde_with]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "3.10.0 -> 3.11.0"
+
+[[audits.serde_with_macros]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "3.10.0 -> 3.11.0"
+
+[[audits.signal-hook-registry]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.4.1 -> 1.4.2"
+
+[[audits.sync_wrapper]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.0.1 -> 1.0.2"
+
+[[audits.tao]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.30.2 -> 0.30.3"
+
+[[audits.tao]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.30.3 -> 0.30.5"
+
+[[audits.tao]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.30.5 -> 0.30.7"
+
+[[audits.tao]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.30.7 -> 0.30.8"
+
+[[audits.tauri]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.1 -> 2.0.6"
+
+[[audits.tauri]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.6 -> 2.1.1"
+
+[[audits.tauri-build]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.1 -> 2.0.2"
+
+[[audits.tauri-build]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.2 -> 2.0.3"
+
+[[audits.tauri-codegen]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.1 -> 2.0.2"
+
+[[audits.tauri-codegen]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.2 -> 2.0.3"
+
+[[audits.tauri-macros]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.1 -> 2.0.2"
+
+[[audits.tauri-macros]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.2 -> 2.0.3"
+
+[[audits.tauri-plugin]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.1 -> 2.0.2"
+
+[[audits.tauri-plugin]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.2 -> 2.0.3"
+
+[[audits.tauri-plugin-clipboard-manager]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.1 -> 2.0.2"
+
+[[audits.tauri-plugin-log]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.1 -> 2.0.2"
+
+[[audits.tauri-plugin-shell]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.1 -> 2.0.2"
+
+[[audits.tauri-runtime]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.1 -> 2.1.1"
+
+[[audits.tauri-runtime]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.1.1 -> 2.2.0"
+
+[[audits.tauri-runtime-wry]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.1 -> 2.1.2"
+
+[[audits.tauri-runtime-wry]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.1.2 -> 2.2.0"
+
+[[audits.tauri-utils]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.1 -> 2.0.2"
+
+[[audits.tauri-utils]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.0.2 -> 2.1.0"
+
+[[audits.tempfile]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "3.13.0 -> 3.14.0"
+
+[[audits.time]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.3.36 -> 0.3.37"
+
+[[audits.time-macros]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.18 -> 0.2.19"
+
+[[audits.tokio-rustls]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.26.0 -> 0.26.1"
+
+[[audits.tray-icon]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.19.0 -> 0.19.1"
+
+[[audits.uds_windows]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "1.1.0"
+
+[[audits.url]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.5.1 -> 2.5.2"
+
+[[audits.url]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.5.2 -> 2.5.3"
+
+[[audits.uuid]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.10.0 -> 1.11.0"
+
+[[audits.value-bag]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "1.9.0 -> 1.10.0"
+
+[[audits.wasm-streams]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.4.1 -> 0.4.2"
+
+[[audits.web-time]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "1.1.0"
+
+[[audits.webpki-roots]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.26.6 -> 0.26.7"
+
+[[audits.wry]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.44.1 -> 0.46.2"
+
+[[audits.wry]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.46.2 -> 0.46.3"
+
+[[audits.wry]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.46.2 -> 0.46.3"
+
+[[audits.wry]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.46.3 -> 0.47.0"
+
+[[audits.zerofrom-derive]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.1.3 -> 0.1.4"
+
+[[audits.zerovec-derive]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.10.2 -> 0.10.3"
+
+[[audits.zip]]
+who = "hrzlgnm <hrzlgnm@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "2.2.0 -> 2.2.1"
+
+[[trusted.aho-corasick]]
+criteria = "safe-to-deploy"
+user-id = 189 # Andrew Gallant (BurntSushi)
+start = "2019-03-28"
+end = "2025-10-05"
+
+[[trusted.anstream]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2023-03-16"
+end = "2025-10-05"
+
+[[trusted.anstyle]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2022-05-18"
+end = "2025-10-05"
+
+[[trusted.anstyle-parse]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2023-03-08"
+end = "2025-10-05"
+
+[[trusted.anstyle-query]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2023-04-13"
+end = "2025-10-05"
+
+[[trusted.anstyle-wincon]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2023-03-08"
+end = "2025-10-05"
+
+[[trusted.anyhow]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-10-05"
+end = "2025-10-05"
+
+[[trusted.arbitrary]]
+criteria = "safe-to-deploy"
+user-id = 696 # Nick Fitzgerald (fitzgen)
+start = "2020-01-14"
+end = "2025-11-12"
+
+[[trusted.async-broadcast]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2024-06-02"
+end = "2025-12-09"
+
+[[trusted.async-channel]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-07-08"
+end = "2025-12-09"
+
+[[trusted.async-executor]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-04-07"
+end = "2025-12-09"
+
+[[trusted.async-fs]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-10-18"
+end = "2025-12-09"
+
+[[trusted.async-io]]
+criteria = "safe-to-deploy"
+user-id = 2340 # Alain Emilia Anna Zscheile (fogti)
+start = "2024-11-07"
+end = "2025-12-09"
+
+[[trusted.async-io]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-03-22"
+end = "2025-12-09"
+
+[[trusted.async-lock]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-03-02"
+end = "2025-12-09"
+
+[[trusted.async-process]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-04-07"
+end = "2025-12-09"
+
+[[trusted.async-signal]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-02-08"
+end = "2025-12-09"
+
+[[trusted.async-task]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-03-24"
+end = "2025-12-09"
+
+[[trusted.async-trait]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-07-23"
+end = "2025-12-09"
+
+[[trusted.atomic-waker]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-04-07"
+end = "2025-12-09"
+
+[[trusted.autocfg]]
+criteria = "safe-to-deploy"
+user-id = 539 # Josh Stone (cuviper)
+start = "2019-05-22"
+end = "2025-10-05"
+
+[[trusted.backtrace]]
+criteria = "safe-to-deploy"
+user-id = 539 # Josh Stone (cuviper)
+start = "2024-03-21"
+end = "2025-10-06"
+
+[[trusted.blocking]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-04-07"
+end = "2025-12-09"
+
+[[trusted.by_address]]
+criteria = "safe-to-deploy"
+user-id = 2017 # Matt Brubeck (mbrubeck)
+start = "2019-04-22"
+end = "2025-10-06"
+
+[[trusted.bytes]]
+criteria = "safe-to-deploy"
+user-id = 6741 # Alice Ryhl (Darksonn)
+start = "2021-01-11"
+end = "2025-10-06"
+
+[[trusted.cargo-platform]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-09-27"
+end = "2025-10-06"
+
+[[trusted.cargo-platform]]
+criteria = "safe-to-deploy"
+user-id = 55123 # rust-lang-owner
+start = "2023-07-13"
+end = "2025-12-09"
+
+[[trusted.cc]]
+criteria = "safe-to-deploy"
+user-id = 2915 # Amanieu d'Antras (Amanieu)
+start = "2024-02-20"
+end = "2025-10-06"
+
+[[trusted.cc]]
+criteria = "safe-to-deploy"
+user-id = 55123 # rust-lang-owner
+start = "2022-10-29"
+end = "2025-12-09"
+
+[[trusted.clap]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2021-12-08"
+end = "2025-11-13"
+
+[[trusted.clap_builder]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2023-03-28"
+end = "2025-10-09"
+
+[[trusted.clap_derive]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2021-12-08"
+end = "2025-10-06"
+
+[[trusted.clap_lex]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2022-04-15"
+end = "2025-10-05"
+
+[[trusted.colorchoice]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2023-04-13"
+end = "2025-11-01"
+
+[[trusted.concurrent-queue]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-04-07"
+end = "2025-12-09"
+
+[[trusted.config]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2024-10-23"
+end = "2025-11-01"
+
+[[trusted.console_error_panic_hook]]
+criteria = "safe-to-deploy"
+user-id = 696 # Nick Fitzgerald (fitzgen)
+start = "2021-10-11"
+end = "2025-10-05"
+
+[[trusted.cssparser]]
+criteria = "safe-to-deploy"
+user-id = 1139 # Manish Goregaokar (Manishearth)
+start = "2019-11-25"
+end = "2025-12-09"
+
+[[trusted.derive_arbitrary]]
+criteria = "safe-to-deploy"
+user-id = 696 # Nick Fitzgerald (fitzgen)
+start = "2020-01-14"
+end = "2025-11-12"
+
+[[trusted.displaydoc]]
+criteria = "safe-to-deploy"
+user-id = 1139 # Manish Goregaokar (Manishearth)
+start = "2024-06-20"
+end = "2025-12-09"
+
+[[trusted.dtoa]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-05-02"
+end = "2025-10-05"
+
+[[trusted.dyn-clone]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-12-23"
+end = "2025-10-05"
+
+[[trusted.endi]]
+criteria = "safe-to-deploy"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2023-12-10"
+end = "2025-12-09"
+
+[[trusted.env_filter]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2024-01-19"
+end = "2025-10-05"
+
+[[trusted.erased-serde]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2020-01-06"
+end = "2025-10-05"
+
+[[trusted.errno]]
+criteria = "safe-to-deploy"
+user-id = 6825 # Dan Gohman (sunfishcode)
+start = "2023-08-29"
+end = "2025-12-09"
+
+[[trusted.event-listener]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-09-10"
+end = "2025-12-09"
+
+[[trusted.event-listener-strategy]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-09-11"
+end = "2025-12-09"
+
+[[trusted.fastrand]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-06-09"
+end = "2025-12-09"
+
+[[trusted.filetime]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-04-23"
+end = "2025-10-05"
+
+[[trusted.flate2]]
+criteria = "safe-to-deploy"
+user-id = 4333
+start = "2020-09-30"
+end = "2025-11-19"
+
+[[trusted.futures-lite]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-04-07"
+end = "2025-12-09"
+
+[[trusted.hashbrown]]
+criteria = "safe-to-deploy"
+user-id = 2915 # Amanieu d'Antras (Amanieu)
+start = "2019-04-02"
+end = "2025-10-05"
+
+[[trusted.http]]
+criteria = "safe-to-deploy"
+user-id = 359 # Sean McArthur (seanmonstar)
+start = "2019-04-05"
+end = "2025-10-05"
+
+[[trusted.httparse]]
+criteria = "safe-to-deploy"
+user-id = 359 # Sean McArthur (seanmonstar)
+start = "2019-07-03"
+end = "2025-10-05"
+
+[[trusted.hyper]]
+criteria = "safe-to-deploy"
+user-id = 359 # Sean McArthur (seanmonstar)
+start = "2019-03-01"
+end = "2025-10-05"
+
+[[trusted.hyper-util]]
+criteria = "safe-to-deploy"
+user-id = 359 # Sean McArthur (seanmonstar)
+start = "2022-01-15"
+end = "2025-10-05"
+
+[[trusted.indexmap]]
+criteria = "safe-to-deploy"
+user-id = 539 # Josh Stone (cuviper)
+start = "2020-01-15"
+end = "2025-10-06"
+
+[[trusted.inventory]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-08-15"
+end = "2025-10-05"
+
+[[trusted.is_terminal_polyfill]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2024-05-02"
+end = "2025-10-05"
+
+[[trusted.itoa]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-05-02"
+end = "2025-10-05"
+
+[[trusted.javascriptcore-rs]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-10-04"
+end = "2025-12-09"
+
+[[trusted.javascriptcore-rs-sys]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-10-04"
+end = "2025-12-09"
+
+[[trusted.jobserver]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-03-15"
+end = "2025-10-06"
+
+[[trusted.js-sys]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-03-04"
+end = "2025-10-06"
+
+[[trusted.libappindicator]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-10-11"
+end = "2025-12-09"
+
+[[trusted.libappindicator-sys]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-10-11"
+end = "2025-12-09"
+
+[[trusted.libc]]
+criteria = "safe-to-deploy"
+user-id = 2915 # Amanieu d'Antras (Amanieu)
+start = "2021-01-27"
+end = "2025-10-06"
+
+[[trusted.libc]]
+criteria = "safe-to-deploy"
+user-id = 51017 # Yuki Okushi (JohnTitor)
+start = "2020-03-17"
+end = "2025-10-06"
+
+[[trusted.libc]]
+criteria = "safe-to-deploy"
+user-id = 55123 # rust-lang-owner
+start = "2024-08-15"
+end = "2025-12-09"
+
+[[trusted.libfuzzer-sys]]
+criteria = "safe-to-deploy"
+user-id = 696 # Nick Fitzgerald (fitzgen)
+start = "2020-01-14"
+end = "2025-10-06"
+
+[[trusted.linux-raw-sys]]
+criteria = "safe-to-deploy"
+user-id = 6825 # Dan Gohman (sunfishcode)
+start = "2021-06-12"
+end = "2025-10-05"
+
+[[trusted.litemap]]
+criteria = "safe-to-deploy"
+user-id = 1139 # Manish Goregaokar (Manishearth)
+start = "2021-02-23"
+end = "2025-12-09"
+
+[[trusted.lock_api]]
+criteria = "safe-to-deploy"
+user-id = 2915 # Amanieu d'Antras (Amanieu)
+start = "2019-05-04"
+end = "2025-10-06"
+
+[[trusted.mdns-sd]]
+criteria = "safe-to-deploy"
+user-id = 100487 # keepsimple1
+start = "2021-10-17"
+end = "2025-12-09"
+
+[[trusted.memchr]]
+criteria = "safe-to-deploy"
+user-id = 189 # Andrew Gallant (BurntSushi)
+start = "2019-07-07"
+end = "2025-10-05"
+
+[[trusted.mime]]
+criteria = "safe-to-deploy"
+user-id = 359 # Sean McArthur (seanmonstar)
+start = "2019-09-09"
+end = "2025-10-05"
+
+[[trusted.mio]]
+criteria = "safe-to-deploy"
+user-id = 10
+start = "2019-05-15"
+end = "2025-10-06"
+
+[[trusted.mio]]
+criteria = "safe-to-deploy"
+user-id = 6025 # Thomas de Zeeuw (Thomasdezeeuw)
+start = "2019-12-17"
+end = "2025-12-09"
+
+[[trusted.muda]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2022-12-06"
+end = "2025-12-09"
+
+[[trusted.new_debug_unreachable]]
+criteria = "safe-to-deploy"
+user-id = 2017 # Matt Brubeck (mbrubeck)
+start = "2019-02-26"
+end = "2025-10-06"
+
+[[trusted.nix]]
+criteria = "safe-to-deploy"
+user-id = 6094 # Alan Somers (asomers)
+start = "2019-05-22"
+end = "2025-12-09"
+
+[[trusted.num-bigint]]
+criteria = "safe-to-deploy"
+user-id = 539 # Josh Stone (cuviper)
+start = "2019-09-04"
+end = "2025-10-05"
+
+[[trusted.ordered-stream]]
+criteria = "safe-to-deploy"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2023-01-02"
+end = "2025-12-09"
+
+[[trusted.parking]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-04-07"
+end = "2025-12-09"
+
+[[trusted.parking_lot]]
+criteria = "safe-to-deploy"
+user-id = 2915 # Amanieu d'Antras (Amanieu)
+start = "2019-05-04"
+end = "2025-10-06"
+
+[[trusted.parking_lot_core]]
+criteria = "safe-to-deploy"
+user-id = 2915 # Amanieu d'Antras (Amanieu)
+start = "2019-05-04"
+end = "2025-10-06"
+
+[[trusted.paste]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-03-19"
+end = "2025-10-05"
+
+[[trusted.pathdiff]]
+criteria = "safe-to-deploy"
+user-id = 1139 # Manish Goregaokar (Manishearth)
+start = "2020-04-20"
+end = "2025-12-09"
+
+[[trusted.phf]]
+criteria = "safe-to-deploy"
+user-id = 51017 # Yuki Okushi (JohnTitor)
+start = "2021-06-17"
+end = "2025-10-06"
+
+[[trusted.phf_codegen]]
+criteria = "safe-to-deploy"
+user-id = 51017 # Yuki Okushi (JohnTitor)
+start = "2021-06-17"
+end = "2025-10-06"
+
+[[trusted.phf_generator]]
+criteria = "safe-to-deploy"
+user-id = 51017 # Yuki Okushi (JohnTitor)
+start = "2021-06-17"
+end = "2025-10-06"
+
+[[trusted.phf_macros]]
+criteria = "safe-to-deploy"
+user-id = 51017 # Yuki Okushi (JohnTitor)
+start = "2021-06-17"
+end = "2025-10-06"
+
+[[trusted.phf_shared]]
+criteria = "safe-to-deploy"
+user-id = 51017 # Yuki Okushi (JohnTitor)
+start = "2021-06-17"
+end = "2025-10-06"
+
+[[trusted.piper]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-04-24"
+end = "2025-12-09"
+
+[[trusted.polling]]
+criteria = "safe-to-deploy"
+user-id = 2340 # Alain Emilia Anna Zscheile (fogti)
+start = "2024-11-07"
+end = "2025-12-09"
+
+[[trusted.polling]]
+criteria = "safe-to-deploy"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2021-06-14"
+end = "2025-12-09"
+
+[[trusted.polling]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-03-08"
+end = "2025-12-09"
+
+[[trusted.prettyplease]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2022-01-04"
+end = "2025-10-05"
+
+[[trusted.proc-macro-hack]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-04-16"
+end = "2025-10-05"
+
+[[trusted.proc-macro2]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-04-23"
+end = "2025-10-23"
+
+[[trusted.raw-window-handle]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2024-04-20"
+end = "2025-12-09"
+
+[[trusted.regex]]
+criteria = "safe-to-deploy"
+user-id = 189 # Andrew Gallant (BurntSushi)
+start = "2019-02-27"
+end = "2025-10-05"
+
+[[trusted.regex-automata]]
+criteria = "safe-to-deploy"
+user-id = 189 # Andrew Gallant (BurntSushi)
+start = "2019-02-25"
+end = "2025-10-05"
+
+[[trusted.regex-syntax]]
+criteria = "safe-to-deploy"
+user-id = 189 # Andrew Gallant (BurntSushi)
+start = "2019-03-30"
+end = "2025-10-05"
+
+[[trusted.reqwest]]
+criteria = "safe-to-deploy"
+user-id = 359 # Sean McArthur (seanmonstar)
+start = "2019-03-04"
+end = "2025-10-05"
+
+[[trusted.rustix]]
+criteria = "safe-to-deploy"
+user-id = 6825 # Dan Gohman (sunfishcode)
+start = "2021-10-29"
+end = "2025-10-05"
+
+[[trusted.ryu]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-05-02"
+end = "2025-10-05"
+
+[[trusted.same-file]]
+criteria = "safe-to-deploy"
+user-id = 189 # Andrew Gallant (BurntSushi)
+start = "2019-07-16"
+end = "2025-10-05"
+
+[[trusted.scopeguard]]
+criteria = "safe-to-deploy"
+user-id = 2915 # Amanieu d'Antras (Amanieu)
+start = "2020-02-16"
+end = "2025-10-05"
+
+[[trusted.serde]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-03-01"
+end = "2025-10-23"
+
+[[trusted.serde-untagged]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2023-08-27"
+end = "2025-10-05"
+
+[[trusted.serde_derive]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-03-01"
+end = "2025-10-23"
+
+[[trusted.serde_derive_internals]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-09-08"
+end = "2025-10-05"
+
+[[trusted.serde_json]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-02-28"
+end = "2025-10-05"
+
+[[trusted.serde_repr]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-04-26"
+end = "2025-10-05"
+
+[[trusted.serde_spanned]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2023-01-20"
+end = "2025-10-05"
+
+[[trusted.slab]]
+criteria = "safe-to-deploy"
+user-id = 6741 # Alice Ryhl (Darksonn)
+start = "2021-10-13"
+end = "2025-10-06"
+
+[[trusted.smallvec]]
+criteria = "safe-to-deploy"
+user-id = 2017 # Matt Brubeck (mbrubeck)
+start = "2019-10-28"
+end = "2025-10-06"
+
+[[trusted.socket2]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-05-06"
+end = "2025-10-06"
+
+[[trusted.socket2]]
+criteria = "safe-to-deploy"
+user-id = 6025 # Thomas de Zeeuw (Thomasdezeeuw)
+start = "2020-09-09"
+end = "2025-12-09"
+
+[[trusted.softbuffer]]
+criteria = "safe-to-deploy"
+user-id = 69526 # John Nunley (notgull)
+start = "2023-06-01"
+end = "2025-12-09"
+
+[[trusted.syn]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-03-01"
+end = "2025-10-05"
+
+[[trusted.tao]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-04-30"
+end = "2025-12-09"
+
+[[trusted.tao-macros]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2023-01-11"
+end = "2025-12-09"
+
+[[trusted.tar]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-03-04"
+end = "2025-10-05"
+
+[[trusted.target-lexicon]]
+criteria = "safe-to-deploy"
+user-id = 696 # Nick Fitzgerald (fitzgen)
+start = "2024-07-30"
+end = "2025-10-06"
+
+[[trusted.tauri]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2020-07-20"
+end = "2025-12-09"
+
+[[trusted.tauri-build]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-04-14"
+end = "2025-12-09"
+
+[[trusted.tauri-codegen]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-04-14"
+end = "2025-12-09"
+
+[[trusted.tauri-macros]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-04-14"
+end = "2025-12-09"
+
+[[trusted.tauri-plugin]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2024-02-03"
+end = "2025-12-09"
+
+[[trusted.tauri-plugin-clipboard-manager]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2023-05-24"
+end = "2025-12-09"
+
+[[trusted.tauri-plugin-log]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2023-05-24"
+end = "2025-12-09"
+
+[[trusted.tauri-plugin-opener]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2024-11-11"
+end = "2025-12-09"
+
+[[trusted.tauri-plugin-updater]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2023-05-24"
+end = "2025-12-09"
+
+[[trusted.tauri-runtime]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-05-10"
+end = "2025-12-09"
+
+[[trusted.tauri-runtime-wry]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-05-10"
+end = "2025-12-09"
+
+[[trusted.tauri-utils]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-04-14"
+end = "2025-12-09"
+
+[[trusted.tauri-winres]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2023-01-19"
+end = "2025-12-09"
+
+[[trusted.thiserror]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-10-09"
+end = "2025-10-23"
+
+[[trusted.thiserror-impl]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2019-10-09"
+end = "2025-10-23"
+
+[[trusted.tokio]]
+criteria = "safe-to-deploy"
+user-id = 6741 # Alice Ryhl (Darksonn)
+start = "2020-12-25"
+end = "2025-10-06"
+
+[[trusted.tokio-util]]
+criteria = "safe-to-deploy"
+user-id = 6741 # Alice Ryhl (Darksonn)
+start = "2021-01-12"
+end = "2025-10-06"
+
+[[trusted.toml]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2022-12-14"
+end = "2025-10-06"
+
+[[trusted.toml_edit]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2021-09-13"
+end = "2025-10-06"
+
+[[trusted.tracing]]
+criteria = "safe-to-deploy"
+user-id = 172786 # Hayden Stainsby (hds)
+start = "2024-11-27"
+end = "2025-12-09"
+
+[[trusted.tracing-attributes]]
+criteria = "safe-to-deploy"
+user-id = 172786 # Hayden Stainsby (hds)
+start = "2024-11-26"
+end = "2025-12-09"
+
+[[trusted.tracing-core]]
+criteria = "safe-to-deploy"
+user-id = 172786 # Hayden Stainsby (hds)
+start = "2024-11-25"
+end = "2025-12-09"
+
+[[trusted.tray-icon]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2022-12-01"
+end = "2025-12-09"
+
+[[trusted.typeid]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2024-05-13"
+end = "2025-10-05"
+
+[[trusted.unicode-bidi]]
+criteria = "safe-to-deploy"
+user-id = 2017 # Matt Brubeck (mbrubeck)
+start = "2021-04-06"
+end = "2025-10-06"
+
+[[trusted.unicode-ident]]
+criteria = "safe-to-deploy"
+user-id = 3618 # David Tolnay (dtolnay)
+start = "2021-10-02"
+end = "2025-12-09"
+
+[[trusted.unicode-segmentation]]
+criteria = "safe-to-deploy"
+user-id = 1139 # Manish Goregaokar (Manishearth)
+start = "2019-05-15"
+end = "2025-12-09"
+
+[[trusted.walkdir]]
+criteria = "safe-to-deploy"
+user-id = 189 # Andrew Gallant (BurntSushi)
+start = "2019-06-09"
+end = "2025-10-05"
+
+[[trusted.wasi]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2020-06-03"
+end = "2025-10-06"
+
+[[trusted.wasi]]
+criteria = "safe-to-deploy"
+user-id = 6825 # Dan Gohman (sunfishcode)
+start = "2019-07-22"
+end = "2025-10-06"
+
+[[trusted.wasm-bindgen]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-03-04"
+end = "2025-10-06"
+
+[[trusted.wasm-bindgen-backend]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-03-04"
+end = "2025-10-06"
+
+[[trusted.wasm-bindgen-futures]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-03-04"
+end = "2025-10-06"
+
+[[trusted.wasm-bindgen-macro]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-03-04"
+end = "2025-10-06"
+
+[[trusted.wasm-bindgen-macro-support]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-03-04"
+end = "2025-10-06"
+
+[[trusted.wasm-bindgen-shared]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-03-04"
+end = "2025-10-06"
+
+[[trusted.web-sys]]
+criteria = "safe-to-deploy"
+user-id = 1 # Alex Crichton (alexcrichton)
+start = "2019-03-04"
+end = "2025-10-06"
+
+[[trusted.webkit2gtk]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-10-05"
+end = "2025-12-09"
+
+[[trusted.webkit2gtk-sys]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-10-05"
+end = "2025-12-09"
+
+[[trusted.winapi-util]]
+criteria = "safe-to-deploy"
+user-id = 189 # Andrew Gallant (BurntSushi)
+start = "2020-01-11"
+end = "2025-10-05"
+
+[[trusted.window-vibrancy]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2022-03-05"
+end = "2025-12-09"
+
+[[trusted.windows]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2021-01-15"
+end = "2025-10-06"
+
+[[trusted.windows-core]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2021-11-15"
+end = "2025-10-05"
+
+[[trusted.windows-implement]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2022-01-27"
+end = "2025-10-06"
+
+[[trusted.windows-interface]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2022-02-18"
+end = "2025-10-05"
+
+[[trusted.windows-registry]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2024-02-15"
+end = "2025-10-05"
+
+[[trusted.windows-result]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2024-02-02"
+end = "2025-10-05"
+
+[[trusted.windows-strings]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2024-02-02"
+end = "2025-10-05"
+
+[[trusted.windows-sys]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2021-11-15"
+end = "2025-10-06"
+
+[[trusted.windows-targets]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2022-09-09"
+end = "2025-10-05"
+
+[[trusted.windows-version]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2023-03-07"
+end = "2025-10-05"
+
+[[trusted.windows_aarch64_gnullvm]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2022-09-01"
+end = "2025-10-05"
+
+[[trusted.windows_aarch64_msvc]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2021-11-05"
+end = "2025-10-06"
+
+[[trusted.windows_i686_gnu]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2021-10-28"
+end = "2025-10-06"
+
+[[trusted.windows_i686_gnullvm]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2024-04-02"
+end = "2025-10-05"
+
+[[trusted.windows_i686_msvc]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2021-10-27"
+end = "2025-10-06"
+
+[[trusted.windows_x86_64_gnu]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2021-10-28"
+end = "2025-10-06"
+
+[[trusted.windows_x86_64_gnullvm]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2022-09-01"
+end = "2025-10-05"
+
+[[trusted.windows_x86_64_msvc]]
+criteria = "safe-to-deploy"
+user-id = 64539 # Kenny Kerr (kennykerr)
+start = "2021-10-27"
+end = "2025-10-06"
+
+[[trusted.winnow]]
+criteria = "safe-to-deploy"
+user-id = 6743 # Ed Page (epage)
+start = "2023-02-22"
+end = "2025-10-05"
+
+[[trusted.wry]]
+criteria = "safe-to-deploy"
+user-id = 95389 # tauri (tauri-bot)
+start = "2021-03-11"
+end = "2025-12-09"
+
+[[trusted.xdg-home]]
+criteria = "safe-to-deploy"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2023-03-28"
+end = "2025-12-09"
+
+[[trusted.yoke]]
+criteria = "safe-to-deploy"
+user-id = 1139 # Manish Goregaokar (Manishearth)
+start = "2021-05-01"
+end = "2025-12-09"
+
+[[trusted.yoke-derive]]
+criteria = "safe-to-deploy"
+user-id = 1139 # Manish Goregaokar (Manishearth)
+start = "2021-07-02"
+end = "2025-12-09"
+
+[[trusted.zbus]]
+criteria = "safe-to-deploy"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2020-07-19"
+end = "2025-12-09"
+
+[[trusted.zbus_macros]]
+criteria = "safe-to-deploy"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2020-07-19"
+end = "2025-12-09"
+
+[[trusted.zbus_names]]
+criteria = "safe-to-deploy"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2021-07-30"
+end = "2025-12-09"
+
+[[trusted.zerofrom]]
+criteria = "safe-to-deploy"
+user-id = 1139 # Manish Goregaokar (Manishearth)
+start = "2022-04-06"
+end = "2025-12-09"
+
+[[trusted.zerofrom-derive]]
+criteria = "safe-to-deploy"
+user-id = 1139 # Manish Goregaokar (Manishearth)
+start = "2022-04-06"
+end = "2025-12-09"
+
+[[trusted.zvariant]]
+criteria = "safe-to-deploy"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2019-12-30"
+end = "2025-12-09"
+
+[[trusted.zvariant_derive]]
+criteria = "safe-to-deploy"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2020-05-22"
+end = "2025-12-09"
+
+[[trusted.zvariant_utils]]
+criteria = "safe-to-deploy"
+user-id = 6423 # Zeeshan Ali Khan (zeenix)
+start = "2023-03-07"
+end = "2025-12-09"
