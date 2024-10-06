@@ -43,13 +43,7 @@ jobs:
           components: rustfmt, clippy
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
 
-      - name: Rust cache
-        uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
-        with:
-          save-if: ${{ github.ref == 'refs/heads/main' }}
-          workspaces: |
-            .
-            src-tauri
+      - uses: ./.github/workflows/build-dependencies.yml
 
       - name: Install dependencies (ubuntu only)
         if: contains(matrix.platform, 'ubuntu')
@@ -87,24 +81,6 @@ jobs:
       - name: Run tests
         run: |
           cargo test
-
-      - name: Cached install trunk
-        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
-        with:
-          tool: trunk@0.20.3
-          locked: true
-
-      - name: Cached install cargo-auditable
-        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
-        with:
-          tool: cargo-auditable@0.6.4
-          locked: true
-
-      - name: Cached install tauri-cli
-        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
-        with:
-          tool: tauri-cli@2.0.0
-          locked: true
 
       - name: Build using tauri action
         uses: tauri-apps/tauri-action@8c3e0753aa015d00d03631d6d4f64ad59489251d # v0.5.15
