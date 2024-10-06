@@ -724,6 +724,20 @@ fn Browse() -> impl IntoView {
     }
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateMetadata {
+    version: String,
+    current_version: String,
+}
+async fn fetch_update() -> Option<UpdateMetadata> {
+    invoke::<Option<UpdateMetadata>>("fetch_update", &()).await
+}
+
+async fn install_update() {
+    invoke_unit("install_update").await;
+}
+
 #[derive(Serialize, Deserialize)]
 struct OpenArgs<'a> {
     url: &'a str,
@@ -745,7 +759,29 @@ const GITHUB_BASE_URL: &str = "https://github.com/hrzlgnm/mdns-browser";
 #[component]
 pub fn About() -> impl IntoView {
     let (version, set_version) = create_signal(String::new());
+    let (update, set_update) = create_signal(None);
     create_local_resource(move || set_version, get_version);
+
+    let fetch_update_action = create_action(move |_: &()| async move {
+        let update = fetch_update().await;
+        log::debug!("got update: {:?}", update);
+        set_update.set(update);
+    });
+
+    let install_update_action = create_action(move |_: &()| async move {
+        install_update().await;
+    });
+
+    let can_install = Signal::derive(move || update.get().is_some());
+    let installable_version = Signal::derive(move || {
+        update
+            .get()
+            .map_or_else(|| "".to_string(), |metadata| metadata.version)
+    });
+    let on_install_update_click = move |_| {
+        install_update_action.dispatch(());
+    };
+
     let github_action = create_action(|action: &String| {
         let action = action.clone();
         log::debug!("Opening {}", action);
@@ -773,6 +809,9 @@ pub fn About() -> impl IntoView {
         github_action.dispatch(format!("{}/releases/", GITHUB_BASE_URL));
     };
 
+    let on_check_update_click = move |_| {
+        fetch_update_action.dispatch(());
+    };
     view! {
         <Layout style="padding: 10px;">
             <Collapse accordion=true>
@@ -807,12 +846,36 @@ pub fn About() -> impl IntoView {
                         >
                             "Releases"
                         </Button>
+                        <Show
+                            when=move || { can_install.get() }
+                            fallback=move || {
+                                view! {
+                                    <Button
+                                        size=ButtonSize::Tiny
+                                        on_click=on_check_update_click
+                                        icon=icondata::RiDownloadSystemLine
+                                    >
+                                        "Check for updates"
+                                    </Button>
+                                }
+                            }
+                        >
+                            <Button
+                                size=ButtonSize::Tiny
+                                on_click=on_install_update_click
+                                icon=icondata::RiInstallDeviceLine
+                            >
+                                "Download and Install "
+                                {{ installable_version }}
+                            </Button>
+                        </Show>
                     </Space>
                 </CollapseItem>
             </Collapse>
         </Layout>
     }
 }
+
 /// Component for metrics
 #[component]
 pub fn Metrics() -> impl IntoView {
@@ -845,7 +908,6 @@ pub fn Metrics() -> impl IntoView {
                                         })
                                         .collect::<Vec<_>>()
                                 }}
-
                             </tbody>
                         </Table>
                     </Space>

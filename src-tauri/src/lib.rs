@@ -18,8 +18,6 @@ use tauri_plugin_shell::ShellExt;
 
 #[cfg(desktop)]
 use tauri_plugin_log::{Target, TargetKind};
-#[cfg(desktop)]
-use tauri_plugin_updater::UpdaterExt;
 
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
@@ -415,10 +413,70 @@ fn copy_to_clipboard(window: Window, contents: String) {
 }
 
 #[cfg(desktop)]
-async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
-    if let Some(update) = app.updater()?.check().await? {
-        let mut downloaded = 0;
+mod app_updates {
+    use serde::Serialize;
+    use std::sync::Mutex;
+    use tauri::{AppHandle, State};
+    use tauri_plugin_updater::{Update, UpdaterExt};
 
+    #[derive(Debug, thiserror::Error)]
+    pub enum Error {
+        #[error(transparent)]
+        Updater(#[from] tauri_plugin_updater::Error),
+        #[error("there is no pending update")]
+        NoPendingUpdate,
+    }
+
+    impl Serialize for Error {
+        fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer,
+        {
+            serializer.serialize_str(self.to_string().as_str())
+        }
+    }
+
+    type Result<T> = std::result::Result<T, Error>;
+
+    #[derive(Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct UpdateMetadata {
+        version: String,
+        current_version: String,
+    }
+
+    #[tauri::command]
+    pub async fn fetch_update(
+        app: AppHandle,
+        pending_update: State<'_, PendingUpdate>,
+    ) -> Result<Option<UpdateMetadata>> {
+        let update = app
+            .updater_builder()
+            .version_comparator(|current, update| update.version != current)
+            .build()?
+            .check()
+            .await?;
+
+        let update_metadata = update.as_ref().map(|update| UpdateMetadata {
+            version: update.version.clone(),
+            current_version: update.current_version.clone(),
+        });
+
+        *pending_update.0.lock().unwrap() = update;
+
+        Ok(update_metadata)
+    }
+
+    #[tauri::command]
+    pub async fn install_update(
+        app: AppHandle,
+        pending_update: State<'_, PendingUpdate>,
+    ) -> Result<()> {
+        let Some(update) = pending_update.0.lock().unwrap().take() else {
+            return Err(Error::NoPendingUpdate);
+        };
+
+        let mut downloaded = 0;
         update
             .download_and_install(
                 |chunk_length, content_length| {
@@ -433,11 +491,9 @@ async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
 
         log::info!("update installed, restarting");
         app.restart();
-    } else {
-        log::info!("No updates are available");
     }
 
-    Ok(())
+    pub struct PendingUpdate(pub Mutex<Option<Update>>);
 }
 
 #[cfg(desktop)]
@@ -449,6 +505,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
+        .manage(app_updates::PendingUpdate(Mutex::new(None)))
         .plugin(
             tauri_plugin_log::Builder::default()
                 .targets([
@@ -460,22 +517,18 @@ pub fn run() {
         )
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
-            let handle = app.handle().clone();
-            tauri::async_runtime::spawn(async move {
-                let _ = update(handle)
-                    .await
-                    .map_err(|err| log::error!("Failed to check for updates: {}", err));
-            });
             let splashscreen_window = app.get_webview_window("splashscreen").unwrap();
             let main_window = app.get_webview_window("main").unwrap();
             tauri::async_runtime::spawn(async move {
-                std::thread::sleep(std::time::Duration::from_secs(3));
+                tokio::time::sleep(Duration::from_secs(3)).await;
                 splashscreen_window.close().unwrap();
                 main_window.show().unwrap();
             });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            app_updates::fetch_update,
+            app_updates::install_update,
             browse,
             browse_types,
             copy_to_clipboard,
