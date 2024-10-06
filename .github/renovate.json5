@@ -32,7 +32,8 @@
             ],
             "depTypeTemplate": "build-dependencies",
             "datasourceTemplate": "crate",
-            "versioningTemplate": "cargo"
+            "versioningTemplate": "cargo",
+            "fixedVersionTemplate": "{{currentValue}}"
         }
     ]
 }
