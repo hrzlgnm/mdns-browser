@@ -12,6 +12,7 @@ tauri-build = { version = "2.0.0", features = [] }
 clap = { version = "4.5.19", features = ["derive"] }
 tauri-plugin-log = "2.0.0"
 tauri-plugin-updater = "2.0.1"
+thiserror = "1.0.64"
 
 [dependencies]
 log = "0.4.22"
@@ -21,6 +22,7 @@ serde_json = "1.0.128"
 tauri = { version = "2.0.0", features = [] }
 tauri-plugin-clipboard-manager = "2.0.0"
 tauri-plugin-shell = "2"
+tokio = "1.40.0"
 
 [lib]
 name = "mdns_browser_lib"

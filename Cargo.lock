@@ -2966,6 +2966,8 @@ dependencies = [
  "tauri-plugin-log",
  "tauri-plugin-shell",
  "tauri-plugin-updater",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -2987,6 +2989,7 @@ dependencies = [
  "tauri-sys",
  "thaw",
  "thaw_utils",
+ "tokio",
 ]
 
 [[package]]
