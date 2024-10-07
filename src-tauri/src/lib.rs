@@ -516,16 +516,6 @@ pub fn run() {
                 .build(),
         )
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .setup(|app| {
-            let splashscreen_window = app.get_webview_window("splashscreen").unwrap();
-            let main_window = app.get_webview_window("main").unwrap();
-            tauri::async_runtime::spawn(async move {
-                tokio::time::sleep(Duration::from_secs(3)).await;
-                splashscreen_window.close().unwrap();
-                main_window.show().unwrap();
-            });
-            Ok(())
-        })
         .invoke_handler(tauri::generate_handler![
             app_updates::fetch_update,
             app_updates::install_update,
