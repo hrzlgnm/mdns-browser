@@ -73,15 +73,8 @@ jobs:
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.11902837
           TAURI_ANDROID_PACKAGE_UNESCAPED: "com.github.hrzlgnm.mdns-browser"
-      - name: Extract version from tauri.android.conf.json (publish only)
-        if: inputs.publish
-        id: get-version
-        run: |
-          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
-          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Extract android signing key from env (publish only)
-        if: inputs.publish
         run: |
           echo "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > src-tauri/gen/android/release.jks.base64
           base64 -d src-tauri/gen/android/release.jks.base64 > src-tauri/gen/android/release.decrypted.jks
@@ -102,6 +95,13 @@ jobs:
           name: "singned-apk"
           path: |
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk
+
+      - name: Extract version from tauri.android.conf.json (publish only)
+        if: inputs.publish
+        id: get-version
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
+          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Rename APK file (publish only)
         if: inputs.publish
