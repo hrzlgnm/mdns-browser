@@ -30,6 +30,7 @@
             "matchStrings": [
                 "tool:\\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)"
             ],
+            "currentValueTemplate": "v${{currentValue}}",
             "depTypeTemplate": "build-dependencies",
             "datasourceTemplate": "crate",
             "versioningTemplate": "cargo"
