@@ -62,7 +62,7 @@ jobs:
       - name: Cached install tauri-cli
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
-          tool: tauri-cli@2.0.1
+          tool: tauri-cli@2.0.3
           locked: true
 
       - name: Build app bundle
