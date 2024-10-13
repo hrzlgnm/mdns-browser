@@ -72,7 +72,6 @@ jobs:
           cargo --locked auditable tauri android build
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.11902837
-          TAURI_ANDROID_PACKAGE_UNESCAPED: "com.github.hrzlgnm.mdns-browser"
 
       - name: Extract android signing key from env (publish only)
         run: |
