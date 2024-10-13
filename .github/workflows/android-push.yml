@@ -1,17 +1,17 @@
-name: "Desktop PR"
+name: "Android Push"
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
 concurrency:
   # On main, we want all builds to complete even if merging happens faster to make it easier to discover at which point something broke.
-  group: ${{ github.ref == 'refs/heads/main' && format('desktop-main-{0}', github.sha) || format('desktop-{0}', github.ref) }}
+  group: ${{ github.ref == 'refs/heads/main' && format('android-main-{0}', github.sha) || format('android-{0}', github.ref) }}
 
 jobs:
-  pr:
+  push:
     permissions:
       contents: write
-    uses: ./.github/workflows/desktop-tauri.yml
+    uses: ./.github/workflows/android.yml
     secrets: inherit
