@@ -62,7 +62,7 @@ jobs:
         if: contains(matrix.platform, 'ubuntu')
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
-          tool: cargo-make@0.37.21
+          tool: cargo-make@0.37.22
           locked: true
 
       - name: Run codespell (ubuntu only)
