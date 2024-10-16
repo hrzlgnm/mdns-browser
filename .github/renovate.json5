@@ -23,14 +23,15 @@
     },
     "customManagers": [
         {
+            "matchStringsStrategy": "combination",
             "customType": "regex",
             "fileMatch": [
                 "^\\.github/workflows/.*\\.yml$"
             ],
             "matchStrings": [
-                "tool:\\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)"
+                "tool:\\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)",
+                "cargo binstall \\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)"
             ],
-            "autoReplaceStringTemplate": "tool: {{{depName}}}@{{{newValue}}}",
             "depTypeTemplate": "build-dependencies",
             "datasourceTemplate": "crate",
             // In cargo versioning, "1.2.3" doesn't mean "exactly 1.2.3" but rather ">=1.2.3 <2.0.0".
