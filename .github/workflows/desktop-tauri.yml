@@ -98,7 +98,7 @@ jobs:
 
       - name: Install cargo-binstall (windows only)
         if: contains(matrix.platform, 'windows')
-        uses: cargo-bins/cargo-binstall@v1.10.8
+        uses: cargo-bins/cargo-binstall@4675f622c92bd9f642fc5a0117c7bfe984979c57 # v1.10.8
       - name: Install trunk via binstall (windows only)
         if: contains(matrix.platform, 'windows')
         env:
