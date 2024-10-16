@@ -89,17 +89,17 @@ jobs:
           cargo test
 
       - name: Cached install trunk not on windows
-        if: (!platform.contains("windows"))
+        if: (!contains(matrix.platform, "windows"))
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: trunk@0.20.3
           locked: true
 
       - name: Install cargo-binstall (windows only)
-        if: platform.contains("windows")
+        if: contains(matrix.platform, "windows")
         uses: cargo-bins/cargo-binstall@v1.10.8
       - name: Install trunk via binstall (windows only)
-        if: platform.contains("windows")
+        if: contains(matrix.platform, "windows")
         env:
           BINSTALL_DISABLE_TELEMETRY: true
         run: |
