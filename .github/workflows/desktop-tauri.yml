@@ -23,23 +23,26 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: "macos-latest" # for Arm based macs (M1 and above).
+          - os: "macos-latest" # for Arm based macs (M1 and above).
             args: "--target aarch64-apple-darwin"
-          - platform: "macos-latest" # for Intel based macs.
+            symbol: 🍏
+          - os: "macos-latest" # for Intel based macs.
             args: "--target x86_64-apple-darwin"
-          - platform: "ubuntu-latest"
-            args: ""
+            symbol: 🍎
+          - os: "ubuntu-latest"
+            symbol: 🐧
             install: |
               sudo apt-get update
               sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf python3-pip
               sudo python3 -m pip install codespell
-          - platform: "windows-latest"
-            args: ""
+          - os: "windows-latest"
+            symbol: 🪟
             install: |
               echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
               vcpkg install openssl:x64-windows-static-md
 
-    runs-on: ${{ matrix.platform }}
+    name: ${{matrix.symbol}}
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
@@ -48,7 +51,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
+          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
 
       - name: Rust cache
         uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
@@ -58,31 +61,53 @@ jobs:
             .
             src-tauri
 
+      - name: Export GitHub Actions cache environment variables windows
+        if: contains(matrix.os, 'windows')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
       - name: Setup | Install dependencies
         if: matrix.install != ''
         run: ${{ matrix.install }}
+        env:
+          VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
 
       - name: Cached install cargo-make (ubuntu only)
-        if: contains(matrix.platform, 'ubuntu')
+        if: contains(matrix.os, 'ubuntu')
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: cargo-make@0.37.22
           locked: true
 
       - name: Run codespell (ubuntu only)
-        if: contains(matrix.platform, 'ubuntu')
+        if: contains(matrix.os, 'ubuntu')
         run: |
           cargo make codespell
 
+      - name: Cached install leptosfmt (macos only)
+        if: contains(matrix.os, 'macos')
+        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
+        with:
+          tool: leptosfmt@0.1.32
+          locked: true
+
+      - name: Run leptosfmt and fail if any warnings (macos only)
+        if: contains(matrix.os, 'macos')
+        run: |
+          leptosfmt --check src
+
       - name: Run rustfmt and fail if any warnings (macos only)
-        if: contains(matrix.platform, 'macos')
+        if: contains(matrix.os, 'macos')
         run: |
           cargo fmt -- --check
           cd src-tauri
           cargo fmt -- --check
 
       - name: Run clippy and fail if any warnings (macos only)
-        if: contains(matrix.platform, 'macos')
+        if: contains(matrix.os, 'macos')
         run: |
           cargo clippy -- -D warnings
           cd src-tauri
@@ -129,7 +154,7 @@ jobs:
         if: (inputs.tagName == '')
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: "bundles-${{matrix.platform}}${{matrix.args}}"
+          name: "bundles-${{matrix.os}}${{matrix.args}}"
           path: |
             target/**/release/bundle
             target/**/release/mdns-browser*
@@ -152,16 +177,16 @@ jobs:
         with:
           format: "spdx-json"
           output-file: "sbom.spdx.json"
-          artifact-name: "${{ matrix.platform }}${{ matrix.args }}.sbom.spdx.json"
+          artifact-name: "${{ matrix.os }}${{ matrix.args }}.sbom.spdx.json"
 
       - name: Attest SBOM
         if: inputs.tagName != ''
         uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
         with:
           subject-path: ${{
-            contains(matrix.platform, 'ubuntu') && 'target/release/mdns-browser' ||
-            contains(matrix.platform, 'windows') && 'target/release/mdns-browser.exe' ||
-            (contains(matrix.platform, 'macos') && contains(matrix.args, 'x86_64')) && 'target/x86_64-apple-darwin/release/mdns-browser' ||
-            (contains(matrix.platform, 'macos') && contains(matrix.args, 'aarch64')) && 'target/aarch64-apple-darwin/release/mdns-browser'
+            contains(matrix.os, 'ubuntu') && 'target/release/mdns-browser' ||
+            contains(matrix.os, 'windows') && 'target/release/mdns-browser.exe' ||
+            (contains(matrix.os, 'macos') && contains(matrix.args, 'x86_64')) && 'target/x86_64-apple-darwin/release/mdns-browser' ||
+            (contains(matrix.os, 'macos') && contains(matrix.args, 'aarch64')) && 'target/aarch64-apple-darwin/release/mdns-browser'
             }}
           sbom-path: "sbom.spdx.json"
