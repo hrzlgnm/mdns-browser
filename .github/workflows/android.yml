@@ -22,25 +22,26 @@ jobs:
     name: "📦"
     steps:
       - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        name: "🔄 Checkout repository"
 
-      - name: Setup Java
+      - name: "☕ Setup Java"
         uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
         with:
           distribution: "zulu"
           java-version: "17"
 
-      - name: Setup Android SDK
+      - name: "🤖 Setup Android SDK"
         uses: android-actions/setup-android@00854ea68c109d98c75d956347303bf7c45b0277 # v3
 
-      - name: Install NDK
+      - name: "🛠️ Install NDK"
         run: sdkmanager "ndk;27.0.11902837"
 
-      - name: Install rust stable
+      - name: "🦀 Install rust stable"
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
 
-      - name: Rust Cache
+      - name: "📦 Rust Cache"
         uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
@@ -48,25 +49,25 @@ jobs:
             .
             src-tauri
 
-      - name: Cached install trunk
+      - name: "📥 Cached install trunk"
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: trunk@0.21.1
           locked: true
 
-      - name: Cached install cargo-auditable
+      - name: "📥 Cached install cargo-auditable"
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: cargo-auditable@0.6.4
           locked: true
 
-      - name: Cached install tauri-cli
+      - name: "📥 Cached install tauri-cli"
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: tauri-cli@2.0.3
           locked: true
 
-      - name: Build app bundle
+      - name: "🔨 Build app bundle"
         run: |
           cargo --locked auditable tauri android init
           cp -a src-tauri/icons/android/mipmap-* src-tauri/gen/android/app/src/main/res/
@@ -74,12 +75,12 @@ jobs:
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.11902837
 
-      - name: Extract android signing key from env (publish only)
+      - name: "🔑 Extract android signing key from env (publish only)"
         run: |
           echo "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > src-tauri/gen/android/release.jks.base64
           base64 -d src-tauri/gen/android/release.jks.base64 > src-tauri/gen/android/release.decrypted.jks
 
-      - name: Sign APK
+      - name: "🔏 Sign APK"
         run: |
           ${{ env.ANDROID_HOME }}/build-tools/34.0.0/apksigner sign --ks src-tauri/gen/android/release.decrypted.jks \
             --ks-key-alias ${{ secrets.ANDROID_RELEASE_KEY }} \
@@ -88,27 +89,27 @@ jobs:
             --out src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk \
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
 
-      - name: Upload build artifacts (push or pr builds only)
+      - name: "📤 Upload build artifacts (push or pr builds only)"
         if: (!inputs.publish)
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: "singned-apk"
+          name: "signed-apk"
           path: |
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk
 
-      - name: Extract version from tauri.android.conf.json (publish only)
+      - name: "📝 Extract version from tauri.android.conf.json (publish only)"
         if: inputs.publish
         id: get-version
         run: |
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
           echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Rename APK file (publish only)
+      - name: "✏️  Rename APK file (publish only)"
         if: inputs.publish
         run: |
           mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_v${{ steps.get-version.outputs.current-version }}.apk
 
-      - name: Publish (publish only)
+      - name: "🚀 Publish (publish only)"
         if: inputs.publish
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
         with:
@@ -119,7 +120,7 @@ jobs:
           files: |
             src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_v${{ steps.get-version.outputs.current-version }}.apk
 
-      - name: Attest build provenance (publish only)
+      - name: "🛡️ Attest build provenance (publish only)"
         if: inputs.publish
         uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
         with:
