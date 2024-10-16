@@ -25,21 +25,23 @@ jobs:
         include:
           - os: "macos-latest" # for Arm based macs (M1 and above).
             args: "--target aarch64-apple-darwin"
-            arch: "-aarch64"
+            symbol: 🍏
           - os: "macos-latest" # for Intel based macs.
             args: "--target x86_64-apple-darwin"
-            arch: "-x86_64"
+            symbol: 🍎
           - os: "ubuntu-latest"
+            symbol: 🐧
             install: |
               sudo apt-get update
               sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf python3-pip
               sudo python3 -m pip install codespell
           - os: "windows-latest"
+            symbol: 🪟
             install: |
               echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
               vcpkg install openssl:x64-windows-static-md
 
-    name: ${{matrix.os}}${{matrix.arch}}
+    name: ${{matrix.symbol}}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout

@@ -1,4 +1,4 @@
-name: "Desktop publish release assets"
+name: "🖥️"
 
 on:
   push:

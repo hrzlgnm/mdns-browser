@@ -1,4 +1,4 @@
-name: "Desktop PR"
+name: "🖥️"
 
 on:
   pull_request:
