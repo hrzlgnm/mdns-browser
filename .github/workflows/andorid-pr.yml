@@ -1,4 +1,4 @@
-name: "Android PR"
+name: "📱"
 
 on:
   pull_request:
