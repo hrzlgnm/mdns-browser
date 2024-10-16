@@ -104,7 +104,7 @@ jobs:
         env:
           BINSTALL_DISABLE_TELEMETRY: true
         run: |
-          cargo binstall trunk@0.20.3
+          cargo binstall --no-confirm trunk@0.20.3
 
       - name: Cached install cargo-auditable
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
