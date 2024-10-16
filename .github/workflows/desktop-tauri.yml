@@ -25,8 +25,10 @@ jobs:
         include:
           - os: "macos-latest" # for Arm based macs (M1 and above).
             args: "--target aarch64-apple-darwin"
+            arch: "-aarch64"
           - os: "macos-latest" # for Intel based macs.
             args: "--target x86_64-apple-darwin"
+            arch: "-x86_64"
           - os: "ubuntu-latest"
             install: |
               sudo apt-get update
@@ -37,7 +39,7 @@ jobs:
               echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
               vcpkg install openssl:x64-windows-static-md
 
-    name: ${{matrix.os}}${{matrix.args}}
+    name: ${{matrix.os}}${{matrix.arch}}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
