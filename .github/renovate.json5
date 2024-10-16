@@ -30,7 +30,7 @@
             ],
             "matchStrings": [
                 "tool:\\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)",
-                "cargo binstall --no-confirm \\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)"
+                "cargo binstall --signed-only --no-confirm \\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)"
             ],
             "depTypeTemplate": "build-dependencies",
             "datasourceTemplate": "crate",
