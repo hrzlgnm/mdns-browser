@@ -37,7 +37,7 @@ jobs:
               echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
               vcpkg install openssl:x64-windows-static-md
 
-    name: build-${{matrix.os}}-${{matrix.args}}
+    name: ${{matrix.os}}${{matrix.args}}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
