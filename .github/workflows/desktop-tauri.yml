@@ -57,9 +57,19 @@ jobs:
             .
             src-tauri
 
+      - name: Export GitHub Actions cache environment variables windows
+        if: contains(matrix.os, 'windows')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
       - name: Setup | Install dependencies
         if: matrix.install != ''
         run: ${{ matrix.install }}
+        env:
+          VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
 
       - name: Cached install cargo-make (ubuntu only)
         if: contains(matrix.os, 'ubuntu')
