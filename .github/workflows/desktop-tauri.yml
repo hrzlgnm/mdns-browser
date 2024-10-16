@@ -89,7 +89,8 @@ jobs:
           cargo test
 
       - name: Cached install trunk not on windows
-        if: not(contains(matrix.platform, 'windows'))
+        # yikes
+        if: ${{ not(contains(matrix.platform, 'windows')) }}
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: trunk@0.20.3
