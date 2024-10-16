@@ -27,10 +27,17 @@ jobs:
             args: "--target aarch64-apple-darwin"
           - platform: "macos-latest" # for Intel based macs.
             args: "--target x86_64-apple-darwin"
-          - platform: "ubuntu-22.04"
+          - platform: "ubuntu-latest"
             args: ""
+            install: |
+              sudo apt-get update
+              sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf python3-pip
+              sudo python3 -m pip install codespell
           - platform: "windows-latest"
             args: ""
+            install: |
+              echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
+              vcpkg install openssl:x64-windows-static-md
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -51,12 +58,9 @@ jobs:
             .
             src-tauri
 
-      - name: Install dependencies (ubuntu only)
-        if: contains(matrix.platform, 'ubuntu')
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf python3-pip
-          sudo python3 -m pip install codespell
+      - name: Setup | Install dependencies
+        if: matrix.install != ''
+        run: ${{ matrix.install }}
 
       - name: Cached install cargo-make (ubuntu only)
         if: contains(matrix.platform, 'ubuntu')
@@ -88,23 +92,11 @@ jobs:
         run: |
           cargo test
 
-      - name: Cached install trunk not on windows
-        # yikes
-        if: contains(matrix.platform, 'windows') == false
+      - name: Cached install trunk
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: trunk@0.20.3
           locked: true
-
-      - name: Install cargo-binstall (windows only)
-        if: contains(matrix.platform, 'windows')
-        uses: cargo-bins/cargo-binstall@v1.10.8
-      - name: Install trunk via binstall (windows only)
-        if: contains(matrix.platform, 'windows')
-        env:
-          BINSTALL_DISABLE_TELEMETRY: true
-        run: |
-          cargo binstall --only-signed --no-confirm trunk@0.20.3
 
       - name: Cached install cargo-auditable
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
