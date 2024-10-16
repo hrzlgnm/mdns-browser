@@ -23,7 +23,7 @@
     },
     "customManagers": [
         {
-            "matchStringsStrategy": "combination",
+            "matchStringsStrategy": "any",
             "customType": "regex",
             "fileMatch": [
                 "^\\.github/workflows/.*\\.yml$"
