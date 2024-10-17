@@ -346,7 +346,10 @@ async fn copy_to_clipboard(contents: String) {
 
 /// Component that allows to copy the shown text to the clipboard
 #[component]
-fn ToClipBoardCopyable(text: Option<String>) -> impl IntoView {
+fn ToClipBoardCopyable(
+    text: Option<String>,
+    #[prop(optional, into)] disabled: MaybeSignal<bool>,
+) -> impl IntoView {
     let (text_to_copy, _) = create_signal(text.clone().unwrap_or(String::from("")));
     let copy_to_clipboard_action = create_action(|input: &String| {
         let input = input.clone();
@@ -361,6 +364,7 @@ fn ToClipBoardCopyable(text: Option<String>) -> impl IntoView {
     view! {
         {text}
         <Button
+            disabled=disabled
             on_click=on_copy_to_clibboard_click
             variant=ButtonVariant::Text
             icon=icondata::TbClipboardText
@@ -429,7 +433,7 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                     </Modal>
                 </Space>
                 <CardFooter slot>
-                    <ToClipBoardCopyable text=addrs_footer.first().cloned() />
+                    <ToClipBoardCopyable disabled=resolved_service.dead text=addrs_footer.first().cloned() />
                 </CardFooter>
             </Card>
         </GridItem>
