@@ -1,13 +1,13 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "automergeType": "pr",
-    "patch": {
-        "automerge": true
+    $schema: "https://docs.renovatebot.com/renovate-schema.json",
+    automergeType: "pr",
+    patch: {
+        automerge: true
     },
-    "minor": {
-        "automerge": true
+    minor: {
+        automerge: true
     },
-    "extends": [
+    extends: [
         "config:best-practices",
         ":dependencyDashboard",
         ":enableVulnerabilityAlerts",
@@ -15,27 +15,28 @@
         ":semanticCommits",
         ":semanticPrefixChore",
         ":separateMajorReleases",
-        ":prImmediately"
+        ":prImmediately",
     ],
-    "prConcurrentLimit": 0,
-    "lockFileMaintenance": {
-        "enabled": true
+    prConcurrentLimit: 0,
+    lockFileMaintenance: {
+        enabled: true
     },
-    "customManagers": [
+    customManagers: [
         {
-            "matchStringsStrategy": "any",
-            "customType": "regex",
-            "fileMatch": [
+            matchStringsStrategy: "any",
+            customType: "regex",
+            fileMatch: [
                 "^\\.github/workflows/.*\\.yml$"
             ],
-            "matchStrings": [
+            matchStrings: [
                 "tool:\\s*(?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[0-9\\.]+)"
             ],
-            "depTypeTemplate": "build-dependencies",
-            "datasourceTemplate": "crate",
+            depTypeTemplate: "build-dependencies",
+            datasourceTemplate: "crate",
             // In cargo versioning, "1.2.3" doesn't mean "exactly 1.2.3" but rather ">=1.2.3 <2.0.0".
             // We on the other hand do want to treat versions as fixed - so we change versioning strategy.
-            "versioningTemplate": "semver"
+            versioningTemplate: "semver"
         }
     ]
 }
+
