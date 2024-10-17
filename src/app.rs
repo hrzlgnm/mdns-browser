@@ -433,7 +433,10 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                     </Modal>
                 </Space>
                 <CardFooter slot>
-                    <ToClipBoardCopyable disabled=resolved_service.dead text=addrs_footer.first().cloned() />
+                    <ToClipBoardCopyable
+                        disabled=resolved_service.dead
+                        text=addrs_footer.first().cloned()
+                    />
                 </CardFooter>
             </Card>
         </GridItem>
