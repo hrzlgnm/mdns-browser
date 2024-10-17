@@ -44,16 +44,16 @@ jobs:
     name: ${{matrix.symbol}}
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout
+      - name: 🔄 Checkout
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
 
-      - name: Install rust stable
+      - name: 🦀 Install rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
 
-      - name: Rust cache
+      - name: 📦 Rust Cache
         uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
@@ -61,7 +61,7 @@ jobs:
             .
             src-tauri
 
-      - name: Export GitHub Actions cache environment variables windows
+      - name: 🌍 Export GitHub Actions cache environment variables windows
         if: contains(matrix.os, 'windows')
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
         with:
@@ -69,73 +69,73 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      - name: Setup | Install dependencies
+      - name: 🛠️ Setup | Install dependencies
         if: matrix.install != ''
         run: ${{ matrix.install }}
         env:
           VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
 
-      - name: Cached install cargo-make (ubuntu only)
+      - name: 📥 Cached install cargo-make (ubuntu only)
         if: contains(matrix.os, 'ubuntu')
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: cargo-make@0.37.22
           locked: true
 
-      - name: Run codespell (ubuntu only)
+      - name: 📝 Run codespell (ubuntu only)
         if: contains(matrix.os, 'ubuntu')
         run: |
           cargo make codespell
 
-      - name: Cached install leptosfmt (macos only)
+      - name: 📥 Cached install leptosfmt (macos only)
         if: contains(matrix.os, 'macos')
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: leptosfmt@0.1.32
           locked: true
 
-      - name: Run leptosfmt and fail if any warnings (macos only)
+      - name: 📐 Run leptosfmt and fail if any warnings (macos only)
         if: contains(matrix.os, 'macos')
         run: |
           leptosfmt --check src
 
-      - name: Run rustfmt and fail if any warnings (macos only)
+      - name: 📐 Run rustfmt and fail if any warnings (macos only)
         if: contains(matrix.os, 'macos')
         run: |
           cargo fmt -- --check
           cd src-tauri
           cargo fmt -- --check
 
-      - name: Run clippy and fail if any warnings (macos only)
+      - name: 📎 Run clippy and fail if any warnings (macos only)
         if: contains(matrix.os, 'macos')
         run: |
           cargo clippy -- -D warnings
           cd src-tauri
           cargo clippy -- -D warnings
 
-      - name: Run tests
+      - name: ✅ Run tests
         run: |
           cargo test
 
-      - name: Cached install trunk
+      - name: 📥 Cached install trunk
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: trunk@0.21.1
           locked: true
 
-      - name: Cached install cargo-auditable
+      - name: 📥 Cached install cargo-auditable
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: cargo-auditable@0.6.4
           locked: true
 
-      - name: Cached install tauri-cli
+      - name: 📥 Cached install tauri-cli
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
           tool: tauri-cli@2.0.3
           locked: true
 
-      - name: Build using tauri action
+      - name: 🔨 Build using tauri action (publish artifacts on release)
         uses: tauri-apps/tauri-action@8c3e0753aa015d00d03631d6d4f64ad59489251d # v0.5.15
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -150,7 +150,7 @@ jobs:
           tauriScript: cargo --locked auditable tauri
           args: ${{ matrix.args }}
 
-      - name: Upload build artifacts (push or pr builds only)
+      - name: 📤 Upload build artifacts (push or pr builds only)
         if: (inputs.tagName == '')
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
@@ -159,7 +159,7 @@ jobs:
             target/**/release/bundle
             target/**/release/mdns-browser*
 
-      - name: Attest build provenance (publish release only)
+      - name: 🛡️ Attest build provenance (publish release only)
         if: (inputs.tagName != '')
         uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
         with:
@@ -172,14 +172,14 @@ jobs:
             target/**/release/mdns-browser
             target/release/mdns-browser.exe
 
-      - name: Create SBOM
+      - name: 📜 Create SBOM
         uses: anchore/sbom-action@8d0a6505bf28ced3e85154d13dc6af83299e13f1 # v0
         with:
           format: "spdx-json"
           output-file: "sbom.spdx.json"
           artifact-name: "${{ matrix.os }}${{ matrix.args }}.sbom.spdx.json"
 
-      - name: Attest SBOM
+      - name: 🛡️ Attest SBOM
         if: inputs.tagName != ''
         uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
         with:
