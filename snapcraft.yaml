@@ -1,14 +1,15 @@
 name: mdns-browser
-base: core22
+base: core24
 version: "0.8.14"
 summary: mDNS-Browser app
 description: |
   A cross platform mDNS-Browser app written in Rust using tauri and leptos
 grade: stable
 confinement: strict
-architectures:
-  - build-on: amd64
-    run-on: amd64
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: [arm64]
 
 layout:
   /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/webkit2gtk-4.1:
