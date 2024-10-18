@@ -60,5 +60,5 @@ parts:
       cargo --locked install tauri-cli --version ^2.0.3
       cargo --locked install cargo-auditable
       cargo --locked auditable tauri build -b deb
-      dpkg -x src-tauri/target/release/bundle/deb/*.deb $SNAPCRAFT_PART_INSTALL/
+      dpkg -x target/release/bundle/deb/*.deb $SNAPCRAFT_PART_INSTALL/
       sed -i -e "s|Icon=mdns-browser|Icon=/usr/share/icons/hicolor/32x32/apps/mdns-browser.png|g" $SNAPCRAFT_PART_INSTALL/usr/share/applications/mdns-browser.desktop
