@@ -7,6 +7,11 @@ on:
 
 jobs:
   update_release_draft:
+    permissions:
+      contents: write
+      # write permission is required for autolabeler
+      # otherwise, read permission is required at least
+      pull-requests: write
     runs-on: ubuntu-latest
     name: Release Drafter
     steps:
@@ -33,11 +38,5 @@ jobs:
 
       - name: Run Release Drafter
         uses: release-drafter/release-drafter@v6.0.0
-        with:
-          tag: ${{ steps.version.outputs.tag }}
-          name: ${{ steps.version.outputs.name }}
-          prerelease: true
-          latest: false
-          publish: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
