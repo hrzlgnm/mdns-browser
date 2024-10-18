@@ -33,18 +33,6 @@ categories:
     label: "dependencies"
     collapse-after: 1
 
-include-labels:
-  - "breaking-change"
-  - "build"
-  - "chore"
-  - "performance"
-  - "refactor"
-  - "new-feature"
-  - "bugfix"
-  - "dependencies"
-  - "test"
-  - "ci"
-
 template: |
 
   $CHANGES
