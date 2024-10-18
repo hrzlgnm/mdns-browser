@@ -51,6 +51,7 @@ parts:
     source: .
     override-build: |
       set -eu
+      rustup toolchain install stable --target wasm32-unknown-unknown --profile minimal --no-self-update
       cargo --locked install trunk --version ^0.21.1
       cargo --locked install tauri-cli --version ^2.0.3
       cargo --locked install cargo-auditable
