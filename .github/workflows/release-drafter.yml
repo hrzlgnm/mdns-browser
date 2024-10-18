@@ -29,12 +29,14 @@ jobs:
           echo Current version: v$current_version
           echo New target version: $new_version
           echo "tag=$tag_prefix-$new_version" >> "$GITHUB_OUTPUT"
-          echo "name=mDNS-Browser Release v$new_version" >> "$GITHUB_OUTPUT"
+          echo "name=mDNS-Browser Release $new_version" >> "$GITHUB_OUTPUT"
 
       - name: Run Release Drafter
         uses: release-drafter/release-drafter@v6.0.0
         with:
           tag: ${{ steps.version.outputs.tag }}
           name: ${{ steps.version.outputs.name }}
+          prerelease: true
+          make_latest: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
