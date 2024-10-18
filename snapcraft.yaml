@@ -6,6 +6,7 @@ description: |
   A cross platform mDNS-Browser app written in Rust using tauri and leptos
 grade: stable
 confinement: strict
+architectures: [amd64]
 
 layout:
   /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/webkit2gtk-4.1:
