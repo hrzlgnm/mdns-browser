@@ -1,0 +1,4 @@
+enhancement: ["feature/*", "feat/*"]
+dependencies: ["renovate/*"]
+bug: fix/*
+chore :hammer:: chore/*
