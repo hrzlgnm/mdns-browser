@@ -1,0 +1,40 @@
+name: Release Drafter
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    name: Release Drafter
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4.2.1
+        with:
+          fetch-depth: 0
+
+      - name: Find Next Version
+        id: version
+        run: |
+          tag_prefix="mdns-browser-"
+          current_version=$(jq -r '.version' src-tauri/tauri.conf.json)
+          IFS='.' read -r -a version_parts <<< "$current_version"
+          major=${version_parts[0]}
+          minor=${version_parts[1]}
+          patch=${version_parts[2]}
+          new_patch=$((patch + 1))
+          new_version="v$major.$minor.$new_patch"
+          echo Current version: v$current_version
+          echo New target version: $new_version
+          echo "tag=$tag_prefix-$new_version" >> "$GITHUB_OUTPUT"
+          echo "name=mDNS-Browser Release v$new_version" >> "$GITHUB_OUTPUT"
+
+      - name: Run Release Drafter
+        uses: release-drafter/release-drafter@v6.0.0
+        with:
+          tag: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
