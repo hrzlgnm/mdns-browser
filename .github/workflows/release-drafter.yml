@@ -16,7 +16,7 @@ jobs:
     name: Release Drafter
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
         with:
           fetch-depth: 0
 
@@ -37,6 +37,6 @@ jobs:
           echo "name=mDNS-Browser Release $new_version" >> "$GITHUB_OUTPUT"
 
       - name: Run Release Drafter
-        uses: release-drafter/release-drafter@v6.0.0
+        uses: release-drafter/release-drafter@3f0f87098bd6b5c5b9a36d49c41d998ea58f9348 # v6.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
