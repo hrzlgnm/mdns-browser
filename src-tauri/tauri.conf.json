@@ -8,11 +8,10 @@
     "bundle": {
         "active": true,
         "targets": [
+            "app",
             "deb",
-            "appimage",
-            "nsis",
             "dmg",
-            "app"
+            "nsis"
         ],
         "icon": [
             "icons/32x32.png",
@@ -21,7 +20,7 @@
             "icons/icon.icns",
             "icons/icon.ico"
         ],
-        "createUpdaterArtifacts": "v1Compatible",
+        "createUpdaterArtifacts": true,
         "linux": {
             "deb": {
                 "files": {
@@ -31,7 +30,7 @@
         }
     },
     "productName": "mdns-browser",
-    "version": "0.8.14",
+    "version": "0.9.0",
     "identifier": "com.github.hrzlgnm.mdns-browser",
     "plugins": {
         "updater": {
