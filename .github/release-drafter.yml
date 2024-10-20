@@ -39,6 +39,7 @@ template: |
   $CHANGES
 
 footer: |
+
   ## Auditable binaries since v0.8.x
   The binaries built for desktop targets are now all build in auditable mode using [cargo-auditable](https://github.com/rust-secure-code/cargo-auditable?tab=readme-ov-file#cargo-auditable).
   For information on how to audit the binaries see [Usage](https://github.com/rust-secure-code/cargo-auditable?tab=readme-ov-file#usage)
