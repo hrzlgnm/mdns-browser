@@ -21,7 +21,14 @@
             "icons/icon.icns",
             "icons/icon.ico"
         ],
-        "createUpdaterArtifacts": "v1Compatible"
+        "createUpdaterArtifacts": "v1Compatible",
+        "linux": {
+            "deb": {
+                "files": {
+                    "/usr/share/licenses/mdns-browser/LICENSE": "../LICENSE"
+                }
+            }
+        }
     },
     "productName": "mdns-browser",
     "version": "0.8.14",
