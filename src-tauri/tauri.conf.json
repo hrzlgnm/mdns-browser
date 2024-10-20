@@ -8,11 +8,10 @@
     "bundle": {
         "active": true,
         "targets": [
+            "app",
             "deb",
-            "appimage",
-            "nsis",
             "dmg",
-            "app"
+            "nsis"
         ],
         "icon": [
             "icons/32x32.png",
