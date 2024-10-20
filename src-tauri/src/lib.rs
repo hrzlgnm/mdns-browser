@@ -397,6 +397,19 @@ fn is_desktop() -> bool {
     true
 }
 
+#[cfg(desktop)]
+#[tauri::command]
+fn can_auto_update() -> bool {
+    #[cfg(target_os = "linux")]
+    {
+        false
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        true
+    }
+}
+
 #[cfg(not(desktop))]
 #[tauri::command]
 fn is_desktop() -> bool {
@@ -531,6 +544,7 @@ pub fn run() {
             app_updates::install_update,
             browse,
             browse_types,
+            can_auto_update,
             copy_to_clipboard,
             is_desktop,
             open,
