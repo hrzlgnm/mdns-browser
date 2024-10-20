@@ -167,7 +167,6 @@ jobs:
             target/release/bundle/nsis/*
             target/**/release/bundle/macos/*.tar.gz*
             target/**/release/bundle/dmg/*.dmg
-            target/release/bundle/appimage/*.AppImage.*
             target/release/bundle/deb/*.deb
             target/**/release/mdns-browser
             target/release/mdns-browser.exe
