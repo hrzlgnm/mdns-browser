@@ -7,6 +7,7 @@
   - [Where EXE?](#where-exe)
     - [github releases](#github-releases)
     - [winget](#winget)
+    - [snap](#snap)
   - [Acknowledgments](#acknowledgments)
   <!--toc:end-->
 
@@ -27,6 +28,10 @@ The latest release can be downloaded here [Release](https://github.com/hrzlgnm/m
 ```console
 winget install mdns-browser
 ```
+
+### snap
+
+[![mdns-browser](https://snapcraft.io/mdns-browser/badge.svg)](https://snapcraft.io/mdns-browser)
 
 ## Acknowledgments
 
