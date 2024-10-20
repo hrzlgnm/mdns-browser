@@ -7,8 +7,9 @@ description: |
 grade: stable
 confinement: strict
 icon: src-tauri/icons/icon.png
+website: https://github.com/hrzlgnm/mdns-browser
 issues: https://github.com/hrzlgnm/mdns-browser/issues
-license: MIT License
+license: MIT
 source-code: https://github.com/hrzlgnm/mdns-browser
 
 platforms:
