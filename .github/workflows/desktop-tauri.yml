@@ -168,6 +168,7 @@ jobs:
             target/**/release/bundle/macos/*.tar.gz*
             target/**/release/bundle/dmg/*.dmg
             target/release/bundle/deb/*.deb
+            target/release/bundle/rpm/*.rpm
             target/**/release/mdns-browser
             target/release/mdns-browser.exe
 
