@@ -36,5 +36,8 @@ package-repositories:
 parts:
   build-app:
     plugin: dump
+    stage-packages:
+      - libwebkit2gtk-4.1-0
+      - libayatana-appindicator3-1
     source: https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v0.9.0/mdns-browser_0.9.0_amd64.deb
     source-type: deb
