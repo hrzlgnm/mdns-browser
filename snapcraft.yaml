@@ -1,6 +1,6 @@
 name: mdns-browser
 base: core24
-version: "0.8.14"
+version: "0.9.0"
 summary: mDNS-Browser app
 description: |
   A cross platform mDNS-Browser app written in Rust using tauri and leptos
@@ -37,3 +37,5 @@ parts:
       - libayatana-appindicator3-1
     source: https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v0.9.0/mdns-browser_0.9.0_amd64.deb
     source-type: deb
+    override-build: snapcraftctl build
+      sed -i -e "s|Icon=mdns-browser|Icon=/usr/share/icons/hicolor/32x32/apps/mdns-browser.png|g" $SNAPCRAFT_PART_INSTALL/usr/share/applications/mdns-browser.desktop
