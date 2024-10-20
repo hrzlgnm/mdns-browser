@@ -3,6 +3,7 @@ name: Auto Bump Patch
 on:
   release:
     types: [created]
+  workflow_dispatch:
 
 permissions:
   contents: write
