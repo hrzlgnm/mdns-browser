@@ -1,4 +1,4 @@
-name: "🖥️"
+name: "📱"
 
 on:
   pull_request:
@@ -6,12 +6,11 @@ on:
       - main
 
 concurrency:
-  group: ${{ format('desktop-{0}', github.ref) }}
+  group: ${{ format('android-{0}', github.ref) }}
   cancel-in-progress: true
-
 jobs:
   pr:
     permissions:
       contents: write
-    uses: ./.github/workflows/desktop-tauri.yml
+    uses: ./.github/workflows/android.yml
     secrets: inherit
