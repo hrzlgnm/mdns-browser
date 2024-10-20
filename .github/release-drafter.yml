@@ -12,7 +12,7 @@ categories:
     label: "chore"
 
   - title: ":sparkles: New Features"
-    label: "new-feature"
+    label: "enhancement"
 
   - title: ":zap: Performance"
     label: "performance"
