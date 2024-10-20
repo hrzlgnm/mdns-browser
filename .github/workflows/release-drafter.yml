@@ -20,22 +20,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Find Next Version
-        id: version
-        run: |
-          tag_prefix="mdns-browser-"
-          current_version=$(jq -r '.version' src-tauri/tauri.conf.json)
-          IFS='.' read -r -a version_parts <<< "$current_version"
-          major=${version_parts[0]}
-          minor=${version_parts[1]}
-          patch=${version_parts[2]}
-          new_patch=$((patch + 1))
-          new_version="v$major.$minor.$new_patch"
-          echo Current version: v$current_version
-          echo New target version: $new_version
-          echo "tag=$tag_prefix$new_version" >> "$GITHUB_OUTPUT"
-          echo "name=mDNS-Browser Release $new_version" >> "$GITHUB_OUTPUT"
-
       - name: Run Release Drafter
         uses: release-drafter/release-drafter@3f0f87098bd6b5c5b9a36d49c41d998ea58f9348 # v6.0.0
         env:

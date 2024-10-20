@@ -2,4 +2,3 @@ enhancement: ["feature/*", "feat/*"]
 chore: ["chore/*"]
 dependencies: ["renovate/*"]
 bug: fix/*
-chore :hammer:: chore/*
