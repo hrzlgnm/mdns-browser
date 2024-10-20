@@ -24,7 +24,7 @@ categories:
     label: "ci"
 
   - title: ":bug: Bug Fixes"
-    label: "bugfix"
+    label: "bug"
 
   - title: ":white_check_mark: Test"
     label: "test"
