@@ -11,10 +11,6 @@ platforms:
     build-on: [amd64]
     build-for: [amd64]
 
-layout:
-  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/webkit2gtk-4.1:
-    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/webkit2gtk-4.1
-
 apps:
   mdns-browser:
     command: usr/bin/mdns-browser
