@@ -5,26 +5,22 @@ categories:
   - title: ":boom: Breaking Changes"
     label: "breaking-change"
 
-  - title: ":wrench: Build"
-    label: "build"
+  - title: ":sparkles: New Features"
+    label: "enhancement"
+
+  - title: ":bug: Bug Fixes"
+    labels:
+      - "bug"
+      - "bugfix"
 
   - title: ":boar: Chore"
     label: "chore"
-
-  - title: ":sparkles: New Features"
-    label: "enhancement"
 
   - title: ":zap: Performance"
     label: "performance"
 
   - title: ":recycle: Refactor"
     label: "refactor"
-
-  - title: ":green_heart: CI"
-    label: "ci"
-
-  - title: ":bug: Bug Fixes"
-    label: "bug"
 
   - title: ":white_check_mark: Test"
     label: "test"
