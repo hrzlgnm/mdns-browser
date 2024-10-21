@@ -1,50 +1,65 @@
-# Building instructions
+# Building Instructions
 
 ## Prerequisites
 
-More information is available in [Tauri-Prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux)
+Before you begin, make sure you meet the necessary prerequisites. You can find more details in the official [Tauri Guide](https://tauri.app/start/prerequisites/).
 
-### Additional targets for rust
+### Rust Additional Targets
 
-- wasm32-unknown-unknown
+You'll need to add an additional Rust target:
 
-Installation using rustup
+- **Target**: `wasm32-unknown-unknown`
+
+To install it, run the following command using `rustup`:
 
 ```console
 rustup target add wasm32-unknown-unknown
 ```
 
-### Development libraries
+### Development Libraries
 
-- wegkit2gkt-devel curl wget file openssl gtk+3-devel libsvg-devel gcc pkg-config
+Make sure the following development libraries are installed:
 
-Installation using package-manager
+- `webkit2gtk-devel`
+- `curl`
+- `wget`
+- `file`
+- `openssl`
+- `gtk+3-devel`
+- `librsvg-devel`
+- `gcc`
+- `pkg-config`
 
-See also official [tauri-instructions](https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux)
+You can install these using your package manager. For detailed instructions, refer to the official [Tauri Linux setup guide](https://tauri.app/start/prerequisites/#linux).
 
-#### xbps
+#### xbps (Void Linux)
+
+For Void Linux, install these dependencies by running:
 
 ```console
 sudo xbps-install -Syu
 sudo xbps-install -S \
-    webkit2gtk-devel \
-    curl \
-    wget \
-    file \
-    openssl \
-    gtk+3-devel \
-    librsvg-devel \
-    gcc \
-    pkg-config
+ webkit2gtk-devel \
+ curl \
+ wget \
+ file \
+ openssl \
+ gtk+3-devel \
+ librsvg-devel \
+ gcc \
+ pkg-config
 ```
 
-### Crates
+### Rust Crates
 
-- trunk
-- tauri-cli
+You'll also need the following Rust crates:
 
-Those can be installed using cargo.
+- `trunk`
+- `tauri-cli`
+
+You can install them using `cargo` with the command:
 
 ```console
 cargo install --locked trunk tauri-cli
+
 ```
