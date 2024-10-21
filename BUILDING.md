@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-More information is available in [Tauri-Prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux)
+More information is available in [Tauri-Prerequisites](https://tauri.app/start/prerequisites/)
 
 ### Additional targets for rust
 
@@ -20,7 +20,7 @@ rustup target add wasm32-unknown-unknown
 
 Installation using package-manager
 
-See also official [tauri-instructions](https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux)
+See also official [tauri-instructions](https://tauri.app/start/prerequisites/#linux)
 
 #### xbps
 

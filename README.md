@@ -1,34 +1,64 @@
 # mDNS-Browser
 
+This application allows you to browse services using mDNS.
+
 <!--toc:start-->
 
-- [mDNS-Browser](#mdns-browser)
-  - [Building](#building)
-  - [Where EXE?](#where-exe)
-    - [github releases](#github-releases)
-    - [winget](#winget)
+- [mDNS-Browser Overview](#mdns-browser)
+  - [How to Build](#building)
+  - [Where to find the executables?](#where-to-find-the-executables)
+    - [GitHub Release](#github-releases)
+    - [Winget Installation](#winget-installation)
+    - [Arch Linux (AUR)](#arch-linux-aur)
   - [Acknowledgments](#acknowledgments)
   <!--toc:end-->
 
-This app allows for browsing of services using mDNS
-
 ## Building
 
-See [BUILDING](BUILDING.md) document.
+For instructions on building the application, checkout the [BUILDING](BUILDING.md) document.
 
-## Where EXE?
+## Where to find the executables?
 
-### github releases
+### GitHub Releases
 
-The latest release can be downloaded here [Release](https://github.com/hrzlgnm/mdns-browser/releases/latest)
+You can download the latest version of the application from the [GitHub Release page](https://github.com/hrzlgnm/mdns-browser/releases/latest)
 
-### winget
+### Winget installation
+
+To install via Winget, run the following command:
 
 ```console
 winget install mdns-browser
 ```
 
+### Arch Linux (AUR)
+
+To install on Arch Linux using the AUR, you can use an AUR helper like yay or paru:
+
+With `yay`:
+
+```console
+yay -S mdns-browser
+```
+
+Alternatively using the -bin package:
+
+```console
+yay -S mdns-browser-bin
+```
+
+With `paru`:
+
+```console
+paru -S mdns-browser
+```
+
+Alternatively using the -bin package:
+
+```console
+paru -S mdns-browser-bin
+```
+
 ## Acknowledgments
 
-The main workhorse of this application is the great library [mdns-sd](https://github.com/keepsimple1/mdns-sd) used to do all the mDNS magic happening in the backend of the app.
-Consider giving the repo a star if you like this application.
+This app uses the fantastic [mdns-sd library](https://github.com/keepsimple1/mdns-sd)to handle all mDNS functionality. If you find this app helpful, consider giving the library a star on GitHub!
