@@ -362,7 +362,6 @@ fn ToClipBoardCopyable(
     };
 
     view! {
-        {text}
         <Button
             disabled=disabled
             on_click=on_copy_to_clibboard_click
@@ -370,6 +369,7 @@ fn ToClipBoardCopyable(
             icon=icondata::TbClipboardText
             size=ButtonSize::Tiny
         />
+        {text}
     }
 }
 
