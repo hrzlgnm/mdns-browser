@@ -23,6 +23,9 @@ categories:
   - title: ":recycle: Refactor"
     label: "refactor"
 
+  - title: ":scroll: Documentation"
+    label: "documentation"
+
   - title: ":white_check_mark: Test"
     label: "test"
 
