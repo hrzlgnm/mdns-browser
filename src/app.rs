@@ -73,12 +73,14 @@ async fn invoke_unit(cmd: &str) {
     let _ = invoke::<()>(cmd, &()).await;
 }
 
-async fn listen_on_metrics_event(event_writer: WriteSignal<HashMap<String, i64>>) {
+async fn listen_on_metrics_event(event_writer: WriteSignal<Vec<(String, i64)>>) {
     let mut events = listen::<MetricsEventRes>("metrics").await.unwrap();
     invoke_unit("send_metrics").await;
     while let Some(event) = events.next().await {
         event_writer.update(|evts| {
-            evts.extend(event.payload.metrics);
+            evts.clear();
+            evts.extend(event.payload.metrics.into_iter().collect::<Vec<_>>());
+            evts.sort_by(|a, b| a.0.cmp(&b.0));
         });
     }
 }
@@ -900,7 +902,7 @@ pub fn About() -> impl IntoView {
 /// Component for metrics
 #[component]
 pub fn Metrics() -> impl IntoView {
-    let (metrics, set_metrics) = create_signal(HashMap::new());
+    let (metrics, set_metrics) = create_signal(Vec::new());
     create_local_resource(move || set_metrics, listen_on_metrics_event);
     view! {
         <Layout style="padding: 10px;">
