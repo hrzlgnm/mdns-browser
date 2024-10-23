@@ -778,9 +778,23 @@ pub fn About() -> impl IntoView {
     create_local_resource(move || set_version, get_version);
     create_local_resource(move || set_can_auto_update, get_can_auto_update);
 
+    let show_no_update = create_rw_signal(false);
+    let show_no_update_with_timeout = move || {
+        show_no_update.set(true);
+        set_timeout(
+            move || {
+                show_no_update.set(false);
+            },
+            std::time::Duration::new(3, 0),
+        );
+    };
+
     let fetch_update_action = create_action(move |_: &()| async move {
         let update = fetch_update().await;
         log::debug!("got update: {:?}", update);
+        if update.is_none() {
+            show_no_update_with_timeout();
+        }
         set_update.set(update);
     });
 
@@ -788,11 +802,11 @@ pub fn About() -> impl IntoView {
         install_update().await;
     });
 
-    let can_install = Signal::derive(move || update.get().is_some());
+    let update_available = Signal::derive(move || update.get().is_some());
     let installable_version = Signal::derive(move || {
         update
             .get()
-            .map_or_else(|| "".to_string(), |metadata| metadata.version)
+            .map_or_else(|| None, |metadata| Some(metadata.version))
     });
     let on_install_update_click = move |_| {
         install_update_action.dispatch(());
@@ -828,6 +842,7 @@ pub fn About() -> impl IntoView {
     let on_check_update_click = move |_| {
         fetch_update_action.dispatch(());
     };
+
     view! {
         <Layout style="padding: 10px;">
             <Collapse accordion=true>
@@ -863,33 +878,47 @@ pub fn About() -> impl IntoView {
                             "Releases"
                         </Button>
                         <Show
-                            when=move || { can_auto_update.get() }
+                            when=move || { !show_no_update.get() }
                             fallback=move || {
-                                view! { <div /> }
+                                view! {
+                                    <Button
+                                        size=ButtonSize::Tiny
+                                        icon=icondata::RiProhibitedSystemLine
+                                    >
+                                        "You are already on the latest version"
+                                    </Button>
+                                }
                             }
                         >
                             <Show
-                                when=move || { can_install.get() }
+                                when=move || { can_auto_update.get() }
                                 fallback=move || {
-                                    view! {
-                                        <Button
-                                            size=ButtonSize::Tiny
-                                            on_click=on_check_update_click
-                                            icon=icondata::RiDownloadSystemLine
-                                        >
-                                            "Check for updates"
-                                        </Button>
-                                    }
+                                    view! { <div /> }
                                 }
                             >
-                                <Button
-                                    size=ButtonSize::Tiny
-                                    on_click=on_install_update_click
-                                    icon=icondata::RiInstallDeviceLine
+                                <Show
+                                    when=move || { update_available.get() }
+                                    fallback=move || {
+                                        view! {
+                                            <Button
+                                                size=ButtonSize::Tiny
+                                                on_click=on_check_update_click
+                                                icon=icondata::RiDownloadSystemLine
+                                            >
+                                                "Check for updates"
+                                            </Button>
+                                        }
+                                    }
                                 >
-                                    "Download and Install "
-                                    {{ installable_version }}
-                                </Button>
+                                    <Button
+                                        size=ButtonSize::Tiny
+                                        on_click=on_install_update_click
+                                        icon=icondata::RiInstallDeviceLine
+                                    >
+                                        "Download and Install "
+                                        {{ installable_version }}
+                                    </Button>
+                                </Show>
                             </Show>
                         </Show>
                     </Space>
