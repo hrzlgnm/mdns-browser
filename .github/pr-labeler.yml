@@ -2,4 +2,4 @@ enhancement: ["feature/*", "feat/*"]
 chore: ["chore/*"]
 documentation: ["docs/*"]
 dependencies: ["renovate/*"]
-bug: fix/*
+bug: ["fix/*", "bugfix/*"]
