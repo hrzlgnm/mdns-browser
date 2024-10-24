@@ -10,12 +10,13 @@ This application allows you to browse services using mDNS.
     - [GitHub Release](#github-releases)
     - [Winget Installation](#winget-installation)
     - [Arch Linux (AUR)](#arch-linux-aur)
+  - [Privacy](#privacy)
   - [Acknowledgments](#acknowledgments)
   <!--toc:end-->
 
 ## Building
 
-For instructions on building the application, checkout the [BUILDING](BUILDING.md) document.
+For instructions on building the application, checkout the document [BUILDING](BUILDING.md).
 
 ## Where to find the executables?
 
@@ -58,6 +59,10 @@ Alternatively using the -bin package:
 ```console
 paru -S mdns-browser-bin
 ```
+
+## Privacy
+
+For a privacy statement checkout the document [PRIVACY](PRIVACY.md).
 
 ## Acknowledgments
 
