@@ -12,6 +12,12 @@ mDNS-Browser does not collect any personal or non-personal information. The appl
 
 The application includes a feature that allows you to manually trigger updates. When you choose to check for updates, the application securely connects to the update server to verify the availability of new versions. No personal data is transmitted, and only minimal technical information (such as the current app version) is used to determine compatibility with the new version.
 
+3. Opening the GitHub Repository
+
+The only external connection made by the application occurs when you request to visit the GitHub repository. Upon your request, the application will open your default web browser and direct it to the official GitHub page for the application.
+
+The application does not load external web content on its own or track your activity after the GitHub page is opened. Once you leave the application and open the GitHub repository in your browser, any data collection or tracking will be governed by GitHub's privacy policy. Please review GitHub’s privacy policy to understand how your data is handled on their platform.
+
 3. WebView and External Connections
 
 mDNS-Browser does not load external web content or make any network connections on its own. However, the application utilizes the operating system's WebView component for rendering certain content. While the application does not trigger any external data loading, the WebView may independently perform connections.
