@@ -28,4 +28,4 @@ Any updates to this Privacy Statement will be communicated through the applicati
 
 6. Contact
 
-If you have any questions or concerns about this Privacy Statement, please feel free to contact me by opening an issue or Discussion
+If you have any questions or concerns about this Privacy Statement, please feel free to contact me by opening an issue or discussion
