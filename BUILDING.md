@@ -21,6 +21,7 @@ rustup target add wasm32-unknown-unknown
 Make sure the following development libraries are installed:
 
 - `webkit2gtk-devel`
+- `libwebkit2gtk41-devel`
 - `curl`
 - `wget`
 - `file`
@@ -40,6 +41,7 @@ For Void Linux, install these dependencies by running:
 sudo xbps-install -Syu
 sudo xbps-install -S \
  webkit2gtk-devel \
+ libwebkit2gtk41-devel \
  curl \
  wget \
  file \
