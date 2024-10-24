@@ -74,7 +74,6 @@ jobs:
           cargo --locked auditable tauri android build
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.11902837
-          RUSTFLAGS: "--remap-path-prefix ${{ github.workspace }}=/static-placeholder"
 
       - name: 🔑 Extract android signing key from env (publish only)
         run: |
