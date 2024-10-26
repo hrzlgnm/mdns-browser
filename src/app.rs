@@ -1,3 +1,4 @@
+use gloo_timers::future::TimeoutFuture;
 use leptos::*;
 
 use std::{
@@ -979,6 +980,8 @@ pub struct BrowsingSignal(RwSignal<bool>);
 pub struct IsDesktopSignal(RwSignal<bool>);
 
 async fn get_is_desktop(writer: RwSignal<bool>) {
+    // Workaround for is_dekstop request sometimes failing and resulting in a blank window
+    TimeoutFuture::new(50).await;
     let is_desktop = invoke::<bool>("is_desktop", &()).await;
     writer.update(|v| *v = is_desktop);
 }
