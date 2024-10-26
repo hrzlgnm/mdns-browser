@@ -272,7 +272,7 @@ fn browse(service_type: String, window: Window, state: State<ManagedState>) {
     }
 }
 
-const METRIC_SEND_INTERVAL: Duration = Duration::from_secs(10);
+const METRIC_SEND_INTERVAL: Duration = Duration::from_secs(3);
 
 #[tauri::command]
 fn send_metrics(window: Window, state: State<ManagedState>) {
