@@ -533,7 +533,7 @@ pub fn run() {
             let splashscreen_window = app.get_webview_window("splashscreen").unwrap();
             let main_window = app.get_webview_window("main").unwrap();
             tauri::async_runtime::spawn(async move {
-                tokio::time::sleep(Duration::from_secs(3)).await;
+                tokio::time::sleep(Duration::from_millis(1_500)).await;
                 splashscreen_window.close().unwrap();
                 main_window.show().unwrap();
             });
