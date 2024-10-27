@@ -1,6 +1,6 @@
 {
     "build": {
-        "beforeDevCommand": "trunk serve",
+        "beforeDevCommand": "trunk serve --log debug",
         "beforeBuildCommand": "trunk build",
         "frontendDist": "../dist",
         "devUrl": "http://localhost:1420"
