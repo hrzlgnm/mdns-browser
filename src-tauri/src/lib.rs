@@ -279,6 +279,7 @@ fn send_metrics(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_thread = mdns.clone();
         std::thread::spawn(move || loop {
+            std::thread::sleep(METRIC_SEND_INTERVAL);
             if let Ok(metrics_receiver) = mdns_for_thread.get_metrics() {
                 if let Ok(metrics) = metrics_receiver.recv() {
                     window
@@ -286,7 +287,6 @@ fn send_metrics(window: Window, state: State<ManagedState>) {
                         .expect("To emit");
                 }
             }
-            std::thread::sleep(METRIC_SEND_INTERVAL);
         });
     }
 }

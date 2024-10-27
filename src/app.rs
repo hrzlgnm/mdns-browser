@@ -1,4 +1,4 @@
-use gloo_timers::future::TimeoutFuture;
+use error::Error;
 use leptos::*;
 
 use std::{
@@ -75,15 +75,20 @@ async fn invoke_unit(cmd: &str) {
 }
 
 async fn listen_on_metrics_event(event_writer: WriteSignal<Vec<(String, i64)>>) {
-    let mut events = listen::<MetricsEventRes>("metrics").await.unwrap();
-    invoke_unit("send_metrics").await;
-    while let Some(event) = events.next().await {
-        event_writer.update(|evts| {
-            evts.clear();
-            evts.extend(event.payload.metrics.into_iter().collect::<Vec<_>>());
-            evts.sort_by(|a, b| a.0.cmp(&b.0));
-        });
-    }
+    spawn_local(async move {
+        log::debug!("listen metrics");
+        let mut events = listen::<MetricsEventRes>("metrics").await.unwrap();
+        log::debug!("invoke send_metrics");
+        invoke_unit("send_metrics").await;
+        while let Some(event) = events.next().await {
+            log::debug!("received metrics {:#?}", event);
+            event_writer.update(|evts| {
+                evts.clear();
+                evts.extend(event.payload.metrics.into_iter().collect::<Vec<_>>());
+                evts.sort_by(|a, b| a.0.cmp(&b.0));
+            });
+        }
+    });
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -93,17 +98,15 @@ pub struct ServiceTypeFoundEventRes {
 
 type ServiceTypeRemovedEventRes = ServiceTypeFoundEventRes;
 
-async fn listen_on_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
-    let found = listen::<ServiceTypeFoundEventRes>("service-type-found")
-        .await
-        .unwrap();
-    let removed = listen::<ServiceTypeRemovedEventRes>("service-type-removed")
-        .await
-        .unwrap();
+async fn listen_on_service_type_event_result(
+    event_writer: WriteSignal<ServiceTypes>,
+) -> Result<(), Error> {
+    let found = listen::<ServiceTypeFoundEventRes>("service-type-found").await?;
+    let removed = listen::<ServiceTypeRemovedEventRes>("service-type-removed").await?;
 
     let mut found_fused = found.fuse();
     let mut removed_fused = removed.fuse();
-
+    log::debug!("invoke browse_types");
     invoke_unit("browse_types").await;
 
     loop {
@@ -131,6 +134,18 @@ async fn listen_on_service_type_events(event_writer: WriteSignal<ServiceTypes>) 
             complete => break,
         }
     }
+    Ok(())
+}
+
+async fn listen_on_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
+    spawn_local(async move {
+        log::debug!("listen on service type events");
+        let result = listen_on_service_type_event_result(event_writer).await;
+        match result {
+            Ok(_) => log::debug!("Listen on service type events succeeded"),
+            Err(e) => log::error!("Listening on service type events failed with: {e}"),
+        }
+    });
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -144,13 +159,12 @@ pub struct ServiceRemovedEventRes {
     at_ms: u64,
 }
 
-async fn listen_on_browse_events(event_writer: WriteSignal<ResolvedServices>) {
-    let resolved = listen::<ResolvedServiceEventRes>("service-resolved")
-        .await
-        .unwrap();
-    let removed = listen::<ServiceRemovedEventRes>("service-removed")
-        .await
-        .unwrap();
+async fn listen_on_resolve_events_result(
+    event_writer: WriteSignal<ResolvedServices>,
+) -> Result<(), Error> {
+    log::debug!("listen on resolve events with result");
+    let resolved = listen::<ResolvedServiceEventRes>("service-resolved").await?;
+    let removed = listen::<ServiceRemovedEventRes>("service-removed").await?;
 
     let mut resolved_fused = resolved.fuse();
     let mut removed_fused = removed.fuse();
@@ -181,6 +195,17 @@ async fn listen_on_browse_events(event_writer: WriteSignal<ResolvedServices>) {
             complete => break,
         }
     }
+    Ok(())
+}
+
+async fn listen_on_resolve_events(event_writer: WriteSignal<ResolvedServices>) {
+    spawn_local(async move {
+        let result = listen_on_resolve_events_result(event_writer).await;
+        match result {
+            Ok(_) => log::debug!("Listening on resolve events succeeded"),
+            Err(e) => log::error!("Listening on resolve events failed with: {e}"),
+        }
+    });
 }
 
 #[derive(Serialize, Deserialize)]
@@ -190,28 +215,33 @@ struct BrowseArgs<'a> {
 }
 
 async fn browse(service_type: String) {
-    let _ = invoke::<()>(
-        "browse",
-        &BrowseArgs {
-            serviceType: &service_type,
-        },
-    )
-    .await;
+    spawn_local(async move {
+        let _ = invoke::<()>(
+            "browse",
+            &BrowseArgs {
+                serviceType: &service_type,
+            },
+        )
+        .await;
+    });
 }
 
 async fn stop_browse(service_type: String) {
-    let _ = invoke::<()>(
-        "stop_browse",
-        &BrowseArgs {
-            serviceType: &service_type,
-        },
-    )
-    .await;
+    spawn_local(async move {
+        let _ = invoke::<()>(
+            "stop_browse",
+            &BrowseArgs {
+                serviceType: &service_type,
+            },
+        )
+        .await;
+    });
 }
 
 /// Component to render a string vector into a table
 #[component]
 fn ValuesTable(values: Vec<String>, #[prop(into)] title: String) -> impl IntoView {
+    log::debug!("ValuesTable");
     if values.is_empty() {
         view! { <p></p> }.into_view()
     } else {
@@ -294,8 +324,9 @@ fn AutoCompleteServiceType(
     #[prop(optional, into)] disabled: MaybeSignal<bool>,
     #[prop(optional, into)] invalid: MaybeSignal<bool>,
 ) -> impl IntoView {
+    log::debug!("AutoCompleteServiceType");
     let (service_types, set_service_types) = create_signal(ServiceTypes::new());
-    create_local_resource(move || set_service_types, listen_on_service_type_events);
+    create_resource(move || set_service_types, listen_on_service_type_events);
     let service_type_options = create_memo(move |_| {
         service_types
             .get()
@@ -353,6 +384,7 @@ fn ToClipBoardCopyable(
     text: Option<String>,
     #[prop(optional, into)] disabled: MaybeSignal<bool>,
 ) -> impl IntoView {
+    log::debug!("ToClipBoardCopyable");
     let (text_to_copy, _) = create_signal(text.clone().unwrap_or(String::from("")));
     let copy_to_clipboard_action = create_action(|input: &String| {
         let input = input.clone();
@@ -379,6 +411,7 @@ fn ToClipBoardCopyable(
 /// Component that shows a service as a card
 #[component]
 fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
+    log::debug!("ResolvedServiceGridItem");
     let mut hostname = resolved_service.hostname;
     hostname.pop(); // remove the trailing dot
     let updated_at =
@@ -627,8 +660,9 @@ mod tests {
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
+    log::debug!("Browse");
     let (resolved, set_resolved) = create_signal(ResolvedServices::new());
-    create_local_resource(move || set_resolved, listen_on_browse_events);
+    create_resource(move || set_resolved, listen_on_resolve_events);
 
     let service_type = use_context::<ServiceTypesSignal>().unwrap().0;
     let is_desktop = use_context::<IsDesktopSignal>().unwrap().0;
@@ -740,6 +774,7 @@ pub struct UpdateMetadata {
     version: String,
     current_version: String,
 }
+
 async fn fetch_update() -> Option<UpdateMetadata> {
     invoke::<Option<UpdateMetadata>>("fetch_update", &()).await
 }
@@ -754,18 +789,24 @@ struct OpenArgs<'a> {
 }
 
 async fn open(url: &str) {
+    log::debug!("Opening {url}");
     let _ = invoke::<()>("open", &OpenArgs { url }).await;
 }
 
 async fn get_version(writer: WriteSignal<String>) {
-    let ver = invoke::<String>("version", &()).await;
-    log::debug!("Got version {}", ver);
-    writer.update(|v| *v = ver);
+    spawn_local(async move {
+        let ver = invoke::<String>("version", &()).await;
+        log::debug!("Got version {ver}");
+        writer.update(|v| *v = ver);
+    });
 }
 
 async fn get_can_auto_update(writer: WriteSignal<bool>) {
-    let can_auto_update = invoke::<bool>("can_auto_update", &()).await;
-    writer.update(|v| *v = can_auto_update);
+    spawn_local(async move {
+        let can_auto_update = invoke::<bool>("can_auto_update", &()).await;
+        log::debug!("Got can_auto_update  {can_auto_update}");
+        writer.update(|v| *v = can_auto_update);
+    });
 }
 
 const GITHUB_BASE_URL: &str = "https://github.com/hrzlgnm/mdns-browser";
@@ -773,11 +814,12 @@ const GITHUB_BASE_URL: &str = "https://github.com/hrzlgnm/mdns-browser";
 /// Component for info about the app
 #[component]
 pub fn About() -> impl IntoView {
+    log::debug!("About");
     let (version, set_version) = create_signal(String::new());
     let (update, set_update) = create_signal(None);
     let (can_auto_update, set_can_auto_update) = create_signal(false);
-    create_local_resource(move || set_version, get_version);
-    create_local_resource(move || set_can_auto_update, get_can_auto_update);
+    create_resource(move || set_version, get_version);
+    create_resource(move || set_can_auto_update, get_can_auto_update);
 
     let show_no_update = create_rw_signal(false);
     let show_no_update_with_timeout = move || {
@@ -792,7 +834,7 @@ pub fn About() -> impl IntoView {
 
     let fetch_update_action = create_action(move |_: &()| async move {
         let update = fetch_update().await;
-        log::debug!("got update: {:?}", update);
+        log::debug!("Got update: {:?}", update);
         if update.is_none() {
             show_no_update_with_timeout();
         }
@@ -815,7 +857,6 @@ pub fn About() -> impl IntoView {
 
     let github_action = create_action(|action: &String| {
         let action = action.clone();
-        log::debug!("Opening {}", action);
         async move { open(action.clone().as_str()).await }
     });
 
@@ -843,7 +884,7 @@ pub fn About() -> impl IntoView {
     let on_check_update_click = move |_| {
         fetch_update_action.dispatch(());
     };
-
+    log::debug!("About view");
     view! {
         <Layout style="padding: 10px;">
             <Collapse accordion=true>
@@ -932,8 +973,10 @@ pub fn About() -> impl IntoView {
 /// Component for metrics
 #[component]
 pub fn Metrics() -> impl IntoView {
+    log::debug!("Metrics");
     let (metrics, set_metrics) = create_signal(Vec::new());
-    create_local_resource(move || set_metrics, listen_on_metrics_event);
+    create_resource(move || set_metrics, listen_on_metrics_event);
+    log::debug!("Metrics view");
     view! {
         <Layout style="padding: 10px;">
             <Collapse accordion=true>
@@ -948,6 +991,7 @@ pub fn Metrics() -> impl IntoView {
                             </thead>
                             <tbody>
                                 {move || {
+                                    log::debug!("talbe thing");
                                     metrics
                                         .get()
                                         .into_iter()
@@ -980,24 +1024,28 @@ pub struct BrowsingSignal(RwSignal<bool>);
 pub struct IsDesktopSignal(RwSignal<bool>);
 
 async fn get_is_desktop(writer: RwSignal<bool>) {
-    // Workaround for is_dekstop request sometimes failing and resulting in a blank window
-    TimeoutFuture::new(50).await;
-    let is_desktop = invoke::<bool>("is_desktop", &()).await;
-    writer.update(|v| *v = is_desktop);
+    spawn_local(async move {
+        let is_desktop = invoke::<bool>("is_desktop", &()).await;
+        log::debug!("Got is_desktop {is_desktop}");
+        writer.update(|v| *v = is_desktop);
+    });
 }
 
-/// The main app component
+// The main app component
 #[component]
 pub fn App() -> impl IntoView {
+    log::debug!("App");
     provide_meta_context();
+    log::debug!("App after provide_meta_context");
     let theme = create_rw_signal(Theme::dark());
     let browsing = create_rw_signal(false);
     let is_desktop = create_rw_signal(false);
-    create_local_resource(move || is_desktop, get_is_desktop);
+    create_resource(move || is_desktop, get_is_desktop);
     let service_type = create_rw_signal(String::new());
     provide_context(BrowsingSignal(browsing));
     provide_context(ServiceTypesSignal(service_type));
     provide_context(IsDesktopSignal(is_desktop));
+    log::debug!("App after provide_context");
     view! {
         <ThemeProvider theme>
             <GlobalStyle />
