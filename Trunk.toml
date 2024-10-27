@@ -5,6 +5,5 @@ target = "./index.html"
 ignore = ["./src-tauri"]
 
 [serve]
-addresses = ["127.0.0.1"]
 port = 1420
 open = false

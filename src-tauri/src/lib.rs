@@ -272,21 +272,30 @@ fn browse(service_type: String, window: Window, state: State<ManagedState>) {
     }
 }
 
-const METRIC_SEND_INTERVAL: Duration = Duration::from_secs(3);
+const METRIC_CHECK_INTERVAL: Duration = Duration::from_secs(1);
 
 #[tauri::command]
 fn send_metrics(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_thread = mdns.clone();
+        let mut old_metrics = HashMap::new();
         std::thread::spawn(move || loop {
+            std::thread::sleep(METRIC_CHECK_INTERVAL);
             if let Ok(metrics_receiver) = mdns_for_thread.get_metrics() {
                 if let Ok(metrics) = metrics_receiver.recv() {
-                    window
-                        .emit("metrics", &MetricsEvent { metrics })
-                        .expect("To emit");
+                    if old_metrics != metrics {
+                        window
+                            .emit(
+                                "metrics",
+                                &MetricsEvent {
+                                    metrics: metrics.clone(),
+                                },
+                            )
+                            .expect("To emit");
+                        old_metrics = metrics;
+                    }
                 }
             }
-            std::thread::sleep(METRIC_SEND_INTERVAL);
         });
     }
 }
@@ -533,9 +542,12 @@ pub fn run() {
             let splashscreen_window = app.get_webview_window("splashscreen").unwrap();
             let main_window = app.get_webview_window("main").unwrap();
             tauri::async_runtime::spawn(async move {
+                #[cfg(not(debug_assertions))]
                 tokio::time::sleep(Duration::from_millis(2000)).await;
                 splashscreen_window.close().unwrap();
                 main_window.show().unwrap();
+                #[cfg(debug_assertions)]
+                main_window.open_devtools();
             });
             Ok(())
         })
