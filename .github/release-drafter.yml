@@ -48,4 +48,4 @@ footer: |
   For information on how to audit the binaries see [Usage](https://github.com/rust-secure-code/cargo-auditable?tab=readme-ov-file#usage)
 
   ## Attested build artifacts since v0.8.x
-  The build artifacts are now attested. Attestations information about he binaries is available [here](https://github.com/hrzlgnm/mdns-browser/attestations). For more information and details on how to verify those, see [Verifying artifact attestations with the GitHub CLI](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds#verifying-artifact-attestations-with-the-github-cli)
+  The build artifacts are now attested. Attestations information about the binaries is available [here](https://github.com/hrzlgnm/mdns-browser/attestations). For more information and details on how to verify those, see [Verifying artifact attestations with the GitHub CLI](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds#verifying-artifact-attestations-with-the-github-cli)
