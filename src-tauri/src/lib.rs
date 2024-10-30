@@ -7,7 +7,7 @@ use serde::Serialize;
 
 #[cfg(not(debug_assertions))]
 use shared_constants::SPLASH_SCREEN_DURATION;
-use shared_constants::{META_SERVICE, METRICS_CHECK_INTERVAL};
+use shared_constants::{MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL};
 use std::{
     collections::HashMap,
     net::IpAddr,
@@ -153,7 +153,7 @@ fn browse_types(window: Window, state: State<ManagedState>) {
         let mdns_for_thread = mdns.clone();
         std::thread::spawn(move || {
             let receiver = mdns_for_thread
-                .browse(META_SERVICE)
+                .browse(MDNS_SD_META_SERVICE)
                 .expect("Failed to browse");
             while let Ok(event) = receiver.recv() {
                 match event {
@@ -180,7 +180,7 @@ fn browse_types(window: Window, state: State<ManagedState>) {
                             .expect("To emit");
                     }
                     ServiceEvent::SearchStopped(service_type) => {
-                        if service_type == META_SERVICE {
+                        if service_type == MDNS_SD_META_SERVICE {
                             break;
                         }
                     }
