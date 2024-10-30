@@ -60,6 +60,8 @@ jobs:
           workspaces: |
             .
             src-tauri
+            models
+            shared_constants
 
       - name: 🌍 Export GitHub Actions cache environment variables windows
         if: contains(matrix.os, 'windows')
@@ -115,7 +117,7 @@ jobs:
 
       - name: ✅ Run tests
         run: |
-          cargo test
+          cargo test --all
 
       - name: 📥 Cached install trunk
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
