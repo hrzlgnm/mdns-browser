@@ -2991,6 +2991,7 @@ dependencies = [
  "clap",
  "log",
  "mdns-sd",
+ "models",
  "serde",
  "serde_json",
  "shared_constants",
@@ -3018,6 +3019,7 @@ dependencies = [
  "leptos",
  "leptos_meta",
  "log",
+ "models",
  "serde",
  "serde-wasm-bindgen",
  "shared_constants",
@@ -3103,6 +3105,13 @@ dependencies = [
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "models"
+version = "0.1.0"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

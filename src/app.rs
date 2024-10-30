@@ -4,15 +4,13 @@ use futures::{select, StreamExt};
 use leptos::*;
 use leptos_meta::provide_meta_context;
 use leptos_meta::Style;
+use models::*;
 use serde::{Deserialize, Serialize};
 use shared_constants::{
-    AUTO_COMPLETE_AUTO_FOCUS_DELAY, SHOW_NO_UPDATE_DURATION, SPLASH_SCREEN_DURATION,
+    AUTO_COMPLETE_AUTO_FOCUS_DELAY, GITHUB_BASE_URL, SHOW_NO_UPDATE_DURATION,
+    SPLASH_SCREEN_DURATION,
 };
-use std::{
-    collections::{HashMap, HashSet},
-    fmt::Display,
-    net::IpAddr,
-};
+use std::collections::HashSet;
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
@@ -23,54 +21,6 @@ use thaw::{
     Text, Theme, ThemeProvider,
 };
 use thaw_utils::Model;
-
-type ServiceTypes = Vec<String>;
-
-#[derive(Deserialize, Clone, Debug)]
-struct TxtRecord {
-    key: String,
-    val: Option<String>,
-}
-
-impl Display for TxtRecord {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.val.is_none() {
-            write!(f, "{}", self.key)
-        } else {
-            write!(f, "{}={}", self.key, self.val.clone().unwrap())
-        }
-    }
-}
-
-fn alive() -> bool {
-    false
-}
-
-#[derive(Deserialize, Debug, Clone)]
-struct ResolvedService {
-    instance_name: String,
-    hostname: String,
-    port: u16,
-    addresses: Vec<IpAddr>,
-    subtype: Option<String>,
-    txt: Vec<TxtRecord>,
-    updated_at_ms: u64,
-    #[serde(default = "alive")]
-    dead: bool,
-}
-
-impl ResolvedService {
-    fn die_at(&mut self, at_ms: u64) {
-        self.dead = true;
-        self.updated_at_ms = at_ms;
-    }
-}
-type ResolvedServices = Vec<ResolvedService>;
-
-#[derive(Deserialize, PartialEq, Eq, Clone, Debug)]
-pub struct MetricsEventRes {
-    metrics: HashMap<String, i64>,
-}
 
 async fn invoke_no_args(cmd: &str) {
     log::debug!("Invoke no args `{cmd}`");
@@ -95,12 +45,6 @@ async fn listen_on_metrics_event(event_writer: WriteSignal<Vec<(String, i64)>>) 
         }
     }
 }
-
-#[derive(Deserialize, Clone, Debug)]
-pub struct ServiceTypeFoundEventRes {
-    service_type: String,
-}
-type ServiceTypeRemovedEventRes = ServiceTypeFoundEventRes;
 
 async fn listen_on_service_type_event_result(
     event_writer: WriteSignal<ServiceTypes>,
@@ -147,17 +91,6 @@ async fn listen_on_service_type_events(event_writer: WriteSignal<ServiceTypes>) 
         Ok(_) => log::debug!("Listen on service type events succeeded"),
         Err(e) => log::error!("Listening on service type events failed with: {e}"),
     }
-}
-
-#[derive(Deserialize, Clone, Debug)]
-pub struct ResolvedServiceEventRes {
-    service: ResolvedService,
-}
-
-#[derive(Deserialize, Clone, Debug)]
-pub struct ServiceRemovedEventRes {
-    instance_name: String,
-    at_ms: u64,
 }
 
 async fn listen_on_resolve_events_result(
@@ -491,184 +424,6 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     }
 }
 
-#[derive(Debug, PartialEq)]
-enum MdnsError {
-    MissingTrailingDot,
-    InvalidService,
-    InvalidSubtype,
-    InvalidProtocol,
-    InvalidDomain,
-    IncorrectFormat,
-}
-
-fn check_mdns_label(label: &str, is_subtype: bool) -> Result<(), MdnsError> {
-    let valid_dns_chars = |c: char| c.is_ascii_alphanumeric() || c == '-' || c == '_';
-    let error = if is_subtype {
-        MdnsError::InvalidSubtype
-    } else {
-        MdnsError::InvalidService
-    };
-
-    if !label.starts_with('_') {
-        return Err(error);
-    }
-
-    let label_content = &label[1..];
-
-    // Ensure the label content doesn't start with an underscore
-    if label_content.starts_with('_') {
-        return Err(error);
-    }
-
-    // Ensure the label content doesn't end with an underscore
-    if label_content.ends_with('_') {
-        return Err(error);
-    }
-
-    if !label_content.chars().all(valid_dns_chars) {
-        return Err(error);
-    }
-
-    // Ensure no double hyphens are present
-    if label_content.contains("--") {
-        return Err(error);
-    }
-
-    // Ensure the label does not start or end with a hyphen
-    if label_content.starts_with('-') || label_content.ends_with('-') {
-        return Err(error);
-    }
-
-    Ok(())
-}
-
-fn check_service_type_fully_qualified(service_type: &str) -> Result<(), MdnsError> {
-    // The service type must end with a trailing dot
-    if !service_type.ends_with('.') {
-        return Err(MdnsError::MissingTrailingDot);
-    }
-
-    // Remove the trailing dot for validation purposes
-    let service_type = service_type.strip_suffix('.').unwrap();
-
-    // Split into parts based on dots
-    let parts: Vec<&str> = service_type.split('.').collect();
-
-    // Validate the number of parts for formats:
-    // 1) _service._protocol.local
-    // 2) _subtype._sub._service._protocol.local
-    if parts.len() != 3 && parts.len() != 5 {
-        return Err(MdnsError::IncorrectFormat);
-    }
-
-    let domain = parts.last().unwrap(); // Domain is always the last component
-    let protocol = parts[parts.len() - 2]; // Protocol is the second-to-last component
-
-    // Validate protocol name (must be either _tcp or _udp)
-    if protocol != "_tcp" && protocol != "_udp" {
-        return Err(MdnsError::InvalidProtocol);
-    }
-
-    // Validate domain (must be "local")
-    if *domain != "local" {
-        return Err(MdnsError::InvalidDomain);
-    }
-
-    // Validate service name
-    let service = if parts.len() == 3 { parts[0] } else { parts[2] };
-    check_mdns_label(service, false)?;
-
-    // Validate optional subtype if present
-    if parts.len() == 5 {
-        let sub_label = parts[1];
-        let subtype = parts[0];
-
-        // Ensure the second part is "_sub"
-        if sub_label != "_sub" {
-            return Err(MdnsError::IncorrectFormat);
-        }
-
-        check_mdns_label(subtype, true)?;
-    }
-
-    Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_valid_service_types() {
-        assert!(check_service_type_fully_qualified("_http._tcp.local.").is_ok());
-        assert!(check_service_type_fully_qualified("_printer._udp.local.").is_ok());
-        assert!(check_service_type_fully_qualified("_myprinter._sub._http._tcp.local.").is_ok());
-    }
-    #[test]
-    fn test_invalid_service_types() {
-        assert_eq!(
-            check_service_type_fully_qualified("_http._tcp.local"),
-            Err(MdnsError::MissingTrailingDot)
-        );
-        assert_eq!(
-            check_service_type_fully_qualified("_http._tcp."),
-            Err(MdnsError::IncorrectFormat)
-        );
-        assert_eq!(
-            check_service_type_fully_qualified("_http._ftp.local."),
-            Err(MdnsError::InvalidProtocol)
-        );
-        assert_eq!(
-            check_service_type_fully_qualified("http._tcp.local."),
-            Err(MdnsError::InvalidService)
-        );
-        assert_eq!(
-            check_service_type_fully_qualified("_http_._tcp.local."),
-            Err(MdnsError::InvalidService)
-        );
-        assert_eq!(
-            check_service_type_fully_qualified("_http._tcp.nonlocal."),
-            Err(MdnsError::InvalidDomain)
-        );
-        assert_eq!(
-            check_service_type_fully_qualified("__._tcp.local."),
-            Err(MdnsError::InvalidService)
-        );
-        assert_eq!(
-            check_service_type_fully_qualified("_myprinter._sub._http._ftp.local."),
-            Err(MdnsError::InvalidProtocol)
-        ); // Invalid protocol with subtype
-        assert_eq!(
-            check_service_type_fully_qualified("_myprinter._sub._tcp.nonlocal."),
-            Err(MdnsError::IncorrectFormat)
-        ); // Missing service in format
-        assert_eq!(
-            check_service_type_fully_qualified("_-http_tcp._tcp.local."),
-            Err(MdnsError::InvalidService)
-        ); // Invalid service name format
-        assert_eq!(
-            check_service_type_fully_qualified("_-printer._sub._http._tcp.local."),
-            Err(MdnsError::InvalidSubtype)
-        ); // Invalid subtype name format
-        assert_eq!(
-            check_service_type_fully_qualified("_printer-._sub._http._tcp.local."),
-            Err(MdnsError::InvalidSubtype)
-        ); // Invalid subtype name format
-        assert_eq!(
-            check_service_type_fully_qualified("_http-._tcp.local."),
-            Err(MdnsError::InvalidService)
-        ); // Invalid service name format
-        assert_eq!(
-            check_service_type_fully_qualified("_myprinter._sub-type._tcp.local."),
-            Err(MdnsError::IncorrectFormat)
-        ); // Invalid subtype without _sub keyword
-        assert_eq!(
-            check_service_type_fully_qualified("_myprinter.____._sub._tcp.local."),
-            Err(MdnsError::IncorrectFormat)
-        ); // Invalid subtype format
-    }
-}
-
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
@@ -780,13 +535,6 @@ fn Browse() -> impl IntoView {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct UpdateMetadata {
-    version: String,
-    current_version: String,
-}
-
 async fn fetch_update() -> Option<UpdateMetadata> {
     invoke::<Option<UpdateMetadata>>("fetch_update", &()).await
 }
@@ -816,8 +564,6 @@ async fn get_can_auto_update(writer: WriteSignal<bool>) {
     log::debug!("Got can_auto_update  {can_auto_update}");
     writer.update(|v| *v = can_auto_update);
 }
-
-const GITHUB_BASE_URL: &str = "https://github.com/hrzlgnm/mdns-browser";
 
 /// Component for info about the app
 #[component]

@@ -48,6 +48,8 @@ jobs:
           workspaces: |
             .
             src-tauri
+            models
+            shared_constants
 
       - name: 📥 Cached install trunk
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1

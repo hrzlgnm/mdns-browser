@@ -3,8 +3,7 @@ use clap::builder::TypedValueParser as _;
 #[cfg(desktop)]
 use clap::Parser;
 use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
-use serde::Serialize;
-
+use models::*;
 #[cfg(not(debug_assertions))]
 use shared_constants::SPLASH_SCREEN_DURATION;
 use shared_constants::{MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL};
@@ -12,7 +11,6 @@ use std::{
     collections::HashMap,
     net::IpAddr,
     sync::{Arc, Mutex},
-    time::SystemTime,
 };
 use tauri::Emitter;
 use tauri::{AppHandle, Manager, State, Window};
@@ -42,110 +40,6 @@ fn get_shared_daemon() -> SharedServiceDaemon {
     let daemon = ServiceDaemon::new().expect("Failed to create daemon");
     Arc::new(Mutex::new(daemon))
 }
-
-#[derive(Serialize, Clone, Debug)]
-struct TxtRecord {
-    key: String,
-    val: Option<String>,
-}
-
-#[derive(Serialize, Clone, Debug)]
-pub struct ResolvedService {
-    instance_name: String,
-    hostname: String,
-    port: u16,
-    pub addresses: Vec<IpAddr>,
-    subtype: Option<String>,
-    txt: Vec<TxtRecord>,
-    updated_at_ms: u64,
-}
-
-fn timestamp_millis() -> u64 {
-    let now = SystemTime::now();
-    let since_epoch = now.duration_since(SystemTime::UNIX_EPOCH).unwrap();
-
-    since_epoch.as_secs() * 1000 + u64::from(since_epoch.subsec_millis())
-}
-
-fn string_with_control_characters_escaped(input: String) -> String {
-    input
-        .chars()
-        .map(|ch| {
-            if ch.is_control() {
-                format!(r"\u{:04x}", ch as u32)
-            } else {
-                ch.to_string()
-            }
-        })
-        .collect()
-}
-
-fn bytes_option_to_string_option_with_escaping(maybe_bytes: Option<&[u8]>) -> Option<String> {
-    maybe_bytes.map(|bytes| match String::from_utf8(bytes.to_vec()) {
-        Ok(utf8_string) => string_with_control_characters_escaped(utf8_string),
-        Err(_) => byte_array_hexlified(bytes),
-    })
-}
-
-fn byte_array_hexlified(byte_array: &[u8]) -> String {
-    byte_array
-        .iter()
-        .map(|byte| format!("{:02x}", byte))
-        .collect::<Vec<String>>()
-        .join("")
-}
-
-impl From<&ServiceInfo> for ResolvedService {
-    fn from(info: &ServiceInfo) -> ResolvedService {
-        let mut sorted_addresses: Vec<IpAddr> = info.get_addresses().clone().drain().collect();
-        sorted_addresses.sort();
-        let mut sorted_txt: Vec<TxtRecord> = info
-            .get_properties()
-            .iter()
-            .map(|r| TxtRecord {
-                key: r.key().into(),
-                val: bytes_option_to_string_option_with_escaping(r.val()),
-            })
-            .collect();
-        sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
-        ResolvedService {
-            instance_name: info.get_fullname().into(),
-            hostname: info.get_hostname().into(),
-            port: info.get_port(),
-            addresses: sorted_addresses,
-            subtype: info.get_subtype().clone(),
-            txt: sorted_txt,
-            updated_at_ms: timestamp_millis(),
-        }
-    }
-}
-
-#[derive(Serialize, Clone, Debug)]
-pub struct MetricsEvent {
-    metrics: HashMap<String, i64>,
-}
-
-#[derive(Serialize, Clone, Debug)]
-pub struct ServiceResolvedEvent {
-    service: ResolvedService,
-}
-
-#[derive(Serialize, Clone, Debug)]
-pub struct SearchStartedEvent {
-    service_type: String,
-}
-
-type SearchStoppedEvent = SearchStartedEvent;
-
-#[derive(Serialize, Clone, Debug)]
-pub struct ServiceRemovedEvent {
-    instance_name: String,
-    at_ms: u64,
-}
-
-type ServiceFoundEvent = ServiceRemovedEvent;
-type ServiceTypeFoundEvent = SearchStartedEvent;
-type ServiceTypeRemovedEvent = SearchStartedEvent;
 
 #[tauri::command]
 fn browse_types(window: Window, state: State<ManagedState>) {
@@ -208,6 +102,30 @@ fn stop_browse(service_type: String, state: State<ManagedState>) {
     }
 }
 
+fn from_service_info(info: &ServiceInfo) -> ResolvedService {
+    let mut sorted_addresses: Vec<IpAddr> = info.get_addresses().clone().drain().collect();
+    sorted_addresses.sort();
+    let mut sorted_txt: Vec<TxtRecord> = info
+        .get_properties()
+        .iter()
+        .map(|r| TxtRecord {
+            key: r.key().into(),
+            val: bytes_option_to_string_option_with_escaping(r.val()),
+        })
+        .collect();
+    sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
+    ResolvedService {
+        instance_name: info.get_fullname().into(),
+        hostname: info.get_hostname().into(),
+        port: info.get_port(),
+        addresses: sorted_addresses,
+        subtype: info.get_subtype().clone(),
+        txt: sorted_txt,
+        updated_at_ms: timestamp_millis(),
+        dead: false,
+    }
+}
+
 #[tauri::command]
 fn browse(service_type: String, window: Window, state: State<ManagedState>) {
     if service_type.is_empty() {
@@ -242,7 +160,7 @@ fn browse(service_type: String, window: Window, state: State<ManagedState>) {
                                     .emit(
                                         "service-resolved",
                                         &ServiceResolvedEvent {
-                                            service: ResolvedService::from(&info),
+                                            service: from_service_info(&info),
                                         },
                                     )
                                     .expect("To emit");
@@ -435,6 +353,7 @@ fn copy_to_clipboard(window: Window, contents: String) {
 
 #[cfg(desktop)]
 mod app_updates {
+    use models::UpdateMetadata;
     use serde::Serialize;
     use std::sync::Mutex;
     use tauri::{AppHandle, State};
@@ -458,13 +377,6 @@ mod app_updates {
     }
 
     type Result<T> = std::result::Result<T, Error>;
-
-    #[derive(Serialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct UpdateMetadata {
-        version: String,
-        current_version: String,
-    }
 
     #[tauri::command]
     pub async fn fetch_update(
