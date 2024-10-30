@@ -330,7 +330,7 @@ fn AutoCompleteServiceType(
                         comp.focus();
                     }
                 },
-                std::time::Duration::from_millis(3000),
+                std::time::Duration::from_millis(5000),
             );
         });
     });
