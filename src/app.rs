@@ -5,6 +5,9 @@ use leptos::*;
 use leptos_meta::provide_meta_context;
 use leptos_meta::Style;
 use serde::{Deserialize, Serialize};
+use shared_constants::{
+    AUTO_COMPLETE_AUTO_FOCUS_DELAY, SHOW_NO_UPDATE_DURATION, SPLASH_SCREEN_DURATION,
+};
 use std::{
     collections::{HashMap, HashSet},
     fmt::Display,
@@ -330,7 +333,7 @@ fn AutoCompleteServiceType(
                         comp.focus();
                     }
                 },
-                std::time::Duration::from_millis(5000),
+                SPLASH_SCREEN_DURATION + AUTO_COMPLETE_AUTO_FOCUS_DELAY,
             );
         });
     });
@@ -833,7 +836,7 @@ pub fn About() -> impl IntoView {
             move || {
                 show_no_update.set(false);
             },
-            std::time::Duration::new(3, 0),
+            SHOW_NO_UPDATE_DURATION,
         );
     };
 

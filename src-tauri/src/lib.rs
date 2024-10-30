@@ -4,13 +4,16 @@ use clap::builder::TypedValueParser as _;
 use clap::Parser;
 use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
 use serde::Serialize;
+
+#[cfg(not(debug_assertions))]
+use shared_constants::SPLASH_SCREEN_DURATION;
+use shared_constants::{META_SERVICE, METRICS_CHECK_INTERVAL};
 use std::{
     collections::HashMap,
     net::IpAddr,
     sync::{Arc, Mutex},
-    time::{Duration, SystemTime},
+    time::SystemTime,
 };
-
 use tauri::Emitter;
 use tauri::{AppHandle, Manager, State, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
@@ -144,8 +147,6 @@ type ServiceFoundEvent = ServiceRemovedEvent;
 type ServiceTypeFoundEvent = SearchStartedEvent;
 type ServiceTypeRemovedEvent = SearchStartedEvent;
 
-const META_SERVICE: &str = "_services._dns-sd._udp.local.";
-
 #[tauri::command]
 fn browse_types(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
@@ -272,15 +273,13 @@ fn browse(service_type: String, window: Window, state: State<ManagedState>) {
     }
 }
 
-const METRIC_CHECK_INTERVAL: Duration = Duration::from_secs(1);
-
 #[tauri::command]
 fn send_metrics(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_thread = mdns.clone();
         let mut old_metrics = HashMap::new();
         std::thread::spawn(move || loop {
-            std::thread::sleep(METRIC_CHECK_INTERVAL);
+            std::thread::sleep(METRICS_CHECK_INTERVAL);
             if let Ok(metrics_receiver) = mdns_for_thread.get_metrics() {
                 if let Ok(metrics) = metrics_receiver.recv() {
                     if old_metrics != metrics {
@@ -543,7 +542,7 @@ pub fn run() {
             let main_window = app.get_webview_window("main").unwrap();
             tauri::async_runtime::spawn(async move {
                 #[cfg(not(debug_assertions))]
-                tokio::time::sleep(Duration::from_millis(2000)).await;
+                tokio::time::sleep(SPLASH_SCREEN_DURATION).await;
                 splashscreen_window.close().unwrap();
                 main_window.show().unwrap();
                 #[cfg(debug_assertions)]

@@ -32,6 +32,7 @@ tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", branch = "v
 thaw = { version = "0.3.4", features = ["csr"] }
 thaw_utils = { version = "0.0.6", features = ["csr"] }
 tokio = "1.40.0"
+shared_constants = { path = "./shared_constants" }
 
 [workspace]
-members = ["src-tauri"]
+members = ["shared_constants", "src-tauri"]

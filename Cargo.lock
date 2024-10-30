@@ -2993,6 +2993,7 @@ dependencies = [
  "mdns-sd",
  "serde",
  "serde_json",
+ "shared_constants",
  "tauri",
  "tauri-build",
  "tauri-plugin-clipboard-manager",
@@ -3019,6 +3020,7 @@ dependencies = [
  "log",
  "serde",
  "serde-wasm-bindgen",
+ "shared_constants",
  "strsim",
  "tauri-sys",
  "thaw",
@@ -4909,6 +4911,10 @@ dependencies = [
  "libc",
  "windows-sys 0.59.0",
 ]
+
+[[package]]
+name = "shared_constants"
+version = "0.1.0"
 
 [[package]]
 name = "shlex"

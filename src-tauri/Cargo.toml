@@ -23,6 +23,7 @@ serde_json = "1.0.128"
 tauri = { version = "2.0.0", features = [] }
 tauri-plugin-clipboard-manager = "2.0.0"
 tauri-plugin-shell = "2"
+shared_constants = { path = "../shared_constants" }
 
 [lib]
 name = "mdns_browser_lib"
