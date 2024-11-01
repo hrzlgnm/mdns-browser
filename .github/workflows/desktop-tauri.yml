@@ -39,6 +39,7 @@ jobs:
             install: |
               echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
               vcpkg install openssl:x64-windows-static-md
+              choco install wget -y
 
     name: ${{matrix.symbol}}
     runs-on: ${{ matrix.os }}
