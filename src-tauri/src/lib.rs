@@ -4,7 +4,7 @@ use clap::builder::TypedValueParser as _;
 use clap::Parser;
 use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
 use models::*;
-#[cfg(any(not(debug_assertions), desktop))]
+#[cfg(any(not(debug_assertions), not(desktop)))]
 use shared_constants::SPLASH_SCREEN_DURATION;
 use shared_constants::{MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL};
 use std::{
