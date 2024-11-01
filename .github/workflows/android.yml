@@ -51,6 +51,9 @@ jobs:
             models
             shared_constants
 
+      - name: 📝 Check spelling using typos-action
+        uses: crate-ci/typos@v1.27.0
+
       - name: 📥 Cached install trunk
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
