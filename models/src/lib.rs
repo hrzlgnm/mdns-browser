@@ -14,7 +14,7 @@ impl Display for TxtRecord {
         if self.val.is_none() {
             write!(f, "{}", self.key)
         } else {
-            write!(f, "{}={}", self.key, self.val.clone().unwrap())
+            write!(f, "{}={}", self.key, self.val.clone().expect("To exist"))
         }
     }
 }
@@ -40,7 +40,9 @@ impl ResolvedService {
 
 pub fn timestamp_millis() -> u64 {
     let now = SystemTime::now();
-    let since_epoch = now.duration_since(SystemTime::UNIX_EPOCH).unwrap();
+    let since_epoch = now
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .expect("To have a duration since unix epoch");
 
     since_epoch.as_secs() * 1000 + u64::from(since_epoch.subsec_millis())
 }
@@ -189,7 +191,7 @@ pub fn check_service_type_fully_qualified(service_type: &str) -> Result<(), Mdns
     }
 
     // Remove the trailing dot for validation purposes
-    let service_type = service_type.strip_suffix('.').unwrap();
+    let service_type = service_type.strip_suffix('.').expect("To end with .");
 
     // Split into parts based on dots
     let parts: Vec<&str> = service_type.split('.').collect();
@@ -201,7 +203,7 @@ pub fn check_service_type_fully_qualified(service_type: &str) -> Result<(), Mdns
         return Err(MdnsError::IncorrectFormat);
     }
 
-    let domain = parts.last().unwrap(); // Domain is always the last component
+    let domain = parts.last().expect("To have a domain"); // Domain is always the last component
     let protocol = parts[parts.len() - 2]; // Protocol is the second-to-last component
 
     // Validate protocol name (must be either _tcp or _udp)
