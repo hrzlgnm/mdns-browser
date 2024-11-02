@@ -113,7 +113,7 @@ fn from_service_info(info: &ServiceInfo) -> ResolvedService {
             val: bytes_option_to_string_option_with_escaping(r.val()),
         })
         .collect();
-    sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).unwrap());
+    sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).expect("To be partial comparable"));
     ResolvedService {
         instance_name: info.get_fullname().into(),
         hostname: info.get_hostname().into(),
@@ -347,8 +347,7 @@ fn copy_to_clipboard(window: Window, contents: String) {
     let app = window.app_handle();
     app.clipboard()
         .write_text(contents)
-        .map_err(|err| log::error!("Failed to write to clipboard: {}", err))
-        .unwrap();
+        .expect("To write to clipboard");
 }
 
 #[cfg(desktop)]
@@ -395,7 +394,7 @@ mod app_updates {
             current_version: update.current_version.clone(),
         });
 
-        *pending_update.0.lock().unwrap() = update;
+        *pending_update.0.lock().expect("To lock") = update;
 
         Ok(update_metadata)
     }
@@ -405,7 +404,7 @@ mod app_updates {
         app: AppHandle,
         pending_update: State<'_, PendingUpdate>,
     ) -> Result<()> {
-        let Some(update) = pending_update.0.lock().unwrap().take() else {
+        let Some(update) = pending_update.0.lock().expect("To lock").take() else {
             return Err(Error::NoPendingUpdate);
         };
 
@@ -450,13 +449,17 @@ pub fn run() {
         )
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
-            let splashscreen_window = app.get_webview_window("splashscreen").unwrap();
-            let main_window = app.get_webview_window("main").unwrap();
+            let splashscreen_window = app
+                .get_webview_window("splashscreen")
+                .expect("Splashscreen window to exist");
+            let main_window = app
+                .get_webview_window("main")
+                .expect("Main window to exist");
             tauri::async_runtime::spawn(async move {
                 #[cfg(not(debug_assertions))]
                 tokio::time::sleep(SPLASH_SCREEN_DURATION).await;
-                splashscreen_window.close().unwrap();
-                main_window.show().unwrap();
+                splashscreen_window.close().expect("To close");
+                main_window.show().expect("To show");
                 #[cfg(debug_assertions)]
                 main_window.open_devtools();
             });

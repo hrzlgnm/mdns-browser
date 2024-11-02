@@ -345,8 +345,8 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     log::debug!("ResolvedServiceGridItem");
     let mut hostname = resolved_service.hostname;
     hostname.pop(); // remove the trailing dot
-    let updated_at =
-        DateTime::from_timestamp_millis(resolved_service.updated_at_ms as i64).unwrap();
+    let updated_at = DateTime::from_timestamp_millis(resolved_service.updated_at_ms as i64)
+        .expect("To get convert");
     let as_local_datetime: DateTime<Local> = updated_at.with_timezone(&Local);
     let addrs = resolved_service
         .addresses
@@ -416,8 +416,9 @@ fn Browse() -> impl IntoView {
     log::debug!("Browse");
     let (resolved, set_resolved) = create_signal(ResolvedServices::new());
     create_resource(move || set_resolved, listen_on_resolve_events);
-
-    let is_desktop = use_context::<IsDesktopSignal>().unwrap().0;
+    let is_desktop = use_context::<IsDesktopSignal>()
+        .expect("is_desktop context to exist")
+        .0;
     let browsing = create_rw_signal(false);
     let service_type = create_rw_signal(String::new());
     let not_browsing = Signal::derive(move || !browsing.get());
