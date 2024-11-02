@@ -34,11 +34,18 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore(version) : bump to ${{ env.new_version }}"
           sign-commits: true
           base: main
           branch: chore/bump-version-${{ env.new_version }}
           branch-suffix: random
+          delete-branch: true
           title: "chore(version): bump version to ${{ env.new_version }}"
           draft: false
+
+      - name: Enable Pull Request Automerge
+        if: steps.cpr.outputs.pull-request-operation == 'created'
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+          merge-method: squash
