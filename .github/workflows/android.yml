@@ -131,3 +131,13 @@ jobs:
         with:
           subject-path: |
             src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_v${{ steps.get-version.outputs.current-version }}.apk
+
+  retry-on-failure:
+    if: ${{ failure() && fromJSON(github.run_attempt) < 3 && (inputs.publish || github.ref == 'refs/heads/main') }}
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run retry-workflow.yml -F run_id=${{ github.run_id }}
