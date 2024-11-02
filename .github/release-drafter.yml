@@ -14,7 +14,7 @@ categories:
       - "bug"
       - "bugfix"
 
-  - title: ":boar: Chore"
+  - title: "🧰 Maintenance"
     label: "chore"
 
   - title: ":zap: Performance"
