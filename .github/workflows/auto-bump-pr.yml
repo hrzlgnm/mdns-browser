@@ -30,15 +30,28 @@ jobs:
           jq --indent 4 ".version = \"$NEW_VERSION\"" src-tauri/tauri.android.conf.json > src-tauri/tauri.android.conf.json.tmp && mv src-tauri/tauri.android.conf.json.tmp src-tauri/tauri.android.conf.json
           echo "new_version=$NEW_VERSION" >> "$GITHUB_ENV"
 
+      - name: Set up GPG key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep sec | awk '{print $2}' | cut -d'/' -f2)
+          echo "GPG Key ID: $KEY_ID"
+          git config --global user.signingkey "$KEY_ID"
+          echo $GPG_PASSPHRASE | gpg --batch --yes --passphrase-fd 0 --pinentry-mode loopback --sign -o /dev/null
+
+      - name: Configure Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore(version) : bump to ${{ env.new_version }}"
-          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
-          signoff: true
           base: main
           branch: chore/bump-version-${{ env.new_version }}
           branch-suffix: random
