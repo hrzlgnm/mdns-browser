@@ -113,11 +113,7 @@ fn from_service_info(info: &ServiceInfo) -> ResolvedService {
             val: bytes_option_to_string_option_with_escaping(r.val()),
         })
         .collect();
-    sorted_txt.sort_by(|a, b| {
-        a.key
-            .partial_cmp(&b.key)
-            .expect("To be partial comparable")
-    });
+    sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).expect("To be partial comparable"));
     ResolvedService {
         instance_name: info.get_fullname().into(),
         hostname: info.get_hostname().into(),
