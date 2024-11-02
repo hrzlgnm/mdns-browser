@@ -116,7 +116,7 @@ fn from_service_info(info: &ServiceInfo) -> ResolvedService {
     sorted_txt.sort_by(|a, b| {
         a.key
             .partial_cmp(&b.key)
-            .expect("To be partial compareable")
+            .expect("To be partial comparable")
     });
     ResolvedService {
         instance_name: info.get_fullname().into(),
