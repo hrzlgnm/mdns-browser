@@ -33,6 +33,9 @@ categories:
     label: "dependencies"
     collapse-after: 1
 
+exclude-labels:
+  - ignore
+
 header: |
 
   ## What's Changed
