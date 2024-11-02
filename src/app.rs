@@ -251,25 +251,11 @@ fn AutoCompleteServiceType(
     #[prop(optional, into)] value: Model<String>,
     #[prop(optional, into)] disabled: MaybeSignal<bool>,
     #[prop(optional, into)] invalid: MaybeSignal<bool>,
+    #[prop(optional, into)] comp_ref: ComponentRef<AutoCompleteRef>,
 ) -> impl IntoView {
     log::debug!("AutoCompleteServiceType");
     let (service_types, set_service_types) = create_signal(ServiceTypes::new());
     create_resource(move || set_service_types, listen_on_service_type_events);
-
-    let comp_ref = ComponentRef::<AutoCompleteRef>::new();
-
-    create_effect(move |_| {
-        spawn_local(async move {
-            set_timeout(
-                move || {
-                    if let Some(comp) = comp_ref.get_untracked() {
-                        comp.focus();
-                    }
-                },
-                SPLASH_SCREEN_DURATION + AUTO_COMPLETE_AUTO_FOCUS_DELAY,
-            );
-        });
-    });
 
     let service_type_options = create_memo(move |_| {
         service_types
@@ -467,12 +453,31 @@ fn Browse() -> impl IntoView {
         async move { stop_browse(input.clone()).await }
     });
 
+    let comp_ref = ComponentRef::<AutoCompleteRef>::new();
+
     let on_stop_click = move |_| {
         browsing.set(false);
         set_resolved.set(Vec::new());
         let value = service_type.get_untracked();
         stop_browse_action.dispatch(value);
+        service_type.set(String::new());
+        if let Some(comp) = comp_ref.get_untracked() {
+            comp.focus();
+        }
     };
+
+    create_effect(move |_| {
+        spawn_local(async move {
+            set_timeout(
+                move || {
+                    if let Some(comp) = comp_ref.get_untracked() {
+                        comp.focus();
+                    }
+                },
+                SPLASH_SCREEN_DURATION + AUTO_COMPLETE_AUTO_FOCUS_DELAY,
+            );
+        });
+    });
 
     view! {
         <Layout style="padding: 10px;">
@@ -482,6 +487,7 @@ fn Browse() -> impl IntoView {
                         value=service_type
                         disabled=browsing
                         invalid=service_type_invalid
+                        comp_ref=comp_ref
                     />
                 </Layout>
                 <Button on_click=on_browse_click disabled=browsing_or_service_type_invalid>
