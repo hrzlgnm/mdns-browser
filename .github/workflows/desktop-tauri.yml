@@ -153,7 +153,7 @@ jobs:
             target/**/release/mdns-browser*
 
       - name: 🛡️ Attest build provenance (publish release only)
-        if: (inputs.tagName != '')
+        if: inputs.tagName != ''
         uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
         with:
           subject-path: |
@@ -183,3 +183,13 @@ jobs:
             (contains(matrix.os, 'macos') && contains(matrix.args, 'aarch64')) && 'target/aarch64-apple-darwin/release/mdns-browser'
             }}
           sbom-path: "sbom.spdx.json"
+
+  retry-on-failure:
+    if: ${{ failure() && fromJSON(github.run_attempt) < 3 && (inputs.tagName != '' || github.ref == 'refs/heads/main') }}
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run retry-workflow.yml -F run_id=${{ github.run_id }}
