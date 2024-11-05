@@ -185,7 +185,7 @@ jobs:
           sbom-path: "sbom.spdx.json"
 
   retry-on-failure:
-    if: ${{ failure() && fromJSON(github.run_attempt) < 3 && (inputs.tagName != '' || github.ref == 'refs/heads/main') }}
+    if: failure() && fromJSON(github.run_attempt) < 3
     needs: [build]
     runs-on: ubuntu-latest
     steps:

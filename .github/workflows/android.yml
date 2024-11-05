@@ -112,7 +112,7 @@ jobs:
       - name: ✏️  Rename APK file (publish only)
         if: inputs.publish
         run: |
-          mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_v${{ steps.get-version.outputs.current-version }}.apk
+          mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
 
       - name: 🚀 Publish (publish only)
         if: inputs.publish
@@ -123,17 +123,17 @@ jobs:
           make_latest: false
           generate_release_notes: false
           files: |
-            src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_v${{ steps.get-version.outputs.current-version }}.apk
+            src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
 
       - name: 🛡️ Attest build provenance (publish only)
         if: inputs.publish
         uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v1.4.4
         with:
           subject-path: |
-            src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_v${{ steps.get-version.outputs.current-version }}.apk
+            src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
 
   retry-on-failure:
-    if: ${{ failure() && fromJSON(github.run_attempt) < 3 && (inputs.publish || github.ref == 'refs/heads/main') }}
+    if: failure() && fromJSON(github.run_attempt) < 3
     needs: [build]
     runs-on: ubuntu-latest
     steps:
