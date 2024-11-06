@@ -2,6 +2,32 @@
 
 This application allows you to browse services using mDNS.
 
+Screenshots from [v0.9.5](https://github.com/hrzlgnm/mdns-browser/releases/tag/mdns-browser-v0.9.5)
+
+### Startup
+
+![intro](./screenshots/intro.png)
+
+### Browsing for \_ssh.\_tcp
+
+![browsing-ssh](./screenshots/browsing-_ssh._tcp.png)
+
+### Details of a resolved service having many IPs
+
+![ssh-details](./screenshots/_ssh._tcp.details.png)
+
+### Details of a resolved service having a subtype and TXT records
+
+![amzn-details](./screenshots/_amzn-wplay._tcp-details.png)
+
+### Checking for updates on Windows
+
+![check-update](./screenshots/check-update.png)
+
+### Response if no update is available
+
+![no-update](./screenshots/no-update.png)
+
 <!--toc:start-->
 
 - [mDNS-Browser Overview](#mdns-browser)
