@@ -52,7 +52,7 @@ jobs:
             shared_constants
 
       - name: 📝 Check spelling using typos-action
-        uses: crate-ci/typos@51e9d58a14d6c43eedf9356ab5b30ef4715d14c0 # v1.27.1
+        uses: crate-ci/typos@98325b27809ff86ca808bacada386a051a3515a3 # v1.27.2
 
       - name: 📥 Cached install trunk
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
