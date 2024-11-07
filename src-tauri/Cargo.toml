@@ -12,7 +12,7 @@ tauri-build = { version = "2.0.0", features = [] }
 clap = { version = "4.5.19", features = ["derive"] }
 tauri-plugin-log = "2.0.0"
 tauri-plugin-updater = "2.0.1"
-thiserror = "1.0.64"
+thiserror = "2.0.0"
 tokio = "1.40.0"
 
 [dependencies]
