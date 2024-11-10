@@ -2769,7 +2769,7 @@ dependencies = [
  "tauri-plugin-log",
  "tauri-plugin-shell",
  "tauri-plugin-updater",
- "thiserror 2.0.1",
+ "thiserror 2.0.2",
  "tokio",
 ]
 
@@ -4867,7 +4867,7 @@ dependencies = [
  "tauri-runtime",
  "tauri-runtime-wry",
  "tauri-utils",
- "thiserror 2.0.1",
+ "thiserror 2.0.2",
  "tokio",
  "tray-icon",
  "url",
@@ -4920,7 +4920,7 @@ dependencies = [
  "sha2",
  "syn 2.0.87",
  "tauri-utils",
- "thiserror 2.0.1",
+ "thiserror 2.0.2",
  "time",
  "url",
  "uuid",
@@ -5060,7 +5060,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tauri-utils",
- "thiserror 2.0.1",
+ "thiserror 2.0.2",
  "url",
  "windows",
 ]
@@ -5137,7 +5137,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "swift-rs",
- "thiserror 2.0.1",
+ "thiserror 2.0.2",
  "toml 0.8.2",
  "url",
  "urlpattern",
@@ -5242,11 +5242,11 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "2.0.1"
+version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07c1e40dd48a282ae8edc36c732cbc219144b87fb6a4c7316d611c6b1f06ec0c"
+checksum = "037e29b009aa709f293b974da5cd33b15783c049e07f8435778ce8c4871525d8"
 dependencies = [
- "thiserror-impl 2.0.1",
+ "thiserror-impl 2.0.2",
 ]
 
 [[package]]
@@ -5262,9 +5262,9 @@ dependencies = [
 
 [[package]]
 name = "thiserror-impl"
-version = "2.0.1"
+version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "874aa7e446f1da8d9c3a5c95b1c5eb41d800045252121dc7f8e0ba370cee55f5"
+checksum = "ea4778c7e8ff768bdb32a58a2349903859fe719a320300d7d4ce8636f19a1e69"
 dependencies = [
  "proc-macro2",
  "quote",
