@@ -245,9 +245,9 @@ fn x11_workaround() {
         Ok(val) => {
             if val == "x11" {
                 println!(
-                    "Setting WEBKIT_DISABLE_COMPOSITING_MODE=1 to workaround rendering issues with x11 session"
+                    "Setting WEBKIT_DISABLE_DMABUF_RENDERER=1 to workaround rendering issues with x11 session"
                 );
-                std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1")
+                std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1")
             }
         }
         Err(_e) => {}
