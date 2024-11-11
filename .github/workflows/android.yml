@@ -63,7 +63,7 @@ jobs:
       - name: 📥 Cached install cargo-auditable
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
         with:
-          tool: cargo-auditable@0.6.4
+          tool: cargo-auditable@0.6.5
           locked: true
 
       - name: 📥 Cached install tauri-cli
