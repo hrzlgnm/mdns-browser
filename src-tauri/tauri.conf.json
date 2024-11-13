@@ -30,6 +30,11 @@
                     "/usr/share/licenses/mdns-browser/LICENSE": "../LICENSE"
                 }
             }
+        },
+        "windows": {
+            "certificateThumbprint": "3E755AD701CB7F3AC747239CFDCD63A24144239A",
+            "digestAlgorithm": "sha256",
+            "timestampUrl": "http://timestamp.digicert.com"
         }
     },
     "productName": "mdns-browser",
