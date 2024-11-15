@@ -12,7 +12,7 @@ jobs:
           $VERSION = "${{ github.event.release.tag_name }}" -replace '.*-v(\d+)\.(\d+\.\d+)', '$1.$2'
           "version=$VERSION" >> $env:GITHUB_OUTPUT
         shell: pwsh
-      - uses: vedantmgoyal9/winget-releaser@main
+      - uses: vedantmgoyal9/winget-releaser@v2
         with:
           identifier: hrzlgnm.mdns-browser
           max-versions-to-keep: 10
