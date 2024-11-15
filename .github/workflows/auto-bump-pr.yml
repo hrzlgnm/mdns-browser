@@ -2,7 +2,7 @@ name: Auto Bump Patch
 
 on:
   release:
-    types: [prereleased]
+    types: [published]
   workflow_dispatch:
 
 permissions:
