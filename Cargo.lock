@@ -2009,9 +2009,9 @@ dependencies = [
 
 [[package]]
 name = "icondata"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18db9eec46b6c870bf84281dd8065fb207b23a9c1c0cb367c49a919a61a38dec"
+checksum = "805a2a031c06a768407b774240192b0ad82ddb94554bb5b52053453f2f6b0bf1"
 dependencies = [
  "icondata_ai",
  "icondata_bi",
@@ -2025,6 +2025,7 @@ dependencies = [
  "icondata_im",
  "icondata_io",
  "icondata_lu",
+ "icondata_mdi",
  "icondata_oc",
  "icondata_ri",
  "icondata_si",
@@ -2135,6 +2136,15 @@ name = "icondata_lu"
 version = "0.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d552c45cc3ab1d1bf88cc0201004eb92418141e5454e9e0e46c4b4a4faf66248"
+dependencies = [
+ "icondata_core",
+]
+
+[[package]]
+name = "icondata_mdi"
+version = "0.0.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2a8e840a8faae895efc4f3a3d5e3a9fcf0fbb01e8b37f469951102dfa9588efe"
 dependencies = [
  "icondata_core",
 ]
