@@ -288,7 +288,7 @@ fn AutoCompleteServiceType(
             attr:autocapitalize="none"
         >
             <AutoCompleteSuffix slot>
-                <Icon icon=icondata::CgSearchLoading />
+                <Icon icon=icondata::MdiSearchWeb />
             </AutoCompleteSuffix>
         </AutoComplete>
     }
@@ -332,7 +332,7 @@ fn ToClipBoardCopyable(
             disabled=disabled
             on_click=on_copy_to_clibboard_click
             variant=ButtonVariant::Text
-            icon=icondata::TbClipboardText
+            icon=icondata::MdiClipboardText
             size=ButtonSize::Tiny
         />
         {text}
@@ -655,28 +655,28 @@ pub fn About() -> impl IntoView {
                         <Button
                             size=ButtonSize::Tiny
                             on_click=on_release_notes_click
-                            icon=icondata::AiGithubOutlined
+                            icon=icondata::MdiGithub
                         >
                             "Release Notes"
                         </Button>
                         <Button
                             size=ButtonSize::Tiny
                             on_click=on_report_issue_click
-                            icon=icondata::AiGithubOutlined
+                            icon=icondata::MdiGithub
                         >
                             "Report an Issue"
                         </Button>
                         <Button
                             size=ButtonSize::Tiny
                             on_click=on_issues_click
-                            icon=icondata::AiGithubOutlined
+                            icon=icondata::MdiGithub
                         >
                             "Known Issues"
                         </Button>
                         <Button
                             size=ButtonSize::Tiny
                             on_click=on_releases_click
-                            icon=icondata::AiGithubOutlined
+                            icon=icondata::MdiGithub
                         >
                             "Releases"
                         </Button>
@@ -686,7 +686,7 @@ pub fn About() -> impl IntoView {
                                 view! {
                                     <Button
                                         size=ButtonSize::Tiny
-                                        icon=icondata::AiCheckCircleOutlined
+                                        icon=icondata::MdiCheckCircleOutline
                                     >
                                         "You are already on the latest version"
                                     </Button>
@@ -706,7 +706,7 @@ pub fn About() -> impl IntoView {
                                             <Button
                                                 size=ButtonSize::Tiny
                                                 on_click=on_check_update_click
-                                                icon=icondata::RiDownloadSystemLine
+                                                icon=icondata::MdiDownloadCircleOutline
                                             >
                                                 "Check for updates"
                                             </Button>
@@ -716,7 +716,7 @@ pub fn About() -> impl IntoView {
                                     <Button
                                         size=ButtonSize::Tiny
                                         on_click=on_install_update_click
-                                        icon=icondata::RiInstallDeviceLine
+                                        icon=icondata::MdiInboxArrowDown
                                     >
                                         "Download and Install "
                                         {{ installable_version }}
