@@ -102,6 +102,11 @@ fn stop_browse(service_type: String, state: State<ManagedState>) {
     }
 }
 
+#[tauri::command]
+fn verify(_instance_fullname: String, _state: State<ManagedState>) {
+    todo!();
+}
+
 fn from_service_info(info: &ServiceInfo) -> ResolvedService {
     let mut sorted_addresses: Vec<IpAddr> = info.get_addresses().clone().drain().collect();
     sorted_addresses.sort();
@@ -476,6 +481,7 @@ pub fn run() {
             open,
             send_metrics,
             stop_browse,
+            verify,
             version,
         ])
         .run(tauri::generate_context!())
@@ -497,6 +503,7 @@ pub fn run_mobile() {
             open,
             send_metrics,
             stop_browse,
+            verify,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
