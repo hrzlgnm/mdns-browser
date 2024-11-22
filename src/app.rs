@@ -395,22 +395,10 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     let card_title = get_instance_name(resolved_service.instance_name.as_str());
     let details_title = card_title.clone();
     let show_details = create_rw_signal(false);
-    let hostname_variant = if resolved_service.dead {
-        TagVariant::Default
+    let (hostname_variant, port_variant, addrs_footer) = if resolved_service.dead {
+        (TagVariant::Default, TagVariant::Default, vec![])
     } else {
-        TagVariant::Success
-    };
-
-    let port_variant = if resolved_service.dead {
-        TagVariant::Default
-    } else {
-        TagVariant::Warning
-    };
-
-    let addrs_footer = if resolved_service.dead {
-        vec![]
-    } else {
-        addrs.clone()
+        (TagVariant::Success, TagVariant::Warning, addrs.clone())
     };
     view! {
         <GridItem>
