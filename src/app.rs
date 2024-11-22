@@ -166,6 +166,22 @@ async fn stop_browse(service_type: String) {
     .await;
 }
 
+#[derive(Serialize, Deserialize)]
+#[allow(non_snake_case)]
+struct VerifyArgs<'a> {
+    instanceFullname: &'a str,
+}
+
+async fn verify_instance(instance_fullname: String) {
+    let _ = invoke::<()>(
+        "verify",
+        &VerifyArgs {
+            instanceFullname: &instance_fullname,
+        },
+    )
+    .await;
+}
+
 /// Component to render a string vector into a table
 #[component]
 fn ValuesTable(values: Vec<String>, #[prop(into)] title: String) -> impl IntoView {
@@ -294,21 +310,6 @@ fn AutoCompleteServiceType(
     }
 }
 
-#[derive(Serialize, Deserialize)]
-struct CopyToClipboardArgs<'a> {
-    contents: &'a str,
-}
-
-async fn copy_to_clipboard(contents: String) {
-    let _ = invoke::<()>(
-        "copy_to_clipboard",
-        &CopyToClipboardArgs {
-            contents: &contents,
-        },
-    )
-    .await;
-}
-
 /// Component that allows to copy the shown text to the clipboard
 #[component]
 fn ToClipBoardCopyable(
@@ -339,10 +340,38 @@ fn ToClipBoardCopyable(
     }
 }
 
+#[derive(Serialize, Deserialize)]
+struct CopyToClipboardArgs<'a> {
+    contents: &'a str,
+}
+
+async fn copy_to_clipboard(contents: String) {
+    let _ = invoke::<()>(
+        "copy_to_clipboard",
+        &CopyToClipboardArgs {
+            contents: &contents,
+        },
+    )
+    .await;
+}
+
 /// Component that shows a service as a card
 #[component]
 fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     log::debug!("ResolvedServiceGridItem");
+
+    let instance_fullname = create_rw_signal(format!(
+        "{}.{}",
+        resolved_service.instance_name, resolved_service.hostname
+    ));
+    let verify_action = create_action(|instance_fullname: &String| {
+        let instance_fullname = instance_fullname.clone();
+        async move { verify_instance(instance_fullname.clone()).await }
+    });
+    let on_verify_click = move |_| {
+        verify_action.dispatch(instance_fullname.get_untracked());
+    };
+
     let mut hostname = resolved_service.hostname;
     hostname.pop(); // remove the trailing dot
     let updated_at = DateTime::from_timestamp_millis(resolved_service.updated_at_ms as i64)
@@ -362,20 +391,26 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
         None => vec![],
         Some(s) => vec![s],
     };
+
     let card_title = get_instance_name(resolved_service.instance_name.as_str());
     let details_title = card_title.clone();
     let show_details = create_rw_signal(false);
-    let hostname_variant = match resolved_service.dead {
-        true => TagVariant::Default,
-        false => TagVariant::Success,
+    let hostname_variant = if resolved_service.dead {
+        TagVariant::Default
+    } else {
+        TagVariant::Success
     };
-    let port_variant = match resolved_service.dead {
-        true => TagVariant::Default,
-        false => TagVariant::Warning,
+
+    let port_variant = if resolved_service.dead {
+        TagVariant::Default
+    } else {
+        TagVariant::Warning
     };
-    let addrs_footer = match resolved_service.dead {
-        true => vec![],
-        false => addrs.clone(),
+
+    let addrs_footer = if resolved_service.dead {
+        vec![]
+    } else {
+        addrs.clone()
     };
     view! {
         <GridItem>
@@ -384,6 +419,12 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                     {as_local_datetime.format("%Y-%m-%d %H:%M:%S").to_string()}
                 </CardHeaderExtra>
                 <Space align=SpaceAlign::Center>
+                    <Button
+                        size=ButtonSize::Tiny
+                        on_click=on_verify_click
+                        disabled=resolved_service.dead
+                        icon=icondata::MdiCheckAll
+                    />
                     <Tag variant=hostname_variant>{hostname}</Tag>
                     <Tag variant=port_variant>{resolved_service.port}</Tag>
                     <Button
