@@ -18,7 +18,7 @@ tokio = "1.40.0"
 [dependencies]
 # crates
 log = "0.4.22"
-mdns-sd = { version = "0.11.4", features = ["async", "log"] }
+mdns-sd = { version = "0.12.0", features = ["async", "log"] }
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.128"
 tauri = { version = "2.0.0", features = [] }
