@@ -2,7 +2,7 @@
 use clap::builder::TypedValueParser as _;
 #[cfg(desktop)]
 use clap::Parser;
-use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
+use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo, VERIFY_TIMEOUT_DEFAULT};
 use models::*;
 #[cfg(all(desktop, not(debug_assertions)))]
 use shared_constants::SPLASH_SCREEN_DURATION;
@@ -99,6 +99,14 @@ fn stop_browse(service_type: String, state: State<ManagedState>) {
                 running_browsers.retain(|s| s != &service_type);
             }
         }
+    }
+}
+
+#[tauri::command]
+fn verify(instance_fullname: String, state: State<ManagedState>) {
+    if let Ok(mdns) = state.daemon.lock() {
+        mdns.verify(instance_fullname, VERIFY_TIMEOUT_DEFAULT)
+            .expect("To verify an instance");
     }
 }
 
@@ -476,6 +484,7 @@ pub fn run() {
             open,
             send_metrics,
             stop_browse,
+            verify,
             version,
         ])
         .run(tauri::generate_context!())
@@ -497,6 +506,7 @@ pub fn run_mobile() {
             open,
             send_metrics,
             stop_browse,
+            verify,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
