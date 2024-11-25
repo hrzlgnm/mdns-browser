@@ -2,7 +2,7 @@
 use clap::builder::TypedValueParser as _;
 #[cfg(desktop)]
 use clap::Parser;
-use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
+use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo, VERIFY_TIMEOUT_DEFAULT};
 use models::*;
 #[cfg(all(desktop, not(debug_assertions)))]
 use shared_constants::SPLASH_SCREEN_DURATION;
@@ -103,8 +103,11 @@ fn stop_browse(service_type: String, state: State<ManagedState>) {
 }
 
 #[tauri::command]
-fn verify(_instance_fullname: String, _state: State<ManagedState>) {
-    todo!();
+fn verify(instance_fullname: String, state: State<ManagedState>) {
+    if let Ok(mdns) = state.daemon.lock() {
+        mdns.verify(instance_fullname, VERIFY_TIMEOUT_DEFAULT)
+            .expect("To verify an instance");
+    }
 }
 
 fn from_service_info(info: &ServiceInfo) -> ResolvedService {
