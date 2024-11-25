@@ -360,10 +360,7 @@ async fn copy_to_clipboard(contents: String) {
 fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     log::debug!("ResolvedServiceGridItem");
 
-    let instance_fullname = create_rw_signal(format!(
-        "{}.{}",
-        resolved_service.instance_name, resolved_service.hostname
-    ));
+    let instance_fullname = create_rw_signal(resolved_service.instance_name.clone());
     let verify_action = create_action(|instance_fullname: &String| {
         let instance_fullname = instance_fullname.clone();
         async move { verify_instance(instance_fullname.clone()).await }
