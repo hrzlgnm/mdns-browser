@@ -104,6 +104,7 @@ fn stop_browse(service_type: String, state: State<ManagedState>) {
 
 #[tauri::command]
 fn verify(instance_fullname: String, state: State<ManagedState>) {
+    log::debug!("verifying {}", instance_fullname);
     if let Ok(mdns) = state.daemon.lock() {
         mdns.verify(instance_fullname, VERIFY_TIMEOUT_DEFAULT)
             .expect("To verify an instance");
