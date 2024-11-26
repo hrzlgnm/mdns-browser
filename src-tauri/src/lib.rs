@@ -2,11 +2,11 @@
 use clap::builder::TypedValueParser as _;
 #[cfg(desktop)]
 use clap::Parser;
-use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo, VERIFY_TIMEOUT_DEFAULT};
+use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
 use models::*;
 #[cfg(all(desktop, not(debug_assertions)))]
 use shared_constants::SPLASH_SCREEN_DURATION;
-use shared_constants::{MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL};
+use shared_constants::{MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT};
 use std::{
     collections::HashMap,
     net::IpAddr,
@@ -106,7 +106,7 @@ fn stop_browse(service_type: String, state: State<ManagedState>) {
 fn verify(instance_fullname: String, state: State<ManagedState>) {
     log::debug!("verifying {}", instance_fullname);
     if let Ok(mdns) = state.daemon.lock() {
-        mdns.verify(instance_fullname, VERIFY_TIMEOUT_DEFAULT)
+        mdns.verify(instance_fullname, VERIFY_TIMEOUT)
             .expect("To verify an instance");
     }
 }
