@@ -8,7 +8,7 @@ use models::*;
 use serde::{Deserialize, Serialize};
 use shared_constants::{
     AUTO_COMPLETE_AUTO_FOCUS_DELAY, GITHUB_BASE_URL, SHOW_NO_UPDATE_DURATION,
-    SPLASH_SCREEN_DURATION,
+    SPLASH_SCREEN_DURATION, VERIFY_TIMEOUT,
 };
 use std::collections::HashSet;
 use strsim::jaro_winkler;
@@ -365,8 +365,16 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
         let instance_fullname = instance_fullname.clone();
         async move { verify_instance(instance_fullname.clone()).await }
     });
+    let verifying = create_rw_signal(false);
     let on_verify_click = move |_| {
+        verifying.set(true);
         verify_action.dispatch(instance_fullname.get_untracked());
+        set_timeout(
+            move || {
+                verifying.set(false);
+            },
+            VERIFY_TIMEOUT,
+        )
     };
 
     let mut hostname = resolved_service.hostname;
@@ -405,6 +413,7 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                 </CardHeaderExtra>
                 <Space align=SpaceAlign::Center>
                     <Button
+                        loading=verifying
                         size=ButtonSize::Tiny
                         on_click=on_verify_click
                         disabled=resolved_service.dead

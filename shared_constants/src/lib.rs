@@ -10,3 +10,4 @@ pub const SPLASH_SCREEN_DURATION: Duration = Duration::from_secs(2);
 pub const AUTO_COMPLETE_AUTO_FOCUS_DELAY: Duration = Duration::from_secs(5);
 pub const SHOW_NO_UPDATE_DURATION: Duration = Duration::from_secs(3);
 pub const GITHUB_BASE_URL: &str = "https://github.com/hrzlgnm/mdns-browser";
+pub const VERIFY_TIMEOUT: Duration = Duration::from_secs(5);
