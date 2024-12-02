@@ -68,7 +68,7 @@ jobs:
           VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
 
       - name: 📝 Check spelling using typos-action
-        uses: crate-ci/typos@bd36f89fcd3424dcefd442894589e6ee572a59f2 # v1.28.1
+        uses: crate-ci/typos@2872c382bb9668d4baa5eade234dcbc0048ca2cf # v1.28.2
 
       - name: 📥 Cached install leptosfmt (macos only)
         if: contains(matrix.os, 'macos')
