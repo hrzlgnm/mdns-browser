@@ -14,11 +14,13 @@ use std::collections::HashSet;
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
+use thaw::ButtonColor;
+use thaw::SpaceJustify;
 use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSuffix, Button, ButtonSize,
     ButtonVariant, Card, CardFooter, CardHeaderExtra, Collapse, CollapseItem, ComponentRef,
-    GlobalStyle, Grid, GridItem, Icon, Layout, Modal, Space, SpaceAlign, Table, Tag, TagVariant,
-    Text, Theme, ThemeProvider,
+    GlobalStyle, Grid, GridItem, Icon, Layout, Modal, Space, SpaceAlign, Table, Text, Theme,
+    ThemeProvider,
 };
 use thaw_utils::Model;
 
@@ -47,7 +49,7 @@ async fn listen_on_metrics_event(event_writer: WriteSignal<Vec<(String, i64)>>) 
 }
 
 async fn listen_on_service_type_event_result(
-    event_writer: WriteSignal<ServiceTypes>,
+    event_writer: RwSignal<ServiceTypes>,
 ) -> Result<(), Error> {
     let found = listen::<ServiceTypeFoundEventRes>("service-type-found").await?;
     let removed = listen::<ServiceTypeRemovedEventRes>("service-type-removed").await?;
@@ -84,7 +86,7 @@ async fn listen_on_service_type_event_result(
     Ok(())
 }
 
-async fn listen_on_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
+async fn listen_on_service_type_events(event_writer: RwSignal<ServiceTypes>) {
     log::debug!("listen on service type events");
     let result = listen_on_service_type_event_result(event_writer).await;
     match result {
@@ -142,28 +144,32 @@ async fn listen_on_resolve_events(event_writer: WriteSignal<ResolvedServices>) {
 
 #[derive(Serialize, Deserialize)]
 #[allow(non_snake_case)]
-struct BrowseArgs<'a> {
-    serviceType: &'a str,
+struct BrowseManyArgs {
+    serviceTypes: Vec<String>,
 }
 
 async fn browse(service_type: String) {
     let _ = invoke::<()>(
-        "browse",
-        &BrowseArgs {
-            serviceType: &service_type,
+        "browse_many",
+        &BrowseManyArgs {
+            serviceTypes: vec![service_type],
         },
     )
     .await;
 }
 
-async fn stop_browse(service_type: String) {
+async fn browse_many(service_types: Vec<String>) {
     let _ = invoke::<()>(
-        "stop_browse",
-        &BrowseArgs {
-            serviceType: &service_type,
+        "browse_many",
+        &BrowseManyArgs {
+            serviceTypes: service_types,
         },
     )
     .await;
+}
+
+async fn stop_browse() {
+    invoke_no_args("stop_browse").await;
 }
 
 #[derive(Serialize, Deserialize)]
@@ -270,8 +276,11 @@ fn AutoCompleteServiceType(
     #[prop(optional, into)] comp_ref: ComponentRef<AutoCompleteRef>,
 ) -> impl IntoView {
     log::debug!("AutoCompleteServiceType");
-    let (service_types, set_service_types) = create_signal(ServiceTypes::new());
-    create_resource(move || set_service_types, listen_on_service_type_events);
+    let service_types = use_context::<ServiceTypesSignal>()
+        .expect("service_tyxpes context to exist")
+        .0;
+
+    create_resource(move || service_types, listen_on_service_type_events);
 
     let service_type_options = create_memo(move |_| {
         service_types
@@ -355,6 +364,10 @@ async fn copy_to_clipboard(contents: String) {
     .await;
 }
 
+fn drop_local(fqn: &str) -> String {
+    fqn.strip_suffix(".local.").unwrap_or(fqn).to_owned()
+}
+
 /// Component that shows a service as a card
 #[component]
 fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
@@ -376,9 +389,28 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
             VERIFY_TIMEOUT,
         )
     };
+    let copy_to_clipboard_action = create_action(|input: &String| {
+        let input = input.clone();
+        async move { copy_to_clipboard(input.clone()).await }
+    });
 
-    let mut hostname = resolved_service.hostname;
-    hostname.pop(); // remove the trailing dot
+    let hostname = drop_local(&resolved_service.hostname);
+    let hostname_sig = create_rw_signal(resolved_service.hostname.clone());
+    let on_copy_hostname_to_clibboard_click = move |_| {
+        copy_to_clipboard_action.dispatch(hostname_sig.get_untracked());
+    };
+
+    let port_sig = create_rw_signal(resolved_service.port.to_string());
+    let on_copy_port_to_clibboard_click = move |_| {
+        copy_to_clipboard_action.dispatch(port_sig.get_untracked());
+    };
+
+    let service_type_without_local = drop_local(&resolved_service.service_type);
+    let service_type_sig = create_rw_signal(resolved_service.service_type.clone());
+    let on_copy_service_type_to_clibboard_click = move |_| {
+        copy_to_clipboard_action.dispatch(service_type_sig.get_untracked());
+    };
+
     let updated_at = DateTime::from_timestamp_millis(resolved_service.updated_at_ms as i64)
         .expect("To get convert");
     let as_local_datetime: DateTime<Local> = updated_at.with_timezone(&Local);
@@ -400,10 +432,10 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     let card_title = get_instance_name(resolved_service.instance_name.as_str());
     let details_title = card_title.clone();
     let show_details = create_rw_signal(false);
-    let (hostname_variant, port_variant, addrs_footer) = if resolved_service.dead {
-        (TagVariant::Default, TagVariant::Default, vec![])
+    let addrs_footer = if resolved_service.dead {
+        vec![]
     } else {
-        (TagVariant::Success, TagVariant::Warning, addrs.clone())
+        addrs.clone()
     };
     view! {
         <GridItem>
@@ -411,28 +443,62 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                 <CardHeaderExtra slot>
                     {as_local_datetime.format("%Y-%m-%d %H:%M:%S").to_string()}
                 </CardHeaderExtra>
-                <Space align=SpaceAlign::Center>
-                    <Button
-                        loading=verifying
-                        size=ButtonSize::Tiny
-                        on_click=on_verify_click
-                        disabled=resolved_service.dead
-                        icon=icondata::MdiCheckAll
-                    />
-                    <Tag variant=hostname_variant>{hostname}</Tag>
-                    <Tag variant=port_variant>{resolved_service.port}</Tag>
-                    <Button
-                        size=ButtonSize::Tiny
-                        disabled=resolved_service.dead
-                        on_click=move |_| show_details.set(true)
-                    >
-                        "Details"
-                    </Button>
-                    <Modal width="90vw" title=details_title show=show_details>
-                        <ValuesTable values=subtype title="subtype" />
-                        <ValuesTable values=addrs title="IPs" />
-                        <ValuesTable values=txts title="txt" />
-                    </Modal>
+                <Space vertical=true>
+                    <Space align=SpaceAlign::Center justify=SpaceJustify::Center>
+                        <Button
+                            size=ButtonSize::Small
+                            variant=ButtonVariant::Outlined
+                            color=ButtonColor::Success
+                            on_click=on_copy_hostname_to_clibboard_click
+                            disabled=resolved_service.dead
+                        >
+                            {hostname}
+                        </Button>
+                        <Button
+                            size=ButtonSize::Small
+                            variant=ButtonVariant::Outlined
+                            color=ButtonColor::Success
+                            on_click=on_copy_port_to_clibboard_click
+                            disabled=resolved_service.dead
+                        >
+                            {resolved_service.port}
+                        </Button>
+                        <Button
+                            size=ButtonSize::Small
+                            variant=ButtonVariant::Outlined
+                            disabled=resolved_service.dead
+                            on_click=move |_| show_details.set(true)
+                            icon=icondata::MdiListBox
+                        >
+                            "Details"
+                        </Button>
+                        <Modal width="90vw" title=details_title show=show_details>
+                            <ValuesTable values=subtype title="subtype" />
+                            <ValuesTable values=addrs title="IPs" />
+                            <ValuesTable values=txts title="txt" />
+                        </Modal>
+                    </Space>
+                    <Space align=SpaceAlign::Center justify=SpaceJustify::Center>
+                        <Button
+                            size=ButtonSize::Small
+                            variant=ButtonVariant::Outlined
+                            color=ButtonColor::Success
+                            on_click=on_copy_service_type_to_clibboard_click
+                            disabled=resolved_service.dead
+                        >
+                            {service_type_without_local}
+                        </Button>
+                        <Button
+                            loading=verifying
+                            size=ButtonSize::Small
+                            variant=ButtonVariant::Outlined
+                            on_click=on_verify_click
+                            disabled=resolved_service.dead
+                            icon=icondata::MdiCheckAll
+                        >
+                            "Verify"
+                        </Button>
+                    </Space>
                 </Space>
                 <CardFooter slot>
                     <ToClipBoardCopyable
@@ -445,15 +511,24 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct ServiceTypesSignal(RwSignal<ServiceTypes>);
+
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
     log::debug!("Browse");
+    let service_types = create_rw_signal(ServiceTypes::new());
+    provide_context(ServiceTypesSignal(service_types));
+
+    let browsing_all = create_rw_signal(false);
+
     let (resolved, set_resolved) = create_signal(ResolvedServices::new());
     create_resource(move || set_resolved, listen_on_resolve_events);
     let is_desktop = use_context::<IsDesktopSignal>()
         .expect("is_desktop context to exist")
         .0;
+
     let browsing = create_rw_signal(false);
     let service_type = create_rw_signal(String::new());
     let not_browsing = Signal::derive(move || !browsing.get());
@@ -484,18 +559,27 @@ fn Browse() -> impl IntoView {
         browse_action.dispatch(value);
     };
 
-    let stop_browse_action = create_action(|input: &String| {
+    let browse_many_action = create_action(|input: &ServiceTypes| {
         let input = input.clone();
-        async move { stop_browse(input.clone()).await }
+        async move { browse_many(input.clone()).await }
     });
+
+    let on_browse_many_click = move |_| {
+        browsing_all.set(true);
+        browsing.set(true);
+        let value = service_types.get_untracked();
+        browse_many_action.dispatch(value);
+    };
+
+    let stop_browsing_action = create_action(|_| async move { stop_browse().await });
 
     let comp_ref = ComponentRef::<AutoCompleteRef>::new();
 
-    let on_stop_click = move |_| {
+    let on_stopbrowsing_click = move |_| {
         browsing.set(false);
+        browsing_all.set(false);
         set_resolved.set(Vec::new());
-        let value = service_type.get_untracked();
-        stop_browse_action.dispatch(value);
+        stop_browsing_action.dispatch(());
         service_type.set(String::new());
         if let Some(comp) = comp_ref.get_untracked() {
             comp.focus();
@@ -529,8 +613,11 @@ fn Browse() -> impl IntoView {
                 <Button on_click=on_browse_click disabled=browsing_or_service_type_invalid>
                     "Browse"
                 </Button>
-                <Button on_click=on_stop_click disabled=not_browsing>
+                <Button on_click=on_stopbrowsing_click disabled=not_browsing>
                     "Stop"
+                </Button>
+                <Button on_click=on_browse_many_click disabled=browsing>
+                    "Browse all"
                 </Button>
             </Space>
             <Grid class="responsivegrid">

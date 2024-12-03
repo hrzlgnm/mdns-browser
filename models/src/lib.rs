@@ -22,6 +22,7 @@ impl Display for TxtRecord {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ResolvedService {
     pub instance_name: String,
+    pub service_type: String,
     pub hostname: String,
     pub port: u16,
     pub addresses: Vec<IpAddr>,
@@ -299,6 +300,7 @@ mod tests {
     fn test_resolved_service_initialization() {
         // Arrange
         let instance_name = "test_service".to_string();
+        let service_type = "_banan._tcp.local".to_string();
         let hostname = "test.local".to_string();
         let port = 8080;
         let addresses = vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))];
@@ -310,6 +312,7 @@ mod tests {
         // Act
         let service = ResolvedService {
             instance_name: instance_name.clone(),
+            service_type: service_type.clone(),
             hostname: hostname.clone(),
             port,
             addresses: addresses.clone(),
@@ -321,6 +324,7 @@ mod tests {
 
         // Assert
         assert_eq!(service.instance_name, instance_name);
+        assert_eq!(service.service_type, service_type);
         assert_eq!(service.hostname, hostname);
         assert_eq!(service.port, port);
         assert_eq!(service.addresses, addresses);
@@ -335,6 +339,7 @@ mod tests {
         // Arrange
         let mut service = ResolvedService {
             instance_name: "test_service".to_string(),
+            service_type: "_banan._tcp.local.".to_string(),
             hostname: "test.local".to_string(),
             port: 8080,
             addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))],
@@ -359,6 +364,7 @@ mod tests {
         // Arrange
         let mut service = ResolvedService {
             instance_name: "test_service".to_string(),
+            service_type: "_banan._tcp.local.".to_string(),
             hostname: "test.local".to_string(),
             port: 8080,
             addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))],
@@ -383,6 +389,7 @@ mod tests {
         // Arrange
         let mut service = ResolvedService {
             instance_name: "test_service".to_string(),
+            service_type: "_banan._tcp.local.".to_string(),
             hostname: "test.local".to_string(),
             port: 8080,
             addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))],
