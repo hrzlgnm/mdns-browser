@@ -368,7 +368,7 @@ fn drop_local(fqn: &str) -> String {
     fqn.strip_suffix(".local.").unwrap_or(fqn).to_owned()
 }
 
-/// Component that shows a service as a card
+/// Component that shows a resolved service as a card
 #[component]
 fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     log::debug!("ResolvedServiceGridItem");
