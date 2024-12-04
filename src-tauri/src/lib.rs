@@ -41,6 +41,31 @@ fn get_shared_daemon() -> SharedServiceDaemon {
     Arc::new(Mutex::new(daemon))
 }
 
+fn from_service_info(info: &ServiceInfo) -> ResolvedService {
+    let mut sorted_addresses: Vec<IpAddr> = info.get_addresses().clone().drain().collect();
+    sorted_addresses.sort();
+    let mut sorted_txt: Vec<TxtRecord> = info
+        .get_properties()
+        .iter()
+        .map(|r| TxtRecord {
+            key: r.key().into(),
+            val: bytes_option_to_string_option_with_escaping(r.val()),
+        })
+        .collect();
+    sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).expect("To be partial comparable"));
+    ResolvedService {
+        instance_name: info.get_fullname().into(),
+        service_type: info.get_type().into(),
+        hostname: info.get_hostname().into(),
+        port: info.get_port(),
+        addresses: sorted_addresses,
+        subtype: info.get_subtype().clone(),
+        txt: sorted_txt,
+        updated_at_ms: timestamp_millis(),
+        dead: false,
+    }
+}
+
 #[tauri::command]
 fn browse_types(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
@@ -68,7 +93,7 @@ fn browse_types(window: Window, state: State<ManagedState>) {
                             .emit(
                                 "service-type-removed",
                                 &ServiceTypeRemovedEvent {
-                                    service_type: full_name,
+                                    service_type: full_name.clone(),
                                 },
                             )
                             .expect("To emit");
@@ -87,17 +112,13 @@ fn browse_types(window: Window, state: State<ManagedState>) {
 }
 
 #[tauri::command]
-fn stop_browse(service_type: String, state: State<ManagedState>) {
-    if service_type.is_empty() {
-        return;
-    }
+fn stop_browse(state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         if let Ok(mut running_browsers) = state.running_browsers.lock() {
-            if running_browsers.contains(&service_type) {
-                mdns.stop_browse(service_type.as_str())
-                    .expect("To stop browsing");
-                running_browsers.retain(|s| s != &service_type);
-            }
+            running_browsers.iter().for_each(|ty_domain| {
+                mdns.stop_browse(ty_domain).expect("To stop browsing");
+            });
+            running_browsers.clear();
         }
     }
 }
@@ -111,90 +132,72 @@ fn verify(instance_fullname: String, state: State<ManagedState>) {
     }
 }
 
-fn from_service_info(info: &ServiceInfo) -> ResolvedService {
-    let mut sorted_addresses: Vec<IpAddr> = info.get_addresses().clone().drain().collect();
-    sorted_addresses.sort();
-    let mut sorted_txt: Vec<TxtRecord> = info
-        .get_properties()
-        .iter()
-        .map(|r| TxtRecord {
-            key: r.key().into(),
-            val: bytes_option_to_string_option_with_escaping(r.val()),
-        })
-        .collect();
-    sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).expect("To be partial comparable"));
-    ResolvedService {
-        instance_name: info.get_fullname().into(),
-        hostname: info.get_hostname().into(),
-        port: info.get_port(),
-        addresses: sorted_addresses,
-        subtype: info.get_subtype().clone(),
-        txt: sorted_txt,
-        updated_at_ms: timestamp_millis(),
-        dead: false,
-    }
-}
-
 #[tauri::command]
-fn browse(service_type: String, window: Window, state: State<ManagedState>) {
-    if service_type.is_empty() {
-        return;
-    }
-    if let Ok(mdns) = state.daemon.lock() {
-        if let Ok(mut running_browsers) = state.running_browsers.lock() {
-            if !running_browsers.contains(&service_type) {
-                running_browsers.push(service_type.clone());
-                let receiver = mdns.browse(service_type.as_str()).expect("To browse");
-                std::thread::spawn(move || {
-                    while let Ok(event) = receiver.recv() {
-                        match event {
-                            ServiceEvent::ServiceFound(_service_type, instance_name) => {
-                                window
-                                    .emit(
-                                        "service-found",
-                                        &ServiceFoundEvent {
-                                            instance_name,
-                                            at_ms: timestamp_millis(),
-                                        },
-                                    )
-                                    .expect("To emit");
-                            }
-                            ServiceEvent::SearchStarted(service_type) => {
-                                window
-                                    .emit("search-started", &SearchStartedEvent { service_type })
-                                    .expect("to emit");
-                            }
-                            ServiceEvent::ServiceResolved(info) => {
-                                window
-                                    .emit(
-                                        "service-resolved",
-                                        &ServiceResolvedEvent {
-                                            service: from_service_info(&info),
-                                        },
-                                    )
-                                    .expect("To emit");
-                            }
-                            ServiceEvent::ServiceRemoved(_service_type, instance_name) => {
-                                window
-                                    .emit(
-                                        "service-removed",
-                                        &ServiceRemovedEvent {
-                                            instance_name,
-                                            at_ms: timestamp_millis(),
-                                        },
-                                    )
-                                    .expect("To emit");
-                            }
-                            ServiceEvent::SearchStopped(service_type) => {
-                                window
-                                    .emit("search-stopped", &SearchStoppedEvent { service_type })
-                                    .expect("To emit");
-                                break;
+fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedState>) {
+    for service_type in service_types {
+        if let Ok(mdns) = state.daemon.lock() {
+            if let Ok(mut running_browsers) = state.running_browsers.lock() {
+                if !running_browsers.contains(&service_type) {
+                    running_browsers.push(service_type.clone());
+                    let receiver = mdns.browse(service_type.as_str()).expect("To browse");
+                    let window = window.clone();
+                    std::thread::spawn(move || {
+                        while let Ok(event) = receiver.recv() {
+                            match event {
+                                ServiceEvent::ServiceFound(_service_type, instance_name) => {
+                                    window
+                                        .emit(
+                                            "service-found",
+                                            &ServiceFoundEvent {
+                                                instance_name,
+                                                at_ms: timestamp_millis(),
+                                            },
+                                        )
+                                        .expect("To emit");
+                                }
+                                ServiceEvent::SearchStarted(service_type) => {
+                                    window
+                                        .emit(
+                                            "search-started",
+                                            &SearchStartedEvent { service_type },
+                                        )
+                                        .expect("to emit");
+                                }
+                                ServiceEvent::ServiceResolved(info) => {
+                                    window
+                                        .emit(
+                                            "service-resolved",
+                                            &ServiceResolvedEvent {
+                                                service: from_service_info(&info),
+                                            },
+                                        )
+                                        .expect("To emit");
+                                }
+                                ServiceEvent::ServiceRemoved(_service_type, instance_name) => {
+                                    window
+                                        .emit(
+                                            "service-removed",
+                                            &ServiceRemovedEvent {
+                                                instance_name,
+                                                at_ms: timestamp_millis(),
+                                            },
+                                        )
+                                        .expect("To emit");
+                                }
+                                ServiceEvent::SearchStopped(service_type) => {
+                                    window
+                                        .emit(
+                                            "search-stopped",
+                                            &SearchStoppedEvent { service_type },
+                                        )
+                                        .expect("To emit");
+                                    break;
+                                }
                             }
                         }
-                    }
-                    log::debug!("Browse thread for {} ending.", &service_type);
-                });
+                        log::debug!("Browse thread for {} ending.", &service_type);
+                    });
+                }
             }
         }
     }
@@ -477,7 +480,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             app_updates::fetch_update,
             app_updates::install_update,
-            browse,
+            browse_many,
             browse_types,
             can_auto_update,
             copy_to_clipboard,
@@ -500,7 +503,7 @@ pub fn run_mobile() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
         .invoke_handler(tauri::generate_handler![
-            browse,
+            browse_many,
             browse_types,
             copy_to_clipboard,
             is_desktop,
