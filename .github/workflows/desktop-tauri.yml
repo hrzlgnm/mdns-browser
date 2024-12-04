@@ -157,7 +157,7 @@ jobs:
 
       - name: 🛡️ Attest build provenance (publish release only)
         if: inputs.tagName != ''
-        uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v1.4.4
+        uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0.0
         with:
           subject-path: |
             target/release/bundle/nsis/*
@@ -177,7 +177,7 @@ jobs:
 
       - name: 🛡️ Attest SBOM
         if: inputs.tagName != ''
-        uses: actions/attest-sbom@5026d3663739160db546203eeaffa6aa1c51a4d6 # v1
+        uses: actions/attest-sbom@1455967b1b6415d3df9fac31a87500523f7b455c # v2
         with:
           subject-path: ${{
             contains(matrix.os, 'ubuntu') && 'target/release/mdns-browser' ||
