@@ -14,13 +14,11 @@ use std::collections::HashSet;
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
-use thaw::ButtonColor;
-use thaw::SpaceJustify;
 use thaw::{
-    AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSuffix, Button, ButtonSize,
-    ButtonVariant, Card, CardFooter, CardHeaderExtra, Collapse, CollapseItem, ComponentRef,
-    GlobalStyle, Grid, GridItem, Icon, Layout, Modal, Space, SpaceAlign, Table, Text, Theme,
-    ThemeProvider,
+    AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSuffix, Button, ButtonColor,
+    ButtonSize, ButtonVariant, Card, CardFooter, CardHeaderExtra, Collapse, CollapseItem,
+    ComponentRef, GlobalStyle, Grid, GridItem, Icon, Layout, Modal, Space, SpaceAlign,
+    SpaceJustify, Table, Text, Theme, ThemeProvider,
 };
 use thaw_utils::Model;
 
@@ -275,7 +273,6 @@ fn AutoCompleteServiceType(
     #[prop(optional, into)] invalid: MaybeSignal<bool>,
     #[prop(optional, into)] comp_ref: ComponentRef<AutoCompleteRef>,
 ) -> impl IntoView {
-    log::debug!("AutoCompleteServiceType");
     let service_types = use_context::<ServiceTypesSignal>()
         .expect("service_tyxpes context to exist")
         .0;
@@ -325,7 +322,6 @@ fn ToClipBoardCopyable(
     text: Option<String>,
     #[prop(optional, into)] disabled: MaybeSignal<bool>,
 ) -> impl IntoView {
-    log::debug!("ToClipBoardCopyable");
     let (text_to_copy, _) = create_signal(text.clone().unwrap_or_default());
     let copy_to_clipboard_action = create_action(|input: &String| {
         let input = input.clone();
@@ -341,11 +337,49 @@ fn ToClipBoardCopyable(
         <Button
             disabled=disabled
             on_click=on_copy_to_clibboard_click
+            color=ButtonColor::Success
             variant=ButtonVariant::Text
-            icon=icondata::MdiClipboardText
             size=ButtonSize::Tiny
+            icon=icondata::MdiClipboardText
         />
         {text}
+    }
+}
+
+/// Component that allows to copy the shown text as a outlined button, a button click copies the text  to the clipboard
+#[component]
+fn CopyToClipBoardButton(
+    text: Option<String>,
+    button_text: Option<String>,
+    #[prop(optional, into)] disabled: MaybeSignal<bool>,
+) -> impl IntoView {
+    let (text_to_copy, _) = create_signal(text.clone().unwrap_or_default());
+    let copy_to_clipboard_action = create_action(|input: &String| {
+        let input = input.clone();
+        async move { copy_to_clipboard(input.clone()).await }
+    });
+
+    let on_copy_to_clibboard_click = move |_| {
+        let text = text_to_copy.get();
+        copy_to_clipboard_action.dispatch(text);
+    };
+
+    view! {
+        <Button
+            disabled=disabled
+            on_click=on_copy_to_clibboard_click
+            color=ButtonColor::Success
+            variant=ButtonVariant::Outlined
+            size=ButtonSize::Small
+            class="copy-to-clipboard-cursor"
+        >
+            {button_text}
+        </Button>
+        <Style>
+            ".copy-to-clipboard-cursor {
+                    cursor: copy !important;
+            }"
+        </Style>
     }
 }
 
@@ -364,8 +398,12 @@ async fn copy_to_clipboard(contents: String) {
     .await;
 }
 
-fn drop_local(fqn: &str) -> String {
-    fqn.strip_suffix(".local.").unwrap_or(fqn).to_owned()
+fn drop_local_and_last_dot(fqn: &str) -> String {
+    let without_local = fqn.strip_suffix(".local.").unwrap_or(fqn);
+    without_local
+        .strip_suffix(".")
+        .unwrap_or(without_local)
+        .to_owned()
 }
 
 /// Component that shows a resolved service as a card
@@ -389,27 +427,9 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
             VERIFY_TIMEOUT,
         )
     };
-    let copy_to_clipboard_action = create_action(|input: &String| {
-        let input = input.clone();
-        async move { copy_to_clipboard(input.clone()).await }
-    });
 
-    let hostname = drop_local(&resolved_service.hostname);
-    let hostname_sig = create_rw_signal(resolved_service.hostname.clone());
-    let on_copy_hostname_to_clibboard_click = move |_| {
-        copy_to_clipboard_action.dispatch(hostname_sig.get_untracked());
-    };
-
-    let port_sig = create_rw_signal(resolved_service.port.to_string());
-    let on_copy_port_to_clibboard_click = move |_| {
-        copy_to_clipboard_action.dispatch(port_sig.get_untracked());
-    };
-
-    let service_type_without_local = drop_local(&resolved_service.service_type);
-    let service_type_sig = create_rw_signal(resolved_service.service_type.clone());
-    let on_copy_service_type_to_clibboard_click = move |_| {
-        copy_to_clipboard_action.dispatch(service_type_sig.get_untracked());
-    };
+    let short_host = drop_local_and_last_dot(&resolved_service.hostname);
+    let short_service_type = drop_local_and_last_dot(&resolved_service.service_type);
 
     let updated_at = DateTime::from_timestamp_millis(resolved_service.updated_at_ms as i64)
         .expect("To get convert");
@@ -445,24 +465,16 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                 </CardHeaderExtra>
                 <Space vertical=true>
                     <Space align=SpaceAlign::Center justify=SpaceJustify::Center>
-                        <Button
-                            size=ButtonSize::Small
-                            variant=ButtonVariant::Outlined
-                            color=ButtonColor::Success
-                            on_click=on_copy_hostname_to_clibboard_click
+                        <CopyToClipBoardButton
+                            text=Some(resolved_service.hostname)
+                            button_text=Some(short_host)
                             disabled=resolved_service.dead
-                        >
-                            {hostname}
-                        </Button>
-                        <Button
-                            size=ButtonSize::Small
-                            variant=ButtonVariant::Outlined
-                            color=ButtonColor::Success
-                            on_click=on_copy_port_to_clibboard_click
+                        />
+                        <CopyToClipBoardButton
+                            text=Some(resolved_service.port.to_string())
+                            button_text=Some(resolved_service.port.to_string())
                             disabled=resolved_service.dead
-                        >
-                            {resolved_service.port}
-                        </Button>
+                        />
                         <Button
                             size=ButtonSize::Small
                             variant=ButtonVariant::Outlined
@@ -479,15 +491,11 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                         </Modal>
                     </Space>
                     <Space align=SpaceAlign::Center justify=SpaceJustify::Center>
-                        <Button
-                            size=ButtonSize::Small
-                            variant=ButtonVariant::Outlined
-                            color=ButtonColor::Success
-                            on_click=on_copy_service_type_to_clibboard_click
+                        <CopyToClipBoardButton
+                            text=Some(resolved_service.service_type)
+                            button_text=Some(short_service_type)
                             disabled=resolved_service.dead
-                        >
-                            {service_type_without_local}
-                        </Button>
+                        />
                         <Button
                             loading=verifying
                             size=ButtonSize::Small
@@ -501,9 +509,10 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                     </Space>
                 </Space>
                 <CardFooter slot>
-                    <ToClipBoardCopyable
-                        disabled=resolved_service.dead
+                    <CopyToClipBoardButton
                         text=addrs_footer.first().cloned()
+                        button_text=addrs_footer.first().cloned()
+                        disabled=resolved_service.dead
                     />
                 </CardFooter>
             </Card>
@@ -521,8 +530,6 @@ fn Browse() -> impl IntoView {
     let service_types = create_rw_signal(ServiceTypes::new());
     provide_context(ServiceTypesSignal(service_types));
 
-    let browsing_all = create_rw_signal(false);
-
     let (resolved, set_resolved) = create_signal(ResolvedServices::new());
     create_resource(move || set_resolved, listen_on_resolve_events);
     let is_desktop = use_context::<IsDesktopSignal>()
@@ -537,8 +544,9 @@ fn Browse() -> impl IntoView {
         check_service_type_fully_qualified(service_type.get().clone().as_str()).is_err()
     });
 
-    let browsing_or_service_type_invalid =
-        Signal::derive(move || browsing.get() || service_type_invalid.get());
+    let browsing_or_service_type_invalid = Signal::derive(move || {
+        browsing.get() || !service_type.get().is_empty() && service_type_invalid.get()
+    });
 
     let auto_complete_class = Signal::derive(move || {
         if is_desktop.get() {
@@ -546,6 +554,11 @@ fn Browse() -> impl IntoView {
         } else {
             String::from("")
         }
+    });
+
+    let browse_many_action = create_action(|input: &ServiceTypes| {
+        let input = input.clone();
+        async move { browse_many(input.clone()).await }
     });
 
     let browse_action = create_action(|input: &String| {
@@ -556,19 +569,11 @@ fn Browse() -> impl IntoView {
     let on_browse_click = move |_| {
         browsing.set(true);
         let value = service_type.get_untracked();
-        browse_action.dispatch(value);
-    };
-
-    let browse_many_action = create_action(|input: &ServiceTypes| {
-        let input = input.clone();
-        async move { browse_many(input.clone()).await }
-    });
-
-    let on_browse_many_click = move |_| {
-        browsing_all.set(true);
-        browsing.set(true);
-        let value = service_types.get_untracked();
-        browse_many_action.dispatch(value);
+        if value.is_empty() {
+            browse_many_action.dispatch(service_types.get_untracked())
+        } else {
+            browse_action.dispatch(value);
+        }
     };
 
     let stop_browsing_action = create_action(|_| async move { stop_browse().await });
@@ -577,7 +582,6 @@ fn Browse() -> impl IntoView {
 
     let on_stopbrowsing_click = move |_| {
         browsing.set(false);
-        browsing_all.set(false);
         set_resolved.set(Vec::new());
         stop_browsing_action.dispatch(());
         service_type.set(String::new());
@@ -615,9 +619,6 @@ fn Browse() -> impl IntoView {
                 </Button>
                 <Button on_click=on_stopbrowsing_click disabled=not_browsing>
                     "Stop"
-                </Button>
-                <Button on_click=on_browse_many_click disabled=browsing>
-                    "Browse all"
                 </Button>
             </Space>
             <Grid class="responsivegrid">
