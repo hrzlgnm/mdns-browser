@@ -110,6 +110,7 @@ async fn listen_on_resolve_events_result(
                     event_writer.update(|evts| {
                          evts.retain(|r| r.instance_name != event.payload.service.instance_name);
                          evts.push(event.payload.service);
+                         evts.sort_by(|a, b| b.updated_at_ms.cmp(&a.updated_at_ms));
                     });
                 }
             }
@@ -123,6 +124,7 @@ async fn listen_on_resolve_events_result(
                                 break;
                             }
                         }
+                        evts.sort_by(|a, b| b.updated_at_ms.cmp(&a.updated_at_ms));
                     });
                 }
             }
