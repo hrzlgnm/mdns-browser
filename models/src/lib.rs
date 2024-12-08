@@ -19,7 +19,7 @@ impl Display for TxtRecord {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct ResolvedService {
     pub instance_name: String,
     pub service_type: String,
