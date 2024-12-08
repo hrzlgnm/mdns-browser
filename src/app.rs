@@ -17,8 +17,8 @@ use tauri_sys::event::listen;
 use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSuffix, Button, ButtonColor,
     ButtonSize, ButtonVariant, Card, CardFooter, CardHeaderExtra, Collapse, CollapseItem,
-    ComponentRef, GlobalStyle, Grid, GridItem, Icon, Layout, Modal, Space, SpaceAlign,
-    SpaceJustify, Table, Text, Theme, ThemeProvider,
+    ComponentRef, GlobalStyle, Grid, GridItem, Icon, Layout, Modal, Select, SelectOption, Space,
+    SpaceAlign, SpaceJustify, Table, Text, Theme, ThemeProvider,
 };
 use thaw_utils::Model;
 
@@ -110,7 +110,6 @@ async fn listen_on_resolve_events_result(
                     event_writer.update(|evts| {
                          evts.retain(|r| r.instance_name != event.payload.service.instance_name);
                          evts.push(event.payload.service);
-                         evts.sort_by(|a, b| b.updated_at_ms.cmp(&a.updated_at_ms));
                     });
                 }
             }
@@ -124,7 +123,6 @@ async fn listen_on_resolve_events_result(
                                 break;
                             }
                         }
-                        evts.sort_by(|a, b| b.updated_at_ms.cmp(&a.updated_at_ms));
                     });
                 }
             }
@@ -525,6 +523,18 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
 #[derive(Clone, Debug)]
 pub struct ServiceTypesSignal(RwSignal<ServiceTypes>);
 
+#[derive(Clone, Debug)]
+pub enum SortKind {
+    HostnameAsc,
+    HostnameDesc,
+    InstanceAsc,
+    InstanceDesc,
+    ServiceTypeAsc,
+    ServiceTypeDesc,
+    TimestampAsc,
+    TimestampDesc,
+}
+
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
@@ -533,7 +543,54 @@ fn Browse() -> impl IntoView {
     provide_context(ServiceTypesSignal(service_types));
 
     let (resolved, set_resolved) = create_signal(ResolvedServices::new());
+    let (sort_kind, set_sort_kind) = create_signal(SortKind::HostnameAsc);
+    let sorted_resolved = create_memo(move |_| {
+        let mut sorted = resolved.get().clone();
+        match sort_kind.get() {
+            SortKind::HostnameAsc => {
+                sorted.sort_by_key(|item| (item.hostname.clone(), item.service_type.clone()))
+            }
+            SortKind::HostnameDesc => sorted.sort_by_key(|item| {
+                std::cmp::Reverse((item.hostname.clone(), item.service_type.clone()))
+            }),
+            SortKind::InstanceAsc => sorted.sort_by(|a, b| a.instance_name.cmp(&b.instance_name)),
+            SortKind::InstanceDesc => sorted.sort_by(|a, b| b.instance_name.cmp(&a.instance_name)),
+            SortKind::ServiceTypeAsc => sorted.sort_by(|a, b| a.service_type.cmp(&b.service_type)),
+            SortKind::ServiceTypeDesc => sorted.sort_by(|a, b| b.service_type.cmp(&a.service_type)),
+            SortKind::TimestampAsc => sorted.sort_by_key(|i| i.updated_at_ms),
+            SortKind::TimestampDesc => sorted.sort_by_key(|i| std::cmp::Reverse(i.updated_at_ms)),
+        }
+        sorted
+    });
+    let sort_options = vec![
+        SelectOption::new("Hostname (Ascending)", String::from("HostnameAsc")),
+        SelectOption::new("Hostname (Descending)", String::from("HostnameDesc")),
+        SelectOption::new("Instance (Ascending)", String::from("InstanceAsc")),
+        SelectOption::new("Instance (Descending)", String::from("InstanceDesc")),
+        SelectOption::new("Service Type (Ascending)", String::from("ServiceTypeAsc")),
+        SelectOption::new("Service Type (Descending)", String::from("ServiceTypeDesc")),
+        SelectOption::new("Last Updated (Ascending)", String::from("TimestampAsc")),
+        SelectOption::new("Last Updated (Descending)", String::from("TimestampDesc")),
+    ];
+    let sort_value = create_rw_signal(Some("HostnameAsc".to_string()));
+
+    create_effect(move |_| {
+        if let Some(value) = sort_value.get() {
+            match value.as_str() {
+                "HostnameAsc" => set_sort_kind.set(SortKind::HostnameAsc),
+                "HostnameDesc" => set_sort_kind.set(SortKind::HostnameDesc),
+                "InstanceAsc" => set_sort_kind.set(SortKind::InstanceAsc),
+                "InstanceDesc" => set_sort_kind.set(SortKind::InstanceDesc),
+                "ServiceTypeAsc" => set_sort_kind.set(SortKind::ServiceTypeAsc),
+                "ServiceTypeDesc" => set_sort_kind.set(SortKind::ServiceTypeDesc),
+                "TimestampAsc" => set_sort_kind.set(SortKind::TimestampAsc),
+                "TimestampDesc" => set_sort_kind.set(SortKind::TimestampDesc),
+                _ => {}
+            }
+        }
+    });
     create_resource(move || set_resolved, listen_on_resolve_events);
+
     let is_desktop = use_context::<IsDesktopSignal>()
         .expect("is_desktop context to exist")
         .0;
@@ -607,7 +664,7 @@ fn Browse() -> impl IntoView {
 
     view! {
         <Layout style="padding: 10px;">
-            <Space>
+            <Space align=SpaceAlign::Center>
                 <Layout class=auto_complete_class>
                     <AutoCompleteServiceType
                         value=service_type
@@ -623,9 +680,14 @@ fn Browse() -> impl IntoView {
                     "Stop"
                 </Button>
             </Space>
+            <Space align=SpaceAlign::Center>
+                <Text>"Sort by"</Text>
+                <Select value=sort_value options=sort_options />
+
+            </Space>
             <Grid class="responsivegrid">
                 <For
-                    each=move || resolved.get()
+                    each=move || sorted_resolved.get()
                     key=|rs| format!("{}{}", rs.instance_name.clone(), rs.updated_at_ms)
                     children=move |resolved_service| {
                         view! { <ResolvedServiceGridItem resolved_service /> }
