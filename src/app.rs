@@ -551,7 +551,7 @@ fn Browse() -> impl IntoView {
                 std::cmp::Ordering::Equal => a.service_type.cmp(&b.service_type),
                 other => other,
             }),
-            SortKind::HostnameDesc => sorted.sort_by(|a, b| match b.hostname.cmp(&b.hostname) {
+            SortKind::HostnameDesc => sorted.sort_by(|a, b| match b.hostname.cmp(&a.hostname) {
                 std::cmp::Ordering::Equal => b.service_type.cmp(&a.service_type),
                 other => other,
             }),
