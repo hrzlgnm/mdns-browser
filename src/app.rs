@@ -547,11 +547,13 @@ fn Browse() -> impl IntoView {
     let sorted_resolved = create_memo(move |_| {
         let mut sorted = resolved.get().clone();
         match sort_kind.get() {
-            SortKind::HostnameAsc => {
-                sorted.sort_by_key(|item| (item.hostname.clone(), item.service_type.clone()))
-            }
-            SortKind::HostnameDesc => sorted.sort_by_key(|item| {
-                std::cmp::Reverse((item.hostname.clone(), item.service_type.clone()))
+            SortKind::HostnameAsc => sorted.sort_by(|a, b| match a.hostname.cmp(&b.hostname) {
+                std::cmp::Ordering::Equal => a.service_type.cmp(&b.service_type),
+                other => other,
+            }),
+            SortKind::HostnameDesc => sorted.sort_by(|a, b| match b.hostname.cmp(&b.hostname) {
+                std::cmp::Ordering::Equal => b.service_type.cmp(&a.service_type),
+                other => other,
             }),
             SortKind::InstanceAsc => sorted.sort_by(|a, b| a.instance_name.cmp(&b.instance_name)),
             SortKind::InstanceDesc => sorted.sort_by(|a, b| b.instance_name.cmp(&a.instance_name)),
