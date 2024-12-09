@@ -759,9 +759,9 @@ struct OpenArgs<'a> {
     url: &'a str,
 }
 
-async fn open(url: &str) {
+async fn open_url(url: &str) {
     log::debug!("Opening {url}");
-    let _ = invoke::<()>("open", &OpenArgs { url }).await;
+    let _ = invoke::<()>("open_url", &OpenArgs { url }).await;
 }
 
 async fn get_version(writer: WriteSignal<String>) {
@@ -822,7 +822,7 @@ pub fn About() -> impl IntoView {
 
     let github_action = create_action(|action: &String| {
         let action = action.clone();
-        async move { open(action.clone().as_str()).await }
+        async move { open_url(action.clone().as_str()).await }
     });
 
     let on_release_notes_click = move |_| {

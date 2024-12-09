@@ -15,7 +15,7 @@ use std::{
 use tauri::Emitter;
 use tauri::{AppHandle, Manager, State, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
-use tauri_plugin_shell::ShellExt;
+use tauri_plugin_opener::OpenerExt;
 
 #[cfg(desktop)]
 use tauri_plugin_log::{Target, TargetKind};
@@ -230,9 +230,9 @@ fn send_metrics(window: Window, state: State<ManagedState>) {
 }
 
 #[tauri::command]
-fn open(app: AppHandle, url: String) {
-    let shell = app.shell();
-    let r = shell.open(url.clone(), None);
+fn open_url(app: AppHandle, url: String) {
+    let opener = app.opener();
+    let r = opener.open_url(url.clone(), None::<String>);
     if r.is_err() {
         log::error!("Failed to open {}: {:?}", url, r);
     }
@@ -348,7 +348,7 @@ fn can_auto_update() -> bool {
     }
 }
 
-#[cfg(not(desktop))]
+#[cfg(mobile)]
 #[tauri::command]
 fn is_desktop() -> bool {
     false
@@ -446,7 +446,7 @@ pub fn run() {
     x11_workaround();
     let args = Args::parse();
     tauri::Builder::default()
-        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
         .manage(app_updates::PendingUpdate(Mutex::new(None)))
@@ -485,7 +485,7 @@ pub fn run() {
             can_auto_update,
             copy_to_clipboard,
             is_desktop,
-            open,
+            open_url,
             send_metrics,
             stop_browse,
             verify,
@@ -495,11 +495,11 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-#[cfg(not(desktop))]
+#[cfg(mobile)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run_mobile() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
         .invoke_handler(tauri::generate_handler![
@@ -507,7 +507,7 @@ pub fn run_mobile() {
             browse_types,
             copy_to_clipboard,
             is_desktop,
-            open,
+            open_url,
             send_metrics,
             stop_browse,
             verify,

@@ -8,7 +8,7 @@
     "permissions": [
         "core:default",
         "clipboard-manager:allow-write-text",
-        "shell:allow-open"
+        "opener:allow-open-url"
     ],
     "platforms": [
         "android"
