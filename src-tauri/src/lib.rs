@@ -230,7 +230,7 @@ fn send_metrics(window: Window, state: State<ManagedState>) {
 }
 
 #[tauri::command]
-fn open(app: AppHandle, url: String) {
+fn open_url(app: AppHandle, url: String) {
     let opener = app.opener();
     let r = opener.open_url(url.clone(), None::<String>);
     if r.is_err() {
@@ -485,7 +485,7 @@ pub fn run() {
             can_auto_update,
             copy_to_clipboard,
             is_desktop,
-            open,
+            open_url,
             send_metrics,
             stop_browse,
             verify,
@@ -507,7 +507,7 @@ pub fn run_mobile() {
             browse_types,
             copy_to_clipboard,
             is_desktop,
-            open,
+            open_url,
             send_metrics,
             stop_browse,
             verify,
