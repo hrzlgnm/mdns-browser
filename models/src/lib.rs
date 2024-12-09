@@ -19,6 +19,16 @@ impl Display for TxtRecord {
     }
 }
 
+impl TxtRecord {
+    pub fn matches_query(&self, query: &str) -> bool {
+        let query = query.to_lowercase();
+        if query.is_empty() {
+            return true;
+        }
+        self.to_string().to_lowercase().contains(&query)
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct ResolvedService {
     pub instance_name: String,
@@ -36,6 +46,25 @@ impl ResolvedService {
     pub fn die_at(&mut self, at_ms: u64) {
         self.dead = true;
         self.updated_at_ms = at_ms;
+    }
+    pub fn matches_query(&self, query: &str) -> bool {
+        let query = query.to_lowercase();
+        if query.is_empty() {
+            return true;
+        }
+        self.instance_name.to_lowercase().contains(&query)
+            || self.service_type.to_lowercase().contains(&query)
+            || self.hostname.to_lowercase().contains(&query)
+            || self.port.to_string().contains(&query)
+            || self
+                .addresses
+                .iter()
+                .any(|addr| addr.to_string().contains(&query))
+            || self
+                .subtype
+                .as_ref()
+                .map_or(false, |sub| sub.to_lowercase().contains(&query))
+            || self.txt.iter().any(|txt| txt.matches_query(&query))
     }
 }
 
@@ -408,11 +437,113 @@ mod tests {
     }
 
     #[test]
+    fn test_matches_query() {
+        let service = ResolvedService {
+            instance_name: "MyService".to_string(),
+            service_type: "_http._tcp".to_string(),
+            hostname: "my-host.local".to_string(),
+            port: 8080,
+            addresses: vec![
+                "192.168.1.1".parse::<IpAddr>().unwrap(),
+                "fe80::1".parse::<IpAddr>().unwrap(),
+            ],
+            subtype: Some("sub-type".to_string()),
+            txt: vec![TxtRecord {
+                key: "key".to_string(),
+                val: Some("value".to_string()),
+            }],
+            updated_at_ms: 0,
+            dead: false,
+        };
+
+        // Test matches for instance_name
+        assert!(service.matches_query("MyService"));
+        assert!(service.matches_query("myservice")); // Case-insensitive
+        assert!(!service.matches_query("OtherService"));
+
+        // Test matches for service_type
+        assert!(service.matches_query("_http._tcp"));
+        assert!(service.matches_query("http"));
+        assert!(!service.matches_query("_ftp._tcp"));
+
+        // Test matches for hostname
+        assert!(service.matches_query("my-host"));
+        assert!(service.matches_query("local"));
+        assert!(!service.matches_query("other-host"));
+
+        // Test matches for port
+        assert!(service.matches_query("8080"));
+        assert!(!service.matches_query("9090"));
+
+        // Test matches for addresses
+        assert!(service.matches_query("192.168.1.1"));
+        assert!(service.matches_query("fe80::1"));
+        assert!(!service.matches_query("10.0.0.1"));
+
+        // Test matches for subtype
+        assert!(service.matches_query("sub-type"));
+        assert!(service.matches_query("type"));
+        assert!(!service.matches_query("other-type"));
+
+        // Test matches for txt
+        assert!(service.matches_query("key=value"));
+        assert!(service.matches_query("key"));
+        assert!(service.matches_query("value"));
+        assert!(!service.matches_query("other-key"));
+    }
+
+    #[test]
+    fn test_matches_query_empty_fields() {
+        let service = ResolvedService {
+            instance_name: "".to_string(),
+            service_type: "".to_string(),
+            hostname: "".to_string(),
+            port: 0,
+            addresses: vec![],
+            subtype: None,
+            txt: vec![],
+            updated_at_ms: 0,
+            dead: true,
+        };
+
+        assert!(!service.matches_query("anything"));
+        assert!(service.matches_query(""));
+    }
+
+    #[test]
+    fn test_matches_query_partial_matches() {
+        let service = ResolvedService {
+            instance_name: "MyService".to_string(),
+            service_type: "_http._tcp".to_string(),
+            hostname: "my-host.local".to_string(),
+            port: 8080,
+            addresses: vec![
+                "192.168.1.1".parse::<IpAddr>().unwrap(),
+                "fe80::1".parse::<IpAddr>().unwrap(),
+            ],
+            subtype: None,
+            txt: vec![TxtRecord {
+                key: "key".to_string(),
+                val: Some("val".to_string()),
+            }],
+            updated_at_ms: 2349284,
+            dead: false,
+        };
+
+        assert!(service.matches_query("my"));
+        assert!(service.matches_query("host"));
+        assert!(service.matches_query("192"));
+        assert!(service.matches_query("http"));
+        assert!(service.matches_query("808"));
+    }
+
+    #[test]
     fn test_valid_service_types() {
         assert!(check_service_type_fully_qualified("_http._tcp.local.").is_ok());
         assert!(check_service_type_fully_qualified("_printer._udp.local.").is_ok());
         assert!(check_service_type_fully_qualified("_myprinter._sub._http._tcp.local.").is_ok());
     }
+
     #[test]
     fn test_invalid_service_types() {
         assert_eq!(
