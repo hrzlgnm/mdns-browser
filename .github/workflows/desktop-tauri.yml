@@ -177,7 +177,7 @@ jobs:
 
       - name: 🛡️ Attest SBOM
         if: inputs.tagName != ''
-        uses: actions/attest-sbom@34581d8068ef8a325425f122523e4bb9d08932f3 # v2
+        uses: actions/attest-sbom@cbfd0027ae731a5892db25ecd226930d7ffd19eb # v2
         with:
           subject-path: ${{
             contains(matrix.os, 'ubuntu') && 'target/release/mdns-browser' ||
