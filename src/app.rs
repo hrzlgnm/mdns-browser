@@ -14,6 +14,8 @@ use std::collections::HashSet;
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
+use thaw::Input;
+use thaw::SpaceGap;
 use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSuffix, Button, ButtonColor,
     ButtonSize, ButtonVariant, Card, CardFooter, CardHeaderExtra, Collapse, CollapseItem,
@@ -538,7 +540,6 @@ pub enum SortKind {
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
-    log::debug!("Browse");
     let service_types = create_rw_signal(ServiceTypes::new());
     provide_context(ServiceTypesSignal(service_types));
 
@@ -575,6 +576,18 @@ fn Browse() -> impl IntoView {
         SelectOption::new("Last Updated (Descending)", String::from("TimestampDesc")),
     ];
     let sort_value = create_rw_signal(Some("HostnameAsc".to_string()));
+
+    let query = create_rw_signal(String::new());
+
+    let filtered_services = create_memo(move |_| {
+        let query = query.get();
+        sorted_resolved
+            .get()
+            .clone()
+            .into_iter()
+            .filter(|service| service.matches_query(&query))
+            .collect::<Vec<_>>()
+    });
 
     create_effect(move |_| {
         if let Some(value) = sort_value.get() {
@@ -666,30 +679,32 @@ fn Browse() -> impl IntoView {
 
     view! {
         <Layout style="padding: 10px;">
-            <Space align=SpaceAlign::Center>
-                <Layout class=auto_complete_class>
-                    <AutoCompleteServiceType
-                        value=service_type
-                        disabled=browsing
-                        invalid=service_type_invalid
-                        comp_ref=comp_ref
-                    />
-                </Layout>
-                <Button on_click=on_browse_click disabled=browsing_or_service_type_invalid>
-                    "Browse"
-                </Button>
-                <Button on_click=on_stopbrowsing_click disabled=not_browsing>
-                    "Stop"
-                </Button>
-            </Space>
-            <Space align=SpaceAlign::Center>
-                <Text>"Sort by"</Text>
-                <Select value=sort_value options=sort_options />
-
+            <Space vertical=true gap=SpaceGap::Small>
+                <Space align=SpaceAlign::Center gap=SpaceGap::Small>
+                    <Layout class=auto_complete_class>
+                        <AutoCompleteServiceType
+                            value=service_type
+                            disabled=browsing
+                            invalid=service_type_invalid
+                            comp_ref=comp_ref
+                        />
+                    </Layout>
+                    <Button on_click=on_browse_click disabled=browsing_or_service_type_invalid>
+                        "Browse"
+                    </Button>
+                    <Button on_click=on_stopbrowsing_click disabled=not_browsing>
+                        "Stop"
+                    </Button>
+                </Space>
+                <Space gap=SpaceGap::Small align=SpaceAlign::Center>
+                    <Text>"Sort by"</Text>
+                    <Select value=sort_value options=sort_options />
+                    <Input value=query placeholder="Quick filter" />
+                </Space>
             </Space>
             <Grid class="responsivegrid">
                 <For
-                    each=move || sorted_resolved.get()
+                    each=move || filtered_services.get()
                     key=|rs| format!("{}{}", rs.instance_name.clone(), rs.updated_at_ms)
                     children=move |resolved_service| {
                         view! { <ResolvedServiceGridItem resolved_service /> }
