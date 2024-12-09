@@ -14,13 +14,11 @@ use std::collections::HashSet;
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
-use thaw::Input;
-use thaw::SpaceGap;
 use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSuffix, Button, ButtonColor,
     ButtonSize, ButtonVariant, Card, CardFooter, CardHeaderExtra, Collapse, CollapseItem,
-    ComponentRef, GlobalStyle, Grid, GridItem, Icon, Layout, Modal, Select, SelectOption, Space,
-    SpaceAlign, SpaceJustify, Table, Text, Theme, ThemeProvider,
+    ComponentRef, GlobalStyle, Grid, GridItem, Icon, Input, Layout, Modal, Select, SelectOption,
+    Space, SpaceAlign, SpaceGap, SpaceJustify, Table, Text, Theme, ThemeProvider,
 };
 use thaw_utils::Model;
 
@@ -699,7 +697,7 @@ fn Browse() -> impl IntoView {
                 <Space gap=SpaceGap::Small align=SpaceAlign::Center>
                     <Text>"Sort by"</Text>
                     <Select value=sort_value options=sort_options />
-                    <Input value=query placeholder="Quick filter" />
+                    <Input value=query placeholder="Quick filter" attr:autocapitalize="none" />
                 </Space>
             </Space>
             <Grid class="responsivegrid">
