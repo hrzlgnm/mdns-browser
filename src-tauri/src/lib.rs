@@ -12,12 +12,9 @@ use std::{
     net::IpAddr,
     sync::{Arc, Mutex},
 };
-#[cfg(desktop)]
-use tauri::AppHandle;
 use tauri::Emitter;
-use tauri::{Manager, State, Window};
+use tauri::{AppHandle, Manager, State, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
-#[cfg(desktop)]
 use tauri_plugin_opener::OpenerExt;
 
 #[cfg(desktop)]
@@ -232,7 +229,6 @@ fn send_metrics(window: Window, state: State<ManagedState>) {
     }
 }
 
-#[cfg(desktop)]
 #[tauri::command]
 fn open_url(app: AppHandle, url: String) {
     let opener = app.opener();
@@ -503,6 +499,7 @@ pub fn run() {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run_mobile() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
         .invoke_handler(tauri::generate_handler![
@@ -510,6 +507,7 @@ pub fn run_mobile() {
             browse_types,
             copy_to_clipboard,
             is_desktop,
+            open_url,
             send_metrics,
             stop_browse,
             verify,
