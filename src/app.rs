@@ -355,6 +355,9 @@ fn CopyToClipBoardButton(
     button_text: Option<String>,
     #[prop(optional, into)] disabled: MaybeSignal<bool>,
 ) -> impl IntoView {
+    let is_desktop = use_context::<IsDesktopSignal>()
+        .expect("is_desktop context to exist")
+        .0;
     let (text_to_copy, _) = create_signal(text.clone().unwrap_or_default());
     let copy_to_clipboard_action = create_action(|input: &String| {
         let input = input.clone();
@@ -364,10 +367,12 @@ fn CopyToClipBoardButton(
     let on_copy_to_clipboard_click = move |_| {
         let text = text_to_copy.get_untracked();
         copy_to_clipboard_action.dispatch(text.clone());
-        show_toast(ToastOptions {
-            message: format!("Copied {} to clipboard", text),
-            duration: Duration::from_millis(2000),
-        });
+        if is_desktop.get_untracked() {
+            show_toast(ToastOptions {
+                message: format!("Copied {} to clipboard", text),
+                duration: Duration::from_millis(2000),
+            });
+        }
     };
 
     view! {
