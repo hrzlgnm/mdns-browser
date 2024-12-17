@@ -45,7 +45,7 @@ jobs:
         uses: crate-ci/typos@9d890159570d5018df91fedfa40b4730cd4a81b1 # v1.28.4
 
       - name: 📥 Cached Install trunk
-        uses: baptiste0928/cargo-install@v3
+        uses: baptiste0928/cargo-install@904927dbe77864e0f2281519fe9d5bd097a220b3 # v3
         with:
           crate: trunk
           version: "0.21.5"
