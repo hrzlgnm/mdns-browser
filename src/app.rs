@@ -11,9 +11,11 @@ use shared_constants::{
     SPLASH_SCREEN_DURATION, VERIFY_TIMEOUT,
 };
 use std::collections::HashSet;
+use std::time::Duration;
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
+use thaw::mobile::{show_toast, ToastOptions};
 use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSuffix, Button, ButtonColor,
     ButtonSize, ButtonVariant, Card, CardFooter, CardHeaderExtra, Collapse, CollapseItem,
@@ -359,27 +361,25 @@ fn CopyToClipBoardButton(
         async move { copy_to_clipboard(input.clone()).await }
     });
 
-    let on_copy_to_clibboard_click = move |_| {
-        let text = text_to_copy.get();
-        copy_to_clipboard_action.dispatch(text);
+    let on_copy_to_clipboard_click = move |_| {
+        let text = text_to_copy.get_untracked();
+        copy_to_clipboard_action.dispatch(text.clone());
+        show_toast(ToastOptions {
+            message: format!("Copied {} to clipboard", text),
+            duration: Duration::from_millis(2000),
+        });
     };
 
     view! {
         <Button
             disabled=disabled
-            on_click=on_copy_to_clibboard_click
+            on_click=on_copy_to_clipboard_click
             color=ButtonColor::Success
             variant=ButtonVariant::Outlined
             size=ButtonSize::Small
-            class="copy-to-clipboard-cursor"
         >
             {button_text}
         </Button>
-        <Style>
-            ".copy-to-clipboard-cursor {
-                    cursor: copy !important;
-            }"
-        </Style>
     }
 }
 
@@ -397,13 +397,13 @@ async fn copy_to_clipboard(contents: String) {
     )
     .await;
 }
+fn drop_trailing_dot(fqn: &str) -> String {
+    fqn.strip_suffix(".").unwrap_or(fqn).to_owned()
+}
 
 fn drop_local_and_last_dot(fqn: &str) -> String {
     let without_local = fqn.strip_suffix(".local.").unwrap_or(fqn);
-    without_local
-        .strip_suffix(".")
-        .unwrap_or(without_local)
-        .to_owned()
+    drop_trailing_dot(without_local).to_owned()
 }
 
 /// Component that shows a resolved service as a card
@@ -428,6 +428,7 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
         )
     };
 
+    let to_copy_host = drop_trailing_dot(&resolved_service.hostname);
     let short_host = drop_local_and_last_dot(&resolved_service.hostname);
     let short_service_type = drop_local_and_last_dot(&resolved_service.service_type);
 
@@ -466,7 +467,7 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                 <Space vertical=true>
                     <Space align=SpaceAlign::Center justify=SpaceJustify::Center>
                         <CopyToClipBoardButton
-                            text=Some(resolved_service.hostname)
+                            text=Some(to_copy_host.to_string())
                             button_text=Some(short_host)
                             disabled=resolved_service.dead
                         />
