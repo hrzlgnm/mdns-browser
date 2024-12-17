@@ -362,12 +362,12 @@ fn CopyToClipBoardButton(
     });
 
     let on_copy_to_clipboard_click = move |_| {
-        let text = text_to_copy.get();
-        show_toast( ToastOptions {
+        let text = text_to_copy.get_untracked();
+        copy_to_clipboard_action.dispatch(text.clone());
+        show_toast(ToastOptions {
             message: format!("Copied {} to clipboard", text),
             duration: Duration::from_millis(2000),
         });
-        copy_to_clipboard_action.dispatch(text);
     };
 
     view! {
