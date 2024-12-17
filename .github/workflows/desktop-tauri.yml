@@ -37,8 +37,6 @@ jobs:
           - os: "windows-latest"
             symbol: 🪟
             install: |
-              echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
-              vcpkg install openssl:x64-windows-static-md
               choco install wget -y
 
     name: ${{matrix.symbol}}
@@ -64,8 +62,6 @@ jobs:
       - name: 🛠️ Setup | Install dependencies
         if: matrix.install != ''
         run: ${{ matrix.install }}
-        env:
-          VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
 
       - name: 📝 Check spelling using typos-action
         uses: crate-ci/typos@9d890159570d5018df91fedfa40b4730cd4a81b1 # v1.28.4
@@ -100,11 +96,14 @@ jobs:
         run: |
           cargo test --all
 
-      - name: 📥 Cached install trunk
-        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
+      - name: 📥 Cached Install trunk
+        uses: baptiste0928/cargo-install@v3
         with:
-          tool: trunk@0.21.5
+          crate: trunk
+          version: "0.21.5"
           locked: true
+          args: --no-default-features
+          features: rustls
 
       - name: 📥 Cached install cargo-auditable
         uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
