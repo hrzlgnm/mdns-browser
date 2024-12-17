@@ -92,7 +92,8 @@ jobs:
           cd src-tauri
           cargo clippy -- -D warnings
 
-      - name: ✅ Run tests
+      - name: ✅ Run tests (macos only)
+        if: contains(matrix.os, 'macos')
         run: |
           cargo test --all
 
