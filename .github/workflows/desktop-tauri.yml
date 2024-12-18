@@ -109,7 +109,7 @@ jobs:
       - name: 📥 Cached install cargo-auditable
         uses: baptiste0928/cargo-install@904927dbe77864e0f2281519fe9d5bd097a220b3 # v3
         with:
-          crate: cargo-auitable
+          crate: cargo-auditable
           version: 0.6.6
           locked: true
 
