@@ -1,35 +1,54 @@
 name: Publish Desktop Release to WinGet
+
 on:
   workflow_dispatch:
   release:
     types: [released]
+
 jobs:
   publish:
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - id: "hrzlgnm.mdns-browser"
-            repo: "hrzlgnm/mdns-browser"
-
     steps:
-      - name: Extract short version
-        id: extract_version
-        run: echo "SHORT_VERSION=${{ VERSION#*-v}}" >> $GITHUB_OUTPUT
+      - name: Detect Latest Release
+        id: latest_release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const [owner, repo] = 'hrzlgnm/mdns-browser'.split('/');
+            try {
+              const { data } = await github.rest.repos.getLatestRelease({ owner, repo });
+              const tagName = data.tag_name;
+              return tagName;
+            } catch (error) {
+              core.setFailed(`Failed to get latest release for repo: ${owner}/${repo}`);
+              process.exit(1);
+            }
 
-      - name: Update Packages
-        uses: michidk/winget-updater@latest
+      - name: Compose URL
+        shell: bash
+        run: |
+          VERSION=${{ steps.latest_release.outputs.result }}
+          SHORT_VERSION=${VERSION#*-v}
+          URL=https://github.com/hrzlgnm/mdns-browser/releases/download/{VERSION}/mdns-browser_{SHORT_VERSION}_x64-setup.exe
+          FINAL_URL=$(echo $URL | sed "s/{VERSION}/$VERSION/g" | sed "s/{SHORT_VERSION}/${SHORT_VERSION}/g")
+          echo "FINAL_URL=$FINAL_URL" >> $GITHUB_ENV
+          echo "SHORT_VERSION=$SHORT_VERSION" >> $GITHUB_ENV
+          echo "Detected latest Version: ${{ steps.latest_release.outputs.result }}"
+          echo "Final URL: $FINAL_URL"
+          echo "Short Version: $SHORT_VERSION"
+
+      - name: Update Package
+        uses: michidk/run-komac@latest
         with:
           komac-version: "2.6.0"
           komac-token: ${{ secrets.WINGET_TOKEN }}
-          identifier: ${{ matrix.id }}
-          repo: ${{ matrix.repo }}
-          url: https://github.com/${{ matrix.repo }}/releases/download/{VERSION}/mdns-browser_${{ steps.extract_version.outputs.SHORT_VERSION }}_x64-setup.exe
+          identifier: hrzlgnm.mdns-browser
+          repo: hrzlgnm/mdns-browser
+          args: "update hrzlgnm.mdns-browser --version $SHORT_VERSION --urls $FINAL_URL --submit --token=$${ secrets.WINGET_TOKEN }}"
 
   cleanup:
     name: Cleanup branches
-    needs: publish # Not necessarily needed as PRs don't get closed that quick but still nice to have it in order
+    needs: publish
     runs-on: ubuntu-24.04
     steps:
       - name: Run Komac
