@@ -433,9 +433,10 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
         )
     };
 
-    let to_copy_host = drop_trailing_dot(&resolved_service.hostname);
-    let short_host = drop_local_and_last_dot(&resolved_service.hostname);
-    let short_service_type = drop_local_and_last_dot(&resolved_service.service_type);
+    let host_to_copy = drop_trailing_dot(&resolved_service.hostname);
+    let host_to_show = drop_local_and_last_dot(&resolved_service.hostname);
+    let service_type_to_copy = drop_trailing_dot(&resolved_service.service_type);
+    let service_type_to_show = drop_local_and_last_dot(&resolved_service.service_type);
 
     let updated_at = DateTime::from_timestamp_millis(resolved_service.updated_at_ms as i64)
         .expect("To get convert");
@@ -472,8 +473,8 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                 <Space vertical=true>
                     <Space align=SpaceAlign::Center justify=SpaceJustify::Center>
                         <CopyToClipBoardButton
-                            text=Some(to_copy_host.to_string())
-                            button_text=Some(short_host)
+                            text=Some(host_to_copy.to_string())
+                            button_text=Some(host_to_show)
                             disabled=resolved_service.dead
                         />
                         <CopyToClipBoardButton
@@ -498,8 +499,8 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                     </Space>
                     <Space align=SpaceAlign::Center justify=SpaceJustify::Center>
                         <CopyToClipBoardButton
-                            text=Some(resolved_service.service_type)
-                            button_text=Some(short_service_type)
+                            text=Some(service_type_to_copy)
+                            button_text=Some(service_type_to_show)
                             disabled=resolved_service.dead
                         />
                         <Button
