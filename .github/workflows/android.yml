@@ -48,21 +48,23 @@ jobs:
         uses: baptiste0928/cargo-install@904927dbe77864e0f2281519fe9d5bd097a220b3 # v3
         with:
           crate: trunk
-          version: "0.21.5"
+          version: 0.21.5
           locked: true
           args: --no-default-features
           features: rustls
 
       - name: 📥 Cached install cargo-auditable
-        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
+        uses: baptiste0928/cargo-install@904927dbe77864e0f2281519fe9d5bd097a220b3 # v3
         with:
-          tool: cargo-auditable@0.6.6
+          crate: cargo-auditable
+          version: 0.6.6
           locked: true
 
       - name: 📥 Cached install tauri-cli
-        uses: taiki-e/cache-cargo-install-action@caa6f48d18d42462f9c30df89e2b4f71a42b7c2c # v2.0.1
+        uses: baptiste0928/cargo-install@904927dbe77864e0f2281519fe9d5bd097a220b3 # v3
         with:
-          tool: tauri-cli@2.1.0
+          crate: tauri-cli
+          version: 2.1.0
           locked: true
 
       - name: 🔨 Build app bundle
