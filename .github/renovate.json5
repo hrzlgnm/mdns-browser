@@ -23,14 +23,13 @@
     },
     customManagers: [
         {
-            matchStringsStrategy: "all",
+            matchStringsStrategy: "any",
             customType: "regex",
             fileMatch: [
                 "^\\.github/workflows/.*\\.yml$"
             ],
             matchStrings: [
-                "crate: \\s*(?<depName>[a-zA-Z0-9_-]+)",
-                "version: \\s*(?<currentValue>[0-9\\.]+)"
+                "crate: \\s*(?<depName>[a-zA-Z0-9_-]+)\\nversion: \\s*(?<currentValue>[0-9\\.]+)\\n"
             ],
             depTypeTemplate: "build-dependencies",
             datasourceTemplate: "crate",
