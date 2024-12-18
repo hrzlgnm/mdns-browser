@@ -29,7 +29,7 @@
                 "^\\.github/workflows/.*\\.yml$"
             ],
             matchStrings: [
-                "crate: \\s*(?<depName>[a-zA-Z0-9_-]+)\\nversion: \\s*(?<currentValue>[0-9\\.]+)\\n"
+                "crate:\\s*(?<depName>[^\\s]+)\\s*version:\\s*(?<currentValue>[^\\s]+)"
             ],
             depTypeTemplate: "build-dependencies",
             datasourceTemplate: "crate",
