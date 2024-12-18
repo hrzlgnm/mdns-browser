@@ -12,9 +12,12 @@ jobs:
         include:
           - id: "hrzlgnm.mdns-browser"
             repo: "hrzlgnm/mdns-browser"
-            url: https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v{VERSION}/mdns-browser_${VERSION}_x64-setup.exe
 
     steps:
+      - name: Extract short version
+        id: extract_version
+        run: echo "SHORT_VERSION=${{ $VERSION#*-v}}" >> $GITHUB_ENV
+
       - name: Update Packages
         uses: michidk/winget-updater@latest
         with:
@@ -22,7 +25,7 @@ jobs:
           komac-token: ${{ secrets.WINGET_TOKEN }}
           identifier: ${{ matrix.id }}
           repo: ${{ matrix.repo }}
-          url: ${{ matrix.url }}
+          url: https://github.com/${{ matrix.repo }}/releases/download/{VERSION}/mdns-browser_${{ env.SHORT_VERSION }}_x64-setup.exe
 
   cleanup:
     name: Cleanup branches
