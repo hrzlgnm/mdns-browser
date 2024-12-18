@@ -41,9 +41,6 @@ jobs:
         uses: michidk/run-komac@latest
         with:
           komac-version: "2.6.0"
-          komac-token: ${{ secrets.WINGET_TOKEN }}
-          identifier: hrzlgnm.mdns-browser
-          repo: hrzlgnm/mdns-browser
           args: "update hrzlgnm.mdns-browser --version $SHORT_VERSION --urls $FINAL_URL --submit --token=${{ secrets.WINGET_TOKEN }}"
 
   cleanup:
