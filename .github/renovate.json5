@@ -30,7 +30,7 @@
             ],
             matchStrings: [
                 "crate: \\s*(?<depName>[a-zA-Z0-9_-]+)"
-                "version: (?<currentValue>[0-9\\.]+)"
+                "version: \\s*(?<currentValue>[0-9\\.]+)"
             ],
             depTypeTemplate: "build-dependencies",
             datasourceTemplate: "crate",
