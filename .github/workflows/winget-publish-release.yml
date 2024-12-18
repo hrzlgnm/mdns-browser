@@ -1,21 +1,36 @@
 name: Publish Desktop Release to WinGet
 on:
+  workflow_dispatch:
   release:
     types: [released]
 jobs:
   publish:
-    runs-on: windows-latest
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: "hrzlgnm.mdns-browser"
+            repo: "hrzlgnm/mdns-browser"
+            url: https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v{VERSION}/mdns-browser_${VERSION}_x64-setup.exe
+
     steps:
-      - name: Get version
-        id: get-version
-        run: |
-          $VERSION = "${{ github.event.release.tag_name }}" -replace '.*-v(\d+)\.(\d+\.\d+)', '$1.$2'
-          "version=$VERSION" >> $env:GITHUB_OUTPUT
-        shell: pwsh
-      - uses: vedantmgoyal9/winget-releaser@main # v2
+      - name: Update Packages
+        uses: michidk/winget-updater@latest
         with:
-          identifier: hrzlgnm.mdns-browser
-          max-versions-to-keep: 10
-          installers-regex: '\.exe$'
-          token: ${{ secrets.WINGET_TOKEN }}
-          version: ${{ steps.get-version.outputs.version }}
+          komac-version: "2.6.0"
+          komac-token: ${{ secrets.WINGET_TOKEN }}
+          identifier: ${{ matrix.id }}
+          repo: ${{ matrix.repo }}
+          url: ${{ matrix.url }}
+
+  cleanup:
+    name: Cleanup branches
+    needs: update # Not necessarily needed as PRs don't get closed that quick but still nice to have it in order
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Run Komac
+        uses: michidk/run-komac@latest
+        with:
+          komac-version: "2.6.0"
+          args: "cleanup --only-merged --token=${{ secrets.WINGET_TOKEN }}"
