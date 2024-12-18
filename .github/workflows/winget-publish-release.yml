@@ -44,7 +44,7 @@ jobs:
           komac-token: ${{ secrets.WINGET_TOKEN }}
           identifier: hrzlgnm.mdns-browser
           repo: hrzlgnm/mdns-browser
-          args: "update hrzlgnm.mdns-browser --version $SHORT_VERSION --urls $FINAL_URL --submit --token=$${ secrets.WINGET_TOKEN }}"
+          args: "update hrzlgnm.mdns-browser --version $SHORT_VERSION --urls $FINAL_URL --submit --token=${{ secrets.WINGET_TOKEN }}"
 
   cleanup:
     name: Cleanup branches
