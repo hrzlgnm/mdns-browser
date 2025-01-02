@@ -42,7 +42,7 @@ jobs:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
 
       - name: 📝 Check spelling using typos-action
-        uses: crate-ci/typos@c8fd3764afbf5eaf6e53d2e6571c835db2c8fa5f # v1.29.0
+        uses: crate-ci/typos@3265cef783c98e382e561f6089c2179a7d91bf0d # v1.29.1
 
       - name: 📥 Cached Install trunk
         uses: baptiste0928/cargo-install@bd2e5672d31e2b9c34080481d02b5506997c2828 # v3
