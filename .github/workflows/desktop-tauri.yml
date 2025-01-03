@@ -64,7 +64,7 @@ jobs:
         run: ${{ matrix.install }}
 
       - name: 📝 Check spelling using typos-action
-        uses: crate-ci/typos@752bd034d6d0b6fcb6421c73a3789161e0cdf70a # v1.29.3
+        uses: crate-ci/typos@685eb3d55be2f85191e8c84acb9f44d7756f84ab # v1.29.4
 
       - name: 📥 Cached install leptosfmt (macos only)
         if: contains(matrix.os, 'macos')
