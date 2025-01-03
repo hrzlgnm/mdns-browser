@@ -64,7 +64,7 @@ jobs:
         uses: baptiste0928/cargo-install@bd2e5672d31e2b9c34080481d02b5506997c2828 # v3
         with:
           crate: tauri-cli
-          version: 2.2.0
+          version: 2.2.1
           locked: true
 
       - name: 🔨 Build app bundle
