@@ -45,7 +45,7 @@ jobs:
         uses: crate-ci/typos@685eb3d55be2f85191e8c84acb9f44d7756f84ab # v1.29.4
 
       - name: 📥 Cached Install trunk
-        uses: baptiste0928/cargo-install@bd2e5672d31e2b9c34080481d02b5506997c2828 # v3
+        uses: baptiste0928/cargo-install@91c5da15570085bcde6f4d7aed98cb82d6769fd3 # v3
         with:
           crate: trunk
           version: 0.21.5
@@ -54,14 +54,14 @@ jobs:
           features: rustls
 
       - name: 📥 Cached install cargo-auditable
-        uses: baptiste0928/cargo-install@bd2e5672d31e2b9c34080481d02b5506997c2828 # v3
+        uses: baptiste0928/cargo-install@91c5da15570085bcde6f4d7aed98cb82d6769fd3 # v3
         with:
           crate: cargo-auditable
           version: 0.6.6
           locked: true
 
       - name: 📥 Cached install tauri-cli
-        uses: baptiste0928/cargo-install@bd2e5672d31e2b9c34080481d02b5506997c2828 # v3
+        uses: baptiste0928/cargo-install@91c5da15570085bcde6f4d7aed98cb82d6769fd3 # v3
         with:
           crate: tauri-cli
           version: 2.2.2
