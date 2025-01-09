@@ -188,13 +188,3 @@ jobs:
             (contains(matrix.os, 'macos') && contains(matrix.args, 'aarch64')) && 'target/aarch64-apple-darwin/release/mdns-browser'
             }}
           sbom-path: "sbom.spdx.json"
-
-  retry-on-failure:
-    if: failure() && fromJSON(github.run_attempt) < 3
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - env:
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run retry-workflow.yml -F run_id=${{ github.run_id }}
