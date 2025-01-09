@@ -1,3 +1,8 @@
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/hrzlgnm/mdns-browser/total)
+![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/hrzlgnm/mdns-browser/latest/total)
+![GitHub Release](https://img.shields.io/github/v/release/hrzlgnm/mdns-browser)
+![GitHub Release Date](https://img.shields.io/github/release-date/hrzlgnm/mdns-browser)
+
 # mDNS-Browser
 
 This application allows you to browse services using mDNS.
