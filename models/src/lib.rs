@@ -63,7 +63,7 @@ impl ResolvedService {
             || self
                 .subtype
                 .as_ref()
-                .map_or(false, |sub| sub.to_lowercase().contains(&query))
+                .is_some_and(|sub| sub.to_lowercase().contains(&query))
             || self.txt.iter().any(|txt| txt.matches_query(&query))
     }
 }
