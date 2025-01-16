@@ -997,16 +997,38 @@ async fn get_is_desktop(writer: RwSignal<bool>) {
 pub fn App() -> impl IntoView {
     provide_meta_context();
     let theme = create_rw_signal(Theme::dark());
+    let icon = create_rw_signal(icondata::BsSun);
+    let dark = create_rw_signal(true);
     let is_desktop = create_rw_signal(false);
     create_resource(move || is_desktop, get_is_desktop);
+    let on_switch_click = move |_| {
+        dark.set(!dark.get());
+        if dark.get() {
+            icon.set(icondata::BsSun);
+            theme.set(Theme::dark());
+        } else {
+            icon.set(icondata::BsMoonStars);
+            theme.set(Theme::light());
+        }
+    };
     provide_context(IsDesktopSignal(is_desktop));
     view! {
         <ThemeProvider theme>
             <Suspense fallback=|| view! { <Text>"Loading"</Text> }>
                 <GlobalStyle />
-                <Show when=move || { is_desktop.get() } fallback=|| view! { <div /> }>
-                    <About />
-                </Show>
+                <Grid cols=2>
+                    <GridItem column=0>
+                        <Show when=move || { is_desktop.get() } fallback=|| view! { <div /> }>
+                            <About />
+                        </Show>
+                    </GridItem>
+                    <GridItem column=1>
+                        <Space justify=SpaceJustify::End>
+                            <Icon height="2em" width="2em" icon on_click=on_switch_click/>
+                            <Text>" "</Text>
+                        </Space>
+                    </GridItem>
+                </Grid>
                 <Metrics />
                 <Browse />
             </Suspense>
