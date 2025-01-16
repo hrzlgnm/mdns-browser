@@ -1024,7 +1024,7 @@ pub fn App() -> impl IntoView {
                     </GridItem>
                     <GridItem column=1>
                         <Space justify=SpaceJustify::End>
-                            <Icon height="2em" width="2em" icon on_click=on_switch_click/>
+                            <Icon height="2em" width="2em" icon on_click=on_switch_click />
                             <Text>" "</Text>
                         </Space>
                     </GridItem>
