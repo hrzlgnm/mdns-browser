@@ -547,6 +547,7 @@ pub enum SortKind {
 fn Browse() -> impl IntoView {
     let service_types = create_rw_signal(ServiceTypes::new());
     provide_context(ServiceTypesSignal(service_types));
+    let prev_service_types = create_rw_signal(ServiceTypes::new());
 
     let (resolved, set_resolved) = create_signal(ResolvedServices::new());
     let (sort_kind, set_sort_kind) = create_signal(SortKind::HostnameAsc);
@@ -643,6 +644,24 @@ fn Browse() -> impl IntoView {
     let browse_action = create_action(|input: &String| {
         let input = input.clone();
         async move { browse(input.clone()).await }
+    });
+
+    create_effect(move |_| {
+        let current = service_types.get();
+        let previous = prev_service_types.get();
+
+        let old_set: HashSet<_> = previous.iter().cloned().collect();
+        let new_set: HashSet<_> = current.iter().cloned().collect();
+
+        let added: Vec<_> = new_set.difference(&old_set).cloned().collect();
+
+        if !added.is_empty() && browsing.get_untracked() && service_type.get_untracked().is_empty()
+        {
+            log::info!("Added services while browsing all: {:?}, browsing", added);
+            browse_many_action.dispatch(added.clone());
+        }
+
+        prev_service_types.set(current.clone());
     });
 
     let on_browse_click = move |_| {
