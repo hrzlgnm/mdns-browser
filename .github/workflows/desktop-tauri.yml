@@ -159,7 +159,7 @@ jobs:
 
       - name: 🛡️ Attest build provenance (publish release only)
         if: inputs.tagName != ''
-        uses: actions/attest-build-provenance@7668571508540a607bdfd90a87a560489fe372eb # v2.1.0
+        uses: actions/attest-build-provenance@520d128f165991a6c774bcb264f323e3d70747f4 # v2.2.0
         with:
           subject-path: |
             target/release/bundle/nsis/*
