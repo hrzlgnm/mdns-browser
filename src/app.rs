@@ -916,7 +916,8 @@ pub fn About() -> impl IntoView {
                                         size=ButtonSize::Tiny
                                         icon=icondata::MdiCheckCircleOutline
                                     >
-                                        "You are already on the latest version"
+                                        {move || version.get()}
+                                        " is the latest version"
                                     </Button>
                                 }
                             }
