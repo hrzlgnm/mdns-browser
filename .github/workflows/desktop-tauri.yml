@@ -68,9 +68,10 @@ jobs:
 
       - name: 📥 Cached install leptosfmt (macos only)
         if: contains(matrix.os, 'macos')
-        uses: taiki-e/cache-cargo-install-action@44857e0ff6d186da8fe49f9ac9eedae5bbc37a93 # v2.1.0
+        uses: baptiste0928/cargo-install@91c5da15570085bcde6f4d7aed98cb82d6769fd3 # v3
         with:
-          tool: leptosfmt@0.1.32
+          crate: leptosfmt
+          version: 0.1.32
           locked: true
 
       - name: 📐 Run leptosfmt and fail if any warnings (macos only)
