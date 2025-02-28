@@ -5255,7 +5255,7 @@ dependencies = [
  "tao-macros",
  "unicode-segmentation",
  "url",
- "windows 0.60.0",
+ "windows",
  "windows-core 0.60.1",
  "windows-version",
  "x11-dl",
@@ -5342,7 +5342,7 @@ dependencies = [
  "webkit2gtk",
  "webview2-com",
  "window-vibrancy",
- "windows 0.60.0",
+ "windows",
 ]
 
 [[package]]
@@ -5464,14 +5464,14 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-opener"
-version = "2.2.5"
+version = "2.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "635ed7c580dc3cdc61c94097d38ef517d749ffc0141c806d904e68e4b0cf1c2a"
+checksum = "2fdc6cb608e04b7d2b6d1f21e9444ad49245f6d03465ba53323d692d1ceb1a30"
 dependencies = [
  "dunce",
  "glob",
- "objc2-app-kit 0.2.2",
- "objc2-foundation 0.2.2",
+ "objc2-app-kit 0.3.0",
+ "objc2-foundation 0.3.0",
  "open",
  "schemars",
  "serde",
@@ -5480,7 +5480,7 @@ dependencies = [
  "tauri-plugin",
  "thiserror 2.0.11",
  "url",
- "windows 0.58.0",
+ "windows",
  "zbus",
 ]
 
@@ -5531,7 +5531,7 @@ dependencies = [
  "tauri-utils",
  "thiserror 2.0.11",
  "url",
- "windows 0.60.0",
+ "windows",
 ]
 
 [[package]]
@@ -5556,7 +5556,7 @@ dependencies = [
  "url",
  "webkit2gtk",
  "webview2-com",
- "windows 0.60.0",
+ "windows",
  "wry",
 ]
 
@@ -6407,10 +6407,10 @@ checksum = "b0d606f600e5272b514dbb66539dd068211cc20155be8d3958201b4b5bd79ed3"
 dependencies = [
  "webview2-com-macros",
  "webview2-com-sys",
- "windows 0.60.0",
+ "windows",
  "windows-core 0.60.1",
- "windows-implement 0.59.0",
- "windows-interface 0.59.0",
+ "windows-implement",
+ "windows-interface",
 ]
 
 [[package]]
@@ -6431,7 +6431,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bfb27fccd3c27f68e9a6af1bcf48c2d82534b8675b83608a4d81446d095a17ac"
 dependencies = [
  "thiserror 2.0.11",
- "windows 0.60.0",
+ "windows",
  "windows-core 0.60.1",
 ]
 
@@ -6489,16 +6489,6 @@ dependencies = [
 
 [[package]]
 name = "windows"
-version = "0.58.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd04d41d93c4992d421894c18c8b43496aa748dd4c081bac0dc93eb0489272b6"
-dependencies = [
- "windows-core 0.58.0",
- "windows-targets 0.52.6",
-]
-
-[[package]]
-name = "windows"
 version = "0.60.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ddf874e74c7a99773e62b1c671427abf01a425e77c3d3fb9fb1e4883ea934529"
@@ -6530,25 +6520,12 @@ dependencies = [
 
 [[package]]
 name = "windows-core"
-version = "0.58.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ba6d44ec8c2591c134257ce647b7ea6b20335bf6379a27dac5f1641fcf59f99"
-dependencies = [
- "windows-implement 0.58.0",
- "windows-interface 0.58.0",
- "windows-result 0.2.0",
- "windows-strings 0.1.0",
- "windows-targets 0.52.6",
-]
-
-[[package]]
-name = "windows-core"
 version = "0.60.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca21a92a9cae9bf4ccae5cf8368dce0837100ddf6e6d57936749e85f152f6247"
 dependencies = [
- "windows-implement 0.59.0",
- "windows-interface 0.59.0",
+ "windows-implement",
+ "windows-interface",
  "windows-link",
  "windows-result 0.3.1",
  "windows-strings 0.3.1",
@@ -6566,31 +6543,9 @@ dependencies = [
 
 [[package]]
 name = "windows-implement"
-version = "0.58.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2bbd5b46c938e506ecbce286b6628a02171d56153ba733b6c741fc627ec9579b"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.98",
-]
-
-[[package]]
-name = "windows-implement"
 version = "0.59.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "83577b051e2f49a058c308f17f273b570a6a758386fc291b5f6a934dd84e48c1"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.98",
-]
-
-[[package]]
-name = "windows-interface"
-version = "0.58.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "053c4c462dc91d3b1504c6fe5a726dd15e216ba718e84a0e46a88fbe5ded3515"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -6982,7 +6937,7 @@ dependencies = [
  "webkit2gtk",
  "webkit2gtk-sys",
  "webview2-com",
- "windows 0.60.0",
+ "windows",
  "windows-core 0.60.1",
  "windows-version",
  "x11-dl",
