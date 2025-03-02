@@ -134,7 +134,7 @@ jobs:
           Import-PfxCertificate -FilePath certificate/certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
 
       - name: 🔨 Build using tauri action (publish artifacts on release)
-        uses: tauri-apps/tauri-action@94571df7fd79dbe2aee6d279c0a6b66d086d3b3b # v0.5.19
+        uses: tauri-apps/tauri-action@42e9df6c59070d114bf90dcd3943a1b8f138b113 # v0.5.20
         env:
           RUSTFLAGS: "-D warnings"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
