@@ -311,14 +311,8 @@ fn AutoCompleteServiceType(
             comp_ref=comp_ref
             attr:autocapitalize="none"
         >
-            <For
-                each=move || service_type_options.get()
-                key=|option| option.0.clone()
-                let:option
-            >
-                <AutoCompleteOption value=option.0>
-                    {option.1}
-                </AutoCompleteOption>
+            <For each=move || service_type_options.get() key=|option| option.0.clone() let:option>
+                <AutoCompleteOption value=option.0>{option.1}</AutoCompleteOption>
             </For>
         </AutoComplete>
     }
