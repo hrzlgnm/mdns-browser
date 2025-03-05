@@ -24,108 +24,119 @@ use thaw::{
 };
 use thaw_utils::Model;
 
-async fn invoke_no_args(cmd: &str) {
-    log::debug!("-> Invoke no args `{cmd}`");
-    let _ = invoke::<()>(cmd, &()).await;
-    log::debug!("<- Invoke no args `{cmd}`");
+macro_rules! log_fn {
+    ($name:expr, $body:block) => {{
+        log::debug!("-> {}", $name);
+        let result = { $body };
+        log::debug!("<- {}", $name);
+        result
+    }};
 }
 
+async fn invoke_no_args(cmd: &str) {
+    log_fn!(format!("invoke_no_args(`{}`)", cmd), {
+        let _ = invoke::<()>(cmd, &()).await;
+    })
+}
 async fn listen_on_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
-    log::debug!("-> Listen on metrics");
-    let mut metrics = listen::<MetricsEventRes>("metrics")
-        .await
-        .expect("to listen on metrics");
-    while let Some(event) = metrics.next().await {
-        log::debug!("Received metrics {:#?}", event);
-        event_writer.update(|evts| {
-            *evts = event.payload.metrics.into_iter().collect::<Vec<_>>();
-            evts.sort_by(|a, b| a.0.cmp(&b.0));
-        });
-    }
-    log::debug!("<- Listen on metrics");
+    log_fn!("listen_on_service_type_events", {
+        log::debug!("-> Listen on metrics");
+        let mut metrics = listen::<MetricsEventRes>("metrics")
+            .await
+            .expect("to listen on metrics");
+        while let Some(event) = metrics.next().await {
+            log::debug!("Received metrics {:#?}", event);
+            event_writer.update(|evts| {
+                *evts = event.payload.metrics.into_iter().collect::<Vec<_>>();
+                evts.sort_by(|a, b| a.0.cmp(&b.0));
+            });
+        }
+    });
 }
 
 async fn listen_on_service_type_events(event_writer: RwSignal<ServiceTypes>) {
-    log::debug!("-> Listen on service type events");
-    let found = listen::<ServiceTypeFoundEventRes>("service-type-found")
-        .await
-        .expect("to listen on service-type-found");
-    let removed = listen::<ServiceTypeRemovedEventRes>("service-type-removed")
-        .await
-        .expect("to listen on service-type-removed");
+    log_fn!("listen_on_service_type_events", {
+        log::debug!("-> Listen on service type events");
+        let found = listen::<ServiceTypeFoundEventRes>("service-type-found")
+            .await
+            .expect("to listen on service-type-found");
+        let removed = listen::<ServiceTypeRemovedEventRes>("service-type-removed")
+            .await
+            .expect("to listen on service-type-removed");
 
-    let mut found_fused = found.fuse();
-    let mut removed_fused = removed.fuse();
+        let mut found_fused = found.fuse();
+        let mut removed_fused = removed.fuse();
 
-    spawn_local(invoke_no_args("browse_types"));
+        spawn_local(invoke_no_args("browse_types"));
 
-    loop {
-        select! {
-            event = found_fused.next() => {
-                if let Some(event) = event {
-                    log::debug!("Received event 'service-type-found': {:#?}", event);
-                    let mut set = HashSet::new();
-                    event_writer.update(|sts| {
-                        sts.push(event.payload.service_type);
-                        sts.retain(|st| set.insert(st.clone()));
-                        sts.sort();
-                    });
-               }
-            }
-            event = removed_fused.next() => {
-                if let Some(event) = event {
-                    log::debug!("Received event 'service-type-removed': {:#?}", event);
-                    event_writer.update(|evts| {
-                        evts.retain(|st| st != &event.payload.service_type);
-                        evts.sort();
-                    });
+        loop {
+            select! {
+                event = found_fused.next() => {
+                    if let Some(event) = event {
+                        log::debug!("Received event 'service-type-found': {:#?}", event);
+                        let mut set = HashSet::new();
+                        event_writer.update(|sts| {
+                            sts.push(event.payload.service_type);
+                            sts.retain(|st| set.insert(st.clone()));
+                            sts.sort();
+                        });
+                   }
                 }
+                event = removed_fused.next() => {
+                    if let Some(event) = event {
+                        log::debug!("Received event 'service-type-removed': {:#?}", event);
+                        event_writer.update(|evts| {
+                            evts.retain(|st| st != &event.payload.service_type);
+                            evts.sort();
+                        });
+                    }
+                }
+                complete => break,
             }
-            complete => break,
         }
-    }
-    log::debug!("<- Listen on service type events");
+    });
 }
 
 async fn listen_on_resolve_events(event_writer: RwSignal<ResolvedServices>) {
-    log::debug!("-> Listen on resolve events");
-    let resolved = listen::<ResolvedServiceEventRes>("service-resolved")
-        .await
-        .expect("to listen on service-resolved");
-    let removed = listen::<ServiceRemovedEventRes>("service-removed")
-        .await
-        .expect("to listen on service-removed");
+    log_fn!("listen_on_resolve_events", {
+        log::debug!("-> Listen on resolve events");
+        let resolved = listen::<ResolvedServiceEventRes>("service-resolved")
+            .await
+            .expect("to listen on service-resolved");
+        let removed = listen::<ServiceRemovedEventRes>("service-removed")
+            .await
+            .expect("to listen on service-removed");
 
-    let mut resolved_fused = resolved.fuse();
-    let mut removed_fused = removed.fuse();
-    loop {
-        select! {
-            event = resolved_fused.next() => {
-                if let Some(event) = event {
-                    log::debug!("Received event 'service-resolved': {:#?}", event);
-                    event_writer.update(|evts| {
-                         evts.retain(|r| r.instance_name != event.payload.service.instance_name);
-                         evts.push(event.payload.service);
-                    });
+        let mut resolved_fused = resolved.fuse();
+        let mut removed_fused = removed.fuse();
+        loop {
+            select! {
+                event = resolved_fused.next() => {
+                    if let Some(event) = event {
+                        log::debug!("Received event 'service-resolved': {:#?}", event);
+                        event_writer.update(|evts| {
+                             evts.retain(|r| r.instance_name != event.payload.service.instance_name);
+                             evts.push(event.payload.service);
+                        });
+                    }
                 }
-            }
-            event = removed_fused.next() => {
-                if let Some(event) = event {
-                    log::debug!("Received event 'service-removed': {:#?}", event);
-                    event_writer.update(|evts| {
-                        for item in evts.iter_mut() {
-                            if item.instance_name == event.payload.instance_name {
-                                item.die_at(event.payload.at_ms);
-                                break;
+                event = removed_fused.next() => {
+                    if let Some(event) = event {
+                        log::debug!("Received event 'service-removed': {:#?}", event);
+                        event_writer.update(|evts| {
+                            for item in evts.iter_mut() {
+                                if item.instance_name == event.payload.instance_name {
+                                    item.die_at(event.payload.at_ms);
+                                    break;
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
+                complete => break,
             }
-            complete => break,
         }
-    }
-    log::debug!("<- Listening on resolve events");
+    });
 }
 
 #[derive(Serialize, Deserialize)]
@@ -134,28 +145,32 @@ struct BrowseManyArgs {
     serviceTypes: Vec<String>,
 }
 
-async fn browse(service_type: String) {
-    let _ = invoke::<()>(
-        "browse_many",
-        &BrowseManyArgs {
-            serviceTypes: vec![service_type],
-        },
-    )
-    .await;
+async fn browse(service_type: &str) {
+    log_fn!(format!("browse({})", &service_type), {
+        let _ = invoke::<()>(
+            "browse_many",
+            &BrowseManyArgs {
+                serviceTypes: vec![service_type.to_string()],
+            },
+        )
+        .await;
+    });
 }
 
 async fn browse_many(service_types: Vec<String>) {
-    let _ = invoke::<()>(
-        "browse_many",
-        &BrowseManyArgs {
-            serviceTypes: service_types,
-        },
-    )
-    .await;
+    log_fn!(format!("browse_many({:?})", &service_types), {
+        let _ = invoke::<()>(
+            "browse_many",
+            &BrowseManyArgs {
+                serviceTypes: service_types.clone(),
+            },
+        )
+        .await;
+    });
 }
 
 async fn stop_browse() {
-    invoke_no_args("stop_browse").await;
+    let _ = invoke_no_args("stop_browse").await;
 }
 
 #[derive(Serialize, Deserialize)]
@@ -165,13 +180,15 @@ struct VerifyArgs<'a> {
 }
 
 async fn verify_instance(instance_fullname: String) {
-    let _ = invoke::<()>(
-        "verify",
-        &VerifyArgs {
-            instanceFullname: &instance_fullname,
-        },
-    )
-    .await;
+    log_fn!(format!("verify_instance({})", &instance_fullname), {
+        let _ = invoke::<()>(
+            "verify",
+            &VerifyArgs {
+                instanceFullname: &instance_fullname,
+            },
+        )
+        .await;
+    });
 }
 
 /// Component to render a string vector into a table
@@ -375,13 +392,15 @@ struct CopyToClipboardArgs<'a> {
 }
 
 async fn copy_to_clipboard(contents: String) {
-    let _ = invoke::<()>(
-        "copy_to_clipboard",
-        &CopyToClipboardArgs {
-            contents: &contents,
-        },
-    )
-    .await;
+    log_fn!(format!("copy_to_clipboard({})", &contents), {
+        let _ = invoke::<()>(
+            "copy_to_clipboard",
+            &CopyToClipboardArgs {
+                contents: &contents,
+            },
+        )
+        .await;
+    });
 }
 fn drop_trailing_dot(fqn: &str) -> String {
     fqn.strip_suffix(".").unwrap_or(fqn).to_owned()
@@ -395,8 +414,6 @@ fn drop_local_and_last_dot(fqn: &str) -> String {
 /// Component that shows a resolved service as a card
 #[component]
 fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
-    log::debug!("-> ResolvedServiceGridItem");
-
     let instance_fullname = RwSignal::new(resolved_service.instance_name.clone());
     let verify_action = Action::new_local(|instance_fullname: &String| {
         let instance_fullname = instance_fullname.clone();
@@ -445,7 +462,7 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     } else {
         addrs.clone()
     };
-    let view = view! {
+    view! {
         <GridItem>
             <Card>
                 <CardHeader>
@@ -515,9 +532,7 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                 </CardFooter>
             </Card>
         </GridItem>
-    };
-    log::debug!("<- ResolvedServiceGridItem");
-    view
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -538,7 +553,6 @@ pub enum SortKind {
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
-    log::debug!("-> Browse");
     let service_types = RwSignal::new(ServiceTypes::new());
     provide_context(ServiceTypesSignal(service_types));
 
@@ -620,10 +634,10 @@ fn Browse() -> impl IntoView {
 
     let browse_action = Action::new_local(|input: &String| {
         let input = input.clone();
-        async move { browse(input.clone()).await }
+        async move { browse(input.as_str()).await }
     });
 
-    // TODO: if enabled this effect causes a freeze #777
+    // TODO: if enabled this effect causes a freeze [#777](https://github.com/hrzlgnm/mdns-browser/issues/777)
     // let prev_service_types = RwSignal::new(ServiceTypes::new());
     // Effect::new(move |_| {
     //     let current = service_types.get();
@@ -682,7 +696,7 @@ fn Browse() -> impl IntoView {
 
     LocalResource::new(move || listen_on_resolve_events(resolved));
 
-    let view = view! {
+    view! {
         <Layout>
             <Space vertical=true gap=SpaceGap::Small>
                 <Space align=SpaceAlign::Center gap=SpaceGap::Small>
@@ -756,22 +770,19 @@ fn Browse() -> impl IntoView {
                 "
             </Style>
         </Layout>
-    };
-    log::debug!("<- Browse");
-    view
+    }
 }
 
 async fn fetch_update() -> Option<UpdateMetadata> {
-    log::debug!("-> Fetching update");
-    let update = invoke::<Option<UpdateMetadata>>("fetch_update", &()).await;
-    log::debug!("<- Fetching update");
-    update
+    log_fn!("fetch_update", {
+        let update = invoke::<Option<UpdateMetadata>>("fetch_update", &()).await;
+        log::debug!("Got update: {:?}", update);
+        update
+    })
 }
 
 async fn install_update() {
-    log::debug!("-> Install update");
     invoke_no_args("install_update").await;
-    log::debug!("<- Install update");
 }
 
 #[derive(Serialize, Deserialize)]
@@ -780,25 +791,24 @@ struct OpenArgs<'a> {
 }
 
 async fn open_url(url: &str) {
-    log::debug!("-> Opening {url}");
-    let _ = invoke::<()>("open_url", &OpenArgs { url }).await;
-    log::debug!("<- Opening {url}");
+    log_fn!(format!("open_url({})", &url), {
+        let _ = invoke::<()>("open_url", &OpenArgs { url }).await;
+    });
 }
 
 async fn get_version(writer: WriteSignal<String>) {
-    log::debug!("-> Get version");
-    let ver = invoke::<String>("version", &()).await;
-    log::debug!("Got version {ver}");
-    writer.update(|v| *v = ver);
-    log::debug!("<- Get version");
+    log_fn!("get_version", {
+        let ver = invoke::<String>("version", &()).await;
+        writer.update(|v| *v = ver);
+    });
 }
 
 async fn get_can_auto_update(writer: WriteSignal<bool>) {
-    log::debug!("-> Get can_auto_update");
-    let can_auto_update = invoke::<bool>("can_auto_update", &()).await;
-    log::debug!("Got can_auto_update  {can_auto_update}");
-    writer.update(|v| *v = can_auto_update);
-    log::debug!("<- Get can_auto_update");
+    log_fn!("get_can_auto_update", {
+        let can_auto_update = invoke::<bool>("can_auto_update", &()).await;
+        log::debug!("Got can_auto_update  {can_auto_update}");
+        writer.update(|v| *v = can_auto_update);
+    });
 }
 
 /// Component for info about the app
