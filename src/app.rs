@@ -38,8 +38,8 @@ async fn invoke_no_args(cmd: &str) {
         let _ = invoke::<()>(cmd, &()).await;
     })
 }
-async fn listen_on_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
-    log_fn!("listen_on_service_type_events", {
+async fn listen_for_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
+    log_fn!("listen_for_service_type_events", {
         log::debug!("-> Listen on metrics");
         let mut metrics = listen::<MetricsEventRes>("metrics")
             .await
@@ -54,8 +54,8 @@ async fn listen_on_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
     });
 }
 
-async fn listen_on_service_type_events(event_writer: RwSignal<ServiceTypes>) {
-    log_fn!("listen_on_service_type_events", {
+async fn listen_for_service_type_events(event_writer: RwSignal<ServiceTypes>) {
+    log_fn!("listen_for_service_type_events", {
         log::debug!("-> Listen on service type events");
         let found = listen::<ServiceTypeFoundEventRes>("service-type-found")
             .await
@@ -97,8 +97,8 @@ async fn listen_on_service_type_events(event_writer: RwSignal<ServiceTypes>) {
     });
 }
 
-async fn listen_on_resolve_events(event_writer: RwSignal<ResolvedServices>) {
-    log_fn!("listen_on_resolve_events", {
+async fn listen_for_resolve_events(event_writer: RwSignal<ResolvedServices>) {
+    log_fn!("listen_for_resolve_events", {
         log::debug!("-> Listen on resolve events");
         let resolved = listen::<ResolvedServiceEventRes>("service-resolved")
             .await
@@ -293,7 +293,7 @@ fn AutoCompleteServiceType(
             .collect()
     });
 
-    LocalResource::new(move || listen_on_service_type_events(service_types));
+    LocalResource::new(move || listen_for_service_type_events(service_types));
 
     view! {
         <AutoComplete
@@ -694,7 +694,7 @@ fn Browse() -> impl IntoView {
         });
     });
 
-    LocalResource::new(move || listen_on_resolve_events(resolved));
+    LocalResource::new(move || listen_for_resolve_events(resolved));
 
     view! {
         <Layout>
@@ -980,7 +980,7 @@ pub fn About() -> impl IntoView {
 pub fn Metrics() -> impl IntoView {
     log::debug!("-> Metrics");
     let metrics = RwSignal::new(Vec::new());
-    LocalResource::new(move || listen_on_metrics_event(metrics));
+    LocalResource::new(move || listen_for_metrics_event(metrics));
     spawn_local(invoke_no_args("subscribe_metrics"));
     let view = view! {
         <Layout>
