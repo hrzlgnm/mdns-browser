@@ -14,60 +14,60 @@ use std::collections::HashSet;
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
-use thaw::AccordionHeader;
-use thaw::Body1;
-use thaw::Caption1;
-use thaw::CardHeaderDescription;
-use thaw::DialogBody;
-use thaw::DialogSurface;
-use thaw::DialogTitle;
-use thaw::Toast;
-use thaw::ToastBody;
-use thaw::ToastTitle;
-use thaw::ToasterInjection;
-use thaw::ToasterProvider;
 use thaw::{
-    Accordion, AccordionItem, AutoComplete, AutoCompleteOption, AutoCompleteRef, Button,
-    ButtonAppearance, ButtonSize, Card, CardFooter, CardHeader, CardPreview, ComponentRef,
-    ConfigProvider, Dialog, Grid, GridItem, Icon, Input, Layout, Select, Space, SpaceAlign,
+    Accordion, AccordionHeader, AccordionItem, AutoComplete, AutoCompleteOption, AutoCompleteRef,
+    Body1, Button, ButtonAppearance, ButtonSize, Caption1, Card, CardFooter, CardHeader,
+    CardHeaderDescription, CardPreview, ComponentRef, ConfigProvider, Dialog, DialogBody,
+    DialogSurface, DialogTitle, Grid, GridItem, Icon, Input, Layout, Select, Space, SpaceAlign,
     SpaceGap, SpaceJustify, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow,
-    Text, Theme,
+    Text, Theme, Toast, ToastBody, ToastTitle, ToasterInjection, ToasterProvider,
 };
 use thaw_utils::Model;
 
 async fn invoke_no_args(cmd: &str) {
-    log::debug!("Invoke no args `{cmd}`");
+    log::debug!("-> Invoke no args `{cmd}`");
     let _ = invoke::<()>(cmd, &()).await;
+    log::debug!("<- Invoke no args `{cmd}`");
 }
 
 async fn listen_on_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
-    log::debug!("Listen on metrics");
-    match listen::<MetricsEventRes>("metrics").await {
-        Ok(mut event) => {
-            invoke_no_args("send_metrics").await;
-            while let Some(event) = event.next().await {
-                log::debug!("Received metrics {:#?}", event);
-                event_writer.update(|evts| {
-                    *evts = event.payload.metrics.into_iter().collect::<Vec<_>>();
-                    evts.sort_by(|a, b| a.0.cmp(&b.0));
-                });
+    log::debug!("-> Listen on metrics");
+    let metrics = listen::<MetricsEventRes>("metrics")
+        .await
+        .expect("to listen on metrics");
+    let mut metrics_fused = metrics.fuse();
+    loop {
+        select! {
+            event = metrics_fused.next() => {
+                if let Some(event) = event {
+                    log::debug!("Received metrics {:#?}", event);
+                    event_writer.update(|evts| {
+                        *evts = event.payload.metrics.into_iter().collect::<Vec<_>>();
+                        evts.sort_by(|a, b| a.0.cmp(&b.0));
+                    });
+                }
+            },
+            complete => {
+                break;
             }
         }
-        Err(error) => {
-            log::error!("Failed to listen on metrics: {}", error);
-        }
     }
+    log::debug!("<- Listen on metrics");
 }
 
-async fn listen_on_service_type_event_result(
-    event_writer: RwSignal<ServiceTypes>,
-) -> Result<(), Error> {
-    let found = listen::<ServiceTypeFoundEventRes>("service-type-found").await?;
-    let removed = listen::<ServiceTypeRemovedEventRes>("service-type-removed").await?;
+async fn listen_on_service_type_events(event_writer: RwSignal<ServiceTypes>) {
+    log::debug!("-> Listen on service type events");
+    let found = listen::<ServiceTypeFoundEventRes>("service-type-found")
+        .await
+        .expect("to listen on service-type-found");
+    let removed = listen::<ServiceTypeRemovedEventRes>("service-type-removed")
+        .await
+        .expect("to listen on service-type-removed");
 
     let mut found_fused = found.fuse();
     let mut removed_fused = removed.fuse();
-    invoke_no_args("browse_types").await;
+
+    spawn_local(invoke_no_args("browse_types"));
 
     loop {
         select! {
@@ -94,24 +94,17 @@ async fn listen_on_service_type_event_result(
             complete => break,
         }
     }
-    Ok(())
+    log::debug!("<- Listen on service type events");
 }
 
-async fn listen_on_service_type_events(event_writer: RwSignal<ServiceTypes>) {
-    log::debug!("listen on service type events");
-    let result = listen_on_service_type_event_result(event_writer).await;
-    match result {
-        Ok(_) => log::debug!("Listen on service type events succeeded"),
-        Err(e) => log::error!("Listening on service type events failed with: {e}"),
-    }
-}
-
-async fn listen_on_resolve_events_result(
-    event_writer: WriteSignal<ResolvedServices>,
-) -> Result<(), Error> {
-    log::debug!("listen on resolve events with result");
-    let resolved = listen::<ResolvedServiceEventRes>("service-resolved").await?;
-    let removed = listen::<ServiceRemovedEventRes>("service-removed").await?;
+async fn listen_on_resolve_events(event_writer: RwSignal<ResolvedServices>) {
+    log::debug!("-> Listen on resolve events");
+    let resolved = listen::<ResolvedServiceEventRes>("service-resolved")
+        .await
+        .expect("to listen on service-resolved");
+    let removed = listen::<ServiceRemovedEventRes>("service-removed")
+        .await
+        .expect("to listen on service-removed");
 
     let mut resolved_fused = resolved.fuse();
     let mut removed_fused = removed.fuse();
@@ -142,15 +135,7 @@ async fn listen_on_resolve_events_result(
             complete => break,
         }
     }
-    Ok(())
-}
-
-async fn listen_on_resolve_events(event_writer: WriteSignal<ResolvedServices>) {
-    let result = listen_on_resolve_events_result(event_writer).await;
-    match result {
-        Ok(_) => log::debug!("Listening on resolve events succeeded"),
-        Err(e) => log::error!("Listening on resolve events failed with: {e}"),
-    }
+    log::debug!("<- Listening on resolve events");
 }
 
 #[derive(Serialize, Deserialize)]
@@ -284,8 +269,6 @@ fn AutoCompleteServiceType(
         .expect("service_types context to exist")
         .0;
 
-    LocalResource::new(move || listen_on_service_type_events(service_types));
-
     let service_type_options = Memo::<Vec<_>>::new(move |_| {
         service_types
             .get()
@@ -302,6 +285,8 @@ fn AutoCompleteServiceType(
             .map(|service_type| (service_type.to_string(), service_type.to_string()))
             .collect()
     });
+
+    LocalResource::new(move || listen_on_service_type_events(service_types));
 
     view! {
         <AutoComplete
@@ -373,7 +358,7 @@ fn CopyToClipBoardButton(
                     view! {
                         <Toast>
                             <ToastTitle>"Clipboard"</ToastTitle>
-                            <ToastBody>format!("Copied {} to clipboard", text)</ToastBody>
+                            <ToastBody>{format!("Copied {} to clipboard", text)}</ToastBody>
                         </Toast>
                     }
                 },
@@ -420,7 +405,7 @@ fn drop_local_and_last_dot(fqn: &str) -> String {
 /// Component that shows a resolved service as a card
 #[component]
 fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
-    log::debug!("ResolvedServiceGridItem");
+    log::debug!("-> ResolvedServiceGridItem");
 
     let instance_fullname = RwSignal::new(resolved_service.instance_name.clone());
     let verify_action = Action::new_local(|instance_fullname: &String| {
@@ -470,7 +455,7 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     } else {
         addrs.clone()
     };
-    view! {
+    let view = view! {
         <GridItem>
             <Card>
                 <CardHeader>
@@ -540,7 +525,9 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                 </CardFooter>
             </Card>
         </GridItem>
-    }
+    };
+    log::debug!("<- ResolvedServiceGridItem");
+    view
 }
 
 #[derive(Clone, Debug)]
@@ -561,11 +548,11 @@ pub enum SortKind {
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
+    log::debug!("-> Browse");
     let service_types = RwSignal::new(ServiceTypes::new());
     provide_context(ServiceTypesSignal(service_types));
-    let prev_service_types = RwSignal::new(ServiceTypes::new());
 
-    let (resolved, set_resolved) = signal(ResolvedServices::new());
+    let resolved = RwSignal::new(ResolvedServices::new());
     let (sort_kind, set_sort_kind) = signal(SortKind::HostnameAsc);
     let sorted_resolved = Memo::new(move |_| {
         let mut sorted = resolved.get().clone();
@@ -611,7 +598,6 @@ fn Browse() -> impl IntoView {
         "TimestampDesc" => set_sort_kind.set(SortKind::TimestampDesc),
         _ => {}
     });
-    LocalResource::new(move || listen_on_resolve_events(set_resolved));
 
     let is_desktop = use_context::<IsDesktopSignal>()
         .expect("is_desktop context to exist")
@@ -647,23 +633,25 @@ fn Browse() -> impl IntoView {
         async move { browse(input.clone()).await }
     });
 
-    Effect::new(move |_| {
-        let current = service_types.get();
-        let previous = prev_service_types.get();
-
-        let old_set: HashSet<_> = previous.iter().cloned().collect();
-        let new_set: HashSet<_> = current.iter().cloned().collect();
-
-        let added: Vec<_> = new_set.difference(&old_set).cloned().collect();
-
-        if !added.is_empty() && browsing.get_untracked() && service_type.get_untracked().is_empty()
-        {
-            log::info!("Added services while browsing all: {:?}, browsing", added);
-            browse_many_action.dispatch(added.clone());
-        }
-
-        prev_service_types.set(current.clone());
-    });
+    // TODO: if enabled this effect causes a freeze #777
+    // let prev_service_types = RwSignal::new(ServiceTypes::new());
+    // Effect::new(move |_| {
+    //     let current = service_types.get();
+    //     let previous = prev_service_types.get();
+    //
+    //     let old_set: HashSet<_> = previous.iter().cloned().collect();
+    //     let new_set: HashSet<_> = current.iter().cloned().collect();
+    //
+    //     let added: Vec<_> = new_set.difference(&old_set).cloned().collect();
+    //
+    //     if !added.is_empty() && browsing.get_untracked() && service_type.get_untracked().is_empty()
+    //     {
+    //         log::info!("Added services while browsing all: {:?}, browsing", added);
+    //         browse_many_action.dispatch(added.clone());
+    //     }
+    //
+    //     prev_service_types.set(current.clone());
+    // });
 
     let on_browse_click = move |_| {
         browsing.set(true);
@@ -681,7 +669,7 @@ fn Browse() -> impl IntoView {
 
     let on_stopbrowsing_click = move |_| {
         browsing.set(false);
-        set_resolved.set(Vec::new());
+        resolved.set(Vec::new());
         stop_browsing_action.dispatch(());
         service_type.set(String::new());
         if let Some(comp) = comp_ref.get_untracked() {
@@ -702,8 +690,10 @@ fn Browse() -> impl IntoView {
         });
     });
 
-    view! {
-        <Layout content_style="padding: 10px;">
+    LocalResource::new(move || listen_on_resolve_events(resolved));
+
+    let view = view! {
+        <Layout>
             <Space vertical=true gap=SpaceGap::Small>
                 <Space align=SpaceAlign::Center gap=SpaceGap::Small>
                     <Layout class=auto_complete_class>
@@ -776,15 +766,22 @@ fn Browse() -> impl IntoView {
                 "
             </Style>
         </Layout>
-    }
+    };
+    log::debug!("<- Browse");
+    view
 }
 
 async fn fetch_update() -> Option<UpdateMetadata> {
-    invoke::<Option<UpdateMetadata>>("fetch_update", &()).await
+    log::debug!("-> Fetching update");
+    let update = invoke::<Option<UpdateMetadata>>("fetch_update", &()).await;
+    log::debug!("<- Fetching update");
+    update
 }
 
 async fn install_update() {
+    log::debug!("-> Install update");
     invoke_no_args("install_update").await;
+    log::debug!("<- Install update");
 }
 
 #[derive(Serialize, Deserialize)]
@@ -793,26 +790,31 @@ struct OpenArgs<'a> {
 }
 
 async fn open_url(url: &str) {
-    log::debug!("Opening {url}");
+    log::debug!("-> Opening {url}");
     let _ = invoke::<()>("open_url", &OpenArgs { url }).await;
+    log::debug!("<- Opening {url}");
 }
 
 async fn get_version(writer: WriteSignal<String>) {
+    log::debug!("-> Get version");
     let ver = invoke::<String>("version", &()).await;
     log::debug!("Got version {ver}");
     writer.update(|v| *v = ver);
+    log::debug!("<- Get version");
 }
 
 async fn get_can_auto_update(writer: WriteSignal<bool>) {
+    log::debug!("-> Get can_auto_update");
     let can_auto_update = invoke::<bool>("can_auto_update", &()).await;
     log::debug!("Got can_auto_update  {can_auto_update}");
     writer.update(|v| *v = can_auto_update);
+    log::debug!("<- Get can_auto_update");
 }
 
 /// Component for info about the app
 #[component]
 pub fn About() -> impl IntoView {
-    log::debug!("About");
+    log::debug!("-> About");
     let (version, set_version) = signal(String::new());
     let (update, set_update) = signal(None);
     let (can_auto_update, set_can_auto_update) = signal(false);
@@ -884,10 +886,9 @@ pub fn About() -> impl IntoView {
     let on_check_update_click = move |_| {
         fetch_update_action.dispatch(());
     };
-    log::debug!("About view");
-    view! {
-        <Layout content_style="padding: 10px;">
-            <Accordion>
+    let view = view! {
+        <Layout>
+            <Accordion multiple=true>
                 <AccordionItem value="about">
                     <AccordionHeader slot>"About"</AccordionHeader>
                     <Space>
@@ -969,19 +970,21 @@ pub fn About() -> impl IntoView {
                 </AccordionItem>
             </Accordion>
         </Layout>
-    }
+    };
+    log::debug!("<- About");
+    view
 }
 
 /// Component for metrics
 #[component]
 pub fn Metrics() -> impl IntoView {
-    log::debug!("Metrics");
+    log::debug!("-> Metrics");
     let metrics = RwSignal::new(Vec::new());
     LocalResource::new(move || listen_on_metrics_event(metrics));
-    log::debug!("Metrics view");
-    view! {
-        <Layout content_style="padding: 10px;">
-            <Accordion>
+    spawn_local(invoke_no_args("subscribe_metrics"));
+    let view = view! {
+        <Layout>
+            <Accordion multiple=true>
                 <AccordionItem value="metrics">
                     <AccordionHeader slot>"mDNS-SD-metrics"</AccordionHeader>
                     <Table>
@@ -1011,7 +1014,9 @@ pub fn Metrics() -> impl IntoView {
                 </AccordionItem>
             </Accordion>
         </Layout>
-    }
+    };
+    log::debug!("<- Metrics");
+    view
 }
 
 #[derive(Clone, Debug)]
@@ -1030,7 +1035,7 @@ pub fn App() -> impl IntoView {
     let theme = RwSignal::new(Theme::dark());
     let icon = RwSignal::new(icondata::BsSun);
     let dark = RwSignal::new(true);
-    let is_desktop = RwSignal::new(false);
+    let is_desktop = RwSignal::new(true);
     LocalResource::new(move || get_is_desktop(is_desktop));
     let on_switch_click = move |_| {
         dark.set(!dark.get());
