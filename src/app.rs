@@ -1035,7 +1035,7 @@ pub fn App() -> impl IntoView {
     let theme = RwSignal::new(Theme::dark());
     let icon = RwSignal::new(icondata::BsSun);
     let dark = RwSignal::new(true);
-    let is_desktop = RwSignal::new(true);
+    let is_desktop = RwSignal::new(false);
     LocalResource::new(move || get_is_desktop(is_desktop));
     let on_switch_click = move |_| {
         dark.set(!dark.get());
