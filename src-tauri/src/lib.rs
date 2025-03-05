@@ -204,7 +204,7 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
 }
 
 #[tauri::command]
-fn send_metrics(window: Window, state: State<ManagedState>) {
+fn subscribe_metrics(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_thread = mdns.clone();
         let mut old_metrics = HashMap::new();
@@ -486,7 +486,7 @@ pub fn run() {
             copy_to_clipboard,
             is_desktop,
             open_url,
-            send_metrics,
+            subscribe_metrics,
             stop_browse,
             verify,
             version,
@@ -508,7 +508,7 @@ pub fn run_mobile() {
             copy_to_clipboard,
             is_desktop,
             open_url,
-            send_metrics,
+            subscribe_metrics,
             stop_browse,
             verify,
         ])
