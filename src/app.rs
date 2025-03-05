@@ -32,25 +32,15 @@ async fn invoke_no_args(cmd: &str) {
 
 async fn listen_on_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
     log::debug!("-> Listen on metrics");
-    let metrics = listen::<MetricsEventRes>("metrics")
+    let mut metrics = listen::<MetricsEventRes>("metrics")
         .await
         .expect("to listen on metrics");
-    let mut metrics_fused = metrics.fuse();
-    loop {
-        select! {
-            event = metrics_fused.next() => {
-                if let Some(event) = event {
-                    log::debug!("Received metrics {:#?}", event);
-                    event_writer.update(|evts| {
-                        *evts = event.payload.metrics.into_iter().collect::<Vec<_>>();
-                        evts.sort_by(|a, b| a.0.cmp(&b.0));
-                    });
-                }
-            },
-            complete => {
-                break;
-            }
-        }
+    while let Some(event) = metrics.next().await {
+        log::debug!("Received metrics {:#?}", event);
+        event_writer.update(|evts| {
+            *evts = event.payload.metrics.into_iter().collect::<Vec<_>>();
+            evts.sort_by(|a, b| a.0.cmp(&b.0));
+        });
     }
     log::debug!("<- Listen on metrics");
 }
