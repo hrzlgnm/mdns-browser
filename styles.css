@@ -3,3 +3,16 @@ body {
     padding: 0;
     border: 0;
 }
+
+.resolved-service-card {
+    width: 520px; !important;
+}
+
+.resolved-service-grid {
+    grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)) !important;
+    grid-gap: 8px 8px; !important;
+}
+
+.thaw-card-header__header {
+    justify-content: space-between;
+}

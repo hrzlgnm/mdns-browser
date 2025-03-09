@@ -3,25 +3,23 @@ use futures::{select, StreamExt};
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_meta::provide_meta_context;
-use leptos_meta::Style;
 use models::*;
 use serde::{Deserialize, Serialize};
 use shared_constants::{
     AUTO_COMPLETE_AUTO_FOCUS_DELAY, GITHUB_BASE_URL, SHOW_NO_UPDATE_DURATION,
     SPLASH_SCREEN_DURATION, VERIFY_TIMEOUT,
 };
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
-use thaw::TableCellLayout;
 use thaw::{
     Accordion, AccordionHeader, AccordionItem, AutoComplete, AutoCompleteOption, AutoCompleteRef,
-    Body1, Button, ButtonAppearance, ButtonSize, Caption1, Card, CardFooter, CardHeader,
-    CardHeaderDescription, CardPreview, ComponentRef, ConfigProvider, Dialog, DialogBody,
-    DialogSurface, DialogTitle, Grid, GridItem, Icon, Input, Layout, Select, Space, SpaceAlign,
-    SpaceGap, SpaceJustify, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow,
-    Text, Theme, Toast, ToastBody, ToastTitle, ToasterInjection, ToasterProvider,
+    Button, ButtonAppearance, ButtonSize, Card, CardFooter, CardHeader, CardPreview, ComponentRef,
+    ConfigProvider, Dialog, DialogBody, DialogSurface, DialogTitle, Flex, FlexAlign, FlexGap,
+    FlexJustify, Grid, GridItem, Icon, Input, Layout, Select, Table, TableBody, TableCell,
+    TableCellLayout, TableHeader, TableHeaderCell, TableRow, Text, Theme, Toast, ToastBody,
+    ToastTitle, ToasterInjection, ToasterProvider,
 };
 use thaw_utils::Model;
 
@@ -271,6 +269,7 @@ fn get_prefix(s: &str) -> &str {
 /// Component that auto completes service types
 #[component]
 fn AutoCompleteServiceType(
+    #[prop(optional, into)] class: MaybeProp<String>,
     #[prop(optional, into)] value: Model<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
     #[prop(optional, into)] comp_ref: ComponentRef<AutoCompleteRef>,
@@ -300,6 +299,7 @@ fn AutoCompleteServiceType(
 
     view! {
         <AutoComplete
+            class=class
             value=value
             disabled=disabled
             placeholder="Service type..."
@@ -326,6 +326,7 @@ fn create_clipboard_toast(text: &str) -> impl IntoView {
 /// Component that allows to copy the shown text to the clipboard
 #[component]
 fn ToClipBoardCopyable(
+    #[prop(optional, into)] class: MaybeProp<String>,
     text: Option<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
 ) -> impl IntoView {
@@ -350,10 +351,11 @@ fn ToClipBoardCopyable(
     };
     view! {
         <Button
+            class=class
             disabled=disabled
             on_click=on_copy_to_clipboard_click
             appearance=ButtonAppearance::Subtle
-            size=ButtonSize::Small
+            size=ButtonSize::Medium
             icon=icondata::MdiClipboardText
         />
         {text}
@@ -363,6 +365,8 @@ fn ToClipBoardCopyable(
 /// Component that allows to copy the shown text as a outlined button, a button click copies the text  to the clipboard
 #[component]
 fn CopyToClipBoardButton(
+    #[prop(optional, into)] class: MaybeProp<String>,
+    #[prop(optional, into)] size: Option<ButtonSize>,
     text: Option<String>,
     button_text: Option<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
@@ -390,10 +394,11 @@ fn CopyToClipBoardButton(
 
     view! {
         <Button
+            class=class
             disabled=disabled
             on_click=on_copy_to_clipboard_click
-            appearance=ButtonAppearance::Subtle
-            size=ButtonSize::Small
+            appearance=ButtonAppearance::Transparent
+            size=size.unwrap_or(ButtonSize::Medium)
         >
             {button_text}
         </Button>
@@ -427,7 +432,7 @@ fn drop_local_and_last_dot(fqn: &str) -> String {
 
 /// Component that shows a resolved service as a card
 #[component]
-fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
+fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let instance_fullname = RwSignal::new(resolved_service.instance_name.clone());
     let verify_action = Action::new_local(|instance_fullname: &String| {
         let instance_fullname = instance_fullname.clone();
@@ -476,31 +481,40 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
     } else {
         addrs.clone()
     };
+    let timestamp_str = as_local_datetime.format("%Y-%m-%d %H:%M:%S").to_string();
     view! {
         <GridItem>
-            <Card>
+            <Card class="resolved-service-card">
                 <CardHeader>
-                    <Body1>{as_local_datetime.format("%Y-%m-%d %H:%M:%S").to_string()}</Body1>
-                    <CardHeaderDescription slot>
-                        <Caption1>{card_title}</Caption1>
-                    </CardHeaderDescription>
+                    <CopyToClipBoardButton
+                        size=ButtonSize::Medium
+                        text=Some(card_title.clone())
+                        button_text=Some(card_title)
+                    />
+                    <CopyToClipBoardButton
+                        size=ButtonSize::Small
+                        text=Some(timestamp_str.clone())
+                        button_text=Some(timestamp_str)
+                    />
                 </CardHeader>
                 <CardPreview>
-                    <Space vertical=true>
-                        <Space align=SpaceAlign::Center justify=SpaceJustify::Center>
+                    <Flex vertical=true>
+                        <Flex justify=FlexJustify::SpaceAround>
                             <CopyToClipBoardButton
+                                size=ButtonSize::Small
                                 text=Some(host_to_copy.to_string())
                                 button_text=Some(host_to_show)
                                 disabled=resolved_service.dead
                             />
                             <CopyToClipBoardButton
+                                size=ButtonSize::Small
                                 text=Some(resolved_service.port.to_string())
                                 button_text=Some(resolved_service.port.to_string())
                                 disabled=resolved_service.dead
                             />
                             <Button
                                 size=ButtonSize::Small
-                                appearance=ButtonAppearance::Subtle
+                                appearance=ButtonAppearance::Primary
                                 disabled=resolved_service.dead
                                 on_click=move |_| show_details.set(true)
                                 icon=icondata::MdiListBox
@@ -509,17 +523,20 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                             </Button>
                             <Dialog open=show_details>
                                 <DialogSurface>
-                                    <DialogBody>
-                                        <DialogTitle>{details_title}</DialogTitle>
-                                        <ValuesTable values=subtype title="subtype" />
-                                        <ValuesTable values=addrs title="IPs" />
-                                        <ValuesTable values=txts title="txt" />
+                                    <DialogBody attr:style="display: flex;">
+                                        <Flex vertical=true>
+                                            <DialogTitle>{details_title}</DialogTitle>
+                                            <ValuesTable values=subtype title="subtype" />
+                                            <ValuesTable values=addrs title="IPs" />
+                                            <ValuesTable values=txts title="txt" />
+                                        </Flex>
                                     </DialogBody>
                                 </DialogSurface>
                             </Dialog>
-                        </Space>
-                        <Space align=SpaceAlign::Center justify=SpaceJustify::Center>
+                        </Flex>
+                        <Flex justify=FlexJustify::SpaceAround>
                             <CopyToClipBoardButton
+                                size=ButtonSize::Small
                                 text=Some(service_type_to_copy)
                                 button_text=Some(service_type_to_show)
                                 disabled=resolved_service.dead
@@ -527,18 +544,19 @@ fn ResolvedServiceGridItem(resolved_service: ResolvedService) -> impl IntoView {
                             <Button
                                 loading=verifying
                                 size=ButtonSize::Small
-                                appearance=ButtonAppearance::Subtle
+                                appearance=ButtonAppearance::Primary
                                 on_click=on_verify_click
                                 disabled=resolved_service.dead
                                 icon=icondata::MdiCheckAll
                             >
                                 "Verify"
                             </Button>
-                        </Space>
-                    </Space>
+                        </Flex>
+                    </Flex>
                 </CardPreview>
                 <CardFooter>
                     <CopyToClipBoardButton
+                        size=ButtonSize::Small
                         text=addrs_footer.first().cloned()
                         button_text=addrs_footer.first().cloned()
                         disabled=resolved_service.dead
@@ -617,10 +635,6 @@ fn Browse() -> impl IntoView {
         _ => {}
     });
 
-    let is_desktop = use_context::<IsDesktopSignal>()
-        .expect("is_desktop context to exist")
-        .0;
-
     let browsing = RwSignal::new(false);
     let service_type = RwSignal::new(String::new());
     let not_browsing = Signal::derive(move || !browsing.get());
@@ -631,14 +645,6 @@ fn Browse() -> impl IntoView {
 
     let browsing_or_service_type_invalid = Signal::derive(move || {
         browsing.get() || !service_type.get().is_empty() && service_type_invalid.get()
-    });
-
-    let auto_complete_class = Signal::derive(move || {
-        if is_desktop.get() {
-            String::from("auto-complete-320")
-        } else {
-            String::from("")
-        }
     });
 
     let browse_many_action = Action::new_local(|input: &ServiceTypes| {
@@ -711,24 +717,30 @@ fn Browse() -> impl IntoView {
     LocalResource::new(move || listen_for_resolve_events(resolved));
 
     view! {
-        <Layout>
-            <Space vertical=true gap=SpaceGap::Small>
-                <Space align=SpaceAlign::Center gap=SpaceGap::Small>
-                    <Layout class=auto_complete_class>
-                        <AutoCompleteServiceType
-                            value=service_type
-                            disabled=browsing
-                            comp_ref=comp_ref
-                        />
-                    </Layout>
-                    <Button on_click=on_browse_click disabled=browsing_or_service_type_invalid>
+        <Layout content_style="padding-top: 10px">
+            <Flex vertical=true gap=FlexGap::Small>
+                <Flex>
+                    <AutoCompleteServiceType
+                        value=service_type
+                        disabled=browsing
+                        comp_ref=comp_ref
+                    />
+                    <Button
+                        appearance=ButtonAppearance::Primary
+                        on_click=on_browse_click
+                        disabled=browsing_or_service_type_invalid
+                    >
                         "Browse"
                     </Button>
-                    <Button on_click=on_stopbrowsing_click disabled=not_browsing>
+                    <Button
+                        appearance=ButtonAppearance::Primary
+                        on_click=on_stopbrowsing_click
+                        disabled=not_browsing
+                    >
                         "Stop"
                     </Button>
-                </Space>
-                <Space gap=SpaceGap::Small align=SpaceAlign::Center>
+                </Flex>
+                <Flex gap=FlexGap::Medium align=FlexAlign::Center>
                     <Text>"Sort by"</Text>
                     <Select default_value="HostnameAsc" value=sort_value>
                         <option label="Hostname (Ascending)" value="HostnameAsc" />
@@ -741,48 +753,17 @@ fn Browse() -> impl IntoView {
                         <option label="Last Updated (Descending)" value="TimestampDesc" />
                     </Select>
                     <Input value=query placeholder="Quick filter" attr:autocapitalize="none" />
-                </Space>
-            </Space>
-            <Grid class="responsivegrid">
+                </Flex>
+            </Flex>
+            <Grid class="resolved-service-grid">
                 <For
                     each=move || filtered_services.get()
                     key=|rs| format!("{}{}", rs.instance_name.clone(), rs.updated_at_ms)
                     children=move |resolved_service| {
-                        view! { <ResolvedServiceGridItem resolved_service /> }
+                        view! { <ResolvedServiceItem resolved_service /> }
                     }
                 />
             </Grid>
-            <Style>
-                "
-                 .responsivegrid {
-                     grid-template-columns: repeat(5, 1fr) !important;
-                     grid-gap: 10px 10px !important;
-                 }
-                 @media (max-width: 2400px) {
-                    .responsivegrid {
-                        grid-template-columns: repeat(4, 1fr) !important;
-                     }
-                 }
-                 @media (max-width: 1800px) {
-                    .responsivegrid {
-                        grid-template-columns: repeat(3, 1fr) !important;
-                     }
-                 }
-                 @media (max-width: 1280px) {
-                    .responsivegrid {
-                        grid-template-columns: repeat(2, 1fr) !important;
-                     }
-                 }
-                 @media (max-width: 768px) {
-                    .responsivegrid {
-                         grid-template-columns: 1fr !important;
-                    }
-                 }
-                 .auto-complete-320 {
-                    min-width: 320px;
-                 }
-                "
-            </Style>
         </Layout>
     }
 }
@@ -905,9 +886,10 @@ pub fn About() -> impl IntoView {
             <Accordion multiple=true>
                 <AccordionItem value="about">
                     <AccordionHeader slot>"About"</AccordionHeader>
-                    <Space>
+                    <Flex>
                         <Text>"Version "{move || version.get()}</Text>
                         <Button
+                            appearance=ButtonAppearance::Primary
                             size=ButtonSize::Small
                             on_click=on_release_notes_click
                             icon=icondata::MdiGithub
@@ -915,6 +897,7 @@ pub fn About() -> impl IntoView {
                             "Release Notes"
                         </Button>
                         <Button
+                            appearance=ButtonAppearance::Primary
                             size=ButtonSize::Small
                             on_click=on_report_issue_click
                             icon=icondata::MdiGithub
@@ -922,6 +905,7 @@ pub fn About() -> impl IntoView {
                             "Report an Issue"
                         </Button>
                         <Button
+                            appearance=ButtonAppearance::Primary
                             size=ButtonSize::Small
                             on_click=on_issues_click
                             icon=icondata::MdiGithub
@@ -929,6 +913,7 @@ pub fn About() -> impl IntoView {
                             "Known Issues"
                         </Button>
                         <Button
+                            appearance=ButtonAppearance::Primary
                             size=ButtonSize::Small
                             on_click=on_releases_click
                             icon=icondata::MdiGithub
@@ -940,6 +925,7 @@ pub fn About() -> impl IntoView {
                             fallback=move || {
                                 view! {
                                     <Button
+                                        appearance=ButtonAppearance::Primary
                                         size=ButtonSize::Small
                                         icon=icondata::MdiCheckCircleOutline
                                     >
@@ -960,6 +946,7 @@ pub fn About() -> impl IntoView {
                                     fallback=move || {
                                         view! {
                                             <Button
+                                                appearance=ButtonAppearance::Primary
                                                 size=ButtonSize::Small
                                                 on_click=on_check_update_click
                                                 icon=icondata::MdiDownloadCircleOutline
@@ -970,6 +957,7 @@ pub fn About() -> impl IntoView {
                                     }
                                 >
                                     <Button
+                                        appearance=ButtonAppearance::Primary
                                         size=ButtonSize::Small
                                         on_click=on_install_update_click
                                         icon=icondata::MdiInboxArrowDown
@@ -980,7 +968,7 @@ pub fn About() -> impl IntoView {
                                 </Show>
                             </Show>
                         </Show>
-                    </Space>
+                    </Flex>
                 </AccordionItem>
             </Accordion>
         </Layout>
@@ -1004,8 +992,8 @@ pub fn Metrics() -> impl IntoView {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHeaderCell>"Metric"</TableHeaderCell>
-                                <TableHeaderCell>"Counter"</TableHeaderCell>
+                                <TableHeaderCell resizable=true>"Metric"</TableHeaderCell>
+                                <TableHeaderCell resizable=true>"Counter"</TableHeaderCell>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -1046,7 +1034,37 @@ async fn get_is_desktop(writer: RwSignal<bool>) {
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
-    let theme = RwSignal::new(Theme::dark());
+    let brand_colors = RwSignal::new(HashMap::from([
+        (10, "#030203"),
+        (20, "#19151B"),
+        (30, "#28222E"),
+        (40, "#362C3D"),
+        (50, "#44374E"),
+        (60, "#52435F"),
+        (70, "#604E71"),
+        (80, "#6F5A83"),
+        (90, "#7E6796"),
+        (100, "#8E73A9"),
+        (110, "#9D80BD"),
+        (120, "#AD8DD1"),
+        (130, "#BD9BE6"),
+        (140, "#CDA9F8"),
+        (150, "#D8BBFA"),
+        (160, "#E3CEFC"),
+    ]));
+    let theme = RwSignal::new(Theme::custom_dark(&brand_colors.get()));
+    let set_body_background_color = move |color: String| {
+        if let Some(document) = window().document() {
+            if let Some(body) = document.body() {
+                let _ = body
+                    .style()
+                    .set_property("background-color", color.as_str());
+            }
+        }
+    };
+    Effect::new(move |_| {
+        set_body_background_color(theme.get().color.color_neutral_background_1);
+    });
     let icon = RwSignal::new(icondata::BsSun);
     let dark = RwSignal::new(true);
     let is_desktop = RwSignal::new(false);
@@ -1055,10 +1073,10 @@ pub fn App() -> impl IntoView {
         dark.set(!dark.get());
         if dark.get() {
             icon.set(icondata::BsSun);
-            theme.set(Theme::dark());
+            theme.set(Theme::custom_dark(&brand_colors.get()));
         } else {
             icon.set(icondata::BsMoonStars);
-            theme.set(Theme::light());
+            theme.set(Theme::custom_light(&brand_colors.get()));
         }
     };
     provide_context(IsDesktopSignal(is_desktop));
@@ -1077,10 +1095,9 @@ pub fn App() -> impl IntoView {
                                 </Show>
                             </GridItem>
                             <GridItem column=1>
-                                <Space justify=SpaceJustify::End>
+                                <Flex justify=FlexJustify::End>
                                     <Icon height="2em" width="2em" icon on_click=on_switch_click />
-                                    <Text>" "</Text>
-                                </Space>
+                                </Flex>
                             </GridItem>
                         </Grid>
                         <Metrics />
