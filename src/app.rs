@@ -1051,23 +1051,28 @@ pub fn App() -> impl IntoView {
     view! {
         <ConfigProvider theme>
             <ToasterProvider>
-                <Suspense fallback=|| view! { <Text>"Loading"</Text> }>
-                    <Grid cols=2>
-                        <GridItem column=0>
-                            <Show when=move || { is_desktop.get() } fallback=|| view! { <div /> }>
-                                <About />
-                            </Show>
-                        </GridItem>
-                        <GridItem column=1>
-                            <Space justify=SpaceJustify::End>
-                                <Icon height="2em" width="2em" icon on_click=on_switch_click />
-                                <Text>" "</Text>
-                            </Space>
-                        </GridItem>
-                    </Grid>
-                    <Metrics />
-                    <Browse />
-                </Suspense>
+                <Layout content_style="padding: 10px;">
+                    <Suspense fallback=|| view! { <Text>"Loading"</Text> }>
+                        <Grid cols=2>
+                            <GridItem column=0>
+                                <Show
+                                    when=move || { is_desktop.get() }
+                                    fallback=|| view! { <div /> }
+                                >
+                                    <About />
+                                </Show>
+                            </GridItem>
+                            <GridItem column=1>
+                                <Space justify=SpaceJustify::End>
+                                    <Icon height="2em" width="2em" icon on_click=on_switch_click />
+                                    <Text>" "</Text>
+                                </Space>
+                            </GridItem>
+                        </Grid>
+                        <Metrics />
+                        <Browse />
+                    </Suspense>
+                </Layout>
             </ToasterProvider>
         </ConfigProvider>
     }
