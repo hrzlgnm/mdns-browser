@@ -4,7 +4,7 @@ body {
     border: 0;
 }
 
-.thaw-card {
+.resolved-service-card {
     width: 520px; !important;
 }
 
@@ -15,8 +15,4 @@ body {
 
 .thaw-card-header__header {
     justify-content: space-between;
-}
-
-.service-title {
-    font-weight: bold;
 }

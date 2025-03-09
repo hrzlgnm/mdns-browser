@@ -484,7 +484,7 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let timestamp_str = as_local_datetime.format("%Y-%m-%d %H:%M:%S").to_string();
     view! {
         <GridItem>
-            <Card>
+            <Card class="resolved-service-card">
                 <CardHeader>
                     <CopyToClipBoardButton
                         size=ButtonSize::Medium
