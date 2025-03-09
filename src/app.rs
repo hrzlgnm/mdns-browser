@@ -14,14 +14,13 @@ use std::collections::HashSet;
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
-use thaw::TableCellLayout;
 use thaw::{
     Accordion, AccordionHeader, AccordionItem, AutoComplete, AutoCompleteOption, AutoCompleteRef,
     Button, ButtonAppearance, ButtonSize, Card, CardFooter, CardHeader, CardPreview, ComponentRef,
     ConfigProvider, Dialog, DialogBody, DialogSurface, DialogTitle, Flex, FlexAlign, FlexGap,
     FlexJustify, Grid, GridItem, Icon, Input, Layout, Select, Table, TableBody, TableCell,
-    TableHeader, TableHeaderCell, TableRow, Text, Theme, Toast, ToastBody, ToastTitle,
-    ToasterInjection, ToasterProvider,
+    TableCellLayout, TableHeader, TableHeaderCell, TableRow, Text, Theme, Toast, ToastBody,
+    ToastTitle, ToasterInjection, ToasterProvider,
 };
 use thaw_utils::Model;
 
