@@ -14,6 +14,7 @@ use std::collections::HashSet;
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
+use thaw::TableCellLayout;
 use thaw::{
     Accordion, AccordionHeader, AccordionItem, AutoComplete, AutoCompleteOption, AutoCompleteRef,
     Body1, Button, ButtonAppearance, ButtonSize, Caption1, Card, CardFooter, CardHeader,
@@ -194,41 +195,43 @@ async fn verify_instance(instance_fullname: String) {
 /// Component to render a string vector into a table
 #[component]
 fn ValuesTable(values: Vec<String>, #[prop(into)] title: String) -> impl IntoView {
+    let (values, _) = signal(values);
+    let (title, _) = signal(title);
     view! {
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHeaderCell>{title}</TableHeaderCell>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {values
-                    .into_iter()
-                    .map(|n| {
-                        view! {
-                            <TableRow>
-                                <TableCell>
-                                    <ToClipBoardCopyable text=Some(n) />
-                                </TableCell>
-                            </TableRow>
-                        }
-                    })
-                    .collect::<Vec<_>>()}
-            </TableBody>
-        </Table>
-        <Style>
-            "
-                td
-                {
-                    max-width: 70vw;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-                "
-        </Style>
+        <Show
+            when=move || !values.get().is_empty()
+            fallback=move || {
+                view! { <p></p> }
+            }
+        >
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHeaderCell>{move || title.get()}</TableHeaderCell>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {move || {
+                        values
+                            .get()
+                            .into_iter()
+                            .map(|n| {
+                                view! {
+                                    <TableRow>
+                                        <TableCell>
+                                            <TableCellLayout truncate=true>
+                                                <ToClipBoardCopyable text=Some(n) />
+                                            </TableCellLayout>
+                                        </TableCell>
+                                    </TableRow>
+                                }
+                            })
+                            .collect::<Vec<_>>()
+                    }}
+                </TableBody>
+            </Table>
+        </Show>
     }
-    .into_view()
 }
 
 fn get_instance_name(input: &str) -> String {
@@ -310,27 +313,45 @@ fn AutoCompleteServiceType(
     }
 }
 
+fn create_clipboard_toast(text: &str) -> impl IntoView {
+    let text = text.to_string();
+    view! {
+        <Toast>
+            <ToastTitle>"Clipboard"</ToastTitle>
+            <ToastBody>{format!("Copied {} to clipboard", text)}</ToastBody>
+        </Toast>
+    }
+}
+
 /// Component that allows to copy the shown text to the clipboard
 #[component]
 fn ToClipBoardCopyable(
     text: Option<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
 ) -> impl IntoView {
+    let is_desktop = use_context::<IsDesktopSignal>()
+        .expect("is_desktop context to exist")
+        .0;
     let (text_to_copy, _) = signal(text.clone().unwrap_or_default());
     let copy_to_clipboard_action = Action::new_local(|input: &String| {
         let input = input.clone();
         async move { copy_to_clipboard(input.clone()).await }
     });
-
-    let on_copy_to_clibboard_click = move |_| {
-        let text = text_to_copy.get();
-        copy_to_clipboard_action.dispatch(text);
+    let toaster = ToasterInjection::expect_context();
+    let on_copy_to_clipboard_click = move |_| {
+        let text = text_to_copy.get_untracked();
+        copy_to_clipboard_action.dispatch(text.clone());
+        if is_desktop.get_untracked() {
+            toaster.dispatch_toast(
+                move || create_clipboard_toast(text.as_str()),
+                Default::default(),
+            );
+        }
     };
-
     view! {
         <Button
             disabled=disabled
-            on_click=on_copy_to_clibboard_click
+            on_click=on_copy_to_clipboard_click
             appearance=ButtonAppearance::Subtle
             size=ButtonSize::Small
             icon=icondata::MdiClipboardText
@@ -361,14 +382,7 @@ fn CopyToClipBoardButton(
         copy_to_clipboard_action.dispatch(text.clone());
         if is_desktop.get_untracked() {
             toaster.dispatch_toast(
-                move || {
-                    view! {
-                        <Toast>
-                            <ToastTitle>"Clipboard"</ToastTitle>
-                            <ToastBody>{format!("Copied {} to clipboard", text)}</ToastBody>
-                        </Toast>
-                    }
-                },
+                move || create_clipboard_toast(text.as_str()),
                 Default::default(),
             );
         }
