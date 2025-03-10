@@ -657,25 +657,25 @@ fn Browse() -> impl IntoView {
         async move { browse(input.as_str()).await }
     });
 
-    // TODO: if enabled this effect causes a freeze [#777](https://github.com/hrzlgnm/mdns-browser/issues/777)
-    // let prev_service_types = RwSignal::new(ServiceTypes::new());
-    // Effect::new(move |_| {
-    //     let current = service_types.get();
-    //     let previous = prev_service_types.get();
-    //
-    //     let old_set: HashSet<_> = previous.iter().cloned().collect();
-    //     let new_set: HashSet<_> = current.iter().cloned().collect();
-    //
-    //     let added: Vec<_> = new_set.difference(&old_set).cloned().collect();
-    //
-    //     if !added.is_empty() && browsing.get_untracked() && service_type.get_untracked().is_empty()
-    //     {
-    //         log::info!("Added services while browsing all: {:?}, browsing", added);
-    //         browse_many_action.dispatch(added.clone());
-    //     }
-    //
-    //     prev_service_types.set(current.clone());
-    // });
+    Effect::watch(
+        move || service_types.get(),
+        move |service_types, previous_service_types, _| {
+            let old_set: HashSet<_> = previous_service_types
+                .unwrap_or(&vec![])
+                .iter()
+                .cloned()
+                .collect();
+            let new_set: HashSet<_> = service_types.iter().cloned().collect();
+
+            let added: Vec<_> = new_set.difference(&old_set).cloned().collect();
+
+            if !added.is_empty() && browsing.get() && service_type.get().is_empty() {
+                log::info!("Added services while browsing all: {:?}, browsing", added);
+                browse_many_action.dispatch(added.clone());
+            }
+        },
+        false,
+    );
 
     let on_browse_click = move |_| {
         browsing.set(true);
