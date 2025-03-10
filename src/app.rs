@@ -653,9 +653,8 @@ fn Browse() -> impl IntoView {
             && check_service_type_fully_qualified(service_type.get().clone().as_str()).is_err()
     });
 
-    let browsing_or_service_type_invalid = Signal::derive(move || {
-        browsing.get() || !service_type.get().is_empty() && service_type_invalid.get()
-    });
+    let browsing_or_service_type_invalid =
+        Signal::derive(move || browsing.get() || service_type_invalid.get());
 
     let browse_many_action = Action::new_local(|input: &ServiceTypes| {
         let input = input.clone();
