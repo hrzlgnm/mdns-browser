@@ -653,9 +653,8 @@ fn Browse() -> impl IntoView {
             && check_service_type_fully_qualified(service_type.get().clone().as_str()).is_err()
     });
 
-    let browsing_or_service_type_invalid = Signal::derive(move || {
-        browsing.get() || !service_type.get().is_empty() && service_type_invalid.get()
-    });
+    let browsing_or_service_type_invalid =
+        Signal::derive(move || browsing.get() || service_type_invalid.get());
 
     let browse_many_action = Action::new_local(|input: &ServiceTypes| {
         let input = input.clone();
@@ -679,7 +678,10 @@ fn Browse() -> impl IntoView {
 
             let added: Vec<_> = new_set.difference(&old_set).cloned().collect();
 
-            if !added.is_empty() && browsing.get() && service_type.get().is_empty() {
+            if !added.is_empty()
+                && browsing.get_untracked()
+                && service_type.get_untracked().is_empty()
+            {
                 log::info!("Added services while browsing all: {:?}, browsing", added);
                 browse_many_action.dispatch(added.clone());
             }
@@ -1063,7 +1065,7 @@ pub fn App() -> impl IntoView {
         (150, "#D8BBFA"),
         (160, "#E3CEFC"),
     ]));
-    let theme = RwSignal::new(Theme::custom_dark(&brand_colors.get()));
+    let theme = RwSignal::new(Theme::custom_dark(&brand_colors.get_untracked()));
     let set_body_background_color = move |color: String| {
         if let Some(document) = window().document() {
             if let Some(body) = document.body() {
@@ -1084,10 +1086,10 @@ pub fn App() -> impl IntoView {
         dark.set(!dark.get());
         if dark.get() {
             icon.set(icondata::BsSun);
-            theme.set(Theme::custom_dark(&brand_colors.get()));
+            theme.set(Theme::custom_dark(&brand_colors.get_untracked()));
         } else {
             icon.set(icondata::BsMoonStars);
-            theme.set(Theme::custom_light(&brand_colors.get()));
+            theme.set(Theme::custom_light(&brand_colors.get_untracked()));
         }
     };
     provide_context(IsDesktopSignal(is_desktop));
