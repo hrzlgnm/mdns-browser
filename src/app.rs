@@ -15,11 +15,11 @@ use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
 use thaw::{
     Accordion, AccordionHeader, AccordionItem, AutoComplete, AutoCompleteOption, AutoCompleteRef,
-    Button, ButtonAppearance, ButtonSize, Card, CardFooter, CardHeader, CardPreview, ComponentRef,
-    ConfigProvider, Dialog, DialogBody, DialogSurface, DialogTitle, Flex, FlexAlign, FlexGap,
-    FlexJustify, Grid, GridItem, Icon, Input, Layout, Select, Table, TableBody, TableCell,
-    TableCellLayout, TableHeader, TableHeaderCell, TableRow, Text, Theme, Toast, ToastBody,
-    ToastTitle, ToasterInjection, ToasterProvider,
+    AutoCompleteSize, Button, ButtonAppearance, ButtonSize, Card, CardFooter, CardHeader,
+    CardPreview, ComponentRef, ConfigProvider, Dialog, DialogBody, DialogSurface, DialogTitle,
+    Flex, FlexAlign, FlexGap, FlexJustify, Grid, GridItem, Icon, Input, Layout, Select, Table,
+    TableBody, TableCell, TableCellLayout, TableHeader, TableHeaderCell, TableRow, Text, Theme,
+    Toast, ToastBody, ToastTitle, ToasterInjection, ToasterProvider,
 };
 use thaw_utils::Model;
 
@@ -269,9 +269,9 @@ fn get_prefix(s: &str) -> &str {
 /// Component that auto completes service types
 #[component]
 fn AutoCompleteServiceType(
-    #[prop(optional, into)] class: MaybeProp<String>,
     #[prop(optional, into)] value: Model<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
+    #[prop(optional, into)] invalid: Signal<bool>,
     #[prop(optional, into)] comp_ref: ComponentRef<AutoCompleteRef>,
 ) -> impl IntoView {
     let service_types = use_context::<ServiceTypesSignal>()
@@ -297,6 +297,14 @@ fn AutoCompleteServiceType(
 
     LocalResource::new(move || listen_for_service_type_events(service_types));
 
+    let class = Signal::derive(move || {
+        if invalid.get() {
+            "service-type-invalid".to_string()
+        } else {
+            "service-type-valid".to_string()
+        }
+    });
+
     view! {
         <AutoComplete
             class=class
@@ -304,6 +312,7 @@ fn AutoCompleteServiceType(
             disabled=disabled
             placeholder="Service type..."
             comp_ref=comp_ref
+            size=AutoCompleteSize::Medium
             attr:autocapitalize="none"
         >
             <For each=move || service_type_options.get() key=|option| option.0.clone() let:option>
@@ -638,9 +647,10 @@ fn Browse() -> impl IntoView {
     let browsing = RwSignal::new(false);
     let service_type = RwSignal::new(String::new());
     let not_browsing = Signal::derive(move || !browsing.get());
-    let service_type_invalid = Memo::new(move |_| {
+    let service_type_invalid = Signal::derive(move || {
         // TODO: report a meaningful error to the user
-        check_service_type_fully_qualified(service_type.get().clone().as_str()).is_err()
+        !service_type.get().is_empty()
+            && check_service_type_fully_qualified(service_type.get().clone().as_str()).is_err()
     });
 
     let browsing_or_service_type_invalid = Signal::derive(move || {
@@ -719,8 +729,9 @@ fn Browse() -> impl IntoView {
     view! {
         <Layout content_style="padding-top: 10px">
             <Flex vertical=true gap=FlexGap::Small>
-                <Flex>
+                <Flex gap=FlexGap::Small align=FlexAlign::Center justify=FlexJustify::Start>
                     <AutoCompleteServiceType
+                        invalid=service_type_invalid
                         value=service_type
                         disabled=browsing
                         comp_ref=comp_ref
@@ -740,7 +751,7 @@ fn Browse() -> impl IntoView {
                         "Stop"
                     </Button>
                 </Flex>
-                <Flex gap=FlexGap::Medium align=FlexAlign::Center>
+                <Flex gap=FlexGap::Small align=FlexAlign::Center justify=FlexJustify::Start>
                     <Text>"Sort by"</Text>
                     <Select default_value="HostnameAsc" value=sort_value>
                         <option label="Hostname (Ascending)" value="HostnameAsc" />
