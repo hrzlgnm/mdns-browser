@@ -16,3 +16,10 @@ body {
 .thaw-card-header__header {
     justify-content: space-between;
 }
+
+.service-type-invalid > .thaw-input {
+    border: 2px groove var(--colorStatusDangerBorder1);
+}
+.service-type-valid > .thaw-input {
+    outline: 1px solid var(--colorTransparentStroke);
+}
