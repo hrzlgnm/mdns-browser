@@ -296,12 +296,21 @@ fn AutoCompleteServiceType(
     });
 
     LocalResource::new(move || listen_for_service_type_events(service_types));
-
+    let is_desktop = use_context::<IsDesktopSignal>()
+        .expect("is_desktop context to exist")
+        .0;
+    let input_class = Signal::derive(move || {
+        if is_desktop.get() {
+            "desktop-input".to_string()
+        } else {
+            "mobile-input".to_string()
+        }
+    });
     let class = Signal::derive(move || {
         if invalid.get() {
-            "service-type-invalid".to_string()
+            format!("service-type-invalid {}", input_class.get())
         } else {
-            "service-type-valid".to_string()
+            format!("service-type-valid {}", input_class.get())
         }
     });
 
@@ -491,9 +500,19 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
         addrs.clone()
     };
     let timestamp_str = as_local_datetime.format("%Y-%m-%d %H:%M:%S").to_string();
+    let is_desktop = use_context::<IsDesktopSignal>()
+        .expect("is_desktop context to exist")
+        .0;
+    let card_class = Signal::derive(move || {
+        if is_desktop.get() {
+            "desktop-resolved-serivce-card".to_string()
+        } else {
+            "mobile-resolved-service-card".to_string()
+        }
+    });
     view! {
         <GridItem>
-            <Card class="resolved-service-card">
+            <Card class=card_class>
                 <CardHeader>
                     <CopyToClipBoardButton
                         size=ButtonSize::Medium
@@ -594,6 +613,9 @@ pub enum SortKind {
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
+    let is_desktop = use_context::<IsDesktopSignal>()
+        .expect("is_desktop context to exist")
+        .0;
     let service_types = RwSignal::new(ServiceTypes::new());
     provide_context(ServiceTypesSignal(service_types));
 
@@ -727,9 +749,30 @@ fn Browse() -> impl IntoView {
     });
 
     LocalResource::new(move || listen_for_resolve_events(resolved));
+    let layout_class = Signal::derive(move || {
+        if is_desktop.get() {
+            "desktop-browse-layout".to_string()
+        } else {
+            "mobile-browse-layout".to_string()
+        }
+    });
 
+    let input_class = Signal::derive(move || {
+        if is_desktop.get() {
+            "desktop-input".to_string()
+        } else {
+            "mobile-input".to_string()
+        }
+    });
+    let grid_class = Signal::derive(move || {
+        if is_desktop.get() {
+            "desktop-resolved-service-grid".to_string()
+        } else {
+            "mobile-resolved-service-grid".to_string()
+        }
+    });
     view! {
-        <Layout content_style="padding-top: 10px">
+        <Layout class=layout_class>
             <Flex vertical=true gap=FlexGap::Small>
                 <Flex gap=FlexGap::Small align=FlexAlign::Center justify=FlexJustify::Start>
                     <AutoCompleteServiceType
@@ -765,10 +808,10 @@ fn Browse() -> impl IntoView {
                         <option label="Last Updated (Ascending)" value="TimestampAsc" />
                         <option label="Last Updated (Descending)" value="TimestampDesc" />
                     </Select>
-                    <Input value=query placeholder="Quick filter" attr:autocapitalize="none" />
+                    <Input value=query placeholder="Quick filter" class=input_class />
                 </Flex>
             </Flex>
-            <Grid class="resolved-service-grid">
+            <Grid class=grid_class>
                 <For
                     each=move || filtered_services.get()
                     key=|rs| format!("{}{}", rs.instance_name.clone(), rs.updated_at_ms)
@@ -998,7 +1041,7 @@ pub fn Metrics() -> impl IntoView {
     LocalResource::new(move || listen_for_metrics_event(metrics));
     spawn_local(invoke_no_args("subscribe_metrics"));
     let view = view! {
-        <Layout>
+        <Layout class="metrics-layout">
             <Accordion multiple=true>
                 <AccordionItem value="metrics">
                     <AccordionHeader slot>"mDNS-SD-metrics"</AccordionHeader>
@@ -1093,10 +1136,17 @@ pub fn App() -> impl IntoView {
         }
     };
     provide_context(IsDesktopSignal(is_desktop));
+    let layout_class = Signal::derive(move || {
+        if is_desktop.get() {
+            "desktop-outer-layout".to_string()
+        } else {
+            "mobile-outer-layout".to_string()
+        }
+    });
     view! {
         <ConfigProvider theme>
             <ToasterProvider>
-                <Layout content_style="padding: 10px;">
+                <Layout class=layout_class>
                     <Suspense fallback=|| view! { <Text>"Loading"</Text> }>
                         <Grid cols=2>
                             <GridItem column=0>
