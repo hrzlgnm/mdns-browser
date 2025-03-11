@@ -5,7 +5,7 @@
  * which is what we want
  */
 window.addEventListener("TrunkApplicationStarted", function () {
-    const inputs = document.getElementsByClassName("thaw-input__input");
+    const inputs = document.querySelectorAll("input.thaw-input__input");
     for (const input of inputs) {
         input.setAttribute("autocapitalize", "none");
     }
