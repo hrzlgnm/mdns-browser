@@ -505,7 +505,7 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
         .0;
     let card_class = Signal::derive(move || {
         if is_desktop.get() {
-            "desktop-resolved-serivce-card".to_string()
+            "desktop-resolved-service-card".to_string()
         } else {
             "mobile-resolved-service-card".to_string()
         }
