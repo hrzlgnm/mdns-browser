@@ -4,13 +4,53 @@ body {
     border: 0;
 }
 
-.resolved-service-card {
+.desktop-outer-layout {
+    padding: 10px
+}
+.desktop-browse-layout {
+    padding-top: 10px;
+}
+.desktop-metrics-layout {
+}
+
+.mobile-outer-layout {
+}
+
+.mobile-metrics-layout {
+}
+
+.mobile-browse-layout {
+    padding-top: 5px;
+}
+
+.mobile-resolved-service-card {
+    width: 480px; !important;
+}
+
+.mobile-resolved-service-grid {
+    grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)) !important;
+    grid-gap: 8px 8px; !important;
+}
+
+.desktop-resolved-service-card {
     width: 520px; !important;
 }
 
-.resolved-service-grid {
+.desktop-resolved-service-grid {
     grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)) !important;
     grid-gap: 8px 8px; !important;
+}
+
+.mobile-input > .thaw-input {
+    min-width: 180px;
+    max-width: 180px;
+}
+.mobile-input > .thaw-input__input {
+    min-width: 180px;
+    max-width: 180px;
+}
+
+.desktop-input > .thaw-input__input {
 }
 
 .thaw-card-header__header {
