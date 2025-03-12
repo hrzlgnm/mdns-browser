@@ -9,17 +9,17 @@ use shared_constants::{
     AUTO_COMPLETE_AUTO_FOCUS_DELAY, GITHUB_BASE_URL, SHOW_NO_UPDATE_DURATION,
     SPLASH_SCREEN_DURATION, VERIFY_TIMEOUT,
 };
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
 use thaw::{
     Accordion, AccordionHeader, AccordionItem, AutoComplete, AutoCompleteOption, AutoCompleteRef,
-    AutoCompleteSize, Button, ButtonAppearance, ButtonSize, Card, CardFooter, CardHeader,
-    CardPreview, ComponentRef, ConfigProvider, Dialog, DialogBody, DialogSurface, DialogTitle,
-    Flex, FlexAlign, FlexGap, FlexJustify, Grid, GridItem, Icon, Input, Layout, Select, Table,
-    TableBody, TableCell, TableCellLayout, TableHeader, TableHeaderCell, TableRow, Text, Theme,
-    Toast, ToastBody, ToastTitle, ToasterInjection, ToasterProvider,
+    AutoCompleteSize, Button, ButtonAppearance, ButtonSize, Card, CardHeader, CardPreview,
+    ComponentRef, ConfigProvider, Dialog, DialogBody, DialogSurface, DialogTitle, Flex, FlexAlign,
+    FlexGap, FlexJustify, Grid, GridItem, Icon, Input, Layout, Select, Table, TableBody, TableCell,
+    TableCellLayout, TableHeader, TableHeaderCell, TableRow, Text, TextTag, Theme, Toast,
+    ToastBody, ToastTitle, ToasterInjection, ToasterProvider,
 };
 use thaw_utils::Model;
 
@@ -199,7 +199,7 @@ fn ValuesTable(values: Vec<String>, #[prop(into)] title: String) -> impl IntoVie
         <Show
             when=move || !values.get().is_empty()
             fallback=move || {
-                view! { <p></p> }
+                view! { <p class="invisible"></p> }
             }
         >
             <Table>
@@ -218,7 +218,7 @@ fn ValuesTable(values: Vec<String>, #[prop(into)] title: String) -> impl IntoVie
                                     <TableRow>
                                         <TableCell>
                                             <TableCellLayout truncate=true>
-                                                <ToClipBoardCopyable text=Some(n) />
+                                                <CopyableTableCell text=Some(n.clone()) />
                                             </TableCellLayout>
                                         </TableCell>
                                     </TableRow>
@@ -336,17 +336,16 @@ fn create_clipboard_toast(text: &str) -> impl IntoView {
     view! {
         <Toast>
             <ToastTitle>"Clipboard"</ToastTitle>
-            <ToastBody>{format!("Copied {} to clipboard", text)}</ToastBody>
+            <ToastBody>{format!("Copied `{}` to clipboard", text)}</ToastBody>
         </Toast>
     }
 }
 
 /// Component that allows to copy the shown text to the clipboard
 #[component]
-fn ToClipBoardCopyable(
+fn CopyableTableCell(
     #[prop(optional, into)] class: MaybeProp<String>,
     text: Option<String>,
-    #[prop(optional, into)] disabled: Signal<bool>,
 ) -> impl IntoView {
     let is_desktop = use_context::<IsDesktopSignal>()
         .expect("is_desktop context to exist")
@@ -370,7 +369,6 @@ fn ToClipBoardCopyable(
     view! {
         <Button
             class=class
-            disabled=disabled
             on_click=on_copy_to_clipboard_click
             appearance=ButtonAppearance::Subtle
             size=ButtonSize::Medium
@@ -415,7 +413,7 @@ fn CopyToClipBoardButton(
             class=class
             disabled=disabled
             on_click=on_copy_to_clipboard_click
-            appearance=ButtonAppearance::Transparent
+            appearance=ButtonAppearance::Subtle
             size=size.unwrap_or(ButtonSize::Medium)
         >
             {button_text}
@@ -494,12 +492,14 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let card_title = get_instance_name(resolved_service.instance_name.as_str());
     let details_title = card_title.clone();
     let show_details = RwSignal::new(false);
-    let addrs_footer = if resolved_service.dead {
+    let first_address = if resolved_service.dead {
         vec![]
     } else {
         addrs.clone()
     };
-    let timestamp_str = as_local_datetime.format("%Y-%m-%d %H:%M:%S").to_string();
+    let timestamp_str = as_local_datetime
+        .format("%Y-%m-%d %H:%M:%S%.3f")
+        .to_string();
     let is_desktop = use_context::<IsDesktopSignal>()
         .expect("is_desktop context to exist")
         .0;
@@ -510,86 +510,134 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
             "mobile-resolved-service-card".to_string()
         }
     });
+    let table_cell_class = Signal::derive(move || {
+        if is_desktop.get() {
+            "desktop-resolved-service-table-cell".to_string()
+        } else {
+            "mobile-resolved-service-table-cell".to_string()
+        }
+    });
     view! {
         <GridItem>
             <Card class=card_class>
                 <CardHeader>
-                    <CopyToClipBoardButton
-                        size=ButtonSize::Medium
-                        text=Some(card_title.clone())
-                        button_text=Some(card_title)
-                    />
-                    <CopyToClipBoardButton
-                        size=ButtonSize::Small
-                        text=Some(timestamp_str.clone())
-                        button_text=Some(timestamp_str)
-                    />
+                    <Flex justify=FlexJustify::SpaceAround align=FlexAlign::Stretch>
+                        <CopyToClipBoardButton
+                            size=ButtonSize::Large
+                            text=Some(card_title.clone())
+                            button_text=Some(card_title)
+                            disabled=resolved_service.dead
+                        />
+                    </Flex>
                 </CardHeader>
                 <CardPreview>
-                    <Flex vertical=true>
-                        <Flex justify=FlexJustify::SpaceAround>
-                            <CopyToClipBoardButton
-                                size=ButtonSize::Small
-                                text=Some(host_to_copy.to_string())
-                                button_text=Some(host_to_show)
-                                disabled=resolved_service.dead
-                            />
-                            <CopyToClipBoardButton
-                                size=ButtonSize::Small
-                                text=Some(resolved_service.port.to_string())
-                                button_text=Some(resolved_service.port.to_string())
-                                disabled=resolved_service.dead
-                            />
-                            <Button
-                                size=ButtonSize::Small
-                                appearance=ButtonAppearance::Primary
-                                disabled=resolved_service.dead
-                                on_click=move |_| show_details.set(true)
-                                icon=icondata::MdiListBox
-                            >
-                                "Details"
-                            </Button>
-                            <Dialog open=show_details>
-                                <DialogSurface>
-                                    <DialogBody attr:style="display: flex;">
-                                        <Flex vertical=true>
-                                            <DialogTitle>{details_title}</DialogTitle>
-                                            <ValuesTable values=subtype title="subtype" />
-                                            <ValuesTable values=addrs title="IPs" />
-                                            <ValuesTable values=txts title="txt" />
-                                        </Flex>
-                                    </DialogBody>
-                                </DialogSurface>
-                            </Dialog>
-                        </Flex>
-                        <Flex justify=FlexJustify::SpaceAround>
-                            <CopyToClipBoardButton
-                                size=ButtonSize::Small
-                                text=Some(service_type_to_copy)
-                                button_text=Some(service_type_to_show)
-                                disabled=resolved_service.dead
-                            />
-                            <Button
-                                loading=verifying
-                                size=ButtonSize::Small
-                                appearance=ButtonAppearance::Primary
-                                on_click=on_verify_click
-                                disabled=resolved_service.dead
-                                icon=icondata::MdiCheckAll
-                            >
-                                "Verify"
-                            </Button>
-                        </Flex>
-                    </Flex>
+                    <Table>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell>
+                                    <Text tag=TextTag::Em>"Hostname"</Text>
+                                </TableCell>
+                                <TableCell class=table_cell_class>
+                                    <CopyToClipBoardButton
+                                        size=ButtonSize::Small
+                                        text=Some(host_to_copy.clone())
+                                        button_text=Some(host_to_show)
+                                        disabled=resolved_service.dead
+                                    />
+                                </TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>
+                                    <Text tag=TextTag::Em>"Port"</Text>
+                                </TableCell>
+                                <TableCell class=table_cell_class>
+                                    <CopyToClipBoardButton
+                                        size=ButtonSize::Small
+                                        text=Some(resolved_service.port.to_string())
+                                        button_text=Some(resolved_service.port.to_string())
+                                        disabled=resolved_service.dead
+                                    />
+                                </TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>
+                                    <Text tag=TextTag::Em>"Type"</Text>
+                                </TableCell>
+                                <TableCell class=table_cell_class>
+                                    <CopyToClipBoardButton
+                                        size=ButtonSize::Small
+                                        text=Some(service_type_to_copy)
+                                        button_text=Some(service_type_to_show)
+                                        disabled=resolved_service.dead
+                                    />
+                                </TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>
+                                    <Text tag=TextTag::Em>"IP"</Text>
+                                </TableCell>
+                                <TableCell class=table_cell_class>
+                                    <CopyToClipBoardButton
+                                        size=ButtonSize::Small
+                                        text=first_address.first().cloned()
+                                        button_text=first_address.first().cloned()
+                                        disabled=resolved_service.dead
+                                    />
+                                </TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>
+                                    <Text tag=TextTag::Em>"Updated at"</Text>
+                                </TableCell>
+                                <TableCell class=table_cell_class>
+                                    <CopyToClipBoardButton
+                                        size=ButtonSize::Small
+                                        text=Some(timestamp_str.clone())
+                                        button_text=Some(timestamp_str)
+                                        disabled=resolved_service.dead
+                                    />
+                                </TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>
+                                    <Button
+                                        size=ButtonSize::Small
+                                        appearance=ButtonAppearance::Primary
+                                        disabled=resolved_service.dead
+                                        on_click=move |_| show_details.set(true)
+                                        icon=icondata::MdiListBox
+                                    >
+                                        "Details"
+                                    </Button>
+                                    <Dialog open=show_details>
+                                        <DialogSurface>
+                                            <DialogBody attr:style="display: flex;">
+                                                <Flex vertical=true>
+                                                    <DialogTitle>{details_title}</DialogTitle>
+                                                    <ValuesTable values=subtype title="subtype" />
+                                                    <ValuesTable values=addrs title="IPs" />
+                                                    <ValuesTable values=txts title="txt" />
+                                                </Flex>
+                                            </DialogBody>
+                                        </DialogSurface>
+                                    </Dialog>
+                                </TableCell>
+                                <TableCell class=table_cell_class>
+                                    <Button
+                                        loading=verifying
+                                        size=ButtonSize::Small
+                                        appearance=ButtonAppearance::Primary
+                                        on_click=on_verify_click
+                                        disabled=resolved_service.dead
+                                        icon=icondata::MdiCheckAll
+                                    >
+                                        "Verify"
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
                 </CardPreview>
-                <CardFooter>
-                    <CopyToClipBoardButton
-                        size=ButtonSize::Small
-                        text=addrs_footer.first().cloned()
-                        button_text=addrs_footer.first().cloned()
-                        disabled=resolved_service.dead
-                    />
-                </CardFooter>
             </Card>
         </GridItem>
     }
@@ -1090,25 +1138,7 @@ async fn get_is_desktop(writer: RwSignal<bool>) {
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
-    let brand_colors = RwSignal::new(HashMap::from([
-        (10, "#030203"),
-        (20, "#19151B"),
-        (30, "#28222E"),
-        (40, "#362C3D"),
-        (50, "#44374E"),
-        (60, "#52435F"),
-        (70, "#604E71"),
-        (80, "#6F5A83"),
-        (90, "#7E6796"),
-        (100, "#8E73A9"),
-        (110, "#9D80BD"),
-        (120, "#AD8DD1"),
-        (130, "#BD9BE6"),
-        (140, "#CDA9F8"),
-        (150, "#D8BBFA"),
-        (160, "#E3CEFC"),
-    ]));
-    let theme = RwSignal::new(Theme::custom_dark(&brand_colors.get_untracked()));
+    let theme = RwSignal::new(Theme::dark());
     let set_body_background_color = move |color: String| {
         if let Some(document) = window().document() {
             if let Some(body) = document.body() {
@@ -1129,10 +1159,10 @@ pub fn App() -> impl IntoView {
         dark.set(!dark.get());
         if dark.get() {
             icon.set(icondata::BsSun);
-            theme.set(Theme::custom_dark(&brand_colors.get_untracked()));
+            theme.set(Theme::dark());
         } else {
             icon.set(icondata::BsMoonStars);
-            theme.set(Theme::custom_light(&brand_colors.get_untracked()));
+            theme.set(Theme::light());
         }
     };
     provide_context(IsDesktopSignal(is_desktop));
