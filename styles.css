@@ -4,15 +4,9 @@ body {
     border: 0;
 }
 
-.desktop-outer-layout {
-    padding: 10px
+.hidden {
+    display: none;
 }
-.desktop-browse-layout {
-    padding-top: 10px;
-}
-.desktop-metrics-layout {
-}
-
 .mobile-outer-layout {
 }
 
@@ -22,23 +16,34 @@ body {
 .mobile-browse-layout {
     padding-top: 5px;
 }
-
 .mobile-resolved-service-card {
     width: 480px; !important;
 }
-
 .mobile-resolved-service-grid {
     grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)) !important;
     grid-gap: 8px 8px; !important;
 }
+.mobile-resolved-service-table-cell {
+    width: 350px;
+}
 
+.desktop-outer-layout {
+    padding: 10px
+}
+.desktop-browse-layout {
+    padding-top: 10px;
+}
+.desktop-metrics-layout {
+}
 .desktop-resolved-service-card {
     width: 520px; !important;
 }
-
 .desktop-resolved-service-grid {
     grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)) !important;
-    grid-gap: 8px 8px; !important;
+    grid-gap: 10px 10px; !important;
+}
+.desktop-resolved-service-table-cell {
+    width: 400px;
 }
 
 .mobile-input > .thaw-input {
@@ -63,3 +68,4 @@ body {
 .service-type-valid > .thaw-input {
     outline: 1px solid var(--colorTransparentStroke);
 }
+
