@@ -199,7 +199,7 @@ fn ValuesTable(values: Vec<String>, #[prop(into)] title: String) -> impl IntoVie
         <Show
             when=move || !values.get().is_empty()
             fallback=move || {
-                view! { <p class="invisible"></p> }
+                view! { <p class="hidden"></p> }
             }
         >
             <Table>
@@ -1042,7 +1042,7 @@ pub fn About() -> impl IntoView {
                             <Show
                                 when=move || { can_auto_update.get() }
                                 fallback=move || {
-                                    view! { <div /> }
+                                    view! { <div class="hidden" /> }
                                 }
                             >
                                 <Show
@@ -1182,7 +1182,7 @@ pub fn App() -> impl IntoView {
                             <GridItem column=0>
                                 <Show
                                     when=move || { is_desktop.get() }
-                                    fallback=|| view! { <div /> }
+                                    fallback=|| view! { <div class="hidden" /> }
                                 >
                                     <About />
                                 </Show>

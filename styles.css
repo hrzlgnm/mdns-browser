@@ -4,7 +4,7 @@ body {
     border: 0;
 }
 
-.invisible {
+.hidden {
     display: none;
 }
 .mobile-outer-layout {
