@@ -28,7 +28,7 @@
      inkscape:deskcolor="#000000"
      inkscape:document-units="px"
      inkscape:zoom="0.5"
-     inkscape:cx="465"
+     inkscape:cx="464"
      inkscape:cy="280"
      inkscape:window-width="2560"
      inkscape:window-height="1371"
@@ -59,12 +59,14 @@
        y2="118.46685" />
     <filter
        style="color-interpolation-filters:sRGB;"
-       inkscape:label="Diffuse Light"
+       inkscape:label="Evanescent"
        id="filter51"
-       x="-0.46296402"
-       y="-0.40357413"
-       width="1.925928"
-       height="1.8071483">
+       x="-0.61047484"
+       y="-0.53683257"
+       width="2.2209497"
+       height="2.0736651"
+       inkscape:menu="Blurs"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges">
       <feGaussianBlur
          in="SourceGraphic"
          stdDeviation="6"
@@ -94,17 +96,39 @@
          k1="1"
          operator="arithmetic"
          k3="1"
-         result="composite2"
+         result="fbSourceGraphic"
          id="feComposite51" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix109" />
+      <feGaussianBlur
+         id="feGaussianBlur109"
+         result="result6"
+         stdDeviation="3"
+         in="fbSourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix110"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7"
+         in="fbSourceGraphic" />
+      <feComposite
+         id="feComposite110"
+         operator="in"
+         in="result6"
+         in2="result7" />
     </filter>
     <filter
        style="color-interpolation-filters:sRGB;"
-       inkscape:label="Diffuse Light"
+       inkscape:label="Evanescent"
        id="filter53"
-       x="-0.18523166"
-       y="-0.18232737"
-       width="1.3704633"
-       height="1.3646547">
+       x="-0.2403122"
+       y="-0.23654429"
+       width="1.4806244"
+       height="1.4730886"
+       inkscape:menu="Blurs"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges">
       <feGaussianBlur
          in="SourceGraphic"
          stdDeviation="6"
@@ -134,17 +158,39 @@
          k1="1"
          operator="arithmetic"
          k3="1"
-         result="composite2"
+         result="fbSourceGraphic"
          id="feComposite53" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix111" />
+      <feGaussianBlur
+         id="feGaussianBlur111"
+         result="result6"
+         stdDeviation="3"
+         in="fbSourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix112"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7"
+         in="fbSourceGraphic" />
+      <feComposite
+         id="feComposite112"
+         operator="in"
+         in="result6"
+         in2="result7" />
     </filter>
     <filter
        style="color-interpolation-filters:sRGB;"
-       inkscape:label="Diffuse Light"
+       inkscape:label="Evanescent"
        id="filter55"
-       x="-0.074428184"
-       y="-0.29051001"
-       width="1.1488564"
-       height="1.58102">
+       x="-0.10492262"
+       y="-0.4095367"
+       width="1.2098452"
+       height="1.8190734"
+       inkscape:menu="Blurs"
+       inkscape:menu-tooltip="Blur the contents of objects, preserving the outline and adding progressive transparency at edges">
       <feGaussianBlur
          in="SourceGraphic"
          stdDeviation="6"
@@ -174,8 +220,28 @@
          k1="1"
          operator="arithmetic"
          k3="1"
-         result="composite2"
+         result="fbSourceGraphic"
          id="feComposite55" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix113" />
+      <feGaussianBlur
+         id="feGaussianBlur113"
+         result="result6"
+         stdDeviation="3"
+         in="fbSourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix114"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7"
+         in="fbSourceGraphic" />
+      <feComposite
+         id="feComposite114"
+         operator="in"
+         in="result6"
+         in2="result7" />
     </filter>
   </defs>
   <g
@@ -185,12 +251,12 @@
      transform="translate(-18.082892,-44.637565)"
      style="display:inline">
     <path
-       style="display:inline;fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:22.0937;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter51)"
+       style="display:inline;fill:none;fill-opacity:1;stroke:#292929;stroke-width:22.0937;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter51)"
        d="m 196.26956,220.58531 48.80998,54.03035 z"
        id="path2"
        transform="translate(6.376175e-8)" />
     <ellipse
-       style="fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:19.6261;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter53)"
+       style="fill:none;fill-opacity:1;stroke:#292929;stroke-width:19.6261;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter53)"
        id="path1"
        ry="66.399933"
        rx="65.358833"
