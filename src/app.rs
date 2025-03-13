@@ -382,7 +382,7 @@ fn CopyableTableCell(
 #[component]
 fn CopyToClipBoardButton(
     #[prop(optional, into)] class: MaybeProp<String>,
-    #[prop(optional, into)] size: Option<ButtonSize>,
+    #[prop(default = ButtonSize::Small.into(), into)] size: ButtonSize,
     text: Option<String>,
     button_text: Option<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
@@ -414,7 +414,7 @@ fn CopyToClipBoardButton(
             disabled=disabled
             on_click=on_copy_to_clipboard_click
             appearance=ButtonAppearance::Subtle
-            size=size.unwrap_or(ButtonSize::Medium)
+            size=size
         >
             {button_text}
         </Button>
@@ -539,7 +539,6 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                 </TableCell>
                                 <TableCell class=table_cell_class>
                                     <CopyToClipBoardButton
-                                        size=ButtonSize::Small
                                         text=Some(host_to_copy.clone())
                                         button_text=Some(host_to_show)
                                         disabled=resolved_service.dead
@@ -552,7 +551,6 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                 </TableCell>
                                 <TableCell class=table_cell_class>
                                     <CopyToClipBoardButton
-                                        size=ButtonSize::Small
                                         text=Some(resolved_service.port.to_string())
                                         button_text=Some(resolved_service.port.to_string())
                                         disabled=resolved_service.dead
@@ -565,7 +563,6 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                 </TableCell>
                                 <TableCell class=table_cell_class>
                                     <CopyToClipBoardButton
-                                        size=ButtonSize::Small
                                         text=Some(service_type_to_copy)
                                         button_text=Some(service_type_to_show)
                                         disabled=resolved_service.dead
@@ -578,7 +575,6 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                 </TableCell>
                                 <TableCell class=table_cell_class>
                                     <CopyToClipBoardButton
-                                        size=ButtonSize::Small
                                         text=first_address.first().cloned()
                                         button_text=first_address.first().cloned()
                                         disabled=resolved_service.dead
@@ -591,7 +587,6 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                 </TableCell>
                                 <TableCell class=table_cell_class>
                                     <CopyToClipBoardButton
-                                        size=ButtonSize::Small
                                         text=Some(timestamp_str.clone())
                                         button_text=Some(timestamp_str)
                                         disabled=resolved_service.dead
