@@ -11,7 +11,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: rgb(26, 29, 30);
+            background-color: rgb(41, 41, 41);
             font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
         }
         .splash-screen {
@@ -19,15 +19,15 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            color: rgb(255, 193, 49);
+            color: rgb(255, 255, 255);
         }
         .spinner {
-            border: 12px solid rgb(26, 29, 30);
-            border-top: 12px solid rgb(36, 200, 219);
+            border: 12px solid rgb(17, 94, 163);
+            border-top: 12px solid rgb(24, 24, 24);
             border-radius: 50%;
             width: 100px;
             height: 100px;
-            animation: spin 2s linear infinite;
+            animation: spin 1.25s linear infinite;
             margin-top: 10px;
         }
         @keyframes spin {
@@ -39,7 +39,7 @@
 <body>
     <div class="splash-screen">
         <div class="spinner"></div>
-        <div id="loading-text"/>
+        <div id="loading-text" style="padding-top: 10px;"/>
     </div>
     <script>
         const loadingMessages = [
