@@ -17,7 +17,7 @@ mod values_table;
 use crate::app::about::About;
 use crate::app::browse::Browse;
 use crate::app::css::get_class;
-use crate::app::is_desktop::{get_is_desktop, IsDesktop};
+use crate::app::is_desktop::{get_is_desktop, IsDesktopInjection};
 use crate::app::metrics::Metrics;
 
 /// The main app component
@@ -52,7 +52,7 @@ pub fn App() -> impl IntoView {
         }
     };
     let layout_class = get_class(&is_desktop, "outer-layout");
-    provide_context(IsDesktop(is_desktop));
+    provide_context(IsDesktopInjection(is_desktop));
     view! {
         <ConfigProvider theme>
             <ToasterProvider>

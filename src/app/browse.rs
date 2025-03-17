@@ -20,12 +20,12 @@ use thaw_utils::Model;
 use crate::{
     app::{
         clipboard::CopyToClipBoardButton, css::get_class, invoke::invoke_no_args,
-        is_desktop::IsDesktop, values_table::ValuesTable,
+        is_desktop::IsDesktopInjection, values_table::ValuesTable,
     },
     log_fn,
 };
 
-async fn listen_for_service_type_events(event_writer: RwSignal<ServiceTypes>) {
+async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
     log_fn!("listen_for_service_type_events", {
         log::debug!("-> Listen on service type events");
         let found = listen::<ServiceTypeFoundEventRes>("service-type-found")
@@ -68,7 +68,7 @@ async fn listen_for_service_type_events(event_writer: RwSignal<ServiceTypes>) {
     });
 }
 
-async fn listen_for_resolve_events(event_writer: RwSignal<ResolvedServices>) {
+async fn listen_for_resolve_events(event_writer: WriteSignal<ResolvedServices>) {
     log_fn!("listen_for_resolve_events", {
         log::debug!("-> Listen on resolve events");
         let resolved = listen::<ResolvedServiceEventRes>("service-resolved")
@@ -204,10 +204,7 @@ fn AutoCompleteServiceType(
     #[prop(optional, into)] invalid: Signal<bool>,
     #[prop(optional, into)] comp_ref: ComponentRef<AutoCompleteRef>,
 ) -> impl IntoView {
-    let service_types = use_context::<ServiceTypesSignal>()
-        .expect("service_types context to exist")
-        .0;
-
+    let service_types = ServiceTypesInjection::expect_context();
     let service_type_options = Memo::<Vec<_>>::new(move |_| {
         service_types
             .get()
@@ -225,8 +222,7 @@ fn AutoCompleteServiceType(
             .collect()
     });
 
-    LocalResource::new(move || listen_for_service_type_events(service_types));
-    let is_desktop = IsDesktop::expect_context();
+    let is_desktop = IsDesktopInjection::expect_context();
     let input_class = get_class(&is_desktop, "input");
     let class = Signal::derive(move || {
         if invalid.get() {
@@ -316,7 +312,7 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let timestamp_str = as_local_datetime
         .format("%Y-%m-%d %H:%M:%S%.3f")
         .to_string();
-    let is_desktop = IsDesktop::expect_context();
+    let is_desktop = IsDesktopInjection::expect_context();
     let card_class = get_class(&is_desktop, "resolved-service-card");
     let table_cell_class = get_class(&is_desktop, "resolved-service-table-cell");
 
@@ -442,10 +438,17 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
 }
 
 #[derive(Clone, Debug)]
-pub struct ServiceTypesSignal(RwSignal<ServiceTypes>);
+struct ServiceTypesInjection(ReadSignal<ServiceTypes>);
+
+impl ServiceTypesInjection {
+    #[track_caller]
+    pub fn expect_context() -> ReadSignal<ServiceTypes> {
+        expect_context::<Self>().0
+    }
+}
 
 #[derive(Clone, Debug)]
-pub enum SortKind {
+enum SortKind {
     HostnameAsc,
     HostnameDesc,
     InstanceAsc,
@@ -459,10 +462,11 @@ pub enum SortKind {
 /// Component that allows for mdns browsing using events
 #[component]
 pub fn Browse() -> impl IntoView {
-    let service_types = RwSignal::new(ServiceTypes::new());
-    provide_context(ServiceTypesSignal(service_types));
+    let (service_types, set_service_types) = signal(ServiceTypes::new());
+    provide_context(ServiceTypesInjection(service_types));
+    LocalResource::new(move || listen_for_service_type_events(set_service_types));
 
-    let resolved = RwSignal::new(ResolvedServices::new());
+    let (resolved, set_resolved) = signal(ResolvedServices::new());
     let (sort_kind, set_sort_kind) = signal(SortKind::HostnameAsc);
     let sorted_resolved = Memo::new(move |_| {
         let mut sorted = resolved.get().clone();
@@ -570,7 +574,7 @@ pub fn Browse() -> impl IntoView {
 
     let on_stopbrowsing_click = move |_| {
         browsing.set(false);
-        resolved.set(Vec::new());
+        set_resolved.set(Vec::new());
         stop_browsing_action.dispatch(());
         service_type.set(String::new());
         if let Some(comp) = comp_ref.get_untracked() {
@@ -591,8 +595,8 @@ pub fn Browse() -> impl IntoView {
         });
     });
 
-    LocalResource::new(move || listen_for_resolve_events(resolved));
-    let is_desktop = IsDesktop::expect_context();
+    LocalResource::new(move || listen_for_resolve_events(set_resolved));
+    let is_desktop = IsDesktopInjection::expect_context();
     let layout_class = get_class(&is_desktop, "browse-layout");
     let input_class = get_class(&is_desktop, "input");
     let grid_class = get_class(&is_desktop, "resolved-service-grid");

@@ -5,7 +5,7 @@ use thaw::{Button, ButtonAppearance, ButtonSize, ToasterInjection};
 
 use crate::app::{
     clipboard::{copy_to_clipboard, create_clipboard_toast},
-    is_desktop::IsDesktop,
+    is_desktop::IsDesktopInjection,
 };
 
 /// Component that allows to copy the shown text to the clipboard
@@ -14,7 +14,7 @@ fn CopyableTableCell(
     #[prop(optional, into)] class: MaybeProp<String>,
     text: Option<String>,
 ) -> impl IntoView {
-    let is_desktop = IsDesktop::expect_context();
+    let is_desktop = IsDesktopInjection::expect_context();
     let (text_to_copy, _) = signal(text.clone().unwrap_or_default());
     let copy_to_clipboard_action = Action::new_local(|input: &String| {
         let input = input.clone();

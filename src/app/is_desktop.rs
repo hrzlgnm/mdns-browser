@@ -2,9 +2,9 @@ use leptos::prelude::*;
 use tauri_sys::core::invoke;
 
 #[derive(Clone, Debug)]
-pub struct IsDesktop(pub ReadSignal<bool>);
+pub struct IsDesktopInjection(pub ReadSignal<bool>);
 
-impl IsDesktop {
+impl IsDesktopInjection {
     #[track_caller]
     pub fn expect_context() -> ReadSignal<bool> {
         expect_context::<Self>().0
