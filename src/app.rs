@@ -32,17 +32,18 @@ macro_rules! log_fn {
     }};
 }
 
-fn get_class(base_class: String) -> Signal<String> {
-    let is_desktop = use_context::<IsDesktopSignal>()
-        .expect("is_desktop context to exist")
-        .0;
-    Signal::derive(move || {
-        let prefix = if is_desktop.get() {
-            "desktop-"
-        } else {
-            "mobile-"
-        };
-        format!("{}{}", prefix, &base_class)
+fn get_class(is_desktop: &ReadSignal<bool>, base_class: &str) -> Signal<String> {
+    let base_class = base_class.to_string();
+    Signal::derive({
+        let is_desktop = is_desktop.clone();
+        move || {
+            let prefix = if is_desktop.get() {
+                "desktop-"
+            } else {
+                "mobile-"
+            };
+            format!("{}{}", prefix, &base_class)
+        }
     })
 }
 
@@ -311,7 +312,10 @@ fn AutoCompleteServiceType(
     });
 
     LocalResource::new(move || listen_for_service_type_events(service_types));
-    let input_class = get_class("input".to_string());
+    let is_desktop = use_context::<IsDesktopSignal>()
+        .expect("is_desktop context to exist")
+        .0;
+    let input_class = get_class(&is_desktop, "input");
     let class = Signal::derive(move || {
         if invalid.get() {
             format!("service-type-invalid {}", input_class.get())
@@ -506,8 +510,11 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let timestamp_str = as_local_datetime
         .format("%Y-%m-%d %H:%M:%S%.3f")
         .to_string();
-    let card_class = get_class("resolved-service-card".to_string());
-    let table_cell_class = get_class("ressolved-service-table-cell".to_string());
+    let is_desktop = use_context::<IsDesktopSignal>()
+        .expect("is_desktop context to exist")
+        .0;
+    let card_class = get_class(&is_desktop, "resolved-service-card");
+    let table_cell_class = get_class(&is_desktop, "resolved-service-table-cell");
 
     view! {
         <GridItem>
@@ -781,9 +788,12 @@ fn Browse() -> impl IntoView {
     });
 
     LocalResource::new(move || listen_for_resolve_events(resolved));
-    let layout_class = get_class("browse-layout".to_string());
-    let input_class = get_class("input".to_string());
-    let grid_class = get_class("resolved-service-grid".to_string());
+    let is_desktop = use_context::<IsDesktopSignal>()
+        .expect("is_desktop context to exist")
+        .0;
+    let layout_class = get_class(&is_desktop, "browse-layout");
+    let input_class = get_class(&is_desktop, "input");
+    let grid_class = get_class(&is_desktop, "resolved-service-grid");
     view! {
         <Layout class=layout_class>
             <Flex vertical=true gap=FlexGap::Small>
@@ -1130,8 +1140,8 @@ pub fn App() -> impl IntoView {
             theme.set(Theme::light());
         }
     };
+    let layout_class = get_class(&is_desktop, "outer-layout");
     provide_context(IsDesktopSignal(is_desktop));
-    let layout_class = get_class("outer-layout".to_string());
     view! {
         <ConfigProvider theme>
             <ToasterProvider>
