@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use tauri_sys::core::invoke;
 use thaw::{Button, ButtonAppearance, ButtonSize, Toast, ToastBody, ToastTitle, ToasterInjection};
 
-use crate::{app::desktop_signal::IsDesktopSignal, log_fn};
+use crate::{app::is_desktop::IsDesktop, log_fn};
 
 #[derive(Serialize, Deserialize)]
 struct CopyToClipboardArgs<'a> {
@@ -41,7 +41,7 @@ pub fn CopyToClipBoardButton(
     button_text: Option<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
 ) -> impl IntoView {
-    let is_desktop = IsDesktopSignal::expect_context();
+    let is_desktop = IsDesktop::expect_context();
     let (text_to_copy, _) = signal(text.clone().unwrap_or_default());
     let copy_to_clipboard_action = Action::new_local(|input: &String| {
         let input = input.clone();

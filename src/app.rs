@@ -8,8 +8,8 @@ mod about;
 mod browse;
 mod clipboard;
 mod css;
-mod desktop_signal;
 mod invoke;
+mod is_desktop;
 mod macros;
 mod metrics;
 mod values_table;
@@ -17,7 +17,7 @@ mod values_table;
 use crate::app::about::About;
 use crate::app::browse::Browse;
 use crate::app::css::get_class;
-use crate::app::desktop_signal::{get_is_desktop, IsDesktopSignal};
+use crate::app::is_desktop::{get_is_desktop, IsDesktop};
 use crate::app::metrics::Metrics;
 
 /// The main app component
@@ -52,7 +52,7 @@ pub fn App() -> impl IntoView {
         }
     };
     let layout_class = get_class(&is_desktop, "outer-layout");
-    provide_context(IsDesktopSignal(is_desktop));
+    provide_context(IsDesktop(is_desktop));
     view! {
         <ConfigProvider theme>
             <ToasterProvider>

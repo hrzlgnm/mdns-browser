@@ -19,8 +19,8 @@ use thaw_utils::Model;
 
 use crate::{
     app::{
-        clipboard::CopyToClipBoardButton, css::get_class, desktop_signal::IsDesktopSignal,
-        invoke::invoke_no_args, values_table::ValuesTable,
+        clipboard::CopyToClipBoardButton, css::get_class, invoke::invoke_no_args,
+        is_desktop::IsDesktop, values_table::ValuesTable,
     },
     log_fn,
 };
@@ -226,7 +226,7 @@ fn AutoCompleteServiceType(
     });
 
     LocalResource::new(move || listen_for_service_type_events(service_types));
-    let is_desktop = IsDesktopSignal::expect_context();
+    let is_desktop = IsDesktop::expect_context();
     let input_class = get_class(&is_desktop, "input");
     let class = Signal::derive(move || {
         if invalid.get() {
@@ -316,7 +316,7 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let timestamp_str = as_local_datetime
         .format("%Y-%m-%d %H:%M:%S%.3f")
         .to_string();
-    let is_desktop = IsDesktopSignal::expect_context();
+    let is_desktop = IsDesktop::expect_context();
     let card_class = get_class(&is_desktop, "resolved-service-card");
     let table_cell_class = get_class(&is_desktop, "resolved-service-table-cell");
 
@@ -592,7 +592,7 @@ pub fn Browse() -> impl IntoView {
     });
 
     LocalResource::new(move || listen_for_resolve_events(resolved));
-    let is_desktop = IsDesktopSignal::expect_context();
+    let is_desktop = IsDesktop::expect_context();
     let layout_class = get_class(&is_desktop, "browse-layout");
     let input_class = get_class(&is_desktop, "input");
     let grid_class = get_class(&is_desktop, "resolved-service-grid");
