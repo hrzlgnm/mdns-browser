@@ -14,9 +14,7 @@ fn CopyableTableCell(
     #[prop(optional, into)] class: MaybeProp<String>,
     text: Option<String>,
 ) -> impl IntoView {
-    let is_desktop = use_context::<IsDesktopSignal>()
-        .expect("is_desktop context to exist")
-        .0;
+    let is_desktop = IsDesktopSignal::expect_context();
     let (text_to_copy, _) = signal(text.clone().unwrap_or_default());
     let copy_to_clipboard_action = Action::new_local(|input: &String| {
         let input = input.clone();
