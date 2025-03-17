@@ -8,7 +8,8 @@ use thaw::{
     TableHeaderCell, TableRow,
 };
 
-use crate::{app::invoke::invoke_no_args, log_fn};
+use super::invoke::invoke_no_args;
+use crate::log_fn;
 
 async fn listen_for_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
     log_fn!("listen_for_service_type_events", {

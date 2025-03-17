@@ -1,4 +1,4 @@
-use leptos::prelude::*;
+use leptos::prelude::{Get, ReadSignal, Signal};
 
 pub fn get_class(is_desktop: &ReadSignal<bool>, base_class: &str) -> Signal<String> {
     let base_class = base_class.to_string();

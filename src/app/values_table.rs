@@ -3,7 +3,7 @@ use thaw::{Table, TableBody, TableCell, TableCellLayout, TableHeader, TableHeade
 
 use thaw::{Button, ButtonAppearance, ButtonSize, ToasterInjection};
 
-use crate::app::{
+use super::{
     clipboard::{copy_to_clipboard, create_clipboard_toast},
     is_desktop::IsDesktopInjection,
 };

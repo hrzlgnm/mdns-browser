@@ -14,11 +14,11 @@ mod macros;
 mod metrics;
 mod values_table;
 
-use crate::app::about::About;
-use crate::app::browse::Browse;
-use crate::app::css::get_class;
-use crate::app::is_desktop::{get_is_desktop, IsDesktopInjection};
-use crate::app::metrics::Metrics;
+use about::About;
+use browse::Browse;
+use css::get_class;
+use is_desktop::{get_is_desktop, IsDesktopInjection};
+use metrics::Metrics;
 
 /// The main app component
 #[component]

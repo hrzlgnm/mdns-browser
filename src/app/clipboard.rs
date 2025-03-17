@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 use tauri_sys::core::invoke;
 use thaw::{Button, ButtonAppearance, ButtonSize, Toast, ToastBody, ToastTitle, ToasterInjection};
 
-use crate::{app::is_desktop::IsDesktopInjection, log_fn};
+use super::is_desktop::IsDesktopInjection;
+use crate::log_fn;
 
 #[derive(Serialize, Deserialize)]
 struct CopyToClipboardArgs<'a> {

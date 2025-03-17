@@ -17,12 +17,11 @@ use thaw::{
 };
 use thaw_utils::Model;
 
-use crate::{
-    app::{
-        clipboard::CopyToClipBoardButton, css::get_class, invoke::invoke_no_args,
-        is_desktop::IsDesktopInjection, values_table::ValuesTable,
-    },
-    log_fn,
+use crate::log_fn;
+
+use super::{
+    clipboard::CopyToClipBoardButton, css::get_class, invoke::invoke_no_args,
+    is_desktop::IsDesktopInjection, values_table::ValuesTable,
 };
 
 async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
