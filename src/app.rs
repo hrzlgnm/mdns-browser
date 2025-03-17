@@ -32,11 +32,27 @@ macro_rules! log_fn {
     }};
 }
 
+fn get_class(is_desktop: &ReadSignal<bool>, base_class: &str) -> Signal<String> {
+    let base_class = base_class.to_string();
+    Signal::derive({
+        let is_desktop = *is_desktop;
+        move || {
+            let prefix = if is_desktop.get() {
+                "desktop-"
+            } else {
+                "mobile-"
+            };
+            format!("{}{}", prefix, &base_class)
+        }
+    })
+}
+
 async fn invoke_no_args(cmd: &str) {
     log_fn!(format!("invoke_no_args(`{}`)", cmd), {
         let _ = invoke::<()>(cmd, &()).await;
     })
 }
+
 async fn listen_for_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
     log_fn!("listen_for_service_type_events", {
         log::debug!("-> Listen on metrics");
@@ -299,13 +315,7 @@ fn AutoCompleteServiceType(
     let is_desktop = use_context::<IsDesktopSignal>()
         .expect("is_desktop context to exist")
         .0;
-    let input_class = Signal::derive(move || {
-        if is_desktop.get() {
-            "desktop-input".to_string()
-        } else {
-            "mobile-input".to_string()
-        }
-    });
+    let input_class = get_class(&is_desktop, "input");
     let class = Signal::derive(move || {
         if invalid.get() {
             format!("service-type-invalid {}", input_class.get())
@@ -503,20 +513,9 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let is_desktop = use_context::<IsDesktopSignal>()
         .expect("is_desktop context to exist")
         .0;
-    let card_class = Signal::derive(move || {
-        if is_desktop.get() {
-            "desktop-resolved-service-card".to_string()
-        } else {
-            "mobile-resolved-service-card".to_string()
-        }
-    });
-    let table_cell_class = Signal::derive(move || {
-        if is_desktop.get() {
-            "desktop-resolved-service-table-cell".to_string()
-        } else {
-            "mobile-resolved-service-table-cell".to_string()
-        }
-    });
+    let card_class = get_class(&is_desktop, "resolved-service-card");
+    let table_cell_class = get_class(&is_desktop, "resolved-service-table-cell");
+
     view! {
         <GridItem>
             <Card class=card_class>
@@ -656,9 +655,6 @@ pub enum SortKind {
 /// Component that allows for mdns browsing using events
 #[component]
 fn Browse() -> impl IntoView {
-    let is_desktop = use_context::<IsDesktopSignal>()
-        .expect("is_desktop context to exist")
-        .0;
     let service_types = RwSignal::new(ServiceTypes::new());
     provide_context(ServiceTypesSignal(service_types));
 
@@ -792,28 +788,12 @@ fn Browse() -> impl IntoView {
     });
 
     LocalResource::new(move || listen_for_resolve_events(resolved));
-    let layout_class = Signal::derive(move || {
-        if is_desktop.get() {
-            "desktop-browse-layout".to_string()
-        } else {
-            "mobile-browse-layout".to_string()
-        }
-    });
-
-    let input_class = Signal::derive(move || {
-        if is_desktop.get() {
-            "desktop-input".to_string()
-        } else {
-            "mobile-input".to_string()
-        }
-    });
-    let grid_class = Signal::derive(move || {
-        if is_desktop.get() {
-            "desktop-resolved-service-grid".to_string()
-        } else {
-            "mobile-resolved-service-grid".to_string()
-        }
-    });
+    let is_desktop = use_context::<IsDesktopSignal>()
+        .expect("is_desktop context to exist")
+        .0;
+    let layout_class = get_class(&is_desktop, "browse-layout");
+    let input_class = get_class(&is_desktop, "input");
+    let grid_class = get_class(&is_desktop, "resolved-service-grid");
     view! {
         <Layout class=layout_class>
             <Flex vertical=true gap=FlexGap::Small>
@@ -1121,9 +1101,9 @@ pub fn Metrics() -> impl IntoView {
 }
 
 #[derive(Clone, Debug)]
-pub struct IsDesktopSignal(RwSignal<bool>);
+pub struct IsDesktopSignal(ReadSignal<bool>);
 
-async fn get_is_desktop(writer: RwSignal<bool>) {
+async fn get_is_desktop(writer: WriteSignal<bool>) {
     let is_desktop = invoke::<bool>("is_desktop", &()).await;
     log::debug!("Got is_desktop {is_desktop}");
     writer.update(|v| *v = is_desktop);
@@ -1148,8 +1128,8 @@ pub fn App() -> impl IntoView {
     });
     let icon = RwSignal::new(icondata::BsSun);
     let dark = RwSignal::new(true);
-    let is_desktop = RwSignal::new(false);
-    LocalResource::new(move || get_is_desktop(is_desktop));
+    let (is_desktop, set_is_desktop) = signal(false);
+    LocalResource::new(move || get_is_desktop(set_is_desktop));
     let on_switch_click = move |_| {
         dark.set(!dark.get());
         if dark.get() {
@@ -1160,14 +1140,8 @@ pub fn App() -> impl IntoView {
             theme.set(Theme::light());
         }
     };
+    let layout_class = get_class(&is_desktop, "outer-layout");
     provide_context(IsDesktopSignal(is_desktop));
-    let layout_class = Signal::derive(move || {
-        if is_desktop.get() {
-            "desktop-outer-layout".to_string()
-        } else {
-            "mobile-outer-layout".to_string()
-        }
-    });
     view! {
         <ConfigProvider theme>
             <ToasterProvider>
