@@ -4,25 +4,17 @@ use thaw::{
     ConfigProvider, Flex, FlexJustify, Grid, GridItem, Icon, Layout, Text, Theme, ToasterProvider,
 };
 
-mod about;
-mod browse;
-mod clipboard;
-mod css;
-mod invoke;
-mod is_desktop;
-mod macros;
-mod metrics;
-mod values_table;
-
-use about::About;
-use browse::Browse;
-use css::get_class;
-use is_desktop::{get_is_desktop, IsDesktopInjection};
-use metrics::Metrics;
+use super::{
+    about::About,
+    browse::Browse,
+    css::get_class,
+    is_desktop::{get_is_desktop, IsDesktopInjection},
+    metrics::Metrics,
+};
 
 /// The main app component
 #[component]
-pub fn App() -> impl IntoView {
+pub fn Main() -> impl IntoView {
     provide_meta_context();
     let theme = RwSignal::new(Theme::dark());
     let set_body_background_color = move |color: String| {
