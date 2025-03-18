@@ -277,6 +277,13 @@ struct Args {
             .map(|s| s.parse::<foreign_crate::LevelFilter>().unwrap_or(foreign_crate::LevelFilter::Info)),
     )]
     log_level: foreign_crate::LevelFilter,
+    #[arg(
+        short = 'f',
+        long,
+        default_value_t = false,
+        help = "Enable logging to file"
+    )]
+    log_to_file: bool,
 }
 
 #[cfg(desktop)]
@@ -445,6 +452,13 @@ pub fn run() {
     #[cfg(target_os = "linux")]
     x11_workaround();
     let args = Args::parse();
+    let mut log_targets = vec![
+        Target::new(TargetKind::Stdout),
+        Target::new(TargetKind::Webview),
+    ];
+    if args.log_to_file {
+        log_targets.push(Target::new(TargetKind::LogDir { file_name: None }));
+    }
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
@@ -452,10 +466,7 @@ pub fn run() {
         .manage(app_updates::PendingUpdate(Mutex::new(None)))
         .plugin(
             tauri_plugin_log::Builder::default()
-                .targets([
-                    Target::new(TargetKind::Stdout),
-                    Target::new(TargetKind::Webview),
-                ])
+                .targets(log_targets)
                 .level(args.log_level)
                 .build(),
         )
