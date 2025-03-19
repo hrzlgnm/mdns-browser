@@ -164,13 +164,13 @@ jobs:
         with:
           name: "debug-symbols-${{matrix.os}}${{matrix.args}}"
           path: |
-            target/**/release/mdns-browser.pdb
+            target/release/mdns-browser.pdb
 
       - name: 📤 Publish debug symbols to release (windows only)
         if: contains(matrix.os, 'windows') && (inputs.tagName != '')
         uses: softprops/action-gh-release@v2
         with:
-          files: target/**/release/mdns-browser.pdb
+          files: target/release/mdns-browser.pdb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
