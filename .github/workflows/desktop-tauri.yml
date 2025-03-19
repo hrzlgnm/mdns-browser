@@ -158,23 +158,19 @@ jobs:
             target/**/release/bundle
             target/**/release/mdns-browser*
 
-      - name: find
-        shell: bash
-        run: find -name '*.pdb'
-
       - name: 📤 Upload debug symbols (windows only)
         if: contains(matrix.os, 'windows')
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:
           name: "debug-symbols-${{matrix.os}}${{matrix.args}}"
           path: |
-            target/release/mdns-browser.pdb
+            target/release/mdns_browser.pdb
 
       - name: 📤 Publish debug symbols to release (windows only)
         if: contains(matrix.os, 'windows') && (inputs.tagName != '')
         uses: softprops/action-gh-release@v2
         with:
-          files: target/release/mdns-browser.pdb
+          files: target/release/mdns_browser.pdb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -190,7 +186,7 @@ jobs:
             target/release/bundle/rpm/*.rpm
             target/**/release/mdns-browser
             target/release/mdns-browser.exe
-            target/release/mdns-browser.pdb
+            target/release/mdns_browser.pdb
 
       - name: 📜 Create SBOM
         uses: anchore/sbom-action@f325610c9f50a54015d37c8d16cb3b0e2c8f4de0 # v0
