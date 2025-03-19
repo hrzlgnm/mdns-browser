@@ -160,7 +160,7 @@ jobs:
 
       - name: find
         shell: bash
-        run: find ./target/
+        run: find -name '*.pdb'
 
       - name: 📤 Upload debug symbols (windows only)
         if: contains(matrix.os, 'windows')
