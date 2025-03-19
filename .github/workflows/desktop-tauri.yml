@@ -159,6 +159,7 @@ jobs:
             target/**/release/mdns-browser*
 
       - name: find
+        shell: bash
         run: find ./target/
 
       - name: 📤 Upload debug symbols (windows only)
