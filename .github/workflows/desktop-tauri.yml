@@ -166,6 +166,14 @@ jobs:
           path: |
             target/**/release/mdns-browser.pdb
 
+      - name: 📤 Publish debug symbols to release (windows only)
+        if: contains(matrix.os, 'windows') && (inputs.tagName != '')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/**/release/mdns-browser.pdb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: 🛡️ Attest build provenance (publish release only)
         if: inputs.tagName != ''
         uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # v2.2.3
