@@ -71,39 +71,45 @@ fn browse_types(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_thread = mdns.clone();
         std::thread::spawn(move || {
-            let receiver = mdns_for_thread
-                .browse(MDNS_SD_META_SERVICE)
-                .expect("Failed to browse");
+            let receiver = match mdns_for_thread.browse(MDNS_SD_META_SERVICE) {
+                Ok(receiver) => receiver,
+                Err(e) => {
+                    log::error!("Failed to browse for service types: {:?}", e);
+                    return;
+                }
+            };
             while let Ok(event) = receiver.recv() {
                 match event {
                     ServiceEvent::ServiceFound(_service_type, full_name) => {
                         log::debug!("Service type found: {}", full_name);
-                        window
-                            .emit(
-                                "service-type-found",
-                                &ServiceTypeFoundEvent {
-                                    service_type: full_name,
-                                },
-                            )
-                            .expect("To emit");
+                        if let Err(e) = window.emit(
+                            "service-type-found",
+                            &ServiceTypeFoundEvent {
+                                service_type: full_name,
+                            },
+                        ) {
+                            log::error!("Failed to emit service type found event: {:?}", e);
+                        }
                     }
                     ServiceEvent::ServiceRemoved(_service_type, full_name) => {
                         log::debug!("Service type removed: {}", full_name);
-                        window
-                            .emit(
-                                "service-type-removed",
-                                &ServiceTypeRemovedEvent {
-                                    service_type: full_name.clone(),
-                                },
-                            )
-                            .expect("To emit");
+                        if let Err(e) = window.emit(
+                            "service-type-removed",
+                            &ServiceTypeRemovedEvent {
+                                service_type: full_name.clone(),
+                            },
+                        ) {
+                            log::error!("Failed to emit service type removed event: {:?}", e);
+                        }
                     }
                     ServiceEvent::SearchStopped(service_type) => {
                         if service_type == MDNS_SD_META_SERVICE {
                             break;
                         }
                     }
-                    _ => (),
+                    _ => {
+                        log::debug!("Ignoring event: {:?}", event);
+                    }
                 }
             }
             log::debug!("Browse type thread ending.");
@@ -116,7 +122,9 @@ fn stop_browse(state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         if let Ok(mut running_browsers) = state.running_browsers.lock() {
             running_browsers.iter().for_each(|ty_domain| {
-                mdns.stop_browse(ty_domain).expect("To stop browsing");
+                if let Err(e) = mdns.stop_browse(ty_domain) {
+                    log::error!("Failed to stop browsing for {ty_domain}: {:?}", e);
+                }
             });
             running_browsers.clear();
         }
@@ -127,8 +135,9 @@ fn stop_browse(state: State<ManagedState>) {
 fn verify(instance_fullname: String, state: State<ManagedState>) {
     log::debug!("verifying {}", instance_fullname);
     if let Ok(mdns) = state.daemon.lock() {
-        mdns.verify(instance_fullname, VERIFY_TIMEOUT)
-            .expect("To verify an instance");
+        if let Err(e) = mdns.verify(instance_fullname.clone(), VERIFY_TIMEOUT) {
+            log::error!("Failed to verify {instance_fullname}: {:?}", e);
+        }
     }
 }
 
@@ -139,58 +148,73 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
             if let Ok(mut running_browsers) = state.running_browsers.lock() {
                 if !running_browsers.contains(&service_type) {
                     running_browsers.push(service_type.clone());
-                    let receiver = mdns.browse(service_type.as_str()).expect("To browse");
+                    let receiver = match mdns.browse(service_type.as_str()) {
+                        Ok(receiver) => receiver,
+                        Err(e) => {
+                            log::error!(
+                                "Failed to start browsing for {service_type} browse: {:?}",
+                                e,
+                            );
+                            return;
+                        }
+                    };
                     let window = window.clone();
                     std::thread::spawn(move || {
                         while let Ok(event) = receiver.recv() {
                             match event {
                                 ServiceEvent::ServiceFound(_service_type, instance_name) => {
-                                    window
-                                        .emit(
-                                            "service-found",
-                                            &ServiceFoundEvent {
-                                                instance_name,
-                                                at_ms: timestamp_millis(),
-                                            },
-                                        )
-                                        .expect("To emit");
+                                    if let Err(e) = window.emit(
+                                        "service-found",
+                                        &ServiceFoundEvent {
+                                            instance_name,
+                                            at_ms: timestamp_millis(),
+                                        },
+                                    ) {
+                                        log::error!("Failed to emit service found event: {:?}", e);
+                                    }
                                 }
                                 ServiceEvent::SearchStarted(service_type) => {
-                                    window
-                                        .emit(
-                                            "search-started",
-                                            &SearchStartedEvent { service_type },
-                                        )
-                                        .expect("to emit");
+                                    if let Err(e) = window.emit(
+                                        "search-started",
+                                        &SearchStartedEvent { service_type },
+                                    ) {
+                                        log::error!("Failed to emit search started event: {:?}", e);
+                                    }
                                 }
                                 ServiceEvent::ServiceResolved(info) => {
-                                    window
-                                        .emit(
-                                            "service-resolved",
-                                            &ServiceResolvedEvent {
-                                                service: from_service_info(&info),
-                                            },
-                                        )
-                                        .expect("To emit");
+                                    if let Err(e) = window.emit(
+                                        "service-resolved",
+                                        &ServiceResolvedEvent {
+                                            service: from_service_info(&info),
+                                        },
+                                    ) {
+                                        log::error!(
+                                            "Failed to emit service resolved event: {:?}",
+                                            e
+                                        );
+                                    }
                                 }
                                 ServiceEvent::ServiceRemoved(_service_type, instance_name) => {
-                                    window
-                                        .emit(
-                                            "service-removed",
-                                            &ServiceRemovedEvent {
-                                                instance_name,
-                                                at_ms: timestamp_millis(),
-                                            },
-                                        )
-                                        .expect("To emit");
+                                    if let Err(e) = window.emit(
+                                        "service-removed",
+                                        &ServiceRemovedEvent {
+                                            instance_name,
+                                            at_ms: timestamp_millis(),
+                                        },
+                                    ) {
+                                        log::error!(
+                                            "Failed to emit service removed event: {:?}",
+                                            e
+                                        );
+                                    }
                                 }
                                 ServiceEvent::SearchStopped(service_type) => {
-                                    window
-                                        .emit(
-                                            "search-stopped",
-                                            &SearchStoppedEvent { service_type },
-                                        )
-                                        .expect("To emit");
+                                    if let Err(e) = window.emit(
+                                        "search-stopped",
+                                        &SearchStoppedEvent { service_type },
+                                    ) {
+                                        log::error!("Failed to emit search stopped event: {:?}", e);
+                                    }
                                     break;
                                 }
                             }
@@ -213,14 +237,14 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
             if let Ok(metrics_receiver) = mdns_for_thread.get_metrics() {
                 if let Ok(metrics) = metrics_receiver.recv() {
                     if old_metrics != metrics {
-                        window
-                            .emit(
-                                "metrics",
-                                &MetricsEvent {
-                                    metrics: metrics.clone(),
-                                },
-                            )
-                            .expect("To emit");
+                        if let Err(e) = window.emit(
+                            "metrics",
+                            &MetricsEvent {
+                                metrics: metrics.clone(),
+                            },
+                        ) {
+                            log::error!("Failed to emit metrics event: {:?}", e);
+                        }
                         old_metrics = metrics;
                     }
                 }
@@ -364,9 +388,9 @@ fn is_desktop() -> bool {
 #[tauri::command]
 fn copy_to_clipboard(window: Window, contents: String) {
     let app = window.app_handle();
-    app.clipboard()
-        .write_text(contents)
-        .expect("To write to clipboard");
+    if let Err(e) = app.clipboard().write_text(contents) {
+        log::error!("Failed to copy to clipboard: {}", e);
+    }
 }
 
 #[cfg(desktop)]
