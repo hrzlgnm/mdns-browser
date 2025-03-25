@@ -3,6 +3,7 @@ use clap::builder::TypedValueParser as _;
 #[cfg(desktop)]
 use clap::Parser;
 use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
+use models::check_service_type_fully_qualified;
 use models::*;
 #[cfg(all(desktop, not(debug_assertions)))]
 use shared_constants::SPLASH_SCREEN_DURATION;
@@ -66,6 +67,15 @@ fn from_service_info(info: &ServiceInfo) -> ResolvedService {
     }
 }
 
+fn emit_event<T>(window: &Window, event: &str, payload: &T)
+where
+    T: serde::Serialize,
+{
+    if let Err(e) = window.emit(event, payload) {
+        log::error!("Failed to emit {} event: {:?}", event, e);
+    }
+}
+
 #[tauri::command]
 fn browse_types(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
@@ -82,24 +92,36 @@ fn browse_types(window: Window, state: State<ManagedState>) {
                 match event {
                     ServiceEvent::ServiceFound(_service_type, full_name) => {
                         log::debug!("Service type found: {}", full_name);
-                        if let Err(e) = window.emit(
-                            "service-type-found",
-                            &ServiceTypeFoundEvent {
-                                service_type: full_name,
-                            },
-                        ) {
-                            log::error!("Failed to emit service type found event: {:?}", e);
+                        match check_service_type_fully_qualified(full_name.as_str()) {
+                            Ok(_) => {
+                                emit_event(
+                                    &window,
+                                    "service-type-found",
+                                    &ServiceTypeFoundEvent {
+                                        service_type: full_name,
+                                    },
+                                );
+                            }
+                            Err(e) => {
+                                log::warn!("Ignoring invalid service type `{full_name}`: {}", e)
+                            }
                         }
                     }
                     ServiceEvent::ServiceRemoved(_service_type, full_name) => {
                         log::debug!("Service type removed: {}", full_name);
-                        if let Err(e) = window.emit(
-                            "service-type-removed",
-                            &ServiceTypeRemovedEvent {
-                                service_type: full_name.clone(),
-                            },
-                        ) {
-                            log::error!("Failed to emit service type removed event: {:?}", e);
+                        match check_service_type_fully_qualified(full_name.as_str()) {
+                            Ok(_) => {
+                                emit_event(
+                                    &window,
+                                    "service-type-removed",
+                                    &ServiceTypeRemovedEvent {
+                                        service_type: full_name.clone(),
+                                    },
+                                );
+                            }
+                            Err(e) => {
+                                log::warn!("Ignoring invalid service type `{full_name}`: {}", e);
+                            }
                         }
                     }
                     ServiceEvent::SearchStopped(service_type) => {
@@ -163,58 +185,44 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
                         while let Ok(event) = receiver.recv() {
                             match event {
                                 ServiceEvent::ServiceFound(_service_type, instance_name) => {
-                                    if let Err(e) = window.emit(
+                                    emit_event(
+                                        &window,
                                         "service-found",
                                         &ServiceFoundEvent {
                                             instance_name,
                                             at_ms: timestamp_millis(),
                                         },
-                                    ) {
-                                        log::error!("Failed to emit service found event: {:?}", e);
-                                    }
+                                    )
                                 }
-                                ServiceEvent::SearchStarted(service_type) => {
-                                    if let Err(e) = window.emit(
-                                        "search-started",
-                                        &SearchStartedEvent { service_type },
-                                    ) {
-                                        log::error!("Failed to emit search started event: {:?}", e);
-                                    }
-                                }
-                                ServiceEvent::ServiceResolved(info) => {
-                                    if let Err(e) = window.emit(
-                                        "service-resolved",
-                                        &ServiceResolvedEvent {
-                                            service: from_service_info(&info),
-                                        },
-                                    ) {
-                                        log::error!(
-                                            "Failed to emit service resolved event: {:?}",
-                                            e
-                                        );
-                                    }
-                                }
+                                ServiceEvent::SearchStarted(service_type) => emit_event(
+                                    &window,
+                                    "search-started",
+                                    &SearchStartedEvent { service_type },
+                                ),
+                                ServiceEvent::ServiceResolved(info) => emit_event(
+                                    &window,
+                                    "service-resolved",
+                                    &ServiceResolvedEvent {
+                                        service: from_service_info(&info),
+                                    },
+                                ),
+
                                 ServiceEvent::ServiceRemoved(_service_type, instance_name) => {
-                                    if let Err(e) = window.emit(
+                                    emit_event(
+                                        &window,
                                         "service-removed",
                                         &ServiceRemovedEvent {
                                             instance_name,
                                             at_ms: timestamp_millis(),
                                         },
-                                    ) {
-                                        log::error!(
-                                            "Failed to emit service removed event: {:?}",
-                                            e
-                                        );
-                                    }
+                                    );
                                 }
                                 ServiceEvent::SearchStopped(service_type) => {
-                                    if let Err(e) = window.emit(
+                                    emit_event(
+                                        &window,
                                         "search-stopped",
                                         &SearchStoppedEvent { service_type },
-                                    ) {
-                                        log::error!("Failed to emit search stopped event: {:?}", e);
-                                    }
+                                    );
                                     break;
                                 }
                             }
@@ -237,14 +245,13 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
             if let Ok(metrics_receiver) = mdns_for_thread.get_metrics() {
                 if let Ok(metrics) = metrics_receiver.recv() {
                     if old_metrics != metrics {
-                        if let Err(e) = window.emit(
+                        emit_event(
+                            &window,
                             "metrics",
                             &MetricsEvent {
                                 metrics: metrics.clone(),
                             },
-                        ) {
-                            log::error!("Failed to emit metrics event: {:?}", e);
-                        }
+                        );
                         old_metrics = metrics;
                     }
                 }
