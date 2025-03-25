@@ -265,7 +265,7 @@ pub fn check_service_type_fully_qualified(service_type: &str) -> Result<(), Mdns
 
         // Ensure the second part is "_sub"
         if sub_label != "_sub" {
-            return Err(MdnsError::IncorrectFormat);
+            return Err(MdnsError::InvalidSublabel);
         }
 
         check_mdns_label(sub_type, true)?;
@@ -620,7 +620,7 @@ mod tests {
         ); // Invalid subtype without _sub keyword
         assert_eq!(
             check_service_type_fully_qualified("_myprinter.____._sub._tcp.local."),
-            Err(MdnsError::IncorrectFormat)
+            Err(MdnsError::InvalidSublabel)
         ); // Invalid subtype format
     }
 }
