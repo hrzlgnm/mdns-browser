@@ -68,10 +68,10 @@ fn from_service_info(info: &ServiceInfo) -> ResolvedService {
 }
 
 /// Emits an event to the window.
-/// 
+///
 /// This helper centralizes event emission and handles any errors internally.
 /// If window.emit returns an error, it is logged and not propagated.
-/// Use this helper across your codebase to avoid repetitive error handling.
+/// Use this helper to avoid repetitive error handling.
 fn emit_event<T>(window: &Window, event: &str, payload: &T)
 where
     T: serde::Serialize,
