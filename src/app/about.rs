@@ -52,169 +52,167 @@ async fn get_can_auto_update(writer: WriteSignal<bool>) {
 /// Component for info about the app
 #[component]
 pub fn About() -> impl IntoView {
-    log_fn!("About", {
-        let (version, set_version) = signal(String::new());
-        let (update, set_update) = signal(None);
-        let (can_auto_update, set_can_auto_update) = signal(false);
-        LocalResource::new(move || get_version(set_version));
-        LocalResource::new(move || get_can_auto_update(set_can_auto_update));
+    let (version, set_version) = signal(String::new());
+    let (update, set_update) = signal(None);
+    let (can_auto_update, set_can_auto_update) = signal(false);
+    LocalResource::new(move || get_version(set_version));
+    LocalResource::new(move || get_can_auto_update(set_can_auto_update));
 
-        let show_no_update = RwSignal::new(false);
-        let show_no_update_with_timeout = move || {
-            show_no_update.set(true);
-            set_timeout(
-                move || {
-                    show_no_update.set(false);
-                },
-                SHOW_NO_UPDATE_DURATION,
-            );
-        };
+    let show_no_update = RwSignal::new(false);
+    let show_no_update_with_timeout = move || {
+        show_no_update.set(true);
+        set_timeout(
+            move || {
+                show_no_update.set(false);
+            },
+            SHOW_NO_UPDATE_DURATION,
+        );
+    };
 
-        let fetch_update_action = Action::new_local(move |_: &()| async move {
-            let update = fetch_update().await;
-            log::debug!("Got update: {:?}", update);
-            if update.is_none() {
-                show_no_update_with_timeout();
-            }
-            set_update.set(update);
-        });
+    let fetch_update_action = Action::new_local(move |_: &()| async move {
+        let update = fetch_update().await;
+        log::debug!("Got update: {:?}", update);
+        if update.is_none() {
+            show_no_update_with_timeout();
+        }
+        set_update.set(update);
+    });
 
-        let install_update_action = Action::new_local(move |_: &()| async move {
-            install_update().await;
-        });
+    let install_update_action = Action::new_local(move |_: &()| async move {
+        install_update().await;
+    });
 
-        let update_available = Signal::derive(move || update.get().is_some());
-        let installable_version = Signal::derive(move || {
-            update
-                .get()
-                .map_or_else(|| None, |metadata| Some(metadata.version))
-        });
-        let on_install_update_click = move |_| {
-            install_update_action.dispatch(());
-        };
+    let update_available = Signal::derive(move || update.get().is_some());
+    let installable_version = Signal::derive(move || {
+        update
+            .get()
+            .map_or_else(|| None, |metadata| Some(metadata.version))
+    });
+    let on_install_update_click = move |_| {
+        install_update_action.dispatch(());
+    };
 
-        let github_action = Action::new_local(|action: &String| {
-            let action = action.clone();
-            async move {
-                open_url(action.clone().as_str()).await;
-            }
-        });
+    let github_action = Action::new_local(|action: &String| {
+        let action = action.clone();
+        async move {
+            open_url(action.clone().as_str()).await;
+        }
+    });
 
-        let on_release_notes_click = move |_| {
-            github_action.dispatch(format!(
-                "{}/releases/tag/mdns-browser-v{}",
-                GITHUB_BASE_URL,
-                version.get()
-            ));
-        };
+    let on_release_notes_click = move |_| {
+        github_action.dispatch(format!(
+            "{}/releases/tag/mdns-browser-v{}",
+            GITHUB_BASE_URL,
+            version.get()
+        ));
+    };
 
-        let on_issues_click = move |_| {
-            github_action.dispatch(format!(
-                "{}/issues?q=is%3Aopen+is%3Aissue+label%3Abug",
-                GITHUB_BASE_URL
-            ));
-        };
-        let on_report_issue_click = move |_| {
-            github_action.dispatch(format!("{}/issues/new", GITHUB_BASE_URL));
-        };
-        let on_releases_click = move |_| {
-            github_action.dispatch(format!("{}/releases/", GITHUB_BASE_URL));
-        };
+    let on_issues_click = move |_| {
+        github_action.dispatch(format!(
+            "{}/issues?q=is%3Aopen+is%3Aissue+label%3Abug",
+            GITHUB_BASE_URL
+        ));
+    };
+    let on_report_issue_click = move |_| {
+        github_action.dispatch(format!("{}/issues/new", GITHUB_BASE_URL));
+    };
+    let on_releases_click = move |_| {
+        github_action.dispatch(format!("{}/releases/", GITHUB_BASE_URL));
+    };
 
-        let on_check_update_click = move |_| {
-            fetch_update_action.dispatch(());
-        };
-        view! {
-            <Layout>
-                <Accordion multiple=true>
-                    <AccordionItem value="about">
-                        <AccordionHeader slot>"About"</AccordionHeader>
-                        <Flex>
-                            <Text>"Version "{move || version.get()}</Text>
-                            <Button
-                                appearance=ButtonAppearance::Primary
-                                size=ButtonSize::Small
-                                on_click=on_release_notes_click
-                                icon=icondata::MdiGithub
-                            >
-                                "Release Notes"
-                            </Button>
-                            <Button
-                                appearance=ButtonAppearance::Primary
-                                size=ButtonSize::Small
-                                on_click=on_report_issue_click
-                                icon=icondata::MdiGithub
-                            >
-                                "Report an Issue"
-                            </Button>
-                            <Button
-                                appearance=ButtonAppearance::Primary
-                                size=ButtonSize::Small
-                                on_click=on_issues_click
-                                icon=icondata::MdiGithub
-                            >
-                                "Known Issues"
-                            </Button>
-                            <Button
-                                appearance=ButtonAppearance::Primary
-                                size=ButtonSize::Small
-                                on_click=on_releases_click
-                                icon=icondata::MdiGithub
-                            >
-                                "Releases"
-                            </Button>
+    let on_check_update_click = move |_| {
+        fetch_update_action.dispatch(());
+    };
+    view! {
+        <Layout>
+            <Accordion multiple=true>
+                <AccordionItem value="about">
+                    <AccordionHeader slot>"About"</AccordionHeader>
+                    <Flex>
+                        <Text>"Version "{move || version.get()}</Text>
+                        <Button
+                            appearance=ButtonAppearance::Primary
+                            size=ButtonSize::Small
+                            on_click=on_release_notes_click
+                            icon=icondata::MdiGithub
+                        >
+                            "Release Notes"
+                        </Button>
+                        <Button
+                            appearance=ButtonAppearance::Primary
+                            size=ButtonSize::Small
+                            on_click=on_report_issue_click
+                            icon=icondata::MdiGithub
+                        >
+                            "Report an Issue"
+                        </Button>
+                        <Button
+                            appearance=ButtonAppearance::Primary
+                            size=ButtonSize::Small
+                            on_click=on_issues_click
+                            icon=icondata::MdiGithub
+                        >
+                            "Known Issues"
+                        </Button>
+                        <Button
+                            appearance=ButtonAppearance::Primary
+                            size=ButtonSize::Small
+                            on_click=on_releases_click
+                            icon=icondata::MdiGithub
+                        >
+                            "Releases"
+                        </Button>
+                        <Show
+                            when=move || { !show_no_update.get() }
+                            fallback=move || {
+                                view! {
+                                    <Button
+                                        appearance=ButtonAppearance::Primary
+                                        size=ButtonSize::Small
+                                        icon=icondata::MdiCheckCircleOutline
+                                    >
+                                        {move || version.get()}
+                                        " is the latest version"
+                                    </Button>
+                                }
+                            }
+                        >
                             <Show
-                                when=move || { !show_no_update.get() }
+                                when=move || { can_auto_update.get() }
                                 fallback=move || {
-                                    view! {
-                                        <Button
-                                            appearance=ButtonAppearance::Primary
-                                            size=ButtonSize::Small
-                                            icon=icondata::MdiCheckCircleOutline
-                                        >
-                                            {move || version.get()}
-                                            " is the latest version"
-                                        </Button>
-                                    }
+                                    view! { <div class="hidden" /> }
                                 }
                             >
                                 <Show
-                                    when=move || { can_auto_update.get() }
+                                    when=move || { update_available.get() }
                                     fallback=move || {
-                                        view! { <div class="hidden" /> }
+                                        view! {
+                                            <Button
+                                                appearance=ButtonAppearance::Primary
+                                                size=ButtonSize::Small
+                                                on_click=on_check_update_click
+                                                icon=icondata::MdiDownloadCircleOutline
+                                            >
+                                                "Check for updates"
+                                            </Button>
+                                        }
                                     }
                                 >
-                                    <Show
-                                        when=move || { update_available.get() }
-                                        fallback=move || {
-                                            view! {
-                                                <Button
-                                                    appearance=ButtonAppearance::Primary
-                                                    size=ButtonSize::Small
-                                                    on_click=on_check_update_click
-                                                    icon=icondata::MdiDownloadCircleOutline
-                                                >
-                                                    "Check for updates"
-                                                </Button>
-                                            }
-                                        }
+                                    <Button
+                                        appearance=ButtonAppearance::Primary
+                                        size=ButtonSize::Small
+                                        on_click=on_install_update_click
+                                        icon=icondata::MdiInboxArrowDown
                                     >
-                                        <Button
-                                            appearance=ButtonAppearance::Primary
-                                            size=ButtonSize::Small
-                                            on_click=on_install_update_click
-                                            icon=icondata::MdiInboxArrowDown
-                                        >
-                                            "Download and Install "
-                                            {{ installable_version }}
-                                        </Button>
-                                    </Show>
+                                        "Download and Install "
+                                        {{ installable_version }}
+                                    </Button>
                                 </Show>
                             </Show>
-                        </Flex>
-                    </AccordionItem>
-                </Accordion>
-            </Layout>
-        }
-    })
+                        </Show>
+                    </Flex>
+                </AccordionItem>
+            </Accordion>
+        </Layout>
+    }
 }
