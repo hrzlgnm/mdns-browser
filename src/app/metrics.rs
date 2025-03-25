@@ -30,42 +30,40 @@ async fn listen_for_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
 /// Component for metrics
 #[component]
 pub fn Metrics() -> impl IntoView {
-    log_fn!("Metrics", {
-        let metrics = RwSignal::new(Vec::new());
-        LocalResource::new(move || listen_for_metrics_event(metrics));
-        spawn_local(invoke_no_args("subscribe_metrics"));
-        view! {
-            <Layout class="metrics-layout">
-                <Accordion multiple=true>
-                    <AccordionItem value="metrics">
-                        <AccordionHeader slot>"mDNS-SD-metrics"</AccordionHeader>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHeaderCell resizable=true>"Metric"</TableHeaderCell>
-                                    <TableHeaderCell resizable=true>"Counter"</TableHeaderCell>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {move || {
-                                    metrics
-                                        .get()
-                                        .into_iter()
-                                        .map(|(k, v)| {
-                                            view! {
-                                                <TableRow>
-                                                    <TableCell>{k}</TableCell>
-                                                    <TableCell>{v}</TableCell>
-                                                </TableRow>
-                                            }
-                                        })
-                                        .collect::<Vec<_>>()
-                                }}
-                            </TableBody>
-                        </Table>
-                    </AccordionItem>
-                </Accordion>
-            </Layout>
-        }
-    });
+    let metrics = RwSignal::new(Vec::new());
+    LocalResource::new(move || listen_for_metrics_event(metrics));
+    spawn_local(invoke_no_args("subscribe_metrics"));
+    view! {
+        <Layout class="metrics-layout">
+            <Accordion multiple=true>
+                <AccordionItem value="metrics">
+                    <AccordionHeader slot>"mDNS-SD-metrics"</AccordionHeader>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHeaderCell resizable=true>"Metric"</TableHeaderCell>
+                                <TableHeaderCell resizable=true>"Counter"</TableHeaderCell>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {move || {
+                                metrics
+                                    .get()
+                                    .into_iter()
+                                    .map(|(k, v)| {
+                                        view! {
+                                            <TableRow>
+                                                <TableCell>{k}</TableCell>
+                                                <TableCell>{v}</TableCell>
+                                            </TableRow>
+                                        }
+                                    })
+                                    .collect::<Vec<_>>()
+                            }}
+                        </TableBody>
+                    </Table>
+                </AccordionItem>
+            </Accordion>
+        </Layout>
+    }
 }
