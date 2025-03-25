@@ -163,13 +163,21 @@ pub struct UpdateMetadata {
     pub current_version: String,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, thiserror::Error)]
 pub enum MdnsError {
+    #[error("The trailing dot is missing")]
     MissingTrailingDot,
+    #[error("The service type label is not well formed")]
     InvalidService,
+    #[error("The service sub type label is not well formed")]
     InvalidSubtype,
+    #[error("The service sub label is invalid, expected `_sub`")]
+    InvalidSublabel,
+    #[error("The protocol is invalid, expected `_tcp` or `_udp`")]
     InvalidProtocol,
+    #[error("The domain is invalid, expected `.local.`")]
     InvalidDomain,
+    #[error("The service type format is incorrect, expected to contain 3 or 5 parts")]
     IncorrectFormat,
 }
 
@@ -253,14 +261,14 @@ pub fn check_service_type_fully_qualified(service_type: &str) -> Result<(), Mdns
     // Validate optional subtype if present
     if parts.len() == 5 {
         let sub_label = parts[1];
-        let subtype = parts[0];
+        let sub_type = parts[0];
 
         // Ensure the second part is "_sub"
         if sub_label != "_sub" {
-            return Err(MdnsError::IncorrectFormat);
+            return Err(MdnsError::InvalidSublabel);
         }
 
-        check_mdns_label(subtype, true)?;
+        check_mdns_label(sub_type, true)?;
     }
 
     Ok(())
@@ -583,6 +591,10 @@ mod tests {
             Err(MdnsError::IncorrectFormat)
         ); // Missing service in format
         assert_eq!(
+            check_service_type_fully_qualified("_sub._http._tcp.local."),
+            Err(MdnsError::IncorrectFormat)
+        ); // Missing subtype
+        assert_eq!(
             check_service_type_fully_qualified("_-http_tcp._tcp.local."),
             Err(MdnsError::InvalidService)
         ); // Invalid service name format
@@ -595,6 +607,10 @@ mod tests {
             Err(MdnsError::InvalidSubtype)
         ); // Invalid subtype name format
         assert_eq!(
+            check_service_type_fully_qualified("_printer._pub._http._tcp.local."),
+            Err(MdnsError::InvalidSublabel)
+        ); // Invalid subtype name format
+        assert_eq!(
             check_service_type_fully_qualified("_http-._tcp.local."),
             Err(MdnsError::InvalidService)
         ); // Invalid service name format
@@ -604,7 +620,7 @@ mod tests {
         ); // Invalid subtype without _sub keyword
         assert_eq!(
             check_service_type_fully_qualified("_myprinter.____._sub._tcp.local."),
-            Err(MdnsError::IncorrectFormat)
+            Err(MdnsError::InvalidSublabel)
         ); // Invalid subtype format
     }
 }
