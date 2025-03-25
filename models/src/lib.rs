@@ -167,7 +167,7 @@ pub struct UpdateMetadata {
 pub enum MdnsError {
     #[error("The trailing dot is missing")]
     MissingTrailingDot,
-    #[error("The service type lavel is not well formed")]
+    #[error("The service type label is not well formed")]
     InvalidService,
     #[error("The service sub type label is not well formed")]
     InvalidSubtype,

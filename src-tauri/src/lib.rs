@@ -103,7 +103,7 @@ fn browse_types(window: Window, state: State<ManagedState>) {
                                 );
                             }
                             Err(e) => {
-                                log::warn!("Ignoring invalid service type `{full_name}`: {}", e)
+                                log::warn!("Ignoring invalid service type `{}`: {}", full_name, e)
                             }
                         }
                     }
@@ -120,7 +120,7 @@ fn browse_types(window: Window, state: State<ManagedState>) {
                                 );
                             }
                             Err(e) => {
-                                log::warn!("Ignoring invalid service type `{full_name}`: {}", e);
+                                log::warn!("Ignoring invalid service type `{}`: {}", full_name, e)
                             }
                         }
                     }
