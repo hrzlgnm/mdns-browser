@@ -558,6 +558,7 @@ pub fn Browse() -> impl IntoView {
     );
 
     let on_browse_click = move |_| {
+        set_resolved.set(Vec::new());
         browsing.set(true);
         let value = service_type.get_untracked();
         if value.is_empty() {
@@ -573,7 +574,6 @@ pub fn Browse() -> impl IntoView {
 
     let on_stopbrowsing_click = move |_| {
         browsing.set(false);
-        set_resolved.set(Vec::new());
         stop_browsing_action.dispatch(());
         service_type.set(String::new());
         if let Some(comp) = comp_ref.get_untracked() {
