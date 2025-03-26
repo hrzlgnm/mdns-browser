@@ -635,11 +635,11 @@ pub fn Browse() -> impl IntoView {
         false,
     );
 
-    let handle: StoredValue<Option<TimeoutHandle>> = StoredValue::new(None);
+    let tutorial_timeout: StoredValue<Option<TimeoutHandle>> = StoredValue::new(None);
     let comp_ref = ComponentRef::<AutoCompleteRef>::new();
 
-    let clear_focus_timeout = move || {
-        if let Some(h) = handle.get_value() {
+    let clear_tutorial_timer = move || {
+        if let Some(h) = tutorial_timeout.get_value() {
             h.clear();
         }
     };
@@ -655,17 +655,17 @@ pub fn Browse() -> impl IntoView {
                 },
                 SPLASH_SCREEN_DURATION + AUTO_COMPLETE_AUTO_FOCUS_DELAY,
             ) {
-                handle.set_value(Some(h));
+                tutorial_timeout.set_value(Some(h));
             }
         });
     });
 
     let on_quick_filter_focus = move |_| {
-        clear_focus_timeout();
+        clear_tutorial_timer();
     };
 
     let on_browse_click = move |_| {
-        clear_focus_timeout();
+        clear_tutorial_timer();
         set_resolved.set(Vec::new());
         browsing.set(true);
         let value = service_type.get_untracked();
