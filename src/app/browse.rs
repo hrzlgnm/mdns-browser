@@ -239,7 +239,6 @@ fn AutoCompleteServiceType(
             placeholder="Service type..."
             comp_ref=comp_ref
             size=AutoCompleteSize::Medium
-            attr:autocapitalize="none"
         >
             <For each=move || service_type_options.get() key=|option| option.0.clone() let:option>
                 <AutoCompleteOption value=option.0>{option.1}</AutoCompleteOption>
@@ -636,7 +635,34 @@ pub fn Browse() -> impl IntoView {
         false,
     );
 
+    let handle: StoredValue<Option<TimeoutHandle>> = StoredValue::new(None);
+    let comp_ref = ComponentRef::<AutoCompleteRef>::new();
+
+    Effect::new(move |_| {
+        spawn_local(async move {
+            if let Ok(h) = set_timeout_with_handle(
+                move || {
+                    if let Some(comp) = comp_ref.get_untracked() {
+                        comp.focus();
+                    }
+                },
+                SPLASH_SCREEN_DURATION + AUTO_COMPLETE_AUTO_FOCUS_DELAY,
+            ) {
+                handle.set_value(Some(h));
+            }
+        });
+    });
+
+    let on_quick_filter_focus = move |_| {
+        if let Some(h) = handle.get_value() {
+            h.clear();
+        }
+    };
+
     let on_browse_click = move |_| {
+        if let Some(h) = handle.get_value() {
+            h.clear();
+        }
         set_resolved.set(Vec::new());
         browsing.set(true);
         let value = service_type.get_untracked();
@@ -649,8 +675,6 @@ pub fn Browse() -> impl IntoView {
 
     let stop_browsing_action = Action::new_local(|_| async move { stop_browse().await });
 
-    let comp_ref = ComponentRef::<AutoCompleteRef>::new();
-
     let on_stopbrowsing_click = move |_| {
         browsing.set(false);
         stop_browsing_action.dispatch(());
@@ -659,19 +683,6 @@ pub fn Browse() -> impl IntoView {
             comp.focus();
         }
     };
-
-    Effect::new(move |_| {
-        spawn_local(async move {
-            set_timeout(
-                move || {
-                    if let Some(comp) = comp_ref.get_untracked() {
-                        comp.focus();
-                    }
-                },
-                SPLASH_SCREEN_DURATION + AUTO_COMPLETE_AUTO_FOCUS_DELAY,
-            );
-        });
-    });
 
     LocalResource::new(move || listen_for_resolve_events(set_resolved));
     let is_desktop = IsDesktopInjection::expect_context();
@@ -715,7 +726,7 @@ pub fn Browse() -> impl IntoView {
                         <option label="Last Updated (Ascending)" value="TimestampAsc" />
                         <option label="Last Updated (Descending)" value="TimestampDesc" />
                     </Select>
-                    <Input value=query placeholder="Quick filter" class=input_class />
+                    <Input value=query placeholder="Quick filter" class=input_class on_focus=on_quick_filter_focus/>
                 </Flex>
             </Flex>
             <Grid class=grid_class>
