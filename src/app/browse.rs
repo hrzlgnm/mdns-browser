@@ -295,14 +295,6 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
             path.unwrap_or_else(|| "/".to_string())
         )),
         ("_home-assistant._tcp.local.", Some(internal_url)) => Some(internal_url.clone()),
-        ("_ftp._tcp.local.", _) => Some(format!(
-            "ftp://{}:{}{}",
-            address
-                .map(|t| t.to_string())
-                .unwrap_or_else(|| resolved_service.hostname.clone()),
-            resolved_service.port,
-            path.unwrap_or_else(|| "/".to_string())
-        )),
         _ => None,
     }
 }
