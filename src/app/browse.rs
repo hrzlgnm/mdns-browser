@@ -458,7 +458,20 @@ enum SortKind {
     TimestampDesc,
 }
 
-/// Component that allows for mdns browsing using events
+/// Renders the main browsing interface for network services.
+///
+/// This component sets up reactive state and event listeners to manage service discovery and browsing.
+/// It initializes signals for service types, resolved services, sorting order, and query filtering, and
+/// provides UI controls including an autocomplete input, browse/stop buttons, and sorting options. The view
+/// automatically updates as services are discovered, sorted, and filtered, offering a dynamic user interface.
+///
+/// # Examples
+///
+/// ```
+/// // Create the browsing component view.
+/// let view = Browse();
+/// // Integrate `view` into your Leptos application layout as needed.
+/// ```
 #[component]
 pub fn Browse() -> impl IntoView {
     let (service_types, set_service_types) = signal(ServiceTypes::new());
@@ -558,6 +571,7 @@ pub fn Browse() -> impl IntoView {
     );
 
     let on_browse_click = move |_| {
+        set_resolved.set(Vec::new());
         browsing.set(true);
         let value = service_type.get_untracked();
         if value.is_empty() {
@@ -573,7 +587,6 @@ pub fn Browse() -> impl IntoView {
 
     let on_stopbrowsing_click = move |_| {
         browsing.set(false);
-        set_resolved.set(Vec::new());
         stop_browsing_action.dispatch(());
         service_type.set(String::new());
         if let Some(comp) = comp_ref.get_untracked() {
