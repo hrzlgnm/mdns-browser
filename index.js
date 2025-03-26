@@ -5,7 +5,7 @@
  * mostly dealing with lower case characters.
  */
 window.addEventListener("TrunkApplicationStarted", function () {
-    const browseButton = document.querySelector("button.thaw-button--primary[contains(text(), 'Browse')]");
+    const browseButton = document.querySelector("button.thaw-button--primary");
     const inputs = document.querySelectorAll("input.thaw-input__input");
     for (const input of inputs) {
         input.setAttribute("autocapitalize", "none");
