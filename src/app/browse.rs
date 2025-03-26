@@ -460,6 +460,20 @@ enum SortKind {
 
 /// Component that allows for mdns browsing using events
 #[component]
+/// Renders the main browsing interface for network services.
+///
+/// This component sets up reactive state and event listeners to manage service discovery and browsing.
+/// It initializes signals for service types, resolved services, sorting order, and query filtering, and
+/// provides UI controls including an autocomplete input, browse/stop buttons, and sorting options. The view
+/// automatically updates as services are discovered, sorted, and filtered, offering a dynamic user interface.
+///
+/// # Examples
+///
+/// ```
+/// // Create the browsing component view.
+/// let view = Browse();
+/// // Integrate `view` into your Leptos application layout as needed.
+/// ```
 pub fn Browse() -> impl IntoView {
     let (service_types, set_service_types) = signal(ServiceTypes::new());
     provide_context(ServiceTypesInjection(service_types));
