@@ -12,8 +12,8 @@ use tauri_sys::event::listen;
 use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSize, Button, ButtonAppearance,
     ButtonSize, Card, CardHeader, CardPreview, ComponentRef, Dialog, DialogBody, DialogSurface,
-    DialogTitle, Flex, FlexAlign, FlexGap, FlexJustify, Grid, GridItem, Input, Layout, Select,
-    Table, TableBody, TableCell, TableRow, Text, TextTag,
+    DialogTitle, Flex, FlexAlign, FlexGap, FlexJustify, Grid, GridItem, Input, Layout, Scrollbar,
+    Select, Table, TableBody, TableCell, TableRow, Text, TextTag,
 };
 use thaw_utils::Model;
 
@@ -404,13 +404,15 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                     </Button>
                                     <Dialog open=show_details>
                                         <DialogSurface>
-                                            <DialogBody attr:style="display: flex;">
-                                                <Flex vertical=true>
-                                                    <DialogTitle>{details_title}</DialogTitle>
-                                                    <ValuesTable values=subtype title="subtype" />
-                                                    <ValuesTable values=addrs title="IPs" />
-                                                    <ValuesTable values=txts title="txt" />
-                                                </Flex>
+                                            <DialogBody attr:style="display: flex; max-width: 90vw;">
+                                                <Scrollbar style="max-height: 90vh;">
+                                                    <Flex vertical=true>
+                                                        <DialogTitle>{details_title}</DialogTitle>
+                                                        <ValuesTable values=subtype title="subtype" />
+                                                        <ValuesTable values=addrs title="IPs" />
+                                                        <ValuesTable values=txts title="txt" />
+                                                    </Flex>
+                                                </Scrollbar>
                                             </DialogBody>
                                         </DialogSurface>
                                     </Dialog>
