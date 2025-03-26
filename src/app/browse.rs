@@ -726,7 +726,12 @@ pub fn Browse() -> impl IntoView {
                         <option label="Last Updated (Ascending)" value="TimestampAsc" />
                         <option label="Last Updated (Descending)" value="TimestampDesc" />
                     </Select>
-                    <Input value=query placeholder="Quick filter" class=input_class on_focus=on_quick_filter_focus/>
+                    <Input
+                        value=query
+                        placeholder="Quick filter"
+                        class=input_class
+                        on_focus=on_quick_filter_focus
+                    />
                 </Flex>
             </Flex>
             <Grid class=grid_class>
