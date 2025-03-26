@@ -282,7 +282,15 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
             "http://{}:{}{}",
             address
                 .map(|t| t.to_string())
-                .unwrap_or(resolved_service.hostname.clone()),
+                .unwrap_or_else(|| resolved_service.hostname.clone()),
+            resolved_service.port,
+            path.unwrap_or_else(|| "/".to_string())
+        )),
+        ("_https._tcp.local.", _) => Some(format!(
+            "https://{}:{}{}",
+            address
+                .map(|t| t.to_string())
+                .unwrap_or_else(|| resolved_service.hostname.clone()),
             resolved_service.port,
             path.unwrap_or_else(|| "/".to_string())
         )),
