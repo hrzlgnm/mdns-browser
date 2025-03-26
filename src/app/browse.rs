@@ -638,7 +638,14 @@ pub fn Browse() -> impl IntoView {
     let handle: StoredValue<Option<TimeoutHandle>> = StoredValue::new(None);
     let comp_ref = ComponentRef::<AutoCompleteRef>::new();
 
+    let clear_focus_timeout = move || {
+        if let Some(h) = handle.get_value() {
+            h.clear();
+        }
+    };
     Effect::new(move |_| {
+        // Set a timeout to focus the autocomplete after splash screen
+        // This is part of the tutorial timer that should be stopped on user interaction
         spawn_local(async move {
             if let Ok(h) = set_timeout_with_handle(
                 move || {
@@ -654,15 +661,11 @@ pub fn Browse() -> impl IntoView {
     });
 
     let on_quick_filter_focus = move |_| {
-        if let Some(h) = handle.get_value() {
-            h.clear();
-        }
+        clear_focus_timeout();
     };
 
     let on_browse_click = move |_| {
-        if let Some(h) = handle.get_value() {
-            h.clear();
-        }
+        clear_focus_timeout();
         set_resolved.set(Vec::new());
         browsing.set(true);
         let value = service_type.get_untracked();
