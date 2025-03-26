@@ -14,7 +14,7 @@ window.addEventListener("TrunkApplicationStarted", function () {
         if (input.getAttribute("placeholder")?.includes("Quick")) {
             input.addEventListener("keydown", function (event) {
                 if (event.key === "Enter") {
-                    browseButton.click();
+                    if (browseButton) browseButton.click();
                 }
             });
         }
