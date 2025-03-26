@@ -17,7 +17,7 @@ use thaw::{
 };
 use thaw_utils::Model;
 
-use crate::log_fn;
+use crate::{app::about::open_url, log_fn};
 
 use super::{
     clipboard::CopyToClipBoardButton, css::get_class, invoke::invoke_no_args,
@@ -257,6 +257,40 @@ fn drop_local_and_last_dot(fqn: &str) -> String {
     drop_trailing_dot(without_local).to_owned()
 }
 
+fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
+    let path = resolved_service
+        .txt
+        .iter()
+        .find(|record| record.key == "path")
+        .and_then(|record| record.val.as_ref())
+        .map(|p| {
+            if p.starts_with('/') {
+                p.clone()
+            } else {
+                format!("/{}", p)
+            }
+        });
+    let address = resolved_service.addresses.first();
+    let internal_url = resolved_service
+        .txt
+        .iter()
+        .find(|record| record.key == "internal_url")
+        .and_then(|record| record.val.as_ref());
+
+    match (resolved_service.service_type.as_str(), internal_url) {
+        ("_http._tcp.local.", _) => Some(format!(
+            "http://{}:{}{}",
+            address
+                .map(|t| t.to_string())
+                .unwrap_or(resolved_service.hostname.clone()),
+            resolved_service.port,
+            path.unwrap_or_else(|| "/".to_string())
+        )),
+        ("_home-assistant._tcp.local.", Some(internal_url)) => Some(internal_url.clone()),
+        _ => None,
+    }
+}
+
 /// Component that shows a resolved service as a card
 #[component]
 fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
@@ -275,6 +309,17 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
             },
             VERIFY_TIMEOUT,
         )
+    };
+
+    let open_action = Action::new_local(|url: &String| {
+        let url = url.clone();
+        async move { open_url(url.as_str()).await }
+    });
+    let url = RwSignal::new(get_open_url(&resolved_service));
+    let on_open_click = move |_| {
+        if let Some(url) = url.get_untracked() {
+            open_action.dispatch(url.clone());
+        }
     };
 
     let host_to_copy = drop_trailing_dot(&resolved_service.hostname);
@@ -314,7 +359,6 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let is_desktop = IsDesktopInjection::expect_context();
     let card_class = get_class(&is_desktop, "resolved-service-card");
     let table_cell_class = get_class(&is_desktop, "resolved-service-table-cell");
-
     view! {
         <GridItem>
             <Card class=card_class>
@@ -418,16 +462,28 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                     </Dialog>
                                 </TableCell>
                                 <TableCell class=table_cell_class>
-                                    <Button
-                                        loading=verifying
-                                        size=ButtonSize::Small
-                                        appearance=ButtonAppearance::Primary
-                                        on_click=on_verify_click
-                                        disabled=resolved_service.dead
-                                        icon=icondata::MdiCheckAll
-                                    >
-                                        "Verify"
-                                    </Button>
+                                    <Flex>
+                                        <Button
+                                            loading=verifying
+                                            size=ButtonSize::Small
+                                            appearance=ButtonAppearance::Primary
+                                            on_click=on_verify_click
+                                            disabled=resolved_service.dead
+                                            icon=icondata::MdiCheckAll
+                                        >
+                                            "Verify"
+                                        </Button>
+                                        <Button
+                                            size=ButtonSize::Small
+                                            appearance=ButtonAppearance::Primary
+                                            on_click=on_open_click
+                                            disabled=url.get_untracked().is_none()
+                                                || resolved_service.dead
+                                            icon=icondata::MdiFirefox
+                                        >
+                                            "Open"
+                                        </Button>
+                                    </Flex>
                                 </TableCell>
                             </TableRow>
                         </TableBody>

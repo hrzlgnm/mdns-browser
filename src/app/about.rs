@@ -28,7 +28,7 @@ struct OpenArgs<'a> {
     url: &'a str,
 }
 
-async fn open_url(url: &str) {
+pub async fn open_url(url: &str) {
     log_fn!(format!("open_url({})", &url), {
         let _ = invoke::<()>("open_url", &OpenArgs { url }).await;
     });
