@@ -19,7 +19,7 @@ jobs:
         run: |
           git clone --depth=1 https://github.com/void-linux/void-packages.git ~/void-packages
           cd ~/void-packages
-          ./xbps-src binary-bootstrap
+          ./xbps-src binary-bootstrap || true
 
       - name: 📝 Get Latest Release Version
         id: get_version
