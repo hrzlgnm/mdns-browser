@@ -1,8 +1,8 @@
 name: Publish Void Linux XBPS Package
 
 on:
-  release:
-    types: [published]
+  #release:
+  #  types: [published]
   workflow_dispatch:
 
 env:
@@ -41,8 +41,8 @@ jobs:
       - name: 💉 Inject Version & SHA256 into Template
         run: |
           env
-          sed -i "s/^version=.*/version=${{ env.VERSION }}/" xbps-template/template
-          sed -i "s/^checksum=.*/checksum=${{ env.SHA256 }}/" xbps-template/template
+          sed -i "s/^version=.*/version=${{ env.VERSION }}/" xbps-template/srcpkgs/template
+          sed -i "s/^checksum=.*/checksum=${{ env.SHA256 }}/" xbps-template/srcpkgs/template
 
       - name: ➕ Add Custom Template to Void Packages
         run: |
