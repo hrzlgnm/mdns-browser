@@ -455,8 +455,8 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                     </Button>
                                     <Dialog open=show_details>
                                         <DialogSurface>
-                                            <DialogBody attr:style="display: flex; max-width: 90vw;">
-                                                <Scrollbar style="max-height: 90vh;">
+                                            <DialogBody class="resolved-service-details-dialog-body">
+                                                <Scrollbar class="resolved-service-details-dialog-scrollarea">
                                                     <Flex vertical=true>
                                                         <DialogTitle>{details_title}</DialogTitle>
                                                         <ValuesTable values=subtype title="subtype" />
