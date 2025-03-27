@@ -27,21 +27,22 @@ jobs:
       - name: 📝 Get Latest Release Version
         id: get_version
         run: |
-          VERSION=$(curl -s https://api.github.com/repos/hrzlgnm/mdns-browser/releases/latest | jq -r .tag_name)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          LATEST_TAG=$(curl -s https://api.github.com/repos/hrzlgnm/mdns-browser/releases/latest | jq -r .tag_name)
+          echo "SHORT_VERSION=${LATEST_TAG#*-v}" >> $GITHUB_ENV
+          echo "FULL_VERSION=$LATEST_TAG" >> $GITHUB_ENV
 
       - name: 🔢 Get Source Tarball SHA256
         id: get_sha
         run: |
           env
-          URL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/v${{ env.VERSION }}.tar.gz"
+          URL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ env.FULLVERSION }}.tar.gz"
           SHA256SUM=$(curl -LfsS "$URL" | sha256sum | cut -d ' ' -f1)
           echo "SHA256=$SHA256SUM" >> $GITHUB_ENV
 
       - name: 💉 Inject Version & SHA256 into Template
         run: |
           env
-          sed -i "s/^version=.*/version=${{ env.VERSION }}/" xbps-template/srcpkgs/template
+          sed -i "s/^version=.*/version=${{ env.SHORT_VERSION }}/" xbps-template/srcpkgs/template
           sed -i "s/^checksum=.*/checksum=${{ env.SHA256 }}/" xbps-template/srcpkgs/template
 
       - name: ➕ Add Custom Template to Void Packages
