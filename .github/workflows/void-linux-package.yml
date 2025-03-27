@@ -33,12 +33,14 @@ jobs:
       - name: 🔢 Get Source Tarball SHA256
         id: get_sha
         run: |
+          env
           URL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/v${{ env.VERSION }}.tar.gz"
           SHA256SUM=$(curl -LfsS "$URL" | sha256sum | cut -d ' ' -f1)
           echo "SHA256=$SHA256SUM" >> $GITHUB_ENV
 
       - name: 💉 Inject Version & SHA256 into Template
         run: |
+          env
           sed -i "s/^version=.*/version=${{ env.VERSION }}/" xbps-template/template
           sed -i "s/^checksum=.*/checksum=${{ env.SHA256 }}/" xbps-template/template
 
