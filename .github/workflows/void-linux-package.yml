@@ -19,8 +19,8 @@ jobs:
       - name: 🔄 Clone Void Packages
         shell: bash
         run: |
-          git clone --depth=1 https://github.com/void-linux/void-packages.git ~/void-packages
-          cd ~/void-packages
+          git clone --depth=1 https://github.com/void-linux/void-packages.git /__w/void-packages
+          cd /__w/void-packages
           ./xbps-src binary-bootstrap
 
       - name: 📝 Get Latest Release Version
