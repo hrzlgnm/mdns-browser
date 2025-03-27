@@ -13,9 +13,10 @@ jobs:
     steps:
       - name: 📥 Install dependencies
         run: |
-          xbps-install -Syu xbps git base-devel curl jq
+          xbps-install -Syu xbps bash git base-devel curl jq
 
       - name: 🔄 Clone Void Packages
+        shell: bash
         run: |
           git clone --depth=1 https://github.com/void-linux/void-packages.git ~/void-packages
           cd ~/void-packages
@@ -24,11 +25,10 @@ jobs:
       - name: 📝 Get Latest Release Version
         id: get_version
         run: |
-          # Use the GitHub release event payload to extract the tag name.
           VERSION=$(jq -r '.release.tag_name' "$GITHUB_EVENT_PATH" | sed 's/^v//')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: 🔢 et Source Tarball SHA256
+      - name: 🔢 Get Source Tarball SHA256
         id: get_sha
         run: |
           URL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/v${{ env.VERSION }}.tar.gz"
