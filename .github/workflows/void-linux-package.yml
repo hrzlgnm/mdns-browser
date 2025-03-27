@@ -15,7 +15,7 @@ jobs:
       - name: 🔄 Clone Void Packages
         shell: bash
         run: |
-          mkdir -p /__w/w
+          sudo mkdir -p /__w/w
           sudo chown github -R /__w/w
           git clone --depth=1 https://github.com/void-linux/void-packages.git /__w/w/void-packages
           cd /__w/w/void-packages
