@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  XBPS_ALLOW_CHROOT_BREAKOUT: 1
-
+  XBPS_ALLOW_CHROOT_BREAKOUT: yes
+  XBPS_CHROOT_CMD: ethereal
 jobs:
   build:
     runs-on: ubuntu-latest
