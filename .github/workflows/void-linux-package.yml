@@ -14,6 +14,9 @@ jobs:
     container:
       image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1
     steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
       - name: 🔄 Clone Void Packages
         shell: bash
         run: |
