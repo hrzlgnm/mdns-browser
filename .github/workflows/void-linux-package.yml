@@ -48,7 +48,7 @@ jobs:
         run: |
           cd ~/void-packages
           mkdir -p srcpkgs/mdns-browser
-          cp -r $GITHUB_WORKSPACE/xbps-template/common/buildstyle/tauri.sh common/build-style/
+          cp -r $GITHUB_WORKSPACE/xbps-template/common/build-style/tauri.sh common/build-style/
           cp -r $GITHUB_WORKSPACE/xbps-template/srcpkgs/template srcpkgs/mdns-browser/
 
       - name: 🔨 Build Package
