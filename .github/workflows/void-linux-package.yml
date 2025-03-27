@@ -5,20 +5,20 @@ on:
     types: [published]
   workflow_dispatch:
 
+env:
+  XBPS_ALLOW_CHROOT_BREAKOUT: 1
+
 jobs:
   build:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1
-      options: --user github
     steps:
       - name: 🔄 Clone Void Packages
         shell: bash
         run: |
-          sudo mkdir -p /__w/w
-          sudo chown github -R /__w/w
-          git clone --depth=1 https://github.com/void-linux/void-packages.git /__w/w/void-packages
-          cd /__w/w/void-packages
+          git clone --depth=1 https://github.com/void-linux/void-packages.git ~/void-packages
+          cd ~/void-packages
           ./xbps-src binary-bootstrap
 
       - name: 📝 Get Latest Release Version
