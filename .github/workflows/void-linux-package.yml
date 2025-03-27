@@ -35,7 +35,7 @@ jobs:
         id: get_sha
         run: |
           env
-          URL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ env.FULLVERSION }}.tar.gz"
+          URL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ env.FULL_VERSION }}.tar.gz"
           SHA256SUM=$(curl -LfsS "$URL" | sha256sum | cut -d ' ' -f1)
           echo "SHA256=$SHA256SUM" >> $GITHUB_ENV
 
