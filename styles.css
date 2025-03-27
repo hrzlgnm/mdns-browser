@@ -69,11 +69,11 @@ body {
     outline: 1px solid var(--colorTransparentStroke);
 }
 
-.details-dialog-body {
+.resolved-service-details-dialog-body {
     display: flex;
     max-width: 90vw;
 }
 
-.details-dialog-scrollarea {
+.resolved-service-details-dialog-scrollarea {
     max-height: 90vh;
 }
