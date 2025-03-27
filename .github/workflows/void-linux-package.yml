@@ -27,7 +27,7 @@ jobs:
       - name: 📝 Get Latest Release Version
         id: get_version
         run: |
-          VERSION=$(jq -r '.release.tag_name' "$GITHUB_EVENT_PATH" | sed 's/^v//')
+          VERSION=$(curl -s https://api.github.com/repos/hrzlgnm/mdns-browser/releases/latest | jq -r .tag_name)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: 🔢 Get Source Tarball SHA256
