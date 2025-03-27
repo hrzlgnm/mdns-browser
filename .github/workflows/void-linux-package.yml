@@ -9,12 +9,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/void-linux/void-glibc
+      image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1
       options: --user github
     steps:
       - name: 📥 Install dependencies
         run: |
-          xbps-install -Syu xbps bash git base-devel curl jq util-linux coreutils binutils bsdtar
+          sudo xbps-install -Syu xbps bash git base-devel curl jq util-linux coreutils binutils bsdtar
 
       - name: 🔄 Clone Void Packages
         shell: bash

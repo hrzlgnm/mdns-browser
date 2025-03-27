@@ -1,0 +1,56 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    paths:
+      - ".github/docker/**/Dockerfile"
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 1 * *"
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # Needed to push to GHCR
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          fetch-depth: 2 # Fetch at least the last 2 commits for git diff to work
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+
+      - name: Detect Changed Dockerfiles
+        if: github.event_name == 'push'
+        id: changes
+        run: |
+          if git rev-parse HEAD^ >/dev/null 2>&1; then
+            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep '^.github/docker/.*/Dockerfile' | cut -d '/' -f3 | uniq)
+          else
+            CHANGED_FILES=$(git ls-tree --name-only HEAD .github/docker/* | cut -d '/' -f3 | uniq)
+          fi
+
+          echo "PACKAGES=$(echo "$CHANGED_FILES" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
+
+      - name: Force build all if triggered by workflow_dispatch or schedule
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: |
+          DIRS=$(git ls-tree --name-only HEAD .github/docker/* | cut -d '/' -f3 | uniq)
+          echo "PACKAGES=$(echo "$DIRS" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
+
+      - name: Build and Push Docker Images
+        if: env.PACKAGES != '[]'
+        run: |
+          for PACKAGE in $(echo $PACKAGES | jq -r '.[]'); do
+            IMAGE_NAME_V1="ghcr.io/${{ github.repository_owner }}/$PACKAGE:v1"
+            IMAGE_NAME_LATEST="ghcr.io/${{ github.repository_owner }}/$PACKAGE:latest"
+            echo "Building and pushing $IMAGE_NAME_V1 and $IMAGE_NAME_LATEST"
+            docker build -t "$IMAGE_NAME_V1" -t "$IMAGE_NAME_LATEST" ".github/docker/$PACKAGE"
+            docker push "$IMAGE_NAME_V1"
+            docker push "$IMAGE_NAME_LATEST"
+          done
