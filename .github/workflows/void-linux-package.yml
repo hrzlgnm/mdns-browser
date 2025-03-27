@@ -1,0 +1,77 @@
+name: Publish Void Linux XBPS Package
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: voidlinux/void-linux:latest
+    steps:
+      - name: 📥 Install dependencies
+        run: |
+          xbps-install -Syu xbps git base-devel curl jq
+          xbps-install -S void-repo-xbps
+          xbps-install -S void-packages
+
+      - name: 🔄 Clone Void Packages
+        run: |
+          git clone --depth=1 https://github.com/void-linux/void-packages.git ~/void-packages
+          cd ~/void-packages
+          ./xbps-src binary-bootstrap
+
+      - name: 📝 Get Latest Release Version
+        id: get_version
+        run: |
+          # Use the GitHub release event payload to extract the tag name.
+          VERSION=$(jq -r '.release.tag_name' "$GITHUB_EVENT_PATH" | sed 's/^v//')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: 🔢 et Source Tarball SHA256
+        id: get_sha
+        run: |
+          URL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/v${{ env.VERSION }}.tar.gz"
+          SHA256SUM=$(curl -LfsS "$URL" | sha256sum | cut -d ' ' -f1)
+          echo "SHA256=$SHA256SUM" >> $GITHUB_ENV
+
+      - name: 💉 Inject Version & SHA256 into Template
+        run: |
+          sed -i "s/^version=.*/version=${{ env.VERSION }}/" xbps-template/template
+          sed -i "s/^checksum=.*/checksum=${{ env.SHA256 }}/" xbps-template/template
+
+      - name: ➕ Add Custom Template to Void Packages
+        run: |
+          cd ~/void-packages
+          mkdir -p srcpkgs/mdns-browser
+          cp -r $GITHUB_WORKSPACE/xbps-template/common/buildstyle/tauri.sh common/build-style/
+          cp -r $GITHUB_WORKSPACE/xbps-template/srcpkgs/template srcpkgs/mdns-browser/
+
+      - name: 🔨 Build Package
+        run: |
+          cd ~/void-packages
+          ./xbps-src pkg mdns-browser
+
+      - name: 🛡️ Attest build provenance (publish release only)
+        uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # v2.2.3
+        with:
+          subject-path: |
+            ~/void-packages/hostdir/binpkgs/*.xbps
+
+      - name: Upload XBPS Package Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: xbps-package
+          path: ~/void-packages/hostdir/binpkgs/*.xbps
+
+      - name: 🚀 Upload XBPS Package to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ~/void-packages/hostdir/binpkgs/mdns-browser*.xbps
+          asset_name: mdns-browser-${{ env.VERSION }}.xbps
+          asset_content_type: application/octet-stream
