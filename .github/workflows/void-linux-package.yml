@@ -12,15 +12,13 @@ jobs:
       image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1
       options: --user github
     steps:
-      - name: 📥 Install dependencies
-        run: |
-          sudo xbps-install -Syu xbps bash git base-devel curl jq util-linux coreutils binutils bsdtar
-
       - name: 🔄 Clone Void Packages
         shell: bash
         run: |
-          git clone --depth=1 https://github.com/void-linux/void-packages.git /__w/void-packages
-          cd /__w/void-packages
+          mkdir -p /__w/w
+          sudo chown github -R /__w/w
+          git clone --depth=1 https://github.com/void-linux/void-packages.git /__w/w/void-packages
+          cd /__w/w/void-packages
           ./xbps-src binary-bootstrap
 
       - name: 📝 Get Latest Release Version
