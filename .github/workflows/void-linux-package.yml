@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: voidlinux/void-linux:latest
+      image: ghcr.io/void-linux/void-glibc
     steps:
       - name: 📥 Install dependencies
         run: |
