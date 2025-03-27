@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: 📥 Install dependencies
         run: |
-          xbps-install -Syu xbps bash git base-devel curl jq
+          xbps-install -Syu xbps bash git base-devel curl jq util-linux coreutils binutils bsdtar
 
       - name: 🔄 Clone Void Packages
         shell: bash
