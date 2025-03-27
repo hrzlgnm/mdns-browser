@@ -3,7 +3,7 @@ RUN xbps-install -Syu || xbps-install -yu xbps \
     && xbps-install -yu \
     && xbps-install -y bash git rustup base-devel curl jq util-linux coreutils binutils bsdtar shadow sudo \
     && xbps-remove -Ooy
-RUN useradd -m -s /bin/bash github && echo "github ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN useradd -m -s /bin/bash github -d /github/home && echo "github ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 LABEL org.opencontainers.image.source="https://github.com/hrzlgnm/mdns-browser"
 LABEL org.opencontainers.image.title="mDNS-Browser Void Package Builder"
 LABEL org.opencontainers.image.base.name="ghcr.io/void-linux/void-glibc"
