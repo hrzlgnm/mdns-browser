@@ -455,7 +455,7 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                     </Button>
                                     <Dialog open=show_details>
                                         <DialogSurface>
-                                            <DialogBody class="details-dialog">
+                                            <DialogBody class="details-dialog-body">
                                                 <Scrollbar class="details-dialog-scrollarea">
                                                     <Flex vertical=true>
                                                         <DialogTitle>{details_title}</DialogTitle>
