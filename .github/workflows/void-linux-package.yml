@@ -14,8 +14,6 @@ jobs:
       - name: 📥 Install dependencies
         run: |
           xbps-install -Syu xbps git base-devel curl jq
-          xbps-install -S void-repo-xbps
-          xbps-install -S void-packages
 
       - name: 🔄 Clone Void Packages
         run: |
