@@ -10,6 +10,10 @@ env:
   XBPS_CHROOT_CMD: ethereal
 jobs:
   build:
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1
@@ -64,12 +68,6 @@ jobs:
           subject-path: |
             ~/void-packages/hostdir/binpkgs/*.xbps
 
-      - name: Upload XBPS Package Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: xbps-package
-          path: ~/void-packages/hostdir/binpkgs/*.xbps
-
       - name: 🚀 Upload XBPS Package to Release
         uses: actions/upload-release-asset@v1
         env:
@@ -77,5 +75,5 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ~/void-packages/hostdir/binpkgs/mdns-browser*.xbps
-          asset_name: mdns-browser-${{ env.VERSION }}.xbps
+          asset_name: mdns-browser_${{ env.SHORT_VERSION }}.xbps
           asset_content_type: application/octet-stream
