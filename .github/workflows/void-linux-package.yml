@@ -1,13 +1,12 @@
 name: Publish Void Linux XBPS Package
 
 on:
-  #release:
-  #  types: [published]
-  workflow_dispatch:
-
+  push:
+    tags:
+      - "mdns-browser-v*"
 env:
-  XBPS_ALLOW_CHROOT_BREAKOUT: yes
-  XBPS_CHROOT_CMD: ethereal
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   build:
     permissions:
@@ -21,34 +20,31 @@ jobs:
       - name: 🔄 Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: 🔄 Clone Void Packages
+      - name: 🔄 Clone Void Packages and Bootstrap
         shell: bash
         run: |
           git clone --depth=1 https://github.com/void-linux/void-packages.git ~/void-packages
-          cd ~/void-packages
-          ln -s / masterdir
+          cd ~/void-packages 
+          ./common/travis/prepare.sh
           ./xbps-src binary-bootstrap
 
-      - name: 📝 Get Latest Release Version
-        id: get_version
+      - name: 📝 Extract version from tauri.conf.json
+        id: get-version
         run: |
-          LATEST_TAG=$(curl -s https://api.github.com/repos/hrzlgnm/mdns-browser/releases/latest | jq -r .tag_name)
-          echo "SHORT_VERSION=${LATEST_TAG#*-v}" >> $GITHUB_ENV
-          echo "FULL_VERSION=$LATEST_TAG" >> $GITHUB_ENV
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: 🔢 Get Source Tarball SHA256
-        id: get_sha
+      - name: 🔢 Get Source Tarball Checksum
+        id: get-checksum
         run: |
-          env
-          URL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ env.FULL_VERSION }}.tar.gz"
+          URL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/mdns-browser-v${{ steps.get-version.outputs.current-version }}.tar.gz"
           SHA256SUM=$(curl -LfsS "$URL" | sha256sum | cut -d ' ' -f1)
-          echo "SHA256=$SHA256SUM" >> $GITHUB_ENV
+          echo "checksum=$SHA256SUM" >> $GITHUB_OUTPUT
 
-      - name: 💉 Inject Version & SHA256 into Template
+      - name: 💉 Inject Version and checksum into template
         run: |
-          env
-          sed -i "s/^version=.*/version=${{ env.SHORT_VERSION }}/" xbps-template/srcpkgs/template
-          sed -i "s/^checksum=.*/checksum=${{ env.SHA256 }}/" xbps-template/srcpkgs/template
+          sed -i "s/^version=.*/version=${{ steps.get-version.outputs.current-version }}/" xbps-template/srcpkgs/template
+          sed -i "s/^checksum=.*/checksum=${{ steps.get-checksum.outputs.checksum }}/" xbps-template/srcpkgs/template
 
       - name: ➕ Add Custom Template to Void Packages
         run: |
@@ -68,12 +64,14 @@ jobs:
           subject-path: |
             ~/void-packages/hostdir/binpkgs/*.xbps
 
-      - name: 🚀 Upload XBPS Package to Release
-        uses: actions/upload-release-asset@v1
+      - name: 🚀 Publish
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ~/void-packages/hostdir/binpkgs/mdns-browser*.xbps
-          asset_name: mdns-browser_${{ env.SHORT_VERSION }}.xbps
-          asset_content_type: application/octet-stream
+          name: mDNS-Browser Release v${{ steps.get-version.outputs.current-version }}/
+          append_body: true
+          make_latest: false
+          generate_release_notes: false
+          files: |
+            ~/void-packages/hostdir/binpkgs/*.xbps
