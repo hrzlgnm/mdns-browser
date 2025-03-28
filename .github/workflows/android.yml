@@ -21,18 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     name: "📦"
     steps:
-      - name: 🛡️ Verify tag matches version in tauri config (publish only)
-        if: inputs.publish
-        shell: bash
-        run: |
-          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
-          TAG=${GITHUB_REF#refs/tags/}
-          if [[ "$TAG" != *"$CURRENT_VERSION" ]]
-          then
-            echo "The tag name ${TAG} does not match the version ${CURRENT_VERSION} from tauri config"
-            exit 1
-          fi
-
       - name: 📦 Run sccache
         if: ${{ !inputs.publish }}
         uses: mozilla-actions/sccache-action@v0.0.9
@@ -45,6 +33,18 @@ jobs:
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         name: 🔄 Checkout
+
+      - name: 🛡️ Verify tag matches version in tauri config (publish only)
+        if: inputs.publish
+        shell: bash
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
+          TAG=${GITHUB_REF#refs/tags/}
+          if [[ "$TAG" != *"$CURRENT_VERSION" ]]
+          then
+            echo "The tag name ${TAG} does not match the version ${CURRENT_VERSION} from tauri config"
+            exit 1
+          fi
 
       - name: ☕ Setup Java
         uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4
