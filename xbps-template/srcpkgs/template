@@ -18,7 +18,7 @@ do_build() {
     rustup-init -y -q
     . $HOME/.cargo/env
     rustup target add wasm32-unknown-unknown
-    cargo --locked install trunk@0.21.9 --no-default-features --features=rustls
+    cargo --locked install trunk@0.21.12 --no-default-features --features=rustls
     cargo --locked install tauri-cli@2.4.0
     cargo --locked install cargo-auditable@0.6.6
     cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
