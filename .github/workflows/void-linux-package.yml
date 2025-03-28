@@ -77,4 +77,4 @@ jobs:
           make_latest: false
           generate_release_notes: false
           files: |
-            ~/void-packages/hostdir/binpkgs/mdns-browser-${{ steps.get-version.outputs.current-version }}_1.x86_64.xbps
+            /github/home/void-packages/hostdir/binpkgs/mdns-browser-${{ steps.get-version.outputs.current-version }}_1.x86_64.xbps
