@@ -1,52 +1,50 @@
 {
-    $schema: "https://docs.renovatebot.com/renovate-schema.json",
-    automergeType: "pr",
+    $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+    automergeType: 'pr',
     patch: {
-        automerge: true
+        automerge: true,
     },
     minor: {
-        automerge: true
+        automerge: true,
     },
     extends: [
-        "config:best-practices",
-        ":dependencyDashboard",
-        ":enableVulnerabilityAlerts",
-        ":rebaseStalePrs",
-        ":semanticCommits",
-        ":semanticPrefixChore",
-        ":separateMajorReleases",
-        ":prImmediately",
+        'config:best-practices',
+        ':dependencyDashboard',
+        ':enableVulnerabilityAlerts',
+        ':rebaseStalePrs',
+        ':semanticCommits',
+        ':semanticPrefixChore',
+        ':separateMajorReleases',
+        ':prImmediately',
     ],
     prConcurrentLimit: 0,
     lockFileMaintenance: {
-        enabled: true
+        enabled: true,
     },
     customManagers: [
         {
-            matchStringsStrategy: "any",
-            customType: "regex",
+            matchStringsStrategy: 'any',
+            customType: 'regex',
             fileMatch: [
-                "^\\.github/workflows/.*\\.yml$"
+                '^\\.github/workflows/.*\\.yml$',
             ],
             matchStrings: [
-                "crate:\\s*(?<depName>[^\\s]+)\\s*version:\\s*(?<currentValue>[^\\s]+)"
+                'crate:\\s*(?<depName>[^\\s]+)\\s*version:\\s*(?<currentValue>[^\\s]+)',
             ],
-            depTypeTemplate: "build-dependencies",
-            datasourceTemplate: "crate",
-            // In cargo versioning, "1.2.3" doesn't mean "exactly 1.2.3" but rather ">=1.2.3 <2.0.0".
-            // We on the other hand do want to treat versions as fixed - so we change versioning strategy.
-            versioningTemplate: "semver"
+            depTypeTemplate: 'build-dependencies',
+            datasourceTemplate: 'crate',
+            versioningTemplate: 'semver',
         },
         {
-            "fileMatch": ["xbps-template/srcpkgs/template"],
-            "matchStrings": [
-                "cargo --locked install (?<depName>[a-zA-Z0-9-_]+)@(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+)"
+            customType: 'regex',
+            fileMatch: [
+                'xbps-template/srcpkgs/template',
             ],
-            "datasourceTemplate": "crates",
-            // In cargo versioning, "1.2.3" doesn't mean "exactly 1.2.3" but rather ">=1.2.3 <2.0.0".
-            // We on the other hand do want to treat versions as fixed - so we change versioning strategy.
-            versioningTemplate: "semver"
-        }
-    ]
+            matchStrings: [
+                'cargo --locked install (?<depName>[a-zA-Z0-9-_]+)@(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+)',
+            ],
+            datasourceTemplate: 'crates',
+            versioningTemplate: 'semver',
+        },
+    ],
 }
-
