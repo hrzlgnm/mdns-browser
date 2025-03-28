@@ -36,6 +36,7 @@
             versioningTemplate: 'semver',
         },
         {
+            matchStringsStrategy: 'any',
             customType: 'regex',
             fileMatch: [
                 'xbps-template/srcpkgs/template',
