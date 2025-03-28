@@ -44,11 +44,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: 📦 Run sccache
-        if: ${{ github.event.inputs.tagName == '' }}
+        if: ${{ inputs.tagName == '' }}
         uses: mozilla-actions/sccache-action@v0.0.9
 
       - name: 📦 Set Rust caching env vars only on non-release runs
-        if: ${{ github.event.inputs.tagName == '' }}
+        if: ${{ inputs.tagName == '' }}
         run: |
           echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
           echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
