@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: 📦 Run sccache
         if: ${{ inputs.publish == 'false' }}
-        uses: mDNS-Browserzilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.9
 
       - name: 📦 Set Rust caching env vars only on non-release runs
         if: ${{ inputs.publish == 'false' }}
