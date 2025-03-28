@@ -42,7 +42,7 @@
                 'xbps-template/srcpkgs/template',
             ],
             matchStrings: [
-                'cargo --locked install (?<depName>[a-zA-Z0-9_-]+)@(?<currentValue>[^\\s]+)'
+                'cargo.*install (?<depName>\\S+)@(?<currentValue>\\S+)'
             ],
             datasourceTemplate: 'crates',
             versioningTemplate: 'semver',
