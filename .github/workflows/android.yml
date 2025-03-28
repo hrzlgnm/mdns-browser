@@ -22,11 +22,11 @@ jobs:
     name: "📦"
     steps:
       - name: 📦 Run sccache
-        if: ${{ inputs.publish == 'false' }}
+        if: inputs.publish == 'false'
         uses: mozilla-actions/sccache-action@v0.0.9
 
       - name: 📦 Set Rust caching env vars only on non-release runs
-        if: ${{ inputs.publish == 'false' }}
+        if: inputs.publish == 'false'
         run: |
           echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
           echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
