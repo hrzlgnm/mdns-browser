@@ -6,6 +6,9 @@ on:
       - "mdns-browser-v*"
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  XBPS_LLOW_RESTRICTED: yes
+  XBPS_CHROOT_CMD: ethereal
+  XBPS_ALLOW_CHROOT_BREAKOUT: yes
 
 jobs:
   build:
@@ -24,8 +27,8 @@ jobs:
         shell: bash
         run: |
           git clone --depth=1 https://github.com/void-linux/void-packages.git ~/void-packages
-          cd ~/void-packages 
-          ./common/travis/prepare.sh
+          cd ~/void-packages
+          ln -s / masterdir
           ./xbps-src binary-bootstrap
 
       - name: 📝 Extract version from tauri.conf.json
