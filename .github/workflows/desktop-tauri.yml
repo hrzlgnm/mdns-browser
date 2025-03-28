@@ -44,7 +44,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: 🛡️ Verify tag matches version in tauri config (publish only)
-        if: inputs.publish
+        if: inputs.tagName != ''
         shell: bash
         run: |
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
