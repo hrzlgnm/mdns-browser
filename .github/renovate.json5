@@ -44,7 +44,8 @@
             matchStrings: [
                 'cargo.*install (?<depName>\\S+)@(?<currentValue>\\S+)'
             ],
-            datasourceTemplate: 'crates',
+            depTypeTemplate: 'build-dependencies',
+            datasourceTemplate: 'crate',
             versioningTemplate: 'semver',
         },
     ],
