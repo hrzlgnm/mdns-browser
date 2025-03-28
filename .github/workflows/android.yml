@@ -21,6 +21,18 @@ jobs:
     runs-on: ubuntu-latest
     name: "📦"
     steps:
+      - name: 🛡️ Verify tag matches version in tauri config (publish only)
+        if: inputs.publish
+        shell: bash
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
+          TAG=${GITHUB_REF#refs/tags/}
+          if [[ "$TAG" != *"$CURRENT_VERSION" ]]
+          then
+            echo "The tag name ${TAG} does not match the version ${CURRENT_VERSION} from tauri config"
+            exit 1
+          fi
+
       - name: 📦 Run sccache
         if: ${{ !inputs.publish }}
         uses: mozilla-actions/sccache-action@v0.0.9
@@ -115,7 +127,7 @@ jobs:
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
           echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: ✏️  Rename APK file (publish only)
+      - name: ✏️ Rename APK file (publish only)
         if: inputs.publish
         run: |
           mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk

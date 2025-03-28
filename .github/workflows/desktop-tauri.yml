@@ -43,6 +43,18 @@ jobs:
     name: ${{matrix.symbol}}
     runs-on: ${{ matrix.os }}
     steps:
+      - name: 🛡️ Verify tag matches version in tauri config (publish only)
+        if: inputs.publish
+        shell: bash
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          TAG=${GITHUB_REF#refs/tags/}
+          if [[ "$TAG" != *"$CURRENT_VERSION" ]]
+          then
+            echo "The tag name ${TAG} does not match the version ${CURRENT_VERSION} from tauri config"
+            exit 1
+          fi
+
       - name: 📦 Run sccache
         if: ${{ inputs.tagName == '' }}
         uses: mozilla-actions/sccache-action@v0.0.9
