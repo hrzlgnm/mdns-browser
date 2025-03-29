@@ -31,7 +31,7 @@ jobs:
           ln -s / masterdir
           mkdir -p hostdir
           ./xbps-src binary-bootstrap
-          ln /root/.cargo hostdir/cargo
+          mount --bind /root/.cargo hostdir/cargo
 
       - name: 📝 Extract version from tauri.conf.json
         id: get-version
