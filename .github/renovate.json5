@@ -39,7 +39,7 @@
             matchStringsStrategy: 'any',
             customType: 'regex',
             fileMatch: [
-                '^\\.github/docker/**/Dockerfile$',
+                '^\\.github/docker/.*/Dockerfile$',
             ],
             matchStrings: [
                 'cargo.*install (?<depName>\\S+)@(?<currentValue>\\S+)'
