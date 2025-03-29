@@ -61,6 +61,13 @@ jobs:
           cd ~/void-packages
           ./xbps-src pkg mdns-browser
 
+      - name: 🔑 Sign repository and package
+        run: |
+          cd ~/void-packages
+          echo $${{ secrets.XBPS_REPOSITORY_SIGNING_KEY }} > private.pem
+          xbps-rindex --privkey private.pem --sign --signedby "I'm Groot" hostdir/binpkgs
+          xbps-rindex --privkey private.pem --sign-pkg hostdir/binpkgs/*.xbps
+
       - name: 🛡️ Attest build provenance (publish release only)
         uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # v2.2.3
         with:
