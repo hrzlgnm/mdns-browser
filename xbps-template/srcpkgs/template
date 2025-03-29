@@ -15,7 +15,9 @@ distfiles="https://github.com/hrzlgnm/mdns-browser/archive/${pkgname}-v${version
 checksum=placeholder
 
 do_build() {
-    export PATH="${PATH}:/host/cargo/bin"
+    ln -s /host/.cargo /tmp
+    ln -s /host/.rustup /tmp
+    . /tmp/.cargo/env
     cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
     cargo fetch --locked --target wasm32-unknown-unknown
     cargo --locked auditable tauri build -b deb || true
