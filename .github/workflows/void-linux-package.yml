@@ -65,15 +65,14 @@ jobs:
         run: |
           cd ~/void-packages
           echo "${{ secrets.XBPS_REPOSITORY_SIGNING_KEY }}" > private.pem
-          xbps-rindex --privkey private.pem --sign --signedby "I'm Groot" hostdir/binpkgs
+          xbps-rindex --privkey private.pem --sign --signedby "hrzlgnm@users.noreply.github.com" hostdir/binpkgs
           xbps-rindex --privkey private.pem --sign-pkg hostdir/binpkgs/*.xbps
 
       - name: 🛡️ Attest build provenance (publish release only)
         uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # v2.2.3
         with:
           subject-path: |
-            ~/void-packages/hostdir/binpkgs/*.xbps
-            ~/void-packages/hostdir/binpkgs/x86_64-repodata
+            ~/void-packages/hostdir/binpkgs/*
 
       - name: 🚀 Publish
         uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2
@@ -86,4 +85,5 @@ jobs:
           generate_release_notes: false
           files: |
             /github/home/void-packages/hostdir/binpkgs/mdns-browser-${{ steps.get-version.outputs.current-version }}_1.x86_64.xbps
+            /github/home/void-packages/hostdir/binpkgs/mdns-browser-${{ steps.get-version.outputs.current-version }}_1.x86_64.xbps.sig2
             /github/home/void-packages/hostdir/binpkgs/x86_64-repodata
