@@ -29,7 +29,9 @@ jobs:
           git clone --depth=1 https://github.com/void-linux/void-packages.git ~/void-packages
           cd ~/void-packages
           ln -s / masterdir
+          mkdir -p hostdir
           ./xbps-src binary-bootstrap
+          ln /root/.cargo hostdir/cargo
 
       - name: 📝 Extract version from tauri.conf.json
         id: get-version
