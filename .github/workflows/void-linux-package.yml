@@ -64,7 +64,7 @@ jobs:
       - name: 🔑 Sign repository and package
         run: |
           cd ~/void-packages
-          echo ${{ secrets.XBPS_REPOSITORY_SIGNING_KEY }} > private.pem
+          echo "${{ secrets.XBPS_REPOSITORY_SIGNING_KEY }}" > private.pem
           xbps-rindex --privkey private.pem --sign --signedby "I'm Groot" hostdir/binpkgs
           xbps-rindex --privkey private.pem --sign-pkg hostdir/binpkgs/*.xbps
 
