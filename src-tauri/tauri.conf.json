@@ -9,13 +9,7 @@
         "active": true,
         "licenseFile": "../LICENSE",
         "license": "MIT",
-        "targets": [
-            "app",
-            "deb",
-            "dmg",
-            "nsis",
-            "rpm"
-        ],
+        "targets": "all",
         "icon": [
             "icons/32x32.png",
             "icons/128x128.png",
