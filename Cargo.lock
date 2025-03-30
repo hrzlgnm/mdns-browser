@@ -5862,9 +5862,9 @@ dependencies = [
 
 [[package]]
 name = "thaw"
-version = "0.4.4"
+version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a8f41188d1fbc888558e36c7a6df50905ef0cc7e62457bd98f5736746cc4b53"
+checksum = "574bb0ecc80bb659b513728afceb5cbaf03ed0207ca636f176a4b328d8d3c14d"
 dependencies = [
  "cfg-if",
  "chrono",
@@ -6783,7 +6783,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
