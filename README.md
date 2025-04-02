@@ -37,6 +37,7 @@ Screenshots from [v0.9.5](https://github.com/hrzlgnm/mdns-browser/releases/tag/m
 
 - [mDNS-Browser Overview](#mdns-browser)
   - [How to Build](#building)
+  - [Command line options](#command-line-options)
   - [Where to find the executables?](#where-to-find-the-executables)
     - [GitHub Release](#github-releases)
     - [Winget Installation](#winget-installation)
@@ -49,6 +50,29 @@ Screenshots from [v0.9.5](https://github.com/hrzlgnm/mdns-browser/releases/tag/m
 ## Building
 
 For instructions on building the application, checkout the document [BUILDING](BUILDING.md).
+
+## Command line options
+
+```
+Usage: mdns-browser [OPTIONS]
+
+Options:
+  -l, --log-level <LOG_LEVEL>  [default: info] [possible values: trace, debug, info, warn, error]
+  -f, --log-to-file            Enable logging to file
+  -h, --help                   Print help
+```
+
+### log-to-file
+
+If enabled, a log file will be created in a platform specific location:
+
+- Windows: `%LOCALAPPDATA%\com.github.hrzlgnm.mdns-browser\logs`
+- Linux: `$XDG_DATA_HOME/com.github.hrzlgnm.mdns_browser/logs` or `$HOME/.local/share/com.github.hrzlgnm.mdns-browser/logs`
+- MacOS: `~/Library/Logs/com.github.hrzlgnm.mdns_browser`
+
+See [Persisting logs](https://v2.tauri.app/plugin/logging/#persisting-logs) section of the documentation for the tuari plugin logging for more details.
+
+The log file will be named `mdns-browser.log` and will contain log messages with a log-level having at least a level specified by the `log-level` option.
 
 ## Where to find the executables?
 
