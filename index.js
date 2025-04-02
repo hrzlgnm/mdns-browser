@@ -18,5 +18,14 @@ window.addEventListener("TrunkApplicationStarted", function () {
                 }
             });
         }
+        if (input.getAttribute("placeholder")?.includes("Service")) {
+            const autocomplete = document.querySelector("div.thaw-auto-complete");
+            input.addEventListener("keydown", function (event) {
+                const inputIsValid = autocomplete.getAttribute("class")?.includes("service-type-valid");
+                if (event.key === "Enter" && inputIsValid) {
+                    if (browseButton) browseButton.click();
+                }
+            });
+        }
     }
 });
