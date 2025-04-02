@@ -104,7 +104,7 @@ echo "repository=https://github.com/hrzlgnm/mdns-browser/releases/latest/downloa
 sudo xbps-install -S mdns-browser
 ```
 
-There will be a prompt for accepting a public key signed by `hrzlgnm@users.noreply.github.com`. Which you need to accept to install the package. The repository and package are signed by with a key having the following fingerprint: `64:6d:b9:23:3d:ad:9d:f1:b0:fe:64:8e:da:46:57:d3`.
+During installation, you will be prompted to accept a public key signed by `hrzlgnm@users.noreply.github.com`. The repository and package are signed with a key having the fingerprint: `64:6d:b9:23:3d:ad:9d:f1:b0:fe:64:8e:da:46:57:d3`.
 
 ## Privacy
 
