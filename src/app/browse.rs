@@ -210,9 +210,6 @@ fn AutoCompleteServiceType(
             .into_iter()
             .filter(|s| {
                 let input = value.get().clone();
-                if input.len() < 3 {
-                    return true;
-                }
                 let lookup = get_prefix(input.as_str());
                 let prefix = get_prefix(s.split('.').next().unwrap_or(s));
                 jaro_winkler(lookup, prefix) >= 0.75 || is_subsequence(lookup, prefix)
