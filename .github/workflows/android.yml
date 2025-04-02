@@ -21,16 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     name: "📦"
     steps:
-      - name: 📦 Run sccache
-        if: ${{ !inputs.publish }}
-        uses: mozilla-actions/sccache-action@v0.0.9
-
-      - name: 📦 Set Rust caching env vars only on non-release runs
-        if: ${{ !inputs.publish }}
-        run: |
-          echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
-          echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
-
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         name: 🔄 Checkout
 
