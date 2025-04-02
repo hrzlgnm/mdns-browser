@@ -41,6 +41,7 @@ Screenshots from [v0.9.5](https://github.com/hrzlgnm/mdns-browser/releases/tag/m
     - [GitHub Release](#github-releases)
     - [Winget Installation](#winget-installation)
     - [Arch Linux (AUR)](#arch-linux-aur)
+    - [Void Linux](#void-linux)
   - [Privacy](#privacy)
   - [Acknowledgments](#acknowledgments)
   <!--toc:end-->
@@ -91,6 +92,20 @@ Alternatively using the -bin package:
 paru -S mdns-browser-bin
 ```
 
+### Void Linux
+
+To install on Void Linux with arch `x86_64`, you can add the GitHub release as a repository and install the package using `xbps-install`:
+
+```console
+# Add the repository
+echo `repository=https://github.com/hrzlgnm/mdns-browser/releases/latest/download` | sudo tee /etc/xbps.d/mdns-browser-repo.conf
+
+# Install the package
+sudo xbps-install -S mdns-browser
+```
+
+There will be a prompt for accepting a public key signed by `hrzlgnm@users.noreply.github.com`. Which you need to accept to install the package. The repository and package are signed by with a key having the following fingerprint: `64:6d:b9:23:3d:ad:9d:f1:b0:fe:64:8e:da:46:57:d3`.
+
 ## Privacy
 
 For a privacy statement checkout the document [PRIVACY](PRIVACY.md).
@@ -98,3 +113,7 @@ For a privacy statement checkout the document [PRIVACY](PRIVACY.md).
 ## Acknowledgments
 
 This app uses the fantastic [mdns-sd library](https://github.com/keepsimple1/mdns-sd)to handle all mDNS functionality. If you find this app helpful, consider giving the library a star on GitHub!
+
+```
+
+```
