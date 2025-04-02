@@ -37,7 +37,7 @@ jobs:
           commit-message: "chore(version) : bump to ${{ env.new_version }}"
           sign-commits: true
           base: main
-          branch: chore/bump-version-${{ env.new_version }}
+          branch: bump/version-${{ env.new_version }}
           branch-suffix: random
           labels: |
             chore
