@@ -98,7 +98,7 @@ To install on Void Linux with arch `x86_64`, you can add the GitHub release as a
 
 ```console
 # Add the repository
-echo `repository=https://github.com/hrzlgnm/mdns-browser/releases/latest/download` | sudo tee /etc/xbps.d/mdns-browser-repo.conf
+echo "repository=https://github.com/hrzlgnm/mdns-browser/releases/latest/download" | sudo tee /etc/xbps.d/mdns-browser-repo.conf
 
 # Install the package
 sudo xbps-install -S mdns-browser
