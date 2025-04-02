@@ -7,28 +7,26 @@
 window.addEventListener("TrunkApplicationStarted", function () {
     const browseButton = document.querySelector("button.thaw-button--primary");
     const inputs = document.querySelectorAll("input.thaw-input__input");
+    const autocomplete = document.querySelector("div.thaw-auto-complete");
+    function handleEnterKey(event, isValid = true) {
+        if (event.key === "Enter" && isValid && browseButton) {
+            event.preventDefault();
+            browseButton.click();
+        }
+    }
     for (const input of inputs) {
         input.setAttribute("autocapitalize", "none");
         input.setAttribute("autocorrect", "off");
         input.setAttribute("spellcheck", "false");
         if (input.getAttribute("placeholder")?.includes("Quick")) {
             input.addEventListener("keydown", function (event) {
-                if (event.key === "Enter") {
-                    if (browseButton) {
-                        browseButton.click();
-                    }
-                }
+                handleEnterKey(event);
             });
         }
         if (input.getAttribute("placeholder")?.includes("Service")) {
-            const autocomplete = document.querySelector("div.thaw-auto-complete");
             input.addEventListener("keydown", function (event) {
                 const inputIsValid = autocomplete?.getAttribute("class")?.includes("service-type-valid");
-                if (event.key === "Enter" && inputIsValid) {
-                    if (browseButton) {
-                        browseButton.click();
-                    }
-                }
+                handleEnterKey(event, inputIsValid);
             });
         }
     }
