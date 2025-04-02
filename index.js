@@ -23,7 +23,7 @@ window.addEventListener("TrunkApplicationStarted", function () {
             input.addEventListener("keydown", function (event) {
                 const inputIsValid = autocomplete.getAttribute("class")?.includes("service-type-valid");
                 if (event.key === "Enter" && inputIsValid) {
-                    if (browseButton) browseButton.click();
+                    if (browseButton) {
                 }
             });
         }
