@@ -292,9 +292,6 @@ fn x11_workaround() {
     match std::env::var(session_type_key) {
         Ok(val) => {
             if val == "x11" {
-                println!(
-                    "Setting WEBKIT_DISABLE_DMABUF_RENDERER=1 to workaround rendering issues with x11 session"
-                );
                 std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1")
             }
         }
