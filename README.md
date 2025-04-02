@@ -41,6 +41,7 @@ Screenshots from [v0.9.5](https://github.com/hrzlgnm/mdns-browser/releases/tag/m
     - [GitHub Release](#github-releases)
     - [Winget Installation](#winget-installation)
     - [Arch Linux (AUR)](#arch-linux-aur)
+    - [Void Linux](#void-linux)
   - [Privacy](#privacy)
   - [Acknowledgments](#acknowledgments)
   <!--toc:end-->
@@ -90,6 +91,20 @@ Alternatively using the -bin package:
 ```console
 paru -S mdns-browser-bin
 ```
+
+### Void Linux
+
+To install on Void Linux with arch `x86_64`, you can add the GitHub release as a repository and install the package using `xbps-install`:
+
+```console
+# Add the repository
+echo "repository=https://github.com/hrzlgnm/mdns-browser/releases/latest/download" | sudo tee /etc/xbps.d/mdns-browser-repo.conf
+
+# Install the package
+sudo xbps-install -S mdns-browser
+```
+
+During installation, you will be prompted to accept a public key signed by `hrzlgnm@users.noreply.github.com`. The repository and package are signed with a key having the fingerprint: `64:6d:b9:23:3d:ad:9d:f1:b0:fe:64:8e:da:46:57:d3`.
 
 ## Privacy
 
