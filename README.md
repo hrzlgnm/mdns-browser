@@ -53,7 +53,7 @@ For instructions on building the application, checkout the document [BUILDING](B
 
 ## Command line options
 
-```
+```console
 Usage: mdns-browser [OPTIONS]
 
 Options:
@@ -64,11 +64,11 @@ Options:
 
 ### log-to-file
 
-If enabled, a log file will be created in a platform specific location:
+If enabled, a log file will be created in a platform-specific location:
 
 - Windows: `%LOCALAPPDATA%\com.github.hrzlgnm.mdns-browser\logs`
 - Linux: `$XDG_DATA_HOME/com.github.hrzlgnm.mdns-browser/logs` or `$HOME/.local/share/com.github.hrzlgnm.mdns-browser/logs`
-- MacOS: `~/Library/Logs/com.github.hrzlgnm.mdns-browser`
+- nacOS: `~/Library/Logs/com.github.hrzlgnm.mdns-browser`
 
 The log file will be named `mdns-browser.log` and will contain log messages with a log-level having at least a level specified by the `log-level` option.
 
