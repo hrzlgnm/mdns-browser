@@ -7,7 +7,7 @@
 
 This application allows you to browse services using mDNS.
 
-Screenshots from [v0.9.5](https://github.com/hrzlgnm/mdns-browser/releases/tag/mdns-browser-v0.9.5)
+Screenshots from [v0.11.28](https://github.com/hrzlgnm/mdns-browser/releases/tag/mdns-browser-v0.11.28)
 
 ### Startup
 
