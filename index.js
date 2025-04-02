@@ -14,16 +14,20 @@ window.addEventListener("TrunkApplicationStarted", function () {
         if (input.getAttribute("placeholder")?.includes("Quick")) {
             input.addEventListener("keydown", function (event) {
                 if (event.key === "Enter") {
-                    if (browseButton) browseButton.click();
+                    if (browseButton) {
+                        browseButton.click();
+                    }
                 }
             });
         }
         if (input.getAttribute("placeholder")?.includes("Service")) {
             const autocomplete = document.querySelector("div.thaw-auto-complete");
             input.addEventListener("keydown", function (event) {
-                const inputIsValid = autocomplete.getAttribute("class")?.includes("service-type-valid");
+                const inputIsValid = autocomplete?.getAttribute("class")?.includes("service-type-valid");
                 if (event.key === "Enter" && inputIsValid) {
                     if (browseButton) {
+                        browseButton.click();
+                    }
                 }
             });
         }
