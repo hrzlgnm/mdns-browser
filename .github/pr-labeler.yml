@@ -1,4 +1,5 @@
 enhancement: ["feature/*", "feat/*"]
+ignore: ["bump/version*"]
 chore: ["chore/*"]
 refactor: ["refactor/*"]
 documentation: ["docs/*"]
