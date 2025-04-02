@@ -17,7 +17,6 @@ on:
         required: true
       TAURI_KEY_PASSWORD:
         required: true
-
 jobs:
   build:
     strategy:
@@ -43,16 +42,6 @@ jobs:
     name: ${{matrix.symbol}}
     runs-on: ${{ matrix.os }}
     steps:
-      - name: 📦 Run sccache
-        if: ${{ inputs.tagName == '' }}
-        uses: mozilla-actions/sccache-action@v0.0.9
-
-      - name: 📦 Set Rust caching env vars only on non-release runs
-        if: ${{ inputs.tagName == '' }}
-        run: |
-          echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
-          echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
-
       - name: 🔄 Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
