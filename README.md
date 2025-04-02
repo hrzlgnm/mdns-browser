@@ -67,8 +67,8 @@ Options:
 If enabled, a log file will be created in a platform specific location:
 
 - Windows: `%LOCALAPPDATA%\com.github.hrzlgnm.mdns-browser\logs`
-- Linux: `$XDG_DATA_HOME/com.github.hrzlgnm.mdns_browser/logs` or `$HOME/.local/share/com.github.hrzlgnm.mdns-browser/logs`
-- MacOS: `~/Library/Logs/com.github.hrzlgnm.mdns_browser`
+- Linux: `$XDG_DATA_HOME/com.github.hrzlgnm.mdns-browser/logs` or `$HOME/.local/share/com.github.hrzlgnm.mdns-browser/logs`
+- MacOS: `~/Library/Logs/com.github.hrzlgnm.mdns-browser`
 
 See [Persisting logs](https://v2.tauri.app/plugin/logging/#persisting-logs) section of the documentation for the tuari plugin logging for more details.
 
