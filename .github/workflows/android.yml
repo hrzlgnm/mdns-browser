@@ -53,6 +53,15 @@ jobs:
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
 
+      - name: 📦 Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/master' }}
+          workspaces: |
+            shared_constants -> ./target
+            models -> ./target
+            src-tauri -> ./target
+
       - name: 📝 Check spelling using typos-action
         uses: crate-ci/typos@b1a1ef3893ff35ade0cfa71523852a49bfd05d19 # v1.31.1
 

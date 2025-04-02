@@ -63,13 +63,14 @@ jobs:
           components: rustfmt, clippy
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
 
-      - name: 🌍 Export GitHub Actions cache environment variables windows
-        if: contains(matrix.os, 'windows')
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
+      - name: 📦 Rust cache
+        uses: Swatinem/rust-cache@v2
         with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+          save-if: ${{ github.ref == 'refs/heads/master' }}
+          workspaces: |
+            shared_constants -> ./target
+            models -> ./target
+            src-tauri -> ./target
 
       - name: 🛠️ Setup | Install dependencies
         if: matrix.install != ''
