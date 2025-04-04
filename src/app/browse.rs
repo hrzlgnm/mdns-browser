@@ -267,6 +267,16 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
             }
         });
     let address = resolved_service.addresses.first();
+    address?;
+    let address = address.unwrap();
+    match address {
+        std::net::IpAddr::V4(_) => {}
+        std::net::IpAddr::V6(ipv6_addr) => {
+            if ipv6_addr.is_unicast_link_local() {
+                return None;
+            }
+        }
+    }
     let internal_url = resolved_service
         .txt
         .iter()
@@ -276,17 +286,13 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
     match (resolved_service.service_type.as_str(), internal_url) {
         ("_http._tcp.local.", _) => Some(format!(
             "http://{}:{}{}",
-            address
-                .map(|t| t.to_string())
-                .unwrap_or_else(|| resolved_service.hostname.clone()),
+            address,
             resolved_service.port,
             path.unwrap_or_else(|| "/".to_string())
         )),
         ("_https._tcp.local.", _) => Some(format!(
             "https://{}:{}{}",
-            address
-                .map(|t| t.to_string())
-                .unwrap_or_else(|| resolved_service.hostname.clone()),
+            address,
             resolved_service.port,
             path.unwrap_or_else(|| "/".to_string())
         )),
