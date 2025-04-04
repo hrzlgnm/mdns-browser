@@ -13,7 +13,6 @@ clap = { version = "4.5.19", features = ["derive"] }
 tauri-plugin-log = "2.0.0"
 tauri-plugin-updater = "2.0.1"
 thiserror = "2.0.0"
-tokio = "1.40.0"
 
 [dependencies]
 # crates
@@ -24,11 +23,11 @@ serde_json = "1.0.128"
 tauri = { version = "2.0.0", features = [] }
 tauri-plugin-clipboard-manager = "2.0.0"
 tauri-plugin-opener = "2.2.0"
+tokio = { version = "1.40.0", features = ["time"] }
 
 # local
 models = { path = "../models" }
 shared_constants = { path = "../shared_constants" }
-tokio = { version = "1.40.0", features = ["time"] }
 
 [lib]
 name = "mdns_browser_lib"
