@@ -249,7 +249,7 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
             loop {
                 tokio::time::sleep(METRICS_CHECK_INTERVAL).await;
                 if let Ok(metrics_receiver) = mdns_for_task.get_metrics() {
-                    if let Ok(metrics) = metrics_receiver.recv() {
+                    if let Ok(metrics) = metrics_receiver.recv_async().await {
                         if old_metrics != metrics {
                             emit_event(
                                 &window,
