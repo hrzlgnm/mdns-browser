@@ -284,9 +284,7 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
                 format!("/{}", p)
             }
         });
-    let address = extract_first_non_ipv6_link_local(resolved_service);
-    address?;
-    let address = address.unwrap();
+    let address = extract_first_non_ipv6_link_local(resolved_service)?;
     let internal_url = resolved_service
         .txt
         .iter()
