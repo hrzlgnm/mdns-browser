@@ -84,16 +84,16 @@ where
 #[tauri::command]
 fn browse_types(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
-        let mdns_for_thread = mdns.clone();
-        std::thread::spawn(move || {
-            let receiver = match mdns_for_thread.browse(MDNS_SD_META_SERVICE) {
+        let mdns_for_task = mdns.clone();
+        tauri::async_runtime::spawn(async move {
+            let receiver = match mdns_for_task.browse(MDNS_SD_META_SERVICE) {
                 Ok(receiver) => receiver,
                 Err(e) => {
                     log::error!("Failed to browse for service types: {:?}", e);
                     return;
                 }
             };
-            while let Ok(event) = receiver.recv() {
+            while let Ok(event) = receiver.recv_async().await {
                 match event {
                     ServiceEvent::ServiceFound(_service_type, full_name) => {
                         log::debug!("Service type found: {}", full_name);
@@ -139,7 +139,7 @@ fn browse_types(window: Window, state: State<ManagedState>) {
                     }
                 }
             }
-            log::debug!("Browse type thread ending.");
+            log::debug!("Browse type task ending.");
         });
     }
 }
@@ -186,8 +186,8 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
                         }
                     };
                     let window = window.clone();
-                    std::thread::spawn(move || {
-                        while let Ok(event) = receiver.recv() {
+                    tauri::async_runtime::spawn(async move {
+                        while let Ok(event) = receiver.recv_async().await {
                             match event {
                                 ServiceEvent::ServiceFound(_service_type, instance_name) => {
                                     emit_event(
@@ -232,7 +232,7 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
                                 }
                             }
                         }
-                        log::debug!("Browse thread for {} ending.", &service_type);
+                        log::debug!("Browse task for {} ending.", &service_type);
                     });
                 }
             }
@@ -243,21 +243,23 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
 #[tauri::command]
 fn subscribe_metrics(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
-        let mdns_for_thread = mdns.clone();
+        let mdns_for_task = mdns.clone();
         let mut old_metrics = HashMap::new();
-        std::thread::spawn(move || loop {
-            std::thread::sleep(METRICS_CHECK_INTERVAL);
-            if let Ok(metrics_receiver) = mdns_for_thread.get_metrics() {
-                if let Ok(metrics) = metrics_receiver.recv() {
-                    if old_metrics != metrics {
-                        emit_event(
-                            &window,
-                            "metrics",
-                            &MetricsEvent {
-                                metrics: metrics.clone(),
-                            },
-                        );
-                        old_metrics = metrics;
+        tauri::async_runtime::spawn(async move {
+            loop {
+                tokio::time::sleep(METRICS_CHECK_INTERVAL).await;
+                if let Ok(metrics_receiver) = mdns_for_task.get_metrics() {
+                    if let Ok(metrics) = metrics_receiver.recv() {
+                        if old_metrics != metrics {
+                            emit_event(
+                                &window,
+                                "metrics",
+                                &MetricsEvent {
+                                    metrics: metrics.clone(),
+                                },
+                            );
+                            old_metrics = metrics;
+                        }
                     }
                 }
             }
