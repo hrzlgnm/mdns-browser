@@ -263,7 +263,7 @@ fn drop_trailing_dot(fqn: &str) -> String {
 /// ```
 fn drop_local_and_last_dot(fqn: &str) -> String {
     let without_local = fqn.strip_suffix(".local.").unwrap_or(fqn);
-    drop_trailing_dot(without_local).to_owned()
+    drop_trailing_dot(without_local)
 }
 
 /// Extracts the first valid IP address from a resolved service.
