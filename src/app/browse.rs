@@ -249,15 +249,15 @@ fn drop_trailing_dot(fqn: &str) -> String {
 }
 
 /// Removes a trailing ".local." suffix and any trailing dot from the provided string.
-/// 
+///
 /// If the input ends with ".local.", that suffix is removed. Afterwards, any trailing dot is also removed.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```
 /// let result = drop_local_and_last_dot("example.local.");
 /// assert_eq!(result, "example");
-/// 
+///
 /// let alias = drop_local_and_last_dot("service.");
 /// assert_eq!(alias, "service");
 /// ```
@@ -315,6 +315,7 @@ fn extract_first_non_ipv6_link_local(
             }
         })
 }
+
 fn format_address(address: &std::net::IpAddr) -> String {
     if address.is_ipv6() {
         format!("[{}]", address)
@@ -324,18 +325,18 @@ fn format_address(address: &std::net::IpAddr) -> String {
 }
 
 /// Constructs an open URL for a resolved service based on its service type and TXT records.
-/// 
+///
 /// The function extracts a "path" from the service's TXT records—ensuring it starts with a '/'—and retrieves a valid IP address
 /// using `extract_first_non_ipv6_link_local`. Depending on the service type, it returns:
-/// 
+///
 /// - An HTTP URL for services of type "_http._tcp.local.".
 /// - An HTTPS URL for services of type "_https._tcp.local.".
 /// - The value of the "internal_url" TXT record for services of type "_home-assistant._tcp.local." if available.
-/// 
+///
 /// If no valid IP address is found or the service type doesn't match any expected pattern, the function returns `None`.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```
 /// // Example for an HTTP service.
 /// let resolved_service = ResolvedService {
@@ -347,7 +348,7 @@ fn format_address(address: &std::net::IpAddr) -> String {
 ///     }],
 ///     // Other necessary fields for ResolvedService, including IP address details.
 /// };
-/// 
+///
 /// if let Some(url) = get_open_url(&resolved_service) {
 ///     // Expected URL format: "http://<ip_address>:8080/dashboard"
 ///     println!("Service URL: {}", url);
@@ -368,9 +369,7 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
                 format!("/{}", p)
             }
         });
-    let address = extract_first_non_ipv6_link_local(resolved_service);
-    address?;
-    let address = address.unwrap();
+    let address = extract_first_non_ipv6_link_local(resolved_service)?;
     let internal_url = resolved_service
         .txt
         .iter()
