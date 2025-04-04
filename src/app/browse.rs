@@ -248,11 +248,130 @@ fn drop_trailing_dot(fqn: &str) -> String {
     fqn.strip_suffix(".").unwrap_or(fqn).to_owned()
 }
 
+/// Removes a trailing ".local." suffix and any trailing dot from the provided string.
+///
+/// If the input ends with ".local.", that suffix is removed. Afterwards, any trailing dot is also removed.
+///
+/// # Examples
+///
+/// ```
+/// let result = drop_local_and_last_dot("example.local.");
+/// assert_eq!(result, "example");
+///
+/// let alias = drop_local_and_last_dot("service.");
+/// assert_eq!(alias, "service");
+/// ```
 fn drop_local_and_last_dot(fqn: &str) -> String {
     let without_local = fqn.strip_suffix(".local.").unwrap_or(fqn);
-    drop_trailing_dot(without_local).to_owned()
+    drop_trailing_dot(without_local)
 }
 
+/// Extracts the first valid IP address from a resolved service.
+///
+/// Iterates over the list of IP addresses in the given resolved service and returns the first one that is either:
+/// - An IPv4 address, or
+/// - An IPv6 address that is not unicast link-local.
+///
+/// Returns `None` if no suitable IP address is found.
+///
+/// # Examples
+///
+/// ```
+/// use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+///
+/// // Dummy definition for demonstration purposes.
+/// struct ResolvedService {
+///     addresses: Vec<IpAddr>,
+/// }
+///
+/// let service = ResolvedService {
+///     addresses: vec![
+///         // This IPv6 address is unicast link-local and will be skipped.
+///         IpAddr::V6(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 1)),
+///         // This IPv4 address is valid and will be returned.
+///         IpAddr::V4(Ipv4Addr::new(192, 168, 1, 5)),
+///         // This IPv6 address is not link-local and would also be valid if encountered first.
+///         IpAddr::V6(Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 1)),
+///     ],
+/// };
+///
+/// let address = extract_first_non_ipv6_link_local(&service).unwrap();
+/// assert_eq!(address, IpAddr::V4(Ipv4Addr::new(192, 168, 1, 5)));
+/// ```
+fn extract_first_non_ipv6_link_local(
+    resolved_service: &ResolvedService,
+) -> Option<std::net::IpAddr> {
+    resolved_service
+        .addresses
+        .iter()
+        .find_map(|&address| match address {
+            std::net::IpAddr::V4(_) => Some(address),
+            std::net::IpAddr::V6(ipv6_addr) => {
+                if !ipv6_addr.is_unicast_link_local() {
+                    Some(address)
+                } else {
+                    None
+                }
+            }
+        })
+}
+
+/// Formats an IP address as a string, wrapping IPv6 addresses in square brackets.
+///
+/// This function is used when constructing URLs, where IPv6 addresses need to be wrapped in
+/// square brackets to distinguish them from port numbers.
+///
+/// # Examples
+///
+/// ```
+/// use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+///
+/// let ipv4 = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
+/// assert_eq!(format_address(&ipv4), "192.168.1.1");
+///
+/// let ipv6 = IpAddr::V6(Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 1));
+/// assert_eq!(format_address(&ipv6), "[2001:db8::1]");
+/// ```
+fn format_address(address: &std::net::IpAddr) -> String {
+    if address.is_ipv6() {
+        format!("[{}]", address)
+    } else {
+        address.to_string()
+    }
+}
+
+/// Constructs an open URL for a resolved service based on its service type and TXT records.
+///
+/// The function extracts a "path" from the service's TXT records—ensuring it starts with a '/'—and retrieves a valid IP address
+/// using `extract_first_non_ipv6_link_local`. Depending on the service type, it returns:
+///
+/// - An HTTP URL for services of type "_http._tcp.local.".
+/// - An HTTPS URL for services of type "_https._tcp.local.".
+/// - The value of the "internal_url" TXT record for services of type "_home-assistant._tcp.local." if available.
+///
+/// If no valid IP address is found or the service type doesn't match any expected pattern, the function returns `None`.
+///
+/// # Examples
+///
+/// ```
+/// // Example for an HTTP service.
+/// let resolved_service = ResolvedService {
+///     service_type: "_http._tcp.local.".to_string(),
+///     port: 8080,
+///     txt: vec![TextRecord {
+///         key: "path".to_string(),
+///         val: Some("dashboard".to_string()),
+///     }],
+///     // Other necessary fields for ResolvedService, including IP address details.
+/// };
+///
+/// if let Some(url) = get_open_url(&resolved_service) {
+///     // Expected URL format: "http://<ip_address>:8080/dashboard"
+///     println!("Service URL: {}", url);
+/// } else {
+///     println!("No valid URL could be constructed");
+/// }
+/// ```
 fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
     let path = resolved_service
         .txt
@@ -266,7 +385,7 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
                 format!("/{}", p)
             }
         });
-    let address = resolved_service.addresses.first();
+    let address = extract_first_non_ipv6_link_local(resolved_service)?;
     let internal_url = resolved_service
         .txt
         .iter()
@@ -276,17 +395,13 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
     match (resolved_service.service_type.as_str(), internal_url) {
         ("_http._tcp.local.", _) => Some(format!(
             "http://{}:{}{}",
-            address
-                .map(|t| t.to_string())
-                .unwrap_or_else(|| resolved_service.hostname.clone()),
+            format_address(&address),
             resolved_service.port,
             path.unwrap_or_else(|| "/".to_string())
         )),
         ("_https._tcp.local.", _) => Some(format!(
             "https://{}:{}{}",
-            address
-                .map(|t| t.to_string())
-                .unwrap_or_else(|| resolved_service.hostname.clone()),
+            format_address(&address),
             resolved_service.port,
             path.unwrap_or_else(|| "/".to_string())
         )),
