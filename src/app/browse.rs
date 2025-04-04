@@ -270,6 +270,13 @@ fn extract_first_non_ipv6_link_local(
             }
         })
 }
+fn format_address(address: &std::net::IpAddr) -> String {
+    if address.is_ipv6() {
+        format!("[{}]", address)
+    } else {
+        address.to_string()
+    }
+}
 
 fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
     let path = resolved_service
@@ -294,13 +301,13 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
     match (resolved_service.service_type.as_str(), internal_url) {
         ("_http._tcp.local.", _) => Some(format!(
             "http://{}:{}{}",
-            address,
+            format_address(&address),
             resolved_service.port,
             path.unwrap_or_else(|| "/".to_string())
         )),
         ("_https._tcp.local.", _) => Some(format!(
             "https://{}:{}{}",
-            address,
+            format_address(&address),
             resolved_service.port,
             path.unwrap_or_else(|| "/".to_string())
         )),
