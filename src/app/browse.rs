@@ -253,6 +253,24 @@ fn drop_local_and_last_dot(fqn: &str) -> String {
     drop_trailing_dot(without_local).to_owned()
 }
 
+fn extract_first_non_ipv6_link_local(
+    resolved_service: &ResolvedService,
+) -> Option<std::net::IpAddr> {
+    resolved_service
+        .addresses
+        .iter()
+        .find_map(|&address| match address {
+            std::net::IpAddr::V4(_) => Some(address),
+            std::net::IpAddr::V6(ipv6_addr) => {
+                if !ipv6_addr.is_unicast_link_local() {
+                    Some(address)
+                } else {
+                    None
+                }
+            }
+        })
+}
+
 fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
     let path = resolved_service
         .txt
@@ -266,17 +284,9 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
                 format!("/{}", p)
             }
         });
-    let address = resolved_service.addresses.first();
+    let address = extract_first_non_ipv6_link_local(resolved_service);
     address?;
     let address = address.unwrap();
-    match address {
-        std::net::IpAddr::V4(_) => {}
-        std::net::IpAddr::V6(ipv6_addr) => {
-            if ipv6_addr.is_unicast_link_local() {
-                return None;
-            }
-        }
-    }
     let internal_url = resolved_service
         .txt
         .iter()
