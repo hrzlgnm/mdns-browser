@@ -316,6 +316,22 @@ fn extract_first_non_ipv6_link_local(
         })
 }
 
+/// Formats an IP address as a string, wrapping IPv6 addresses in square brackets.
+///
+/// This function is used when constructing URLs, where IPv6 addresses need to be wrapped in
+/// square brackets to distinguish them from port numbers.
+///
+/// # Examples
+///
+/// ```
+/// use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+///
+/// let ipv4 = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
+/// assert_eq!(format_address(&ipv4), "192.168.1.1");
+///
+/// let ipv6 = IpAddr::V6(Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 1));
+/// assert_eq!(format_address(&ipv6), "[2001:db8::1]");
+/// ```
 fn format_address(address: &std::net::IpAddr) -> String {
     if address.is_ipv6() {
         format!("[{}]", address)
