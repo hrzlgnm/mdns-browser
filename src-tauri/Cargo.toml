@@ -28,6 +28,7 @@ tauri-plugin-opener = "2.2.0"
 # local
 models = { path = "../models" }
 shared_constants = { path = "../shared_constants" }
+tokio = { version = "1.40.0", features = ["time"] }
 
 [lib]
 name = "mdns_browser_lib"
