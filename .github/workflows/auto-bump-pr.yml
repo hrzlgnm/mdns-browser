@@ -40,7 +40,7 @@ jobs:
           branch: bump/version-${{ env.new_version }}
           branch-suffix: random
           labels: |
-            chore
+            ignore
             automated pr
           delete-branch: true
           title: "chore(version): bump version to ${{ env.new_version }}"
