@@ -23,12 +23,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: "macos-latest" # for Arm based macs (M1 and above).
-            args: "--target aarch64-apple-darwin"
+          - os: "macos-latest"
+            args: "--target universal-apple-darwin"
             symbol: 🍏
-          - os: "macos-latest" # for Intel based macs.
-            args: "--target x86_64-apple-darwin"
-            symbol: 🍎
           - os: "ubuntu-22.04"
             symbol: 🐧
             install: |
