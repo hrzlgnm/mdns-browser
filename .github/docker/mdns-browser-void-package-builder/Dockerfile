@@ -6,7 +6,7 @@ RUN xbps-install -Syu || xbps-install -yu xbps \
 RUN rustup-init -y -q \
     && . $HOME/.cargo/env \
     && rustup target add wasm32-unknown-unknown \
-    && cargo --locked install trunk@0.21.12 --no-default-features --features rustls \
+    && cargo --locked install trunk@0.21.13 --no-default-features --features rustls \
     && cargo --locked install tauri-cli@2.4.1 \
     && cargo --locked install cargo-auditable@0.6.6 \
     && rm -rf $HOME/.cargo/registry $HOME/.cargo/git
