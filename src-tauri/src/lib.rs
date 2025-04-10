@@ -243,12 +243,12 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
     }
 }
 
-static SUBCRIBE_METRICS_STARTER: Once = Once::new();
+static SUBSCRIBE_METRICS_STARTER: Once = Once::new();
 
 #[tauri::command]
 fn subscribe_metrics(window: Window, state: State<ManagedState>) {
     // Avoid multiple subscriptions when the frontend is reloaded.
-    SUBCRIBE_METRICS_STARTER.call_once(|| {
+    SUBSCRIBE_METRICS_STARTER.call_once(|| {
         if let Ok(mdns) = state.daemon.lock() {
             let mdns_for_task = mdns.clone();
             let mut old_metrics = HashMap::new();
