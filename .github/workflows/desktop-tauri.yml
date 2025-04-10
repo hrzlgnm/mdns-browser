@@ -213,7 +213,6 @@ jobs:
           subject-path: ${{
             contains(matrix.os, 'ubuntu') && 'target/release/mdns-browser' ||
             contains(matrix.os, 'windows') && 'target/release/mdns-browser.exe' ||
-            (contains(matrix.os, 'macos') && contains(matrix.args, 'x86_64')) && 'target/x86_64-apple-darwin/release/mdns-browser' ||
-            (contains(matrix.os, 'macos') && contains(matrix.args, 'aarch64')) && 'target/aarch64-apple-darwin/release/mdns-browser'
+            contains(matrix.os, 'macos') && 'target/universal-apple-darwin/release/mdns-browser'
             }}
           sbom-path: "sbom.spdx.json"
