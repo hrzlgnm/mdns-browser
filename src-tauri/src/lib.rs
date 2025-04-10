@@ -289,15 +289,68 @@ fn version(window: Window) -> String {
 
 #[cfg(desktop)]
 #[cfg(target_os = "linux")]
-fn x11_workaround() {
-    let session_type_key = "XDG_SESSION_TYPE";
-    match std::env::var(session_type_key) {
-        Ok(val) => {
-            if val == "x11" {
-                std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1")
+mod nvidia {
+    use std::fs::File;
+    use std::io::{self, BufRead};
+    use std::path::Path;
+    use std::process::Command;
+
+    fn check_xorg_log() -> io::Result<bool> {
+        let path = "/var/log/Xorg.0.log";
+        if Path::new(path).exists() {
+            let file = File::open(path)?;
+            let found = io::BufReader::new(file)
+                .lines()
+                .map_while(Result::ok)
+                .any(|line| line.to_lowercase().contains("nvidia"));
+            return Ok(found);
+        }
+        Ok(false)
+    }
+
+    fn check_nvidia_smi() -> bool {
+        match Command::new("nvidia-smi")
+            .arg("--query-gpu=name")
+            .arg("--format=csv,noheader")
+            .output()
+        {
+            Ok(output) => output.status.success() && !output.stdout.is_empty(),
+            Err(_) => false,
+        }
+    }
+
+    fn check_glxinfo() -> bool {
+        let output = Command::new("sh")
+            .arg("-c")
+            .arg("glxinfo | grep 'OpenGL renderer string'")
+            .output();
+
+        if let Ok(out) = output {
+            let out_str = String::from_utf8_lossy(&out.stdout);
+            return out_str.to_lowercase().contains("nvidia");
+        }
+
+        false
+    }
+    pub fn disable_dmabuf_rendering_with_nvidia_and_xorg() {
+        if std::path::Path::new("/dev/dri").exists()
+            && std::env::var("WAYLAND_DISPLAY").is_err()
+            && std::env::var("XDG_SESSION_TYPE").unwrap_or_default() == "x11"
+        {
+            let xorg_log = check_xorg_log().unwrap_or(false);
+            let smi = check_nvidia_smi();
+            let glx = check_glxinfo();
+            if xorg_log || smi || glx {
+                eprintln!("Note: nvidia with XOrg detected, disabling dmabuf renderer. Expect degraded renderer performance.");
+                eprintln!(
+                    "See https://github.com/hrzlgnm/mdns-browser/issues/947 for more details."
+                );
+                // SAFETY: There's potential for race conditions in a multi-threaded context.
+                unsafe {
+                    std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+                }
             }
         }
-        Err(_e) => {}
     }
 }
 
@@ -485,7 +538,7 @@ mod app_updates {
 #[cfg(desktop)]
 pub fn run() {
     #[cfg(target_os = "linux")]
-    x11_workaround();
+    nvidia::disable_dmabuf_rendering_with_nvidia_and_xorg();
     let args = Args::parse();
     let mut log_targets = vec![
         Target::new(TargetKind::Stdout),
