@@ -11,7 +11,7 @@ use shared_constants::{MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL, VERIFY_TIME
 use std::{
     collections::HashMap,
     net::IpAddr,
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, Once},
 };
 use tauri::Emitter;
 use tauri::{AppHandle, Manager, State, Window};
@@ -85,6 +85,9 @@ where
 fn browse_types(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_task = mdns.clone();
+        if mdns_for_task.stop_browse(MDNS_SD_META_SERVICE).is_ok() {
+            log::info!("Stopped previously started browsing for service types");
+        }
         tauri::async_runtime::spawn(async move {
             let receiver = match mdns_for_task.browse(MDNS_SD_META_SERVICE) {
                 Ok(receiver) => receiver,
@@ -240,31 +243,36 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
     }
 }
 
+static SUBCRIBE_METRICS_STARTER: Once = Once::new();
+
 #[tauri::command]
 fn subscribe_metrics(window: Window, state: State<ManagedState>) {
-    if let Ok(mdns) = state.daemon.lock() {
-        let mdns_for_task = mdns.clone();
-        let mut old_metrics = HashMap::new();
-        tauri::async_runtime::spawn(async move {
-            loop {
-                tokio::time::sleep(METRICS_CHECK_INTERVAL).await;
-                if let Ok(metrics_receiver) = mdns_for_task.get_metrics() {
-                    if let Ok(metrics) = metrics_receiver.recv_async().await {
-                        if old_metrics != metrics {
-                            emit_event(
-                                &window,
-                                "metrics",
-                                &MetricsEvent {
-                                    metrics: metrics.clone(),
-                                },
-                            );
-                            old_metrics = metrics;
+    // Avoid multiple subscriptions when the frontend is reloaded.
+    SUBCRIBE_METRICS_STARTER.call_once(|| {
+        if let Ok(mdns) = state.daemon.lock() {
+            let mdns_for_task = mdns.clone();
+            let mut old_metrics = HashMap::new();
+            tauri::async_runtime::spawn(async move {
+                loop {
+                    tokio::time::sleep(METRICS_CHECK_INTERVAL).await;
+                    if let Ok(metrics_receiver) = mdns_for_task.get_metrics() {
+                        if let Ok(metrics) = metrics_receiver.recv_async().await {
+                            if old_metrics != metrics {
+                                emit_event(
+                                    &window,
+                                    "metrics",
+                                    &MetricsEvent {
+                                        metrics: metrics.clone(),
+                                    },
+                                );
+                                old_metrics = metrics;
+                            }
                         }
                     }
                 }
-            }
-        });
-    }
+            });
+        }
+    });
 }
 
 #[tauri::command]
