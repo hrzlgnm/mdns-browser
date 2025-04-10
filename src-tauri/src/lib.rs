@@ -8,6 +8,7 @@ use models::*;
 #[cfg(all(desktop, not(debug_assertions)))]
 use shared_constants::SPLASH_SCREEN_DURATION;
 use shared_constants::{MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::{
     collections::HashMap,
     net::IpAddr,
@@ -26,6 +27,7 @@ type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 struct ManagedState {
     daemon: SharedServiceDaemon,
     running_browsers: Arc<Mutex<Vec<String>>>,
+    metrics_subscribed: AtomicBool,
 }
 
 impl ManagedState {
@@ -33,6 +35,7 @@ impl ManagedState {
         Self {
             daemon: get_shared_daemon(),
             running_browsers: Arc::new(Mutex::new(Vec::new())),
+            metrics_subscribed: AtomicBool::new(false),
         }
     }
 }
@@ -85,6 +88,9 @@ where
 fn browse_types(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_task = mdns.clone();
+        if mdns_for_task.stop_browse(MDNS_SD_META_SERVICE).is_ok() {
+            log::info!("Stopped previously started browsing for service types");
+        }
         tauri::async_runtime::spawn(async move {
             let receiver = match mdns_for_task.browse(MDNS_SD_META_SERVICE) {
                 Ok(receiver) => receiver,
@@ -242,28 +248,35 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
 
 #[tauri::command]
 fn subscribe_metrics(window: Window, state: State<ManagedState>) {
-    if let Ok(mdns) = state.daemon.lock() {
-        let mdns_for_task = mdns.clone();
-        let mut old_metrics = HashMap::new();
-        tauri::async_runtime::spawn(async move {
-            loop {
-                tokio::time::sleep(METRICS_CHECK_INTERVAL).await;
-                if let Ok(metrics_receiver) = mdns_for_task.get_metrics() {
-                    if let Ok(metrics) = metrics_receiver.recv_async().await {
-                        if old_metrics != metrics {
-                            emit_event(
-                                &window,
-                                "metrics",
-                                &MetricsEvent {
-                                    metrics: metrics.clone(),
-                                },
-                            );
-                            old_metrics = metrics;
+    // Avoid multiple subscriptions when the frontend is reloaded.
+    if state
+        .metrics_subscribed
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .is_ok()
+    {
+        if let Ok(mdns) = state.daemon.lock() {
+            let mdns_for_task = mdns.clone();
+            let mut old_metrics = HashMap::new();
+            tauri::async_runtime::spawn(async move {
+                loop {
+                    tokio::time::sleep(METRICS_CHECK_INTERVAL).await;
+                    if let Ok(metrics_receiver) = mdns_for_task.get_metrics() {
+                        if let Ok(metrics) = metrics_receiver.recv_async().await {
+                            if old_metrics != metrics {
+                                emit_event(
+                                    &window,
+                                    "metrics",
+                                    &MetricsEvent {
+                                        metrics: metrics.clone(),
+                                    },
+                                );
+                                old_metrics = metrics;
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 }
 
