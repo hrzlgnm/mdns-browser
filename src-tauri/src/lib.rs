@@ -8,10 +8,11 @@ use models::*;
 #[cfg(all(desktop, not(debug_assertions)))]
 use shared_constants::SPLASH_SCREEN_DURATION;
 use shared_constants::{MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::{
     collections::HashMap,
     net::IpAddr,
-    sync::{Arc, Mutex, Once},
+    sync::{Arc, Mutex},
 };
 use tauri::Emitter;
 use tauri::{AppHandle, Manager, State, Window};
@@ -26,6 +27,7 @@ type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 struct ManagedState {
     daemon: SharedServiceDaemon,
     running_browsers: Arc<Mutex<Vec<String>>>,
+    metrics_subscribed: AtomicBool,
 }
 
 impl ManagedState {
@@ -33,6 +35,7 @@ impl ManagedState {
         Self {
             daemon: get_shared_daemon(),
             running_browsers: Arc::new(Mutex::new(Vec::new())),
+            metrics_subscribed: AtomicBool::new(false),
         }
     }
 }
@@ -243,12 +246,14 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
     }
 }
 
-static SUBSCRIBE_METRICS_STARTER: Once = Once::new();
-
 #[tauri::command]
 fn subscribe_metrics(window: Window, state: State<ManagedState>) {
     // Avoid multiple subscriptions when the frontend is reloaded.
-    SUBSCRIBE_METRICS_STARTER.call_once(|| {
+    if state
+        .metrics_subscribed
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .is_ok()
+    {
         if let Ok(mdns) = state.daemon.lock() {
             let mdns_for_task = mdns.clone();
             let mut old_metrics = HashMap::new();
@@ -272,7 +277,7 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
                 }
             });
         }
-    });
+    }
 }
 
 #[tauri::command]
