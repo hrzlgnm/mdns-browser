@@ -16,7 +16,7 @@ jobs:
   update_version:
     permissions:
       contents: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.semver.outputs.semantic-version }}
 
@@ -47,12 +47,17 @@ jobs:
           sed -i '/name = "models"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
           sed -i '/name = "shaared_constants"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
 
-      - name: Commit and push changes
-        run: |
-          git config --global user.name "hrzlgnm"
-          git config --global user.email "hrzlgnm@users.noreply.github.com"
-
-          git diff
-          echo git add -A
-          echo git commit -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
-          echo git push
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7
+        with:
+          commit-message: "chore(version): bump to ${{ steps.semver.outputs.semantic-version }}"
+          sign-commits: true
+          base: main
+          branch: bump/version-${{ steps.semver.outputs.semantic-version }}
+          branch-suffix: random
+          labels: |
+            ignore
+          delete-branch: true
+          title: "chore(version): bump version to ${{ steps.semver.outputs.semantic-version }}"
+          draft: false
