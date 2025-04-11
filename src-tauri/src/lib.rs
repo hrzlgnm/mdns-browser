@@ -89,7 +89,7 @@ fn browse_types(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_task = mdns.clone();
         if mdns_for_task.stop_browse(MDNS_SD_META_SERVICE).is_ok() {
-            log::info!("Stopped previously started browsing for service types");
+            log::trace!("Stopped browsing for service types");
         }
         tauri::async_runtime::spawn(async move {
             let receiver = match mdns_for_task.browse(MDNS_SD_META_SERVICE) {
@@ -302,37 +302,21 @@ fn version(window: Window) -> String {
 
 #[cfg(desktop)]
 #[cfg(target_os = "linux")]
-mod nvidia {
-    use std::fs::File;
-    use std::io::{self, BufRead};
-    use std::path::Path;
+mod linux {
     use std::process::Command;
-
-    fn check_xorg_log() -> io::Result<bool> {
-        let path = "/var/log/Xorg.0.log";
-        if Path::new(path).exists() {
-            let file = File::open(path)?;
-            let found = io::BufReader::new(file)
-                .lines()
-                .map_while(Result::ok)
-                .any(|line| line.to_lowercase().contains("nvidia"));
-            return Ok(found);
-        }
-        Ok(false)
-    }
-
-    fn check_nvidia_smi() -> bool {
-        match Command::new("nvidia-smi")
-            .arg("--query-gpu=name")
-            .arg("--format=csv,noheader")
+    fn check_nvidia_glxinfo() -> Result<bool, ()> {
+        let is_glxinfo_installed = Command::new("sh")
+            .arg("-c")
+            .arg("command -v glxinfo")
             .output()
-        {
-            Ok(output) => output.status.success() && !output.stdout.is_empty(),
-            Err(_) => false,
-        }
-    }
+            .map(|output| output.status.success())
+            .unwrap_or(false);
 
-    fn check_glxinfo() -> bool {
+        if !is_glxinfo_installed {
+            eprintln!("Warning: glxinfo is not installed, cannot detect whether NVIDIA is used.");
+            return Err(());
+        }
+
         let output = Command::new("sh")
             .arg("-c")
             .arg("glxinfo | grep 'OpenGL renderer string'")
@@ -340,24 +324,37 @@ mod nvidia {
 
         if let Ok(out) = output {
             let out_str = String::from_utf8_lossy(&out.stdout);
-            return out_str.to_lowercase().contains("nvidia");
+            return Ok(out_str.to_lowercase().contains("nvidia"));
         }
 
-        false
+        Ok(false)
     }
-    pub fn disable_dmabuf_rendering_with_nvidia_and_xorg() {
-        if std::path::Path::new("/dev/dri").exists()
-            && std::env::var("WAYLAND_DISPLAY").is_err()
-            && std::env::var("XDG_SESSION_TYPE").unwrap_or_default() == "x11"
+
+    fn should_disable_dmabuf(force_disable: bool) -> Result<bool, ()> {
+        // Return true immediately if forced
+        if force_disable {
+            eprintln!("Note: dmabuf renderer disabled by command line arg. Expect degraded renderer performance");
+            return Ok(true);
+        }
+        // Check basic platform conditions
+        if !std::path::Path::new("/dev/dri").exists()
+            || std::env::var("WAYLAND_DISPLAY").is_ok()
+            || std::env::var("XDG_SESSION_TYPE").unwrap_or_default() != "x11"
         {
-            let xorg_log = check_xorg_log().unwrap_or(false);
-            let smi = check_nvidia_smi();
-            let glx = check_glxinfo();
-            if xorg_log || smi || glx {
-                eprintln!("Note: nvidia with XOrg detected, disabling dmabuf renderer. Expect degraded renderer performance.");
-                eprintln!(
-                    "See https://github.com/hrzlgnm/mdns-browser/issues/947 for more details."
-                );
+            return Ok(false);
+        }
+        // Check for Nvidia via glxinfo
+        let nvidia_detected = check_nvidia_glxinfo()?;
+        if nvidia_detected {
+            eprintln!("Note: nvidia with XOrg detected, disabling dmabuf renderer. Expect degraded renderer performance.");
+            eprintln!("See https://github.com/hrzlgnm/mdns-browser/issues/947 for more details.");
+        }
+        Ok(nvidia_detected)
+    }
+
+    pub fn disable_webkit_dmabuf_rendering_if_needed(force_disable: bool) {
+        if let Ok(disable) = should_disable_dmabuf(force_disable) {
+            if disable {
                 // SAFETY: There's potential for race conditions in a multi-threaded context.
                 unsafe {
                     std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
@@ -385,6 +382,14 @@ struct Args {
         help = "Enable logging to file"
     )]
     log_to_file: bool,
+    #[cfg(target_os = "linux")]
+    #[arg(
+        short = 'd',
+        long,
+        default_value_t = false,
+        help = "Disable dmabuf renderer, useful when having rendering issues"
+    )]
+    disable_dmabuf_renderer: bool,
 }
 
 #[cfg(desktop)]
@@ -550,9 +555,11 @@ mod app_updates {
 
 #[cfg(desktop)]
 pub fn run() {
-    #[cfg(target_os = "linux")]
-    nvidia::disable_dmabuf_rendering_with_nvidia_and_xorg();
     let args = Args::parse();
+
+    #[cfg(target_os = "linux")]
+    linux::disable_webkit_dmabuf_rendering_if_needed(args.disable_dmabuf_renderer);
+
     let mut log_targets = vec![
         Target::new(TargetKind::Stdout),
         Target::new(TargetKind::Webview),
