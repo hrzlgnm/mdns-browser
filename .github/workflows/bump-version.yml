@@ -11,6 +11,7 @@ on:
           - patch
           - minor
           - major
+
 jobs:
   update_version:
     permissions:
@@ -29,6 +30,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
           tag-prefix: "mdns-browser-v"
           incremented-value: ${{ inputs.version }}
+          create-release: false
+          dry-run: true
 
       - name: Update cargo and tauri versions
         run: |
