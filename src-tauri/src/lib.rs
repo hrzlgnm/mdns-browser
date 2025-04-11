@@ -363,6 +363,7 @@ mod linux {
         }
     }
 }
+
 #[cfg(desktop)]
 #[derive(Parser, Debug)]
 #[command(
