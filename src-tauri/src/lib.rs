@@ -387,7 +387,7 @@ struct Args {
         short = 'd',
         long,
         default_value_t = false,
-        help = "Disable dmabuf renderer, useful when having rendring issues"
+        help = "Disable dmabuf renderer, useful when having rendering issues"
     )]
     disable_dmabuf_renderer: bool,
 }
