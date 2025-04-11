@@ -302,7 +302,7 @@ fn version(window: Window) -> String {
 
 #[cfg(desktop)]
 #[cfg(target_os = "linux")]
-mod nvidia {
+mod linux {
     use std::process::Command;
     fn check_nvidia_glxinfo() -> Result<bool, ()> {
         let is_glxinfo_installed = Command::new("sh")
@@ -330,25 +330,31 @@ mod nvidia {
         Ok(false)
     }
 
-    pub fn disable_dmabuf_rendering_with_nvidia_and_xorg(force_disable: bool) {
-        if std::path::Path::new("/dev/dri").exists()
-            && std::env::var("WAYLAND_DISPLAY").is_err()
-            && std::env::var("XDG_SESSION_TYPE").unwrap_or_default() == "x11"
-            || force_disable
+    fn should_disable_dmabuf(force_disable: bool) -> Result<bool, ()> {
+        // Return true immediately if forced
+        if force_disable {
+            eprintln!("Note: dmabuf renderer disabled by command line arg. Expect degraded renderer performance");
+            return Ok(true);
+        }
+        // Check basic platform conditions
+        if !std::path::Path::new("/dev/dri").exists()
+            || std::env::var("WAYLAND_DISPLAY").is_ok()
+            || std::env::var("XDG_SESSION_TYPE").unwrap_or_default() != "x11"
         {
-            let glx_renderer_nvidia = check_nvidia_glxinfo();
-            if let Ok(nvidia_detected) = glx_renderer_nvidia {
-                if nvidia_detected {
-                    eprintln!("Note: nvidia with XOrg detected, disabling dmabuf renderer. Expect degraded renderer performance.");
-                    eprintln!(
-                        "See https://github.com/hrzlgnm/mdns-browser/issues/947 for more details."
-                    );
-                }
-            }
-            if force_disable {
-                eprintln!("Note: dmabuf renderer disabled by command line arg. Expect degraded renderer performance");
-            }
-            if force_disable || glx_renderer_nvidia.unwrap_or(false) {
+            return Ok(false);
+        }
+        // Check for Nvidia via glxinfo
+        let nvidia_detected = check_nvidia_glxinfo()?;
+        if nvidia_detected {
+            eprintln!("Note: nvidia with XOrg detected, disabling dmabuf renderer. Expect degraded renderer performance.");
+            eprintln!("See https://github.com/hrzlgnm/mdns-browser/issues/947 for more details.");
+        }
+        Ok(nvidia_detected)
+    }
+
+    pub fn disable_webkit_dmabuf_rendering_if_needed(force_disable: bool) {
+        if let Ok(disable) = should_disable_dmabuf(force_disable) {
+            if disable {
                 // SAFETY: There's potential for race conditions in a multi-threaded context.
                 unsafe {
                     std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
@@ -381,7 +387,7 @@ struct Args {
         short = 'd',
         long,
         default_value_t = false,
-        help = "Disable dmabuf renderer, maybe useful when running with nvidia drivers but the detection does not work"
+        help = "Disable dmabuf renderer, useful when having rendring issues"
     )]
     disable_dmabuf_renderer: bool,
 }
@@ -552,7 +558,7 @@ pub fn run() {
     let args = Args::parse();
 
     #[cfg(target_os = "linux")]
-    nvidia::disable_dmabuf_rendering_with_nvidia_and_xorg(args.disable_dmabuf_renderer);
+    linux::disable_webkit_dmabuf_rendering_if_needed(args.disable_dmabuf_renderer);
 
     let mut log_targets = vec![
         Target::new(TargetKind::Stdout),
