@@ -1,0 +1,55 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to bump
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+jobs:
+  update_version:
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.semver.outputs.semantic-version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - id: semver
+        uses: SOLIDSoftworks/semver-tags@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          tag-prefix: "mdns-browser-v"
+          incremented-value: ${{ inputs.version }}
+
+      - name: Update cargo and tauri versions
+        run: |
+          sudo apt install jq
+          sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' Cargo.toml
+          sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' models/Cargo.toml
+          sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' shaared_constants/Cargo.toml
+          sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' src-tauri/Cargo.toml
+          jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
+          jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.android.conf.json > tauri.andorid.config.json.new && mv tauri.andorid.config.json.new src-tauri/tauri.android.conf.json
+          sed -i '/name = "mdns-browser"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
+          sed -i '/name = "mdns-browser-ui"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
+          sed -i '/name = "models"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
+          sed -i '/name = "shaared_constants"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "hrzlgnm"
+          git config --global user.email "rzlgnm@users.noreply.github.com
+
+          git diff
+          echo git add -A
+          echo git commit -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
+          echo git push
