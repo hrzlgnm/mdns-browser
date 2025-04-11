@@ -16,6 +16,7 @@ jobs:
   update_version:
     permissions:
       contents: write
+      pull-requests: write
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.semver.outputs.semantic-version }}
