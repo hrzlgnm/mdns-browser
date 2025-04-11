@@ -363,9 +363,13 @@ mod linux {
         }
     }
 }
-
 #[cfg(desktop)]
 #[derive(Parser, Debug)]
+#[command(
+    version = env!("CARGO_PKG_VERSION"),
+    author = env!("CARGO_PKG_AUTHORS"),
+    about = env!("CARGO_PKG_DESCRIPTION"),
+)]
 struct Args {
     #[arg(
         short = 'l',
