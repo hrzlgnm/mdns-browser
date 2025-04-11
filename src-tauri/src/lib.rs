@@ -85,6 +85,20 @@ where
 }
 
 #[tauri::command]
+/// Starts browsing for mDNS service types and emits events on the specified window when services are found or removed.
+///
+/// The function stops any previous browsing for the meta service type before launching an asynchronous task that listens
+/// for mDNS events. For each event received, it validates the service type; if the service's full name is valid, it emits
+/// either a "service-type-found" or "service-type-removed" event via the provided window. The browsing task terminates once
+/// a stop signal for the meta service type is received.
+///
+/// # Examples
+///
+/// ```rust
+/// // Example usage within a Tauri application context.
+/// // Assume `window` is a valid Tauri Window and `state` is the ManagedState containing an mDNS daemon.
+/// browse_types(window, state);
+/// ```
 fn browse_types(window: Window, state: State<ManagedState>) {
     if let Ok(mdns) = state.daemon.lock() {
         let mdns_for_task = mdns.clone();
@@ -304,6 +318,25 @@ fn version(window: Window) -> String {
 #[cfg(target_os = "linux")]
 mod linux {
     use std::process::Command;
+    /// Checks for NVIDIA usage via the system's `glxinfo` command.
+    ///
+    /// This function first verifies that `glxinfo` is installed. If not, it prints a warning to standard error
+    /// and returns an error. When installed, it executes `glxinfo` to extract the "OpenGL renderer string"
+    /// and checks (in a case-insensitive manner) whether it contains the substring "nvidia". It returns:
+    /// - `Ok(true)` if an NVIDIA-based renderer is detected.
+    /// - `Ok(false)` if no NVIDIA usage is identified or the command's output doesn't indicate NVIDIA.
+    /// - `Err(())` if `glxinfo` is not installed.
+    /// 
+    /// # Examples
+    ///
+    /// ```
+    /// // Note: Ensure that `glxinfo` is installed for this example to work as expected.
+    /// match check_nvidia_glxinfo() {
+    ///     Ok(true) => println!("NVIDIA graphics are in use."),
+    ///     Ok(false) => println!("NVIDIA graphics are not in use."),
+    ///     Err(()) => println!("Warning: glxinfo is not installed."),
+    /// }
+    /// ```
     fn check_nvidia_glxinfo() -> Result<bool, ()> {
         let is_glxinfo_installed = Command::new("sh")
             .arg("-c")
@@ -330,6 +363,31 @@ mod linux {
         Ok(false)
     }
 
+    /// Determines whether dmabuf rendering should be disabled based on system conditions and a force flag.
+    /// 
+    /// When `force_disable` is true, the function immediately returns `Ok(true)` and prints a notice
+    /// about degraded renderer performance. Otherwise, it checks for basic platform conditions—verifying
+    /// that `/dev/dri` exists, ensuring that the session is not running under Wayland, and confirming an X11 session.
+    /// If those conditions are not met, it returns `Ok(false)`. When the conditions indicate an X11 environment,
+    /// the function calls `check_nvidia_glxinfo` to detect an NVIDIA GPU; if one is found, it prints additional
+    /// warnings and returns `Ok(true)`.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// // Stub implementation for demonstration purposes.
+    /// fn check_nvidia_glxinfo() -> Result<bool, ()> { Ok(false) }
+    /// 
+    /// // Example: System conditions determine whether to disable dmabuf rendering.
+    /// let disable = should_disable_dmabuf(false).unwrap();
+    /// if disable {
+    ///     // Adjust configuration for degraded renderer performance.
+    /// }
+    /// 
+    /// // Example: Forcefully disable dmabuf rendering.
+    /// let force_disable = should_disable_dmabuf(true).unwrap();
+    /// assert!(force_disable);
+    /// ```
     fn should_disable_dmabuf(force_disable: bool) -> Result<bool, ()> {
         // Return true immediately if forced
         if force_disable {
@@ -352,6 +410,35 @@ mod linux {
         Ok(nvidia_detected)
     }
 
+    /// Disables WebKit's DMABUF renderer when system conditions or a forced override require it.
+    /// 
+    /// This function determines whether to disable DMABUF rendering by calling
+    /// `should_disable_dmabuf` with the provided `force_disable` flag. If the check returns
+    /// `Ok(true)`, the environment variable `WEBKIT_DISABLE_DMABUF_RENDERER` is set to `"1"`,
+    /// effectively disabling the DMABUF renderer in WebKit.
+    /// 
+    /// **Note:** The environment variable is set within an unsafe block, which may lead to
+    /// potential race conditions in multi-threaded contexts.
+    /// 
+    /// # Parameters
+    /// 
+    /// - `force_disable`: When true, forces the disabling of DMABUF rendering regardless of
+    ///   the standard detection logic.
+    /// 
+    /// # Examples
+    /// 
+    /// ```rust
+    /// use std::env;
+    /// 
+    /// // Ensure the environment variable is not set.
+    /// env::remove_var("WEBKIT_DISABLE_DMABUF_RENDERER");
+    /// 
+    /// // Invoke the function with a forced disable.
+    /// disable_webkit_dmabuf_rendering_if_needed(true);
+    /// 
+    /// // Confirm that the environment variable has been set correctly.
+    /// assert_eq!(env::var("WEBKIT_DISABLE_DMABUF_RENDERER").unwrap(), "1");
+    /// ```
     pub fn disable_webkit_dmabuf_rendering_if_needed(force_disable: bool) {
         if let Ok(disable) = should_disable_dmabuf(force_disable) {
             if disable {
@@ -554,6 +641,28 @@ mod app_updates {
 }
 
 #[cfg(desktop)]
+/// Initializes and launches the Tauri application with configured plugins, logging, and window management.
+///
+/// This function parses command-line arguments to configure logging targets (including optional file logging)
+/// and conditionally disables dmabuf rendering on Linux systems. It sets up the Tauri builder with plugins for
+/// clipboard management, logging, auto-updates, and more, and manages application state. During setup, it handles
+/// the transition from a splash screen to the main window, spawning an asynchronous task to close the splash screen
+/// and display the main window (with developer tools enabled in debug mode). The application is then run with a
+/// generated context, and the function will panic if the startup process fails.
+///
+/// # Examples
+///
+/// ```rust
+/// #[test]
+/// fn test_run_starts_without_immediate_panic() {
+///     // This test verifies that the run function can be invoked without immediately panicking.
+///     // Note: The full application lifecycle is not executed in this test environment.
+///     let result = std::panic::catch_unwind(|| {
+///         run();
+///     });
+///     assert!(result.is_ok());
+/// }
+/// ```
 pub fn run() {
     let args = Args::parse();
 
