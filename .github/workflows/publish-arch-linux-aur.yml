@@ -1,0 +1,75 @@
+name: Publish arch linux AUR
+
+on:
+  workflow_call:
+    inputs:
+      semver:
+        description: The semver of the release to publish for
+        type: string
+        required: true
+
+  workflow_dispatch:
+    inputs:
+      semver:
+        description: The semver of the release to publish for
+        type: string
+        required: true
+
+jobs:
+  build-and-publish:
+    permissions:
+      packages: read
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1
+    steps:
+      - name: Setup SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+
+      - name: 🔄 Clone AUR Repos
+        shell: bash
+        run: |
+          mkdir -p ~/aur/
+          for n in mdns-browser mdns-browser-bin; do
+            git clone --depth=1 "ssh://aur@aur.archlinux.org/$n.git" ~/aur/
+            git clone --depth=1 "ssh://aur@aur.archlinux.org/$n.git" ~/aur/
+            cd ~/aur/$n
+            git config user.name "hrzlgnm"
+            git config user.email "hrzlgnm@users.noreply.github.com"
+          done
+      - name: 🔢 Get checksums
+        id: get-checksums
+        shell: bash
+        run: |
+          V=${{ github.event.inputs.semver }}
+          SOURCEURL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/mdns-browser-v${V}.tar.gz.sha256"
+          SSUM=$(curl -LfsS "$SOURCEURL")
+          DEBURL="https://github.com/hrzlgnm/mdns-browser/releases/tag/mdns-browser-v${V}/mdns-browser_${V}_amd64.deb.sha256
+          DSUM=$(curl -LfsS "$DEBURL")
+          echo "source-sha256=$SSUM" >> $GITHUB_OUTPUT
+          echo "deb-sha256=$DSUM" >> $GITHUB_OUTPUT
+
+      - name: 💉 Update version and checksums in PKGBUILD
+        run: |
+          V=${{ github.event.inputs.semver }}
+          sed -i "s/^version=.*/version=${V}/" ~/aur/mdns-browser/PKGBUILD
+          sed -i "s/^version=.*/version=${V}/" ~/aur/mdns-browser-bin/PKGBUILD
+          sed -i "s/^sha256sums=.*/sha256sums=('${{ steps.get-sums.outputs.source-sha256 }}')/" ~/aur/mdns-browser-bin/PKGBUILD
+          sed -i "s/^sha256sums=.*/sha256sums=('${{ steps.get-sums.outputs.deb-sha256}}')/" ~/aur/mdns-browser-bin/PKGBUILD
+
+      - name: 🔨 Build packages and update .SRCINFO and push
+        run: |
+          V=${{ github.event.inputs.semver }}
+          for n in mdns-browser mdns-browser-bin; do
+            cd ~/aur/mdns-browser-bin
+            makepkg -f
+            makepkg --printsrcinfo > .SRCINFO
+            echo git add PKGBUILD .SRCINFO
+            echo git commit -m "New upstream version ${V}"
+            echo git push
+          done
