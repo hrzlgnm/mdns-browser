@@ -7,7 +7,7 @@ on:
         type: string
         required: true
   release:
-    types: [published]
+    types: [released]
 
 permissions:
   contents: write
