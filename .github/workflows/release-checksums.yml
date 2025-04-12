@@ -17,18 +17,15 @@ jobs:
     name: Get release info
     runs-on: ubuntu-24.04
     outputs:
-      release-name: ${{ steps.release_info.outputs.release-name }}
-      release-tag: ${{ steps.release_info.outputs.release-tag }}
+      tag-name: ${{ steps.release_info.outputs.tag-name }}
     steps:
       - name: determine release info
         id: release_info
         run: |
           if [ -n "${{ github.event.release.name }}" ]; then
-            echo "release-name=${{ github.event.release.name }}" >> $GITHUB_OUTPUT
-            echo "release-tag=${{ github.event.release.tag }}" >> $GITHUB_OUTPUT
+            echo "tag-name=${{ github.event.release.tag }}" >> $GITHUB_OUTPUT
           else
-            echo "release-name=mDNS-Browser Release v${{ github.event.inputs.semver }}" >> $GITHUB_OUTPUT
-            echo "release-tag=mdns-browser-v${{ github.event.inputs.semver }}" >> $GITHUB_OUTPUT
+            echo "tag-name=mdns-browser-v${{ github.event.inputs.semver }}" >> $GITHUB_OUTPUT
           fi
 
   sha256:
@@ -42,7 +39,7 @@ jobs:
       - uses: robinraju/release-downloader@v1.12
         with:
           repository: hrzlgnm/mdns-browser
-          tag: ${{ needs.release_info.outputs.release-tag }}
+          tag: ${{ needs.release_info.outputs.tag-name }}
           fileName: "*"
           tarBall: true
           zipBall: true
@@ -65,7 +62,7 @@ jobs:
       - uses: robinraju/release-downloader@v1.12
         with:
           repository: hrzlgnm/mdns-browser
-          tag: ${{ needs.release_info.outputs.release-tag }}
+          tag: ${{ needs.release_info.outputs.tag-name }}
           fileName: "*"
           tarBall: true
           zipBall: true
@@ -93,7 +90,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag: ${{ needs.release_info.outputs.release-tag }}
+          tag_name: ${{ needs.release_info.outputs.tag-name }}
           append_body: true
           make_latest: false
           generate_release_notes: false
