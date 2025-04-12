@@ -93,7 +93,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ${{ steps.release_info.outputs.release-name }}
+          tag: ${{ needs.release_info.outputs.release-tag }}
           append_body: true
           make_latest: false
           generate_release_notes: false
