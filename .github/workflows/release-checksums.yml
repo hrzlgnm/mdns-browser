@@ -98,5 +98,4 @@ jobs:
           make_latest: false
           generate_release_notes: false
           files: |
-            sha256sums.txt
-            sha512sums.txt
+            **/*txt
