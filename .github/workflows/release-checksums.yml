@@ -9,6 +9,9 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write
+
 jobs:
   release_name:
     name: Get release name
