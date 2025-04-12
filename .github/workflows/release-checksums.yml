@@ -1,4 +1,4 @@
-name: Create and publish checksums for release artifacts
+name: Create and publish checksums
 on:
   workflow_dispatch:
     inputs:
@@ -10,19 +10,32 @@ on:
     types: [published]
 
 jobs:
+  release_name:
+    name: Get release name
+    runs-on: ubuntu-24.04
+    steps:
+      - name: determine release name
+        id: release_name
+        run: |
+          if [ -n "${{ github.event.release.name }}" ]; then
+            echo "RELEASE_NAME=${{ github.event.release.name }}" >> $GITHUB_ENV
+          else
+            echo "RELEASE_NAME=mDNS-Browser Release v${{ github.event.inputs.semver }}" >> $GITHUB_ENV
+          fi
   sha256:
     name: Generate sha256 checksums
     runs-on: ubuntu-24.04
     outputs:
       file: sha256sums.txt
     steps:
-      - name: sha256
-        uses: MCJack123/ghaction-generate-release-hashes@v4
+      - uses: robinraju/release-downloader@v1.12
         with:
-          get-assets: true
-          hash-type: sha256
-          file-name: sha256sums.txt
-      - name: Upload sha256 checksum
+          repository: "owner/repo"
+          latest: true
+          fileName: "*"
+      - name: sha256
+        run: sha256sum * > sha256sums.txt
+      - name: upload sha256 checksum
         uses: actions/upload-artifact@v3
         with:
           name: sha256sums
@@ -34,13 +47,14 @@ jobs:
     outputs:
       file: sha512sums.txt
     steps:
-      - name: sha512
-        uses: MCJack123/ghaction-generate-release-hashes@v4
+      - uses: robinraju/release-downloader@v1.12
         with:
-          get-assets: true
-          hash-type: sha512
-          file-name: sha512sums.txt
-      - name: Upload sha512 checksum
+          repository: "owner/repo"
+          latest: true
+          fileName: "*"
+      - name: sha512
+        run: sha512sum * > sha512sums.txt
+      - name: upload sha512 checksum
         uses: actions/upload-artifact@v3
         with:
           name: sha512sums
@@ -50,6 +64,7 @@ jobs:
     name: Publish checksum assets
     runs-on: ubuntu-24.04
     needs:
+      - release_name
       - sha256
       - sha512
     steps:
@@ -61,14 +76,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: sha512sums
-      - name: determine release name
-        id: release_name
-        run: |
-          if [ -n "${{ github.event.release.name }}" ]; then
-            echo "RELEASE_NAME=${{ github.event.release.name }}" >> $GITHUB_ENV
-          else
-            echo "RELEASE_NAME=mDNS-Browser Release v${{ github.event.inputs.semver }}" >> $GITHUB_ENV
-          fi
+
       - name: publish checksum assets
         uses: softprops/action-gh-release@cfe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2
         env:
