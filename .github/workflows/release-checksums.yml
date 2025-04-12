@@ -13,28 +13,36 @@ permissions:
   contents: write
 
 jobs:
-  release_name:
-    name: Get release name
+  release_info:
+    name: Get release info
     runs-on: ubuntu-24.04
+    outputs:
+      release-name: ${{ steps.release_info.outputs.release-name }}
+      release-tag: ${{ steps.release_info.outputs.release-tag }}
     steps:
-      - name: determine release name
-        id: release_name
+      - name: determine release info
+        id: release_info
         run: |
           if [ -n "${{ github.event.release.name }}" ]; then
-            echo "RELEASE_NAME=${{ github.event.release.name }}" >> $GITHUB_ENV
+            echo "release-name=${{ github.event.release.name }}" >> $GITHUB_OUTPUT
+            echo "release-tag=${{ github.event.release.tag }}" >> $GITHUB_OUTPUT
           else
-            echo "RELEASE_NAME=mDNS-Browser Release v${{ github.event.inputs.semver }}" >> $GITHUB_ENV
+            echo "release-name=mDNS-Browser Release v${{ github.event.inputs.semver }}" >> $GITHUB_OUTPUT
+            echo "release-tag=mdns-browser-v${{ github.event.inputs.semver }}" >> $GITHUB_OUTPUT
           fi
+
   sha256:
     name: Generate sha256 checksums
     runs-on: ubuntu-24.04
+    needs:
+      - release_info
     outputs:
       file: sha256sums.txt
     steps:
       - uses: robinraju/release-downloader@v1.12
         with:
-          repository: ${{ env.GITHUB_REPOSITORY }}
-          latest: true
+          repository: hrzlgnm/mdns-browser
+          tag: ${{ needs.release_info.outputs.release-tag }}
           fileName: "*"
       - name: sha256
         run: sha256sum * > sha256sums.txt
@@ -47,13 +55,15 @@ jobs:
   sha512:
     name: Generate sha512 checksums
     runs-on: ubuntu-24.04
+    needs:
+      - release_info
     outputs:
       file: sha512sums.txt
     steps:
       - uses: robinraju/release-downloader@v1.12
         with:
-          repository: ${{ env.GITHUB_REPOSITORY }}
-          latest: true
+          repository: hrzlgnm/mdns-browser
+          tag: ${{ needs.release_info.outputs.release-tag }}
           fileName: "*"
       - name: sha512
         run: sha512sum * > sha512sums.txt
@@ -67,7 +77,7 @@ jobs:
     name: Publish checksum assets
     runs-on: ubuntu-24.04
     needs:
-      - release_name
+      - release_info
       - sha256
       - sha512
     steps:
@@ -85,7 +95,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ${{ env.RELEASE_NAME }}
+          name: ${{ steps.release_info.outputs.release-name }}
           append_body: true
           make_latest: false
           generate_release_notes: false
