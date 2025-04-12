@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: robinraju/release-downloader@v1.12
         with:
-          repository: "owner/repo"
+          repository: ${{ env.GITHUB_REPOSITORY }}
           latest: true
           fileName: "*"
       - name: sha256
@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: robinraju/release-downloader@v1.12
         with:
-          repository: "owner/repo"
+          repository: ${{ env.GITHUB_REPOSITORY }}
           latest: true
           fileName: "*"
       - name: sha512
