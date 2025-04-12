@@ -39,7 +39,7 @@ jobs:
       - name: sha256
         run: sha256sum * > sha256sums.txt
       - name: upload sha256 checksum
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sha256sums
           path: sha256sums.txt
@@ -58,7 +58,7 @@ jobs:
       - name: sha512
         run: sha512sum * > sha512sums.txt
       - name: upload sha512 checksum
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sha512sums
           path: sha512sums.txt
@@ -72,11 +72,11 @@ jobs:
       - sha512
     steps:
       - name: Download sha256 checksum
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sha256sums
       - name: Download sha512 checksum
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sha512sums
 
