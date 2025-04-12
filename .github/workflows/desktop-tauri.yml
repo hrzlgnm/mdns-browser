@@ -215,4 +215,4 @@ jobs:
             contains(matrix.os, 'windows') && 'target/release/mdns-browser.exe' ||
             contains(matrix.os, 'macos') && 'target/universal-apple-darwin/release/mdns-browser'
             }}
-          sbom-path: "sbom.spdx.json"
+          sbom-path: "${{ matrix.os }}${{ matrix.args }}.sbom.spdx.json"
