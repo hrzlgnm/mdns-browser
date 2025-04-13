@@ -259,7 +259,11 @@ fn has_mdns_capable_interfaces() -> bool {
             && interface.is_multicast()
             && interface.is_broadcast()
             && interface.is_up();
-        log::trace!("interface {} can multicast {}", interface.name, capable);
+        log::trace!(
+            "interface {} can be used for mDNS {}",
+            interface.name,
+            capable
+        );
 
         capable
     })
@@ -276,7 +280,7 @@ fn has_mdns_capable_interfaces() -> bool {
                 && (adapter.if_type() == IfType::EthernetCsmacd
                     || adapter.if_type() == IfType::Ieee80211);
             log::trace!(
-                "adapter {} can multicast {}, {:?}",
+                "adapter {} can be used for mDNS {}, type: {:?}",
                 adapter.friendly_name(),
                 capable,
                 adapter.if_type()
