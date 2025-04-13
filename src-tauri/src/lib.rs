@@ -304,8 +304,9 @@ fn subscribe_can_browse(window: Window, state: State<ManagedState>) {
             );
             loop {
                 tokio::time::sleep(INTERFACES_CAN_BROWSE_CHECK_INTERVAL).await;
-                if has_mcast_capable_itfs != has_multicast_capable_interfaces() {
-                    has_mcast_capable_itfs = has_multicast_capable_interfaces();
+                let current = has_multicast_capable_interfaces();
+                if has_mcast_capable_itfs != current {
+                    has_mcast_capable_itfs = current;
                     emit_event(
                         &window,
                         "can-browse-changed",
