@@ -16,60 +16,88 @@ on:
         required: true
 
 jobs:
-  build-and-publish:
+  update-aur:
     permissions:
       packages: read
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1
+    strategy:
+      matrix:
+        package:
+          - name: mdns-browser-bin
+            checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ inputs.semver }}/mdns-browser_${{ inputs.semver }}_amd64.deb.sha256"
+            generate_script: "./aur-template/generate-mdns-browser-bin.sh"
+          - name: mdns-browser
+            checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ inputs.semver }}/mdns-browser-v${{ inputs.semver }}.tar.gz.sha256"
+            generate_script: "./aur-template/generate-mdns-browser.sh"
     steps:
-      - name: Setup SSH
-        shell: bash
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AUR_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+      - name: 🔄 Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: 🔄 Clone AUR Repos
+      - name: 🛠️ Setup Deployment keys
         shell: bash
         run: |
-          mkdir -p ~/aur/
-          for n in mdns-browser mdns-browser-bin; do
-            git clone --depth=1 "ssh://aur@aur.archlinux.org/$n.git" ~/aur/
-            git clone --depth=1 "ssh://aur@aur.archlinux.org/$n.git" ~/aur/
-            cd ~/aur/$n
+          chown -R runner:runner .
+          su runner -c '
+            set -o errexit
+            mkdir -p ~/.ssh
+            echo "${{ secrets.AUR_DEPLOY_KEY }}" > ~/.ssh/aur
+            chmod 600 ~/.ssh/aur
+            echo "Host aur.archlinux.org" >> ~/.ssh/config
+            echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
+            echo "  User aur" >> ~/.ssh/config
+            ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+          '
+
+      - name: 🔄 Clone AUR Repo
+        shell: bash
+        run: |
+          su runner -c '
+            set -o errexit
+            git clone --depth=1 "ssh://aur@aur.archlinux.org/${{ matrix.package.name }}.git" ~/aur
+          '
+
+      - name: 🔍 Check version
+        shell: bash
+        run: |
+          su runner -c '
+            set -o errexit
+            cd ~/aur
+            if [[ -f PKGBUILD ]]; then
+              CURRENT_VERSION=$(source PKGBUILD && echo $pkgver)
+              if [[ "$(printf "%s\n%s" "$CURRENT_VERSION" "${{ inputs.semver }}" | sort -V | head -n1)" != "$CURRENT_VERSION" ]] || [[ "$CURRENT_VERSION" == "${{ inputs.semver }}" ]]; then
+                echo "New version (${{ inputs.semver }}) is not higher than the current version ($CURRENT_VERSION). Exiting."
+                exit 1
+              fi
+            fi
+          '
+
+      - name: 🔢 Get sha256sums
+        id: sha256sums
+        shell: bash
+        run: |
+          URL="${{ matrix.package.checksum_url }}"
+          echo "getting $URL"
+          SUM=$(curl -LfsS "$URL" | cut -f1 -d ' ')
+          echo "sha256=$SUM" >> $GITHUB_OUTPUT
+
+      - name: 🌀 Generate PKGBUILD and update
+        run: |
+          su runner -c '
+            set -o errexit
+            ${{ matrix.package.generate_script }} "${{ inputs.semver }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/aur/PKGBUILD
+            cd ~/aur
+            if [[ -z $(git status --porcelain) ]]; then
+              echo "No changes"
+              exit 0
+            fi
+            makepkg --printsrcinfo > .SRCINFO
+            makepkg
+            makepkg --install
             git config user.name "hrzlgnm"
             git config user.email "hrzlgnm@users.noreply.github.com"
-          done
-      - name: 🔢 Get checksums
-        id: get-checksums
-        shell: bash
-        run: |
-          V=${{ github.event.inputs.semver }}
-          SOURCEURL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/mdns-browser-v${V}.tar.gz.sha256"
-          SSUM=$(curl -LfsS "$SOURCEURL")
-          DEBURL="https://github.com/hrzlgnm/mdns-browser/releases/tag/mdns-browser-v${V}/mdns-browser_${V}_amd64.deb.sha256
-          DSUM=$(curl -LfsS "$DEBURL")
-          echo "source-sha256=$SSUM" >> $GITHUB_OUTPUT
-          echo "deb-sha256=$DSUM" >> $GITHUB_OUTPUT
-
-      - name: 💉 Update version and checksums in PKGBUILD
-        run: |
-          V=${{ github.event.inputs.semver }}
-          sed -i "s/^version=.*/version=${V}/" ~/aur/mdns-browser/PKGBUILD
-          sed -i "s/^version=.*/version=${V}/" ~/aur/mdns-browser-bin/PKGBUILD
-          sed -i "s/^sha256sums=.*/sha256sums=('${{ steps.get-sums.outputs.source-sha256 }}')/" ~/aur/mdns-browser-bin/PKGBUILD
-          sed -i "s/^sha256sums=.*/sha256sums=('${{ steps.get-sums.outputs.deb-sha256}}')/" ~/aur/mdns-browser-bin/PKGBUILD
-
-      - name: 🔨 Build packages and update .SRCINFO and push
-        run: |
-          V=${{ github.event.inputs.semver }}
-          for n in mdns-browser mdns-browser-bin; do
-            cd ~/aur/mdns-browser-bin
-            makepkg -f
-            makepkg --printsrcinfo > .SRCINFO
-            echo git add PKGBUILD .SRCINFO
-            echo git commit -m "New upstream version ${V}"
-            echo git push
-          done
+            git add PKGBUILD .SRCINFO
+            git commit -m "New upstream release ${{ inputs.semver }}"
+            git push origin master
+          '
