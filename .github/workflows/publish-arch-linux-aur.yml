@@ -94,7 +94,7 @@ jobs:
             fi
             makepkg --printsrcinfo > .SRCINFO
             makepkg
-            makepkg --install
+            makepkg --install --noconfirm
             git config user.name "hrzlgnm"
             git config user.email "hrzlgnm@users.noreply.github.com"
             git add PKGBUILD .SRCINFO
