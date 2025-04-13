@@ -252,15 +252,13 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
 
 #[cfg(not(windows))]
 fn has_multicast_capable_interfaces() -> bool {
-    const IFF_PROMISC: u32 = 0x0100;
     let interfaces = datalink::interfaces();
     interfaces.iter().any(|interface| {
         let capable = !interface.ips.is_empty()
             && !interface.is_loopback()
             && interface.is_multicast()
             && interface.is_broadcast()
-            && interface.is_up()
-            && interface.flags & IFF_PROMISC == 0;
+            && interface.is_up();
         log::trace!("interface {} can multicast {}", interface.name, capable);
 
         capable
