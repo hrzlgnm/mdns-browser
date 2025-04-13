@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Detect Latest Release
         id: latest_release
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
         with:
           script: |
             const [owner, repo] = 'hrzlgnm/mdns-browser'.split('/');
@@ -38,7 +38,7 @@ jobs:
           echo "Short Version: $SHORT_VERSION"
 
       - name: Update Package
-        uses: michidk/run-komac@v2.1.0
+        uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
         with:
           komac-version: "2.8.0"
           args: "update hrzlgnm.mdns-browser --version $SHORT_VERSION --urls $FINAL_URL --submit --token=${{ secrets.WINGET_TOKEN }}"
@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Run Komac
-        uses: michidk/run-komac@v2.1.0
+        uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
         with:
           komac-version: "2.8.0"
           args: "cleanup --only-merged --token=${{ secrets.WINGET_TOKEN }}"
