@@ -854,7 +854,7 @@ pub fn Browse() -> impl IntoView {
                             <MessageBarTitle>"No network detected"</MessageBarTitle>
                             {move || {
                                 if is_desktop.get() {
-                                    "Please connect to WiFi or plugin a network cable."
+                                    "Please connect to WiFi or plug in a network cable."
                                 } else {
                                     "Please connect to WiFi."
                                 }
