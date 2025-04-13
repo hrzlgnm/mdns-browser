@@ -275,14 +275,45 @@ fn has_multicast_capable_interfaces() -> bool {
         adapters.iter().any(|adapter| {
             let capable = !adapter.ip_addresses().is_empty()
                 && adapter.oper_status() == OperStatus::IfOperStatusUp
-                && (adapter.if_type() == IfType::EthernetCsmacd || adapter.if_type() == IfType::Ieee80211);
-            log::trace!("adapter {} can multicast {}, {:?}", adapter.friendly_name(), capable, adapter.if_type());
+                && (adapter.if_type() == IfType::EthernetCsmacd
+                    || adapter.if_type() == IfType::Ieee80211);
+            log::trace!(
+                "adapter {} can multicast {}, {:?}",
+                adapter.friendly_name(),
+                capable,
+                adapter.if_type()
+            );
 
             capable
         })
     } else {
         log::warn!("Unable to determine whether we have multicast capable adapter, assuming true");
         true
+    }
+}
+
+async fn poll_can_browse(window: Window) {
+    let mut current = has_multicast_capable_interfaces();
+    emit_event(
+        &window,
+        "can-browse-changed",
+        &CanBrowseChangedEventRes {
+            can_browse: current,
+        },
+    );
+    loop {
+        tokio::time::sleep(INTERFACES_CAN_BROWSE_CHECK_INTERVAL).await;
+        let new_value = has_multicast_capable_interfaces();
+        if new_value != current {
+            current = new_value;
+            emit_event(
+                &window,
+                "can-browse-changed",
+                &CanBrowseChangedEventRes {
+                    can_browse: current,
+                },
+            );
+        }
     }
 }
 
@@ -293,30 +324,7 @@ fn subscribe_can_browse(window: Window, state: State<ManagedState>) {
         .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
         .is_ok()
     {
-        tauri::async_runtime::spawn(async move {
-            let mut has_mcast_capable_itfs = has_multicast_capable_interfaces();
-            emit_event(
-                &window,
-                "can-browse-changed",
-                &CanBrowseChangedEventRes {
-                    can_browse: has_mcast_capable_itfs,
-                },
-            );
-            loop {
-                tokio::time::sleep(INTERFACES_CAN_BROWSE_CHECK_INTERVAL).await;
-                let current = has_multicast_capable_interfaces();
-                if has_mcast_capable_itfs != current {
-                    has_mcast_capable_itfs = current;
-                    emit_event(
-                        &window,
-                        "can-browse-changed",
-                        &CanBrowseChangedEventRes {
-                            can_browse: has_mcast_capable_itfs,
-                        },
-                    );
-                }
-            }
-        });
+        tauri::async_runtime::spawn(poll_can_browse(window));
     } else {
         emit_event(
             &window,
