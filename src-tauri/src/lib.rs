@@ -24,9 +24,6 @@ use tauri::{AppHandle, Manager, State, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_opener::OpenerExt;
 
-#[cfg(desktop)]
-use tauri_plugin_log::{Target, TargetKind};
-
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
 struct ManagedState {
@@ -254,21 +251,26 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
 }
 
 #[cfg(not(windows))]
-fn has_multicast_capable_interfaces() -> bool {
+fn has_mdns_capable_interfaces() -> bool {
     let interfaces = datalink::interfaces();
     interfaces.iter().any(|interface| {
         let capable = !interface.ips.is_empty()
             && !interface.is_loopback()
             && interface.is_multicast()
+            && interface.is_broadcast()
             && interface.is_up();
-        log::trace!("interface {} can multicast {}", interface.name, capable);
+        log::trace!(
+            "interface {} can be used for mDNS {}",
+            interface.name,
+            capable
+        );
 
         capable
     })
 }
 
 #[cfg(windows)]
-fn has_multicast_capable_interfaces() -> bool {
+fn has_mdns_capable_interfaces() -> bool {
     use ipconfig::{IfType, OperStatus};
 
     if let Ok(adapters) = ipconfig::get_adapters() {
@@ -278,7 +280,7 @@ fn has_multicast_capable_interfaces() -> bool {
                 && (adapter.if_type() == IfType::EthernetCsmacd
                     || adapter.if_type() == IfType::Ieee80211);
             log::trace!(
-                "adapter {} can multicast {}, {:?}",
+                "adapter {} can be used for mDNS {}, type: {:?}",
                 adapter.friendly_name(),
                 capable,
                 adapter.if_type()
@@ -293,7 +295,7 @@ fn has_multicast_capable_interfaces() -> bool {
 }
 
 async fn poll_can_browse(window: Window) {
-    let mut current = has_multicast_capable_interfaces();
+    let mut current = has_mdns_capable_interfaces();
     emit_event(
         &window,
         "can-browse-changed",
@@ -303,7 +305,7 @@ async fn poll_can_browse(window: Window) {
     );
     loop {
         tokio::time::sleep(INTERFACES_CAN_BROWSE_CHECK_INTERVAL).await;
-        let new_value = has_multicast_capable_interfaces();
+        let new_value = has_mdns_capable_interfaces();
         if new_value != current {
             current = new_value;
             emit_event(
@@ -330,7 +332,7 @@ fn subscribe_can_browse(window: Window, state: State<ManagedState>) {
             &window,
             "can-browse-changed",
             &CanBrowseChangedEventRes {
-                can_browse: has_multicast_capable_interfaces(),
+                can_browse: has_mdns_capable_interfaces(),
             },
         );
     }
@@ -650,6 +652,7 @@ mod app_updates {
 
 #[cfg(desktop)]
 pub fn run() {
+    use tauri_plugin_log::{Target, TargetKind};
     let args = Args::parse();
 
     #[cfg(target_os = "linux")]
@@ -715,6 +718,11 @@ pub fn run() {
 pub fn run_mobile() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .level(log::LevelFilter::Info)
+                .build(),
+        )
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
         .invoke_handler(tauri::generate_handler![
