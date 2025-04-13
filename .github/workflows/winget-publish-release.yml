@@ -38,7 +38,7 @@ jobs:
           echo "Short Version: $SHORT_VERSION"
 
       - name: Update Package
-        uses: michidk/run-komac@latest
+        uses: michidk/run-komac@v2.1.0
         with:
           komac-version: "2.8.0"
           args: "update hrzlgnm.mdns-browser --version $SHORT_VERSION --urls $FINAL_URL --submit --token=${{ secrets.WINGET_TOKEN }}"
@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Run Komac
-        uses: michidk/run-komac@latest
+        uses: michidk/run-komac@v2.1.0
         with:
           komac-version: "2.8.0"
           args: "cleanup --only-merged --token=${{ secrets.WINGET_TOKEN }}"
