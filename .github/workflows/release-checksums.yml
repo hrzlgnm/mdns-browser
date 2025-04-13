@@ -36,15 +36,16 @@ jobs:
     outputs:
       file: sha256sums.txt
     steps:
-      - uses: robinraju/release-downloader@v1.12
+      - name: download assets
+        uses: robinraju/release-downloader@v1.12
         with:
           repository: hrzlgnm/mdns-browser
           tag: ${{ needs.release_info.outputs.tag-name }}
           fileName: "*"
-          tarBall: true
-          zipBall: true
-      - name: Generate .sha256 files
+      - name: Download tarball and generate .sha256 files
         run: |
+          set -o errexit
+          curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.release_info.outputs.tag-name }}.tar.gz
           for file in *; do
             if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
               sha256sum "$file" > "$file.sha256"
@@ -64,15 +65,16 @@ jobs:
     outputs:
       file: sha512sums.txt
     steps:
-      - uses: robinraju/release-downloader@v1.12
+      - name: download assets
+        uses: robinraju/release-downloader@v1.12
         with:
           repository: hrzlgnm/mdns-browser
           tag: ${{ needs.release_info.outputs.tag-name }}
           fileName: "*"
-          tarBall: true
-          zipBall: true
-      - name: Generate .sha512 files
+      - name: Download tarball and generate .sha512 files
         run: |
+          set -o errexit
+          curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.release_info.outputs.tag-name }}.tar.gz
           for file in *; do
             if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
               sha512sum "$file" > "$file.sha512"
