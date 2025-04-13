@@ -12,8 +12,9 @@ use tauri_sys::event::listen;
 use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSize, Button, ButtonAppearance,
     ButtonSize, Card, CardHeader, CardPreview, ComponentRef, Dialog, DialogBody, DialogSurface,
-    DialogTitle, Flex, FlexAlign, FlexGap, FlexJustify, Grid, GridItem, Input, Layout, Scrollbar,
-    Select, Table, TableBody, TableCell, TableRow, Text, TextTag,
+    DialogTitle, Flex, FlexAlign, FlexGap, FlexJustify, Grid, GridItem, Input, Layout, MessageBar,
+    MessageBarBody, MessageBarIntent, MessageBarTitle, Scrollbar, Select, Table, TableBody,
+    TableCell, TableRow, Text, TextTag,
 };
 use thaw_utils::Model;
 
@@ -63,6 +64,20 @@ async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>)
                 }
                 complete => break,
             }
+        }
+    });
+}
+
+async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
+    log_fn!("listen_for_can_browse_change_events", {
+        let mut can_browse = listen::<CanBrowseChangedEventRes>("can-browse-changed")
+            .await
+            .expect("to listen can-browse-changed");
+
+        spawn_local(invoke_no_args("subscribe_can_browse"));
+        while let Some(event) = can_browse.next().await {
+            log::debug!("Received can browse changed: {:#?}", event);
+            event_writer.update(|evt| *evt = event.payload.can_browse);
         }
     });
 }
@@ -651,10 +666,11 @@ enum SortKind {
 /// ```
 #[component]
 pub fn Browse() -> impl IntoView {
+    let (can_browse, set_can_browse) = signal(false);
     let (service_types, set_service_types) = signal(ServiceTypes::new());
     provide_context(ServiceTypesInjection(service_types));
     LocalResource::new(move || listen_for_service_type_events(set_service_types));
-
+    LocalResource::new(move || listen_for_can_browse_change_events(set_can_browse));
     let (resolved, set_resolved) = signal(ResolvedServices::new());
     let (sort_kind, set_sort_kind) = signal(SortKind::HostnameAsc);
     let sorted_resolved = Memo::new(move |_| {
@@ -711,8 +727,8 @@ pub fn Browse() -> impl IntoView {
             && check_service_type_fully_qualified(service_type.get().clone().as_str()).is_err()
     });
 
-    let browsing_or_service_type_invalid =
-        Signal::derive(move || browsing.get() || service_type_invalid.get());
+    let browsing_or_service_type_invalid_or_cannot_browse =
+        Signal::derive(move || !can_browse.get() || browsing.get() || service_type_invalid.get());
 
     let browse_many_action = Action::new_local(|input: &ServiceTypes| {
         let input = input.clone();
@@ -799,6 +815,26 @@ pub fn Browse() -> impl IntoView {
         }
     };
 
+    Effect::watch(
+        move || can_browse.get(),
+        move |can_browse, previous_can_browse, _| {
+            if *can_browse && !previous_can_browse.unwrap_or(&false) {
+                set_resolved.set(Vec::new());
+                service_type.set(String::new());
+                browsing.set(false);
+                spawn_local(invoke_no_args("browse_types"));
+            } else {
+                browsing.set(false);
+                stop_browsing_action.dispatch(());
+                service_type.set(String::new());
+                if let Some(comp) = comp_ref.get_untracked() {
+                    comp.focus();
+                }
+            }
+        },
+        false,
+    );
+
     LocalResource::new(move || listen_for_resolve_events(set_resolved));
     let is_desktop = IsDesktopInjection::expect_context();
     let layout_class = get_class(&is_desktop, "browse-layout");
@@ -807,6 +843,23 @@ pub fn Browse() -> impl IntoView {
     view! {
         <Layout class=layout_class>
             <Flex vertical=true gap=FlexGap::Small>
+                <Show
+                    when=move || { !can_browse.get() }
+                    fallback=move || {
+                        view! { <div class="hidden" /> }
+                    }
+                >
+                    <MessageBar intent=MessageBarIntent::Warning>
+                        <MessageBarBody>
+                            <MessageBarTitle>"No network interfaces detected"</MessageBarTitle>
+                            {if is_desktop.get() {
+                                "Please enable WiFi or connect a network cable to access the network."
+                            } else {
+                                "Please enable WiFi to access the network."
+                            }}
+                        </MessageBarBody>
+                    </MessageBar>
+                </Show>
                 <Flex gap=FlexGap::Small align=FlexAlign::Center justify=FlexJustify::Start>
                     <AutoCompleteServiceType
                         invalid=service_type_invalid
@@ -817,7 +870,7 @@ pub fn Browse() -> impl IntoView {
                     <Button
                         appearance=ButtonAppearance::Primary
                         on_click=on_browse_click
-                        disabled=browsing_or_service_type_invalid
+                        disabled=browsing_or_service_type_invalid_or_cannot_browse
                     >
                         "Browse"
                     </Button>

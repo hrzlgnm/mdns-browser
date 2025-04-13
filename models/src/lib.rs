@@ -156,6 +156,11 @@ pub struct ServiceRemovedEventRes {
     pub at_ms: u64,
 }
 
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct CanBrowseChangedEventRes {
+    pub can_browse: bool,
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateMetadata {

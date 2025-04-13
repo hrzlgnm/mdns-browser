@@ -5,9 +5,14 @@ use clap::Parser;
 use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
 use models::check_service_type_fully_qualified;
 use models::*;
+#[cfg(not(windows))]
+use pnet::datalink;
 #[cfg(all(desktop, not(debug_assertions)))]
 use shared_constants::SPLASH_SCREEN_DURATION;
-use shared_constants::{MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT};
+use shared_constants::{
+    INTERFACES_CAN_BROWSE_CHECK_INTERVAL, MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL,
+    VERIFY_TIMEOUT,
+};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::{
     collections::HashMap,
@@ -28,6 +33,7 @@ struct ManagedState {
     daemon: SharedServiceDaemon,
     running_browsers: Arc<Mutex<Vec<String>>>,
     metrics_subscribed: AtomicBool,
+    can_browse_subscribed: AtomicBool,
 }
 
 impl ManagedState {
@@ -36,6 +42,7 @@ impl ManagedState {
             daemon: get_shared_daemon(),
             running_browsers: Arc::new(Mutex::new(Vec::new())),
             metrics_subscribed: AtomicBool::new(false),
+            can_browse_subscribed: AtomicBool::new(false),
         }
     }
 }
@@ -243,6 +250,80 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
                 }
             }
         }
+    }
+}
+
+#[cfg(not(windows))]
+fn has_multicast_capable_interfaces() -> bool {
+    let interfaces = datalink::interfaces();
+    interfaces.iter().any(|interface| {
+        let capable = !interface.ips.is_empty()
+            && !interface.is_loopback()
+            && interface.is_multicast()
+            && interface.is_up();
+        log::trace!("interface {} can multicast {}", interface.name, capable);
+
+        capable
+    })
+}
+
+#[cfg(windows)]
+fn has_multicast_capable_interfaces() -> bool {
+    use ipconfig::{IfType, OperStatus};
+
+    if let Ok(adapters) = ipconfig::get_adapters() {
+        adapters.iter().any(|adapter| {
+            let capable = !adapter.ip_addresses().is_empty()
+                && adapter.oper_status() == OperStatus::IfOperStatusUp
+                && (adapter.if_type() == IfType::EthernetCsmacd || adapter.if_type() == IfType::Ieee80211);
+            log::trace!("adapter {} can multicast {}, {:?}", adapter.friendly_name(), capable, adapter.if_type());
+
+            capable
+        })
+    } else {
+        log::warn!("Unable to determine whether we have multicast capable adapter, assuming true");
+        true
+    }
+}
+
+#[tauri::command]
+fn subscribe_can_browse(window: Window, state: State<ManagedState>) {
+    if state
+        .can_browse_subscribed
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .is_ok()
+    {
+        tauri::async_runtime::spawn(async move {
+            let mut has_mcast_capable_itfs = has_multicast_capable_interfaces();
+            emit_event(
+                &window,
+                "can-browse-changed",
+                &CanBrowseChangedEventRes {
+                    can_browse: has_mcast_capable_itfs,
+                },
+            );
+            loop {
+                tokio::time::sleep(INTERFACES_CAN_BROWSE_CHECK_INTERVAL).await;
+                if has_mcast_capable_itfs != has_multicast_capable_interfaces() {
+                    has_mcast_capable_itfs = has_multicast_capable_interfaces();
+                    emit_event(
+                        &window,
+                        "can-browse-changed",
+                        &CanBrowseChangedEventRes {
+                            can_browse: has_mcast_capable_itfs,
+                        },
+                    );
+                }
+            }
+        });
+    } else {
+        emit_event(
+            &window,
+            "can-browse-changed",
+            &CanBrowseChangedEventRes {
+                can_browse: has_multicast_capable_interfaces(),
+            },
+        );
     }
 }
 
@@ -610,6 +691,7 @@ pub fn run() {
             copy_to_clipboard,
             is_desktop,
             open_url,
+            subscribe_can_browse,
             subscribe_metrics,
             stop_browse,
             verify,
@@ -632,6 +714,7 @@ pub fn run_mobile() {
             copy_to_clipboard,
             is_desktop,
             open_url,
+            subscribe_can_browse,
             subscribe_metrics,
             stop_browse,
             verify,
