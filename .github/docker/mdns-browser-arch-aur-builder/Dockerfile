@@ -19,7 +19,8 @@ RUN pacman -Syu --noconfirm \
     wget \
     libsoup \
     && useradd -m -G wheel -s /bin/bash runner \
-    && echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+    && echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers \
+    && pacman -Scc --noconfirm
 
 LABEL org.opencontainers.image.source="https://github.com/hrzlgnm/mdns-browser"
 LABEL org.opencontainers.image.title="mDNS-Browser Arch AUR Builder"
