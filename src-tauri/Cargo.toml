@@ -8,7 +8,7 @@ edition = "2021"
 [build-dependencies]
 tauri-build = { version = "2.0.0", features = [] }
 
-[target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
+[target.'cfg(not(any(target_os="android",target_os="ios")))'.dependencies]
 clap = { version = "4.5.19", features = ["derive"] }
 tauri-plugin-log = "2.0.0"
 tauri-plugin-updater = "2.0.1"
@@ -28,6 +28,13 @@ tokio = { version = "1.40.0", features = ["time"] }
 # local
 models = { path = "../models" }
 shared_constants = { path = "../shared_constants" }
+
+# platform-specific dependencies
+[target.'cfg(not(windows))'.dependencies]
+pnet = "0.35.0"
+
+[target.'cfg(windows)'.dependencies]
+ipconfig = "0.3.2"
 
 [lib]
 name = "mdns_browser_lib"
