@@ -24,9 +24,6 @@ use tauri::{AppHandle, Manager, State, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_opener::OpenerExt;
 
-#[cfg(desktop)]
-use tauri_plugin_log::{Target, TargetKind};
-
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
 struct ManagedState {
@@ -255,12 +252,15 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
 
 #[cfg(not(windows))]
 fn has_multicast_capable_interfaces() -> bool {
+    const IFF_PROMISC: u32 = 0x0100;
     let interfaces = datalink::interfaces();
     interfaces.iter().any(|interface| {
         let capable = !interface.ips.is_empty()
             && !interface.is_loopback()
             && interface.is_multicast()
-            && interface.is_up();
+            && interface.is_broadcast()
+            && interface.is_up()
+            && interface.flags & IFF_PROMISC == 0;
         log::trace!("interface {} can multicast {}", interface.name, capable);
 
         capable
@@ -650,6 +650,7 @@ mod app_updates {
 
 #[cfg(desktop)]
 pub fn run() {
+    use tauri_plugin_log::{Target, TargetKind};
     let args = Args::parse();
 
     #[cfg(target_os = "linux")]
@@ -715,6 +716,11 @@ pub fn run() {
 pub fn run_mobile() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .level(log::LevelFilter::Info)
+                .build(),
+        )
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
         .invoke_handler(tauri::generate_handler![

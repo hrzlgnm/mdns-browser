@@ -851,11 +851,13 @@ pub fn Browse() -> impl IntoView {
                 >
                     <MessageBar intent=MessageBarIntent::Warning>
                         <MessageBarBody>
-                            <MessageBarTitle>"No network interfaces detected"</MessageBarTitle>
-                            {if is_desktop.get() {
-                                "Please enable WiFi or connect a network cable to access the network."
-                            } else {
-                                "Please enable WiFi to access the network."
+                            <MessageBarTitle>"No network detected"</MessageBarTitle>
+                            {move || {
+                                if is_desktop.get() {
+                                    "Please connect to WiFi or plugin a network cable."
+                                } else {
+                                    "Please connect to WiFi."
+                                }
                             }}
                         </MessageBarBody>
                     </MessageBar>
