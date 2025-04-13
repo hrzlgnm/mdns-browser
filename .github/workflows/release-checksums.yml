@@ -23,7 +23,7 @@ jobs:
         id: release_info
         run: |
           if [ -n "${{ github.event.release.name }}" ]; then
-            echo "tag-name=${{ github.event.release.tag }}" >> $GITHUB_OUTPUT
+            echo "tag-name=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
           else
             echo "tag-name=mdns-browser-v${{ github.event.inputs.semver }}" >> $GITHUB_OUTPUT
           fi
