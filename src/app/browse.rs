@@ -653,6 +653,7 @@ enum SortKind {
 fn start_auto_focus_timer(
     comp_ref: impl Fn() -> Option<AutoCompleteRef> + 'static,
     tutorial_timeout: impl FnOnce(Option<TimeoutHandle>) + 'static,
+    duration: std::time::Duration,
 ) {
     spawn_local(async move {
         if let Ok(h) = set_timeout_with_handle(
@@ -661,7 +662,7 @@ fn start_auto_focus_timer(
                     comp.focus();
                 }
             },
-            SPLASH_SCREEN_DURATION + AUTO_COMPLETE_AUTO_FOCUS_DELAY,
+            duration,
         ) {
             tutorial_timeout(Some(h));
         }
@@ -799,6 +800,7 @@ pub fn Browse() -> impl IntoView {
             move |h| {
                 tutorial_timeout.set_value(h);
             },
+            SPLASH_SCREEN_DURATION + AUTO_COMPLETE_AUTO_FOCUS_DELAY,
         );
     });
 
@@ -829,6 +831,7 @@ pub fn Browse() -> impl IntoView {
             move |h| {
                 tutorial_timeout.set_value(h);
             },
+            AUTO_COMPLETE_AUTO_FOCUS_DELAY,
         );
     };
 
@@ -843,6 +846,7 @@ pub fn Browse() -> impl IntoView {
                     move |h| {
                         tutorial_timeout.set_value(h);
                     },
+                    AUTO_COMPLETE_AUTO_FOCUS_DELAY,
                 );
             } else {
                 clear_tutorial_timer();
