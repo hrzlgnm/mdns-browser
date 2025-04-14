@@ -28,71 +28,42 @@ jobs:
             echo "tag-name=mdns-browser-v${{ github.event.inputs.semver }}" >> $GITHUB_OUTPUT
           fi
 
-  sha256:
-    name: Generate sha256 checksums
+  generate_checksums:
+    name: Generate checksums
     runs-on: ubuntu-24.04
     needs:
       - release_info
-    outputs:
-      file: sha256sums.txt
+    strategy:
+      matrix:
+        algorithm: [sha256, sha512]
     steps:
       - name: download assets
         uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1.12
         with:
           repository: hrzlgnm/mdns-browser
           tag: ${{ needs.release_info.outputs.tag-name }}
-          fileName: "*"
-      - name: Download tarball and generate .sha256 files
+          fileName: "mdns?browser*"
+      - name: Download tarball and generate checksum files
         run: |
           set -o errexit
           curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.release_info.outputs.tag-name }}.tar.gz
           for file in *; do
             if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
-              sha256sum "$file" > "$file.sha256"
+              ${{ matrix.algorithm }}sum "$file" > "$file.${{ matrix.algorithm }}"
             fi
           done
-      - name: Upload sha256 checksum files
+      - name: Upload checksum files
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: sha256-checksums
-          path: "*.sha256"
-
-  sha512:
-    name: Generate sha512 checksums
-    runs-on: ubuntu-24.04
-    needs:
-      - release_info
-    outputs:
-      file: sha512sums.txt
-    steps:
-      - name: download assets
-        uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1.12
-        with:
-          repository: hrzlgnm/mdns-browser
-          tag: ${{ needs.release_info.outputs.tag-name }}
-          fileName: "*"
-      - name: Download tarball and generate .sha512 files
-        run: |
-          set -o errexit
-          curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.release_info.outputs.tag-name }}.tar.gz
-          for file in *; do
-            if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
-              sha512sum "$file" > "$file.sha512"
-            fi
-          done
-      - name: Upload sha512 checksum files
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: sha512-checksums
-          path: "*.sha512"
+          name: ${{ matrix.algorithm }}-checksums
+          path: "*.${{ matrix.algorithm }}"
 
   publish:
     name: Publish checksum assets
     runs-on: ubuntu-24.04
     needs:
       - release_info
-      - sha256
-      - sha512
+      - generate_checksums
     steps:
       - name: Download all produced artifacts
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4
