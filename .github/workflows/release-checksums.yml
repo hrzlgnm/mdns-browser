@@ -49,7 +49,7 @@ jobs:
           curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.release_info.outputs.tag-name }}.tar.gz
           for file in *; do
             if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
-              ${MATRIX_ALGORITHM}sum "$file" > "$file.${{ matrix.algorithm }}"
+              ${{ matrix.algorithm }}sum "$file" > "$file.${{ matrix.algorithm }}"
             fi
           done
       - name: Upload checksum files
