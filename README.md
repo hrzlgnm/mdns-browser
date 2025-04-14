@@ -57,9 +57,12 @@ For instructions on building the application, checkout the document [BUILDING](B
 Usage: mdns-browser [OPTIONS]
 
 Options:
-  -l, --log-level <LOG_LEVEL>  [default: info] [possible values: trace, debug, info, warn, error]
-  -f, --log-to-file            Enable logging to file
-  -h, --help                   Print help
+  -l, --log-level <LOG_LEVEL>    [default: info] [possible values: trace, debug, info, warn, error]
+  -f, --log-to-file              Enable logging to file
+  -d, --disable-dmabuf-renderer  Disable dmabuf renderer, useful when having rendering issues
+  -h, --help                     Print help
+  -V, --version                  Print version
+
 ```
 
 ### log-to-file
@@ -68,9 +71,14 @@ If enabled, a log file will be created in a platform-specific location:
 
 - Windows: `%LOCALAPPDATA%\com.github.hrzlgnm.mdns-browser\logs`
 - Linux: `$XDG_DATA_HOME/com.github.hrzlgnm.mdns-browser/logs` or `$HOME/.local/share/com.github.hrzlgnm.mdns-browser/logs`
-- nacOS: `~/Library/Logs/com.github.hrzlgnm.mdns-browser`
+- macOS: `~/Library/Logs/com.github.hrzlgnm.mdns-browser`
 
 The log file will be named `mdns-browser.log` and will contain log messages with a log-level having at least a level specified by the `log-level` option.
+
+### disable-dmabuf-renderer (Linux only)
+
+This option disables the dmabuf renderer, which is used to improve performance on Linux.
+If you experience rendering issues, you can try disabling this option to see if it resolves the problem.
 
 ## Where to find the executables?
 
