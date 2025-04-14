@@ -80,6 +80,8 @@ The log file will be named `mdns-browser.log` and will contain log messages with
 This option disables the dmabuf renderer, which is used to improve performance on Linux.
 If you experience rendering issues, you can try disabling this option to see if it resolves the problem.
 
+This option has been added with release [v0.12.0](https://github.com/hrzlgnm/mdns-browser/releases/tag/mdns-browser-v0.12.0)
+
 ## Where to find the executables?
 
 ### GitHub Releases
