@@ -650,6 +650,25 @@ enum SortKind {
     TimestampDesc,
 }
 
+fn start_auto_focus_timer(
+    comp_ref: impl Fn() -> Option<AutoCompleteRef> + 'static,
+    tutorial_timeout: impl FnOnce(Option<TimeoutHandle>) + 'static,
+    duration: std::time::Duration,
+) {
+    spawn_local(async move {
+        if let Ok(h) = set_timeout_with_handle(
+            move || {
+                if let Some(comp) = comp_ref() {
+                    comp.focus();
+                }
+            },
+            duration,
+        ) {
+            tutorial_timeout(Some(h));
+        }
+    });
+}
+
 /// Renders the main browsing interface for network services.
 ///
 /// This component sets up reactive state and event listeners to manage service discovery and browsing.
@@ -727,6 +746,8 @@ pub fn Browse() -> impl IntoView {
             && check_service_type_fully_qualified(service_type.get().clone().as_str()).is_err()
     });
 
+    let browsing_or_cannot_browse = Signal::derive(move || browsing.get() || !can_browse.get());
+
     let browsing_or_service_type_invalid_or_cannot_browse =
         Signal::derive(move || !can_browse.get() || browsing.get() || service_type_invalid.get());
 
@@ -774,18 +795,13 @@ pub fn Browse() -> impl IntoView {
     Effect::new(move |_| {
         // Set a timeout to focus the autocomplete after splash screen
         // This is part of the tutorial timer that should be stopped on user interaction
-        spawn_local(async move {
-            if let Ok(h) = set_timeout_with_handle(
-                move || {
-                    if let Some(comp) = comp_ref.get_untracked() {
-                        comp.focus();
-                    }
-                },
-                SPLASH_SCREEN_DURATION + AUTO_COMPLETE_AUTO_FOCUS_DELAY,
-            ) {
-                tutorial_timeout.set_value(Some(h));
-            }
-        });
+        start_auto_focus_timer(
+            move || comp_ref.get_untracked(),
+            move |h| {
+                tutorial_timeout.set_value(h);
+            },
+            SPLASH_SCREEN_DURATION + AUTO_COMPLETE_AUTO_FOCUS_DELAY,
+        );
     });
 
     let on_quick_filter_focus = move |_| {
@@ -810,26 +826,34 @@ pub fn Browse() -> impl IntoView {
         browsing.set(false);
         stop_browsing_action.dispatch(());
         service_type.set(String::new());
-        if let Some(comp) = comp_ref.get_untracked() {
-            comp.focus();
-        }
+        start_auto_focus_timer(
+            move || comp_ref.get_untracked(),
+            move |h| {
+                tutorial_timeout.set_value(h);
+            },
+            AUTO_COMPLETE_AUTO_FOCUS_DELAY,
+        );
     };
 
     Effect::watch(
         move || can_browse.get(),
         move |can_browse, previous_can_browse, _| {
             if *can_browse && !previous_can_browse.unwrap_or(&false) {
-                set_resolved.set(Vec::new());
                 service_type.set(String::new());
-                browsing.set(false);
                 spawn_local(invoke_no_args("browse_types"));
+                start_auto_focus_timer(
+                    move || comp_ref.get_untracked(),
+                    move |h| {
+                        tutorial_timeout.set_value(h);
+                    },
+                    AUTO_COMPLETE_AUTO_FOCUS_DELAY,
+                );
             } else {
+                clear_tutorial_timer();
+                set_service_types.set(Vec::new());
                 browsing.set(false);
                 stop_browsing_action.dispatch(());
                 service_type.set(String::new());
-                if let Some(comp) = comp_ref.get_untracked() {
-                    comp.focus();
-                }
             }
         },
         false,
@@ -866,7 +890,7 @@ pub fn Browse() -> impl IntoView {
                     <AutoCompleteServiceType
                         invalid=service_type_invalid
                         value=service_type
-                        disabled=browsing
+                        disabled=browsing_or_cannot_browse
                         comp_ref=comp_ref
                     />
                     <Button
