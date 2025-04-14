@@ -26,15 +26,18 @@ jobs:
           - os: "macos-latest"
             args: "--target universal-apple-darwin"
             symbol: 🍏
+            platform: macOS
           - os: "ubuntu-22.04"
             symbol: 🐧
             install: |
               sudo apt-get update
               sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf python3-pip
+            platform: Linux
           - os: "windows-latest"
             symbol: 🪟
             install: |
               choco install wget -y
+            platform: Windows
 
     name: ${{matrix.symbol}}
     runs-on: ${{ matrix.os }}
@@ -204,7 +207,7 @@ jobs:
         with:
           format: "spdx-json"
           output-file: "sbom.spdx.json"
-          artifact-name: "${{ matrix.os }}${{ matrix.args }}.sbom.spdx.json"
+          artifact-name: "sbom.${{ matrix.platform }}.spdx.json"
 
       - name: 🛡️ Attest SBOM
         if: inputs.tagName != ''
@@ -215,4 +218,4 @@ jobs:
             contains(matrix.os, 'windows') && 'target/release/mdns-browser.exe' ||
             contains(matrix.os, 'macos') && 'target/universal-apple-darwin/release/mdns-browser'
             }}
-          sbom-path: "${{ matrix.os }}${{ matrix.args }}.sbom.spdx.json"
+          sbom-path: "sbom.spdx.json"
