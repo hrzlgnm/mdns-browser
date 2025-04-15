@@ -25,12 +25,9 @@
     packageRules: [
         {
             matchPackagePrefixes: ['tauri'],
+            matchDatasources: ['crate'],
             automerge: true,
-            automergeType: 'branch',
-            automergeSchedule: ['at any time'],
-            prCreation: 'not-pending',
-            delayAutomerge: true,
-            automergeDelay: '5 days',
+            minimumReleaseAge: '5 days'
             matchUpdateTypes: ['minor', 'patch']
         }
     ],
