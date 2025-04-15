@@ -20,7 +20,20 @@
     prConcurrentLimit: 0,
     lockFileMaintenance: {
         enabled: true,
+        schedule: ["on the first day of the month"]
     },
+    packageRules: [
+        {
+            matchPackagePrefixes: ['tauri'],
+            automerge: true,
+            automergeType: 'branch',
+            automergeSchedule: ['at any time'],
+            prCreation: 'not-pending',
+            delayAutomerge: true,
+            automergeDelay: '5 days',
+            matchUpdateTypes: ['minor', 'patch']
+        }
+    ],
     customManagers: [
         {
             matchStringsStrategy: 'any',
