@@ -395,6 +395,7 @@ fn version(window: Window) -> String {
 #[cfg(desktop)]
 #[cfg(target_os = "linux")]
 mod linux {
+    use regex::Regex;
     use std::process::Command;
     fn check_nvidia_glxinfo() -> Result<bool, ()> {
         let is_glxinfo_installed = Command::new("sh")
@@ -415,10 +416,10 @@ mod linux {
             .output();
 
         if let Ok(out) = output {
-            let out_str = String::from_utf8_lossy(&out.stdout);
-            return Ok(out_str.to_lowercase().contains("nvidia"));
+            let out_str = String::from_utf8_lossy(&out.stdout).to_lowercase();
+            let re = Regex::new(r"nvidia|nv\d+").unwrap();
+            return Ok(re.is_match(&out_str));
         }
-
         Ok(false)
     }
 
@@ -438,7 +439,7 @@ mod linux {
         // Check for Nvidia via glxinfo
         let nvidia_detected = check_nvidia_glxinfo()?;
         if nvidia_detected {
-            eprintln!("Note: nvidia with XOrg detected, disabling dmabuf renderer. Expect degraded renderer performance.");
+            eprintln!("Note: nvidia|nouveau with X.Org detected, disabling dmabuf renderer. Expect degraded renderer performance.");
             eprintln!("See https://github.com/hrzlgnm/mdns-browser/issues/947 for more details.");
         }
         Ok(nvidia_detected)
