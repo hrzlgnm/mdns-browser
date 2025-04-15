@@ -27,7 +27,7 @@
             matchPackagePrefixes: ['tauri'],
             matchDatasources: ['crate'],
             automerge: true,
-            minimumReleaseAge: '5 days'
+            minimumReleaseAge: '5 days',
             matchUpdateTypes: ['minor', 'patch']
         }
     ],
