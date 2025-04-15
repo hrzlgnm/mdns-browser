@@ -20,16 +20,25 @@
     prConcurrentLimit: 0,
     lockFileMaintenance: {
         enabled: true,
-        schedule: ["on the first day of the month"]
+        schedule: [
+            'on the first day of the month',
+        ],
     },
     packageRules: [
         {
-            matchPackagePrefixes: ['tauri'],
-            matchDatasources: ['crate'],
+            matchDatasources: [
+                'crate',
+            ],
             automerge: true,
             minimumReleaseAge: '5 days',
-            matchUpdateTypes: ['minor', 'patch']
-        }
+            matchUpdateTypes: [
+                'minor',
+                'patch',
+            ],
+            matchPackageNames: [
+                'tauri{/,}**',
+            ],
+        },
     ],
     customManagers: [
         {
@@ -53,7 +62,7 @@
                 '^aur-template/.*.sh$',
             ],
             matchStrings: [
-                'cargo.*install (?<depName>\\S+)@(?<currentValue>\\S+)'
+                'cargo.*install (?<depName>\\S+)@(?<currentValue>\\S+)',
             ],
             depTypeTemplate: 'build-dependencies',
             datasourceTemplate: 'crate',
