@@ -16,7 +16,6 @@ jobs:
   update_version:
     permissions:
       contents: write
-      pull-requests: write
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.semver.outputs.semantic-version }}
@@ -34,6 +33,16 @@ jobs:
           create-release: false
           dry-run: true
 
+      - name: Set up SSH signing key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/id_ed25519_signing
+          chmod 600 ~/.ssh/id_ed25519_signing
+          git config --global gpg.format ssh
+          git config --global user.signingKey ~/.ssh/id_ed25519_signing
+          git config --global user.name "hrzlgnm"
+          git config --global user.email "hrzlgnm@users.noreply.github.com"
+
       - name: Update cargo and tauri versions
         run: |
           sudo apt install jq
@@ -48,17 +57,8 @@ jobs:
           sed -i '/name = "models"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
           sed -i '/name = "shared_constants"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
 
-      - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7
-        with:
-          commit-message: "chore(version): bump to ${{ steps.semver.outputs.semantic-version }}"
-          sign-commits: true
-          base: main
-          branch: bump/version-${{ steps.semver.outputs.semantic-version }}
-          branch-suffix: random
-          labels: |
-            ignore
-          delete-branch: true
-          title: "chore(version): bump version to ${{ steps.semver.outputs.semantic-version }}"
-          draft: false
+      - name: Commit and push
+        run: |
+          git add -A
+          git commit -S -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
+          git push
