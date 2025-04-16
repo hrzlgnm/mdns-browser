@@ -9,13 +9,6 @@ jobs:
   publish:
     runs-on: ubuntu-24.04
     steps:
-      - name: 📥 Cached Install komac
-        uses: baptiste0928/cargo-install@91c5da15570085bcde6f4d7aed98cb82d6769fd3 # v3
-        with:
-          crate: komac
-          version: 2.11.2
-          locked: true
-
       - name: Detect Latest Release
         id: latest_release
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
