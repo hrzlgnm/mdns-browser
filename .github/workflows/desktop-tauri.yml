@@ -6,9 +6,6 @@ on:
       tagName:
         required: false
         type: string
-      releaseBody:
-        required: false
-        type: string
       releaseName:
         required: false
         type: string
@@ -31,7 +28,7 @@ jobs:
             symbol: 🐧
             install: |
               sudo apt-get update
-              sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf python3-pip
+              sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
             platform: Linux
           - os: "windows-latest"
             symbol: 🪟
@@ -155,7 +152,6 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           tagName: ${{ inputs.tagName }}
-          releaseBody: ${{ inputs.releaseBody }}
           releaseName: ${{ inputs.releaseName }}
           releaseDraft: false
           prerelease: false
