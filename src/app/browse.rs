@@ -10,11 +10,11 @@ use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
 use tauri_sys::event::listen;
 use thaw::{
-    AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSize, Button, ButtonAppearance,
-    ButtonSize, Card, CardHeader, CardPreview, ComponentRef, Dialog, DialogBody, DialogSurface,
-    DialogTitle, Flex, FlexAlign, FlexGap, FlexJustify, Grid, GridItem, Input, Layout, MessageBar,
-    MessageBarBody, MessageBarIntent, MessageBarTitle, Scrollbar, Select, Table, TableBody,
-    TableCell, TableRow, Text, TextTag,
+    AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSize, Badge, BadgeAppearance,
+    BadgeColor, BadgeSize, Button, ButtonAppearance, ButtonSize, Card, CardHeader, CardPreview,
+    ComponentRef, Dialog, DialogBody, DialogSurface, DialogTitle, Flex, FlexAlign, FlexGap,
+    FlexJustify, Grid, GridItem, Input, Layout, MessageBar, MessageBarBody, MessageBarIntent,
+    MessageBarTitle, Scrollbar, Select, Table, TableBody, TableCell, TableRow, Text, TextTag,
 };
 use thaw_utils::Model;
 
@@ -926,6 +926,21 @@ pub fn Browse() -> impl IntoView {
                         class=input_class
                         on_focus=on_quick_filter_focus
                     />
+                    <Badge
+                        appearance=BadgeAppearance::Tint
+                        size=BadgeSize::Large
+                        color=BadgeColor::Subtle
+                    >
+                        {{
+                            move || {
+                                format!(
+                                    "{} / {}",
+                                    filtered_services.get().len(),
+                                    resolved.get().len(),
+                                )
+                            }
+                        }}
+                    </Badge>
                 </Flex>
             </Flex>
             <Grid class=grid_class>
