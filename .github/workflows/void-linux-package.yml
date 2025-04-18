@@ -1,9 +1,9 @@
 name: Publish Void Linux XBPS Package
 
 on:
-  push:
-    tags:
-      - "mdns-browser-v*"
+  release:
+    types:
+      - published
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   XBPS_ALLOW_RESTRICTED: yes
