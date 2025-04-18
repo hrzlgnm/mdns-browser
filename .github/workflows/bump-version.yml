@@ -57,8 +57,9 @@ jobs:
           sed -i '/name = "models"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
           sed -i '/name = "shared_constants"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
 
-      - name: Commit and push
+      - name: Commit, tag and push
         run: |
           git add -A
           git commit -S -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
-          git push
+          git tag -a mdns-browser-v${{ steps.semver.outputs.semantic-version }}
+          git push --tags
