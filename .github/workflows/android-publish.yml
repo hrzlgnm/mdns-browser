@@ -1,9 +1,9 @@
 name: "📱"
 
 on:
-  push:
-    tags:
-      - "mdns-browser-v*"
+  release:
+    types:
+      - prereleased
 
 jobs:
   publish:
