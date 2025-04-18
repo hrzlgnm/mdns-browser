@@ -907,6 +907,21 @@ pub fn Browse() -> impl IntoView {
                     >
                         "Stop"
                     </Button>
+                    <Badge
+                        appearance=BadgeAppearance::Tint
+                        size=BadgeSize::Large
+                        color=BadgeColor::Subtle
+                    >
+                        {{
+                            move || {
+                                format!(
+                                    "{} / {}",
+                                    filtered_services.get().len(),
+                                    resolved.get().len(),
+                                )
+                            }
+                        }}
+                    </Badge>
                 </Flex>
                 <Flex gap=FlexGap::Small align=FlexAlign::Center justify=FlexJustify::Start>
                     <Text>"Sort by"</Text>
@@ -926,21 +941,6 @@ pub fn Browse() -> impl IntoView {
                         class=input_class
                         on_focus=on_quick_filter_focus
                     />
-                    <Badge
-                        appearance=BadgeAppearance::Tint
-                        size=BadgeSize::Large
-                        color=BadgeColor::Subtle
-                    >
-                        {{
-                            move || {
-                                format!(
-                                    "{} / {}",
-                                    filtered_services.get().len(),
-                                    resolved.get().len(),
-                                )
-                            }
-                        }}
-                    </Badge>
                 </Flex>
             </Flex>
             <Grid class=grid_class>
