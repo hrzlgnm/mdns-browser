@@ -61,5 +61,6 @@ jobs:
         run: |
           git add -A
           git commit -S -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
+          git push
           git tag -s -a mdns-browser-v${{ steps.semver.outputs.semantic-version }} -m "mDNS-Browser Release v${{ steps.semver.outputs.semantic-version}}"
           git push --tags
