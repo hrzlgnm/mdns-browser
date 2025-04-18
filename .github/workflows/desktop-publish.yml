@@ -3,7 +3,7 @@ name: "🖥️"
 on:
   release:
     types:
-      - prereleased
+      - published
 
 jobs:
   publish:
