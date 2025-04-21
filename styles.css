@@ -39,8 +39,15 @@ body {
 
 .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(48vw, 1fr));
+    gap: 0px;
+    max-width: 98vw;
+}
+
+.metric-item {
+    border: var(--strokeWidthThin) solid var(--colorNeutralStroke2);
+    padding: 2px 5px 2px 5px;
+    max-width: 48vw;
 }
 
 .desktop-resolved-service-card {
