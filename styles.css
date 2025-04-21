@@ -33,8 +33,22 @@ body {
 .desktop-browse-layout {
     padding-top: 10px;
 }
+
 .desktop-metrics-layout {
 }
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0px;
+}
+
+.metric-item {
+    border: var(--strokeWidthThin) solid var(--colorNeutralStroke2);
+    padding: 2px 5px 2px 5px;
+    min-width: 160px;
+}
+
 .desktop-resolved-service-card {
     width: 520px; !important;
 }

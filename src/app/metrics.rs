@@ -4,8 +4,8 @@ use leptos::task::spawn_local;
 use models::MetricsEventRes;
 use tauri_sys::event::listen;
 use thaw::{
-    Accordion, AccordionHeader, AccordionItem, Layout, Table, TableBody, TableCell, TableHeader,
-    TableHeaderCell, TableRow,
+    Accordion, AccordionHeader, AccordionItem, Badge, BadgeAppearance, BadgeColor, BadgeSize,
+    Layout, Text, TextTag,
 };
 
 use super::invoke::invoke_no_args;
@@ -38,30 +38,29 @@ pub fn Metrics() -> impl IntoView {
             <Accordion multiple=true>
                 <AccordionItem value="metrics">
                     <AccordionHeader slot>"mDNS-SD-metrics"</AccordionHeader>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHeaderCell resizable=true>"Metric"</TableHeaderCell>
-                                <TableHeaderCell resizable=true>"Counter"</TableHeaderCell>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {move || {
-                                metrics
-                                    .get()
-                                    .into_iter()
-                                    .map(|(k, v)| {
-                                        view! {
-                                            <TableRow>
-                                                <TableCell>{k}</TableCell>
-                                                <TableCell>{v}</TableCell>
-                                            </TableRow>
-                                        }
-                                    })
-                                    .collect::<Vec<_>>()
-                            }}
-                        </TableBody>
-                    </Table>
+                    <div class="metrics-grid">
+                        {move || {
+                            metrics
+                                .get()
+                                .into_iter()
+                                .filter(|(_, v)| *v != 0i64)
+                                .map(|(k, v)| {
+                                    view! {
+                                        <div class="metric-item">
+                                            <Text tag=TextTag::I>{k}" "</Text>
+                                            <Badge
+                                                appearance=BadgeAppearance::Tint
+                                                size=BadgeSize::Large
+                                                color=BadgeColor::Subtle
+                                            >
+                                                {v}
+                                            </Badge>
+                                        </div>
+                                    }
+                                })
+                                .collect::<Vec<_>>()
+                        }}
+                    </div>
                 </AccordionItem>
             </Accordion>
         </Layout>
