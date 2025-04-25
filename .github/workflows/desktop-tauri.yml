@@ -199,7 +199,7 @@ jobs:
             target/release/mdns_browser.pdb
 
       - name: 📜 Create SBOM
-        uses: anchore/sbom-action@f325610c9f50a54015d37c8d16cb3b0e2c8f4de0 # v0
+        uses: anchore/sbom-action@9f7302141466aa6482940f15371237e9d9f4c34a # v0
         with:
           format: "spdx-json"
           output-file: "sbom.spdx.json"
