@@ -31,87 +31,103 @@ where
     T: DeserializeOwned + 'static + std::fmt::Debug,
     F: FnMut(T),
 {
-    match listen::<T>(event_name).await {
-        Ok(mut events) => {
-            while let Some(event) = events.next().await {
-                log::debug!("Received event '{}': {:#?}", event_name, event.payload);
-                process_event(event.payload);
-            }
-        }
+    let events = match listen::<T>(event_name).await {
+        Ok(events) => events,
         Err(err) => {
             log::error!(
                 "Failed to listen to event: {}. Error: {:?}",
                 event_name,
                 err
             );
+            return;
         }
+    };
+
+    let mut events = events;
+    while let Some(event) = events.next().await {
+        log::debug!("Received event '{}': {:#?}", event_name, event.payload);
+        process_event(event.payload);
     }
 }
 
-async fn listen_add_remove<A, D, FA, FD>(
-    add_event_name: &str,
+async fn listen_add_remove<A, R, FA, FR>(
+    added_event_name: &str,
     mut process_added: FA,
-    remove_event_name: &str,
-    mut process_removed: FD,
+    removed_event_name: &str,
+    mut process_removed: FR,
 ) where
     A: DeserializeOwned + 'static + std::fmt::Debug,
-    D: DeserializeOwned + 'static + std::fmt::Debug,
+    R: DeserializeOwned + 'static + std::fmt::Debug,
     FA: FnMut(A),
-    FD: FnMut(D),
+    FR: FnMut(R),
 {
-    let added = listen::<A>(add_event_name).await;
-    let removed = listen::<D>(remove_event_name).await;
-    if let (Ok(added), Ok(removed)) = (added, removed) {
-        let mut added_fused = added.fuse();
-        let mut remove_fused = removed.fuse();
-        loop {
-            select! {
-                event = added_fused.next() => {
-                    if let Some(event) = event {
-                        log::debug!("Received event '{}': {:#?}", add_event_name, event.payload);
-                        process_added(event.payload);
-                    }
-                },
-                event = remove_fused.next() => {
-                    if let Some(event) = event {
-                        log::debug!("Received event '{}': {:#?}", remove_event_name, event.payload);
-                        process_removed(event.payload);
-                    }
-                },
-                complete => break,
-            }
+    let added = listen::<A>(added_event_name).await;
+    let added = match added {
+        Ok(added) => added,
+        Err(added) => {
+            log::error!(
+                "Failed to listen to event: {}. Error: {:?}",
+                added_event_name,
+                added
+            );
+            return;
         }
-    } else {
-        log::error!(
-            "Failed to listen to events: {} or {}.",
-            add_event_name,
-            remove_event_name,
-        );
+    };
+
+    let removed = listen::<R>(removed_event_name).await;
+    let removed = match removed {
+        Ok(removed) => removed,
+        Err(removed) => {
+            log::error!(
+                "Failed to listen to event: {}. Error: {:?}",
+                removed_event_name,
+                removed
+            );
+            return;
+        }
+    };
+
+    let mut added_fused = added.fuse();
+    let mut removed_fused = removed.fuse();
+    loop {
+        select! {
+            added = added_fused.next() => {
+                if let Some(added) = added {
+                    log::debug!("Received event '{}': {:#?}", added_event_name, added.payload);
+                    process_added(added.payload);
+                }
+            },
+            removed = removed_fused.next() => {
+                if let Some(removed) = removed {
+                    log::debug!("Received event '{}': {:#?}", removed_event_name, removed.payload);
+                    process_removed(removed.payload);
+                }
+            },
+            complete => break,
+        }
     }
 }
 
 async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
-    spawn_local(async move {
-        listen_add_remove(
-            "service-type-found",
-            |event: ServiceTypeFoundEventRes| {
-                let mut set = HashSet::new();
-                event_writer.update(|sts| {
-                    sts.push(event.service_type);
-                    sts.retain(|st| set.insert(st.clone()));
-                    sts.sort();
-                });
-            },
-            "service-type-removed",
-            |event: ServiceTypeRemovedEventRes| {
-                event_writer.update(|evts| {
-                    evts.retain(|st| st != &event.service_type);
-                    evts.sort();
-                });
-            },
-        )
-        .await;
-    });
+    listen_add_remove(
+        "service-type-found",
+        |event: ServiceTypeFoundEventRes| {
+            let mut set = HashSet::new();
+            event_writer.update(|sts| {
+                sts.push(event.service_type);
+                sts.retain(|st| set.insert(st.clone()));
+                sts.sort();
+            });
+        },
+        "service-type-removed",
+        |event: ServiceTypeRemovedEventRes| {
+            event_writer.update(|evts| {
+                evts.retain(|st| st != &event.service_type);
+                evts.sort();
+            });
+        },
+    )
+    .await;
     spawn_local(invoke_no_args("browse_types"));
 }
 
@@ -126,29 +142,27 @@ async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
 }
 
 async fn listen_for_resolve_events(event_writer: WriteSignal<ResolvedServices>) {
-    spawn_local(async move {
-        listen_add_remove(
-            "service-resolved",
-            |event: ServiceResolvedEventRes| {
-                event_writer.update(|evts| {
-                    evts.retain(|r| r.instance_name != event.service.instance_name);
-                    evts.push(event.service);
-                });
-            },
-            "service-removed",
-            |event: ServiceRemovedEventRes| {
-                event_writer.update(|evts| {
-                    for item in evts.iter_mut() {
-                        if item.instance_name == event.instance_name {
-                            item.die_at(event.at_ms);
-                            break;
-                        }
+    listen_add_remove(
+        "service-resolved",
+        |event: ServiceResolvedEventRes| {
+            event_writer.update(|evts| {
+                evts.retain(|r| r.instance_name != event.service.instance_name);
+                evts.push(event.service);
+            });
+        },
+        "service-removed",
+        |event: ServiceRemovedEventRes| {
+            event_writer.update(|evts| {
+                for item in evts.iter_mut() {
+                    if item.instance_name == event.instance_name {
+                        item.die_at(event.at_ms);
+                        break;
                     }
-                });
-            },
-        )
-        .await;
-    });
+                }
+            });
+        },
+    )
+    .await;
 }
 
 #[derive(Serialize, Deserialize)]
