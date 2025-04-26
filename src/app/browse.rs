@@ -26,6 +26,7 @@ use super::{
     is_desktop::IsDesktopInjection, values_table::ValuesTable,
 };
 
+/// ```
 async fn listen_and_process_events<T, F>(event_name: &str, event_processor: F)
 where
     T: DeserializeOwned + 'static + std::fmt::Debug,
@@ -48,6 +49,17 @@ where
     }
 }
 
+/// Listens for service type addition and removal events, updating the provided signal with the current set of service types.
+///
+/// Spawns asynchronous tasks to handle "service-type-found" and "service-type-removed" events, ensuring the signal remains sorted and deduplicated. Also triggers a command to initiate service type browsing.
+///
+/// # Examples
+///
+/// ```
+/// // Assume `service_types_signal` is a WriteSignal<ServiceTypes>.
+/// listen_for_service_type_events(service_types_signal).await;
+/// // The signal will be updated as service types are found or removed.
+/// ```
 async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
     spawn_local(async move {
         listen_and_process_events("service-type-found", |event: ServiceTypeFoundEventRes| {
@@ -75,6 +87,17 @@ async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>)
     spawn_local(invoke_no_args("browse_types"));
 }
 
+/// Listens for "can-browse-changed" events and updates the browsing capability signal.
+///
+/// Spawns tasks to handle incoming events that indicate whether browsing is currently allowed, updating the provided signal accordingly. Also subscribes to browsing capability notifications.
+///
+/// # Examples
+///
+/// ```
+/// let (can_browse, set_can_browse) = create_signal(false);
+/// listen_for_can_browse_change_events(set_can_browse);
+/// // The `can_browse` signal will be updated when "can-browse-changed" events are received.
+/// ```
 async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
     spawn_local(async move {
         listen_and_process_events("can-browse-changed", |event: CanBrowseChangedEventRes| {
@@ -85,6 +108,21 @@ async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
     spawn_local(invoke_no_args("subscribe_can_browse"));
 }
 
+/// Sets up asynchronous listeners for resolved and removed service events, updating the resolved services signal accordingly.
+///
+/// Spawns tasks to listen for "service-resolved" events, adding or updating resolved services, and "service-removed" events, marking services as dead by setting a timestamp.
+///
+/// # Examples
+///
+/// ```
+/// use leptos::WriteSignal;
+/// # use crate::listen_for_resolve_events;
+/// # use crate::ResolvedServices;
+/// # async fn example(event_writer: WriteSignal<ResolvedServices>) {
+/// listen_for_resolve_events(event_writer).await;
+/// # }
+/// ```
+async fn listen_for_resolve_events(event_writer: WriteSignal<ResolvedServices>) {
 async fn listen_for_resolve_events(event_writer: WriteSignal<ResolvedServices>) {
     spawn_local(async move {
         listen_and_process_events("service-resolved", |event: ResolvedServiceEventRes| {
@@ -116,6 +154,7 @@ struct BrowseManyArgs {
     serviceTypes: Vec<String>,
 }
 
+/// ```
 async fn browse_many(service_types: Vec<String>) {
     log_fn!(format!("browse_many({:?})", service_types), {
         let _ = invoke::<()>(
@@ -249,8 +288,18 @@ fn drop_trailing_dot(fqn: &str) -> String {
 ///
 /// let alias =
 /// drop_locdrop_locdrop_locdrop_locdrop_locdrop_locdrop_locdrop_locdrop_local_and_trailing_dotas, "service");
+/// Removes a trailing ".local." suffix and any trailing '.' from the given string.
+///
+/// # Examples
+///
 /// ```
-fn drop_local_and_trailing_dot(fqn: &str) -> String {
+/// let cleaned = drop_local_and_trailing_dot("printer.local.");
+/// assert_eq!(cleaned, "printer");
+/// let cleaned = drop_local_and_trailing_dot("service.example.");
+/// assert_eq!(cleaned, "service.example");
+/// let cleaned = drop_local_and_trailing_dot("host.local");
+/// assert_eq!(cleaned, "host.local");
+/// ```fn drop_local_and_trailing_dot(fqn: &str) -> String {
     let without_local = fqn.strip_suffix(".local.").unwrap_or(fqn);
     drop_trailing_dot(without_local)
 }
@@ -360,8 +409,22 @@ fn format_address(address: &std::net::IpAddr) -> String {
 /// } else {
 ///     println!("No valid URL could be constructed");
 /// }
+/// Constructs a URL for accessing a resolved network service if its type and TXT records support it.
+///
+/// Returns an HTTP, HTTPS, or Home Assistant URL based on the service type and TXT records, or `None` if a valid URL cannot be constructed.
+///
+/// # Examples
+///
 /// ```
-fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
+/// let service = ResolvedService {
+///     service_type: "_http._tcp.local.".to_string(),
+///     port: 8080,
+///     txt: vec![TxtRecord { key: "path".to_string(), val: Some("dashboard".to_string()) }],
+///     ..Default::default()
+/// };
+/// let url = get_open_url(&service);
+/// assert_eq!(url, Some("http://[::1]:8080/dashboard".to_string()));
+/// ```fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
     let path = resolved_service
         .txt
         .iter()
@@ -400,6 +463,21 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
 }
 
 #[component]
+/// Renders a table row with a label and a copy-to-clipboard button.
+///
+/// Displays the provided label in the first cell and a button in the second cell that copies the specified text to the clipboard. The button can be optionally disabled or display custom button text.
+///
+/// # Examples
+///
+/// ```
+/// let row = ResolvedRow(
+///     class = None,
+///     label = "Hostname".to_string(),
+///     text = Some("example.local".to_string()),
+///     button_text = Some("Copy".to_string()),
+///     disabled = Signal::static(false),
+/// );
+/// ```
 fn ResolvedRow(
     #[prop(optional, into)] class: MaybeProp<String>,
     #[prop(into)] label: String,
@@ -421,6 +499,28 @@ fn ResolvedRow(
 
 /// Component that shows a resolved service as a card
 #[component]
+/// Displays a resolved network service in a card with details and actions.
+///
+/// Shows the service's instance name, hostname, port, type, IP address, and last update time.
+/// Provides buttons to copy values, view additional details (subtype, all IPs, TXT records), verify the service, and open its URL if available.
+/// Disables actions if the service is marked as dead.
+///
+/// # Examples
+///
+/// ```
+/// let resolved_service = ResolvedService {
+///     instance_name: "printer._ipp._tcp.local.".to_string(),
+///     hostname: "printer.local.".to_string(),
+///     port: 631,
+///     service_type: "_ipp._tcp.local.".to_string(),
+///     addresses: vec!["192.168.1.42".parse().unwrap()],
+///     txt: vec!["txtvers=1".to_string()],
+///     subtype: None,
+///     updated_at_ms: 1_700_000_000_000,
+///     dead: false,
+/// };
+/// let view = ResolvedServiceItem(resolved_service);
+/// ```
 fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let instance_fullname = RwSignal::new(resolved_service.instance_name.clone());
     let verify_action = Action::new_local(|instance_fullname: &String| {
@@ -653,6 +753,18 @@ fn start_auto_focus_timer(
 /// // Integrate `view` into your Leptos application layout as needed.
 /// ```
 #[component]
+/// Renders the main network service browsing interface.
+///
+/// Displays controls for browsing network services, filtering and sorting results, and viewing details of resolved services. Integrates with asynchronous event listeners to update UI state in real time based on network changes. Provides autocomplete for service types, quick filtering, and responsive controls for starting and stopping browsing.
+///
+/// # Examples
+///
+/// ```
+/// // In a Leptos app's main view function:
+/// view! {
+///     <Browse />
+/// }
+/// ```
 pub fn Browse() -> impl IntoView {
     let (can_browse, set_can_browse) = signal(false);
     let (service_types, set_service_types) = signal(ServiceTypes::new());
