@@ -1,30 +1,24 @@
-use futures::StreamExt;
 use leptos::prelude::*;
-use leptos::task::spawn_local;
 use models::MetricsEventRes;
-use tauri_sys::event::listen;
 use thaw::{
     Accordion, AccordionHeader, AccordionItem, Badge, BadgeAppearance, BadgeColor, BadgeSize,
     Layout, Text, TextTag,
 };
 
-use super::invoke::invoke_no_args;
-use crate::log_fn;
+use super::listen::listen_events;
 
 async fn listen_for_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
-    log_fn!("listen_for_service_type_events", {
-        log::debug!("-> Listen on metrics");
-        let mut metrics = listen::<MetricsEventRes>("metrics")
-            .await
-            .expect("to listen on metrics");
-        while let Some(event) = metrics.next().await {
-            log::debug!("Received metrics {:#?}", event);
+    listen_events(
+        "metrics",
+        "subscribe_metrics",
+        move |event: MetricsEventRes| {
             event_writer.update(|evts| {
-                *evts = event.payload.metrics.into_iter().collect::<Vec<_>>();
+                *evts = event.metrics.into_iter().collect::<Vec<_>>();
                 evts.sort_by(|a, b| a.0.cmp(&b.0));
             });
-        }
-    });
+        },
+    )
+    .await;
 }
 
 /// Component for metrics
@@ -32,7 +26,6 @@ async fn listen_for_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
 pub fn Metrics() -> impl IntoView {
     let metrics = RwSignal::new(Vec::new());
     LocalResource::new(move || listen_for_metrics_event(metrics));
-    spawn_local(invoke_no_args("subscribe_metrics"));
     view! {
         <Layout class="metrics-layout">
             <Accordion multiple=true>
