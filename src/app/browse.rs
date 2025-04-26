@@ -1,15 +1,12 @@
 use chrono::{DateTime, Local};
-use futures::{select, StreamExt};
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use models::*;
-use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use shared_constants::{AUTO_COMPLETE_AUTO_FOCUS_DELAY, SPLASH_SCREEN_DURATION, VERIFY_TIMEOUT};
 use std::collections::HashSet;
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
-use tauri_sys::event::listen;
 use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSize, Badge, BadgeAppearance,
     BadgeColor, BadgeSize, Button, ButtonAppearance, ButtonSize, Card, CardHeader, CardPreview,
@@ -22,91 +19,13 @@ use thaw_utils::Model;
 use crate::{app::about::open_url, log_fn};
 
 use super::{
-    clipboard::CopyToClipBoardButton, css::get_class, invoke::invoke_no_args,
-    is_desktop::IsDesktopInjection, values_table::ValuesTable,
+    clipboard::CopyToClipBoardButton,
+    css::get_class,
+    invoke::invoke_no_args,
+    is_desktop::IsDesktopInjection,
+    listen::{listen_add_remove, listen_events},
+    values_table::ValuesTable,
 };
-
-async fn listen_event<T, F>(event_name: &str, mut process_event: F)
-where
-    T: DeserializeOwned + 'static + std::fmt::Debug,
-    F: FnMut(T),
-{
-    let events = match listen::<T>(event_name).await {
-        Ok(events) => events,
-        Err(err) => {
-            log::error!(
-                "Failed to listen to event: {}. Error: {:?}",
-                event_name,
-                err
-            );
-            return;
-        }
-    };
-
-    let mut events = events;
-    while let Some(event) = events.next().await {
-        log::debug!("Received event '{}': {:#?}", event_name, event.payload);
-        process_event(event.payload);
-    }
-}
-
-async fn listen_add_remove<A, R, FA, FR>(
-    added_event_name: &str,
-    mut process_added: FA,
-    removed_event_name: &str,
-    mut process_removed: FR,
-) where
-    A: DeserializeOwned + 'static + std::fmt::Debug,
-    R: DeserializeOwned + 'static + std::fmt::Debug,
-    FA: FnMut(A),
-    FR: FnMut(R),
-{
-    let added = listen::<A>(added_event_name).await;
-    let added = match added {
-        Ok(added) => added,
-        Err(added) => {
-            log::error!(
-                "Failed to listen to event: {}. Error: {:?}",
-                added_event_name,
-                added
-            );
-            return;
-        }
-    };
-
-    let removed = listen::<R>(removed_event_name).await;
-    let removed = match removed {
-        Ok(removed) => removed,
-        Err(removed) => {
-            log::error!(
-                "Failed to listen to event: {}. Error: {:?}",
-                removed_event_name,
-                removed
-            );
-            return;
-        }
-    };
-
-    let mut added_fused = added.fuse();
-    let mut removed_fused = removed.fuse();
-    loop {
-        select! {
-            added = added_fused.next() => {
-                if let Some(added) = added {
-                    log::debug!("Received event '{}': {:#?}", added_event_name, added.payload);
-                    process_added(added.payload);
-                }
-            },
-            removed = removed_fused.next() => {
-                if let Some(removed) = removed {
-                    log::debug!("Received event '{}': {:#?}", removed_event_name, removed.payload);
-                    process_removed(removed.payload);
-                }
-            },
-            complete => break,
-        }
-    }
-}
 
 async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
     listen_add_remove(
@@ -132,13 +51,14 @@ async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>)
 }
 
 async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
-    spawn_local(async move {
-        listen_event("can-browse-changed", |event: CanBrowseChangedEventRes| {
+    listen_events(
+        "can-browse-changed",
+        "subscribe_can_browse".to_string(),
+        |event: CanBrowseChangedEventRes| {
             event_writer.update(|evt| *evt = event.can_browse);
-        })
-        .await;
-    });
-    spawn_local(invoke_no_args("subscribe_can_browse"));
+        },
+    )
+    .await;
 }
 
 async fn listen_for_resolve_events(event_writer: WriteSignal<ResolvedServices>) {
