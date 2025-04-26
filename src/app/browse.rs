@@ -382,13 +382,13 @@ fn ResolvedRow(
     #[prop(optional, into)] disabled: Signal<bool>,
 ) -> impl IntoView {
     let is_desktop = IsDesktopInjection::expect_context();
-    let table_cell_class = get_class(&is_desktop, "resolved-service-table-cell");
+    let value_cell_class = get_class(&is_desktop, "resolved-service-value-cell");
     view! {
         <TableRow>
             <TableCell>
                 <Text tag=TextTag::Em>{label}</Text>
             </TableCell>
-            <TableCell class=table_cell_class>
+            <TableCell class=value_cell_class>
                 <CopyToClipBoardButton text button_text disabled />
             </TableCell>
         </TableRow>
@@ -459,7 +459,7 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
         .to_string();
     let is_desktop = IsDesktopInjection::expect_context();
     let card_class = get_class(&is_desktop, "resolved-service-card");
-    let table_cell_class = get_class(&is_desktop, "resolved-service-table-cell");
+    let value_cell_class = get_class(&is_desktop, "resolved-service-value-cell");
     view! {
         <GridItem>
             <Card class=card_class>
@@ -532,7 +532,7 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                         </DialogSurface>
                                     </Dialog>
                                 </TableCell>
-                                <TableCell class=table_cell_class>
+                                <TableCell class=value_cell_class>
                                     <Flex>
                                         <Button
                                             loading=verifying

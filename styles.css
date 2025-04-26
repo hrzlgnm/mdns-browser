@@ -23,7 +23,7 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)) !important;
     grid-gap: 8px 8px; !important;
 }
-.mobile-resolved-service-table-cell {
+.mobile-resolved-service-value-cell {
     width: 350px;
 }
 
@@ -56,7 +56,7 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)) !important;
     grid-gap: 10px 10px; !important;
 }
-.desktop-resolved-service-table-cell {
+.desktop-resolved-service-value-cell {
     width: 400px;
 }
 
