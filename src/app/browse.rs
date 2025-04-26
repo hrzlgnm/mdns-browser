@@ -452,7 +452,7 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let card_title = get_instance_name(resolved_service.instance_name.as_str());
     let details_title = card_title.clone();
     let show_details = RwSignal::new(false);
-    let first_address = addrs.clone();
+    let first_address = addrs.first().cloned().unwrap_or_default();
 
     let timestamp_str = as_local_datetime
         .format("%Y-%m-%d %H:%M:%S%.3f")
@@ -479,7 +479,7 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                             <ResolvedRow
                                 label="Hostname"
                                 text=host_to_copy
-                                button_text=host_to_show.clone()
+                                button_text=host_to_show
                                 disabled=resolved_service.dead
                             />
                             <ResolvedRow
@@ -490,14 +490,14 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                             />
                             <ResolvedRow
                                 label="Type"
-                                text=service_type_to_copy.clone()
-                                button_text=service_type_to_show.clone()
+                                text=service_type_to_copy
+                                button_text=service_type_to_show
                                 disabled=resolved_service.dead
                             />
                             <ResolvedRow
                                 label="IP"
-                                text=first_address.first().cloned().unwrap()
-                                button_text=first_address.first().cloned().unwrap()
+                                text=first_address.clone()
+                                button_text=first_address
                                 disabled=resolved_service.dead
                             />
                             <ResolvedRow
