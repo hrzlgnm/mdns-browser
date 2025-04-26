@@ -146,7 +146,7 @@ pub struct ServiceTypeFoundEventRes {
 pub type ServiceTypeRemovedEventRes = ServiceTypeFoundEventRes;
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct ResolvedServiceEventRes {
+pub struct ServiceResolvedEventRes {
     pub service: ResolvedService,
 }
 

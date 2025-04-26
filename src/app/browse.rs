@@ -1,5 +1,5 @@
 use chrono::{DateTime, Local};
-use futures::StreamExt;
+use futures::{select, StreamExt};
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use models::*;
@@ -26,7 +26,7 @@ use super::{
     is_desktop::IsDesktopInjection, values_table::ValuesTable,
 };
 
-async fn listen_and_process_events<T, F>(event_name: &str, mut process_event: F)
+async fn listen_event<T, F>(event_name: &str, mut process_event: F)
 where
     T: DeserializeOwned + 'static + std::fmt::Debug,
     F: FnMut(T),
@@ -48,20 +48,60 @@ where
     }
 }
 
+async fn listen_add_remove<A, D, FA, FD>(
+    add_event_name: &str,
+    mut process_added: FA,
+    remove_event_name: &str,
+    mut process_removed: FD,
+) where
+    A: DeserializeOwned + 'static + std::fmt::Debug,
+    D: DeserializeOwned + 'static + std::fmt::Debug,
+    FA: FnMut(A),
+    FD: FnMut(D),
+{
+    let added = listen::<A>(add_event_name).await;
+    let removed = listen::<D>(remove_event_name).await;
+    if let (Ok(added), Ok(removed)) = (added, removed) {
+        let mut added_fused = added.fuse();
+        let mut remove_fused = removed.fuse();
+        loop {
+            select! {
+                event = added_fused.next() => {
+                    if let Some(event) = event {
+                        log::debug!("Received event '{}': {:#?}", add_event_name, event.payload);
+                        process_added(event.payload);
+                    }
+                },
+                event = remove_fused.next() => {
+                    if let Some(event) = event {
+                        log::debug!("Received event '{}': {:#?}", remove_event_name, event.payload);
+                        process_removed(event.payload);
+                    }
+                },
+                complete => break,
+            }
+        }
+    } else {
+        log::error!(
+            "Failed to listen to events: {} or {}.",
+            add_event_name,
+            remove_event_name,
+        );
+    }
+}
+
 async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
     spawn_local(async move {
-        listen_and_process_events("service-type-found", |event: ServiceTypeFoundEventRes| {
-            let mut set = HashSet::new();
-            event_writer.update(|sts| {
-                sts.push(event.service_type);
-                sts.retain(|st| set.insert(st.clone()));
-                sts.sort();
-            });
-        })
-        .await;
-    });
-    spawn_local(async move {
-        listen_and_process_events(
+        listen_add_remove(
+            "service-type-found",
+            |event: ServiceTypeFoundEventRes| {
+                let mut set = HashSet::new();
+                event_writer.update(|sts| {
+                    sts.push(event.service_type);
+                    sts.retain(|st| set.insert(st.clone()));
+                    sts.sort();
+                });
+            },
             "service-type-removed",
             |event: ServiceTypeRemovedEventRes| {
                 event_writer.update(|evts| {
@@ -77,7 +117,7 @@ async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>)
 
 async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
     spawn_local(async move {
-        listen_and_process_events("can-browse-changed", |event: CanBrowseChangedEventRes| {
+        listen_event("can-browse-changed", |event: CanBrowseChangedEventRes| {
             event_writer.update(|evt| *evt = event.can_browse);
         })
         .await;
@@ -87,25 +127,26 @@ async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
 
 async fn listen_for_resolve_events(event_writer: WriteSignal<ResolvedServices>) {
     spawn_local(async move {
-        listen_and_process_events("service-resolved", |event: ResolvedServiceEventRes| {
-            event_writer.update(|evts| {
-                evts.retain(|r| r.instance_name != event.service.instance_name);
-                evts.push(event.service);
-            });
-        })
-        .await;
-    });
-    spawn_local(async move {
-        listen_and_process_events("service-removed", |event: ServiceRemovedEventRes| {
-            event_writer.update(|evts| {
-                for item in evts.iter_mut() {
-                    if item.instance_name == event.instance_name {
-                        item.die_at(event.at_ms);
-                        break;
+        listen_add_remove(
+            "service-resolved",
+            |event: ServiceResolvedEventRes| {
+                event_writer.update(|evts| {
+                    evts.retain(|r| r.instance_name != event.service.instance_name);
+                    evts.push(event.service);
+                });
+            },
+            "service-removed",
+            |event: ServiceRemovedEventRes| {
+                event_writer.update(|evts| {
+                    for item in evts.iter_mut() {
+                        if item.instance_name == event.instance_name {
+                            item.die_at(event.at_ms);
+                            break;
+                        }
                     }
-                }
-            });
-        })
+                });
+            },
+        )
         .await;
     });
 }
@@ -248,7 +289,7 @@ fn drop_trailing_dot(fqn: &str) -> String {
 /// assert_eq!(result, "example");
 ///
 /// let alias = drop_local_and_trailing_dot("service.");
-/// assert_eq!(result, "service");
+/// assert_eq!(alias, "service");
 /// ```
 fn drop_local_and_trailing_dot(fqn: &str) -> String {
     let without_local = fqn.strip_suffix(".local.").unwrap_or(fqn);
