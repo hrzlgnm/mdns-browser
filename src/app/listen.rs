@@ -19,8 +19,36 @@ use tauri_sys::event::listen;
 /// * `F` - The type of the closure that processes events
 ///
 /// # Errors
-/// Logs an error and returns early if event subscription fails.
-pub async fn listen_events<T, F>(
+/// Subscribes to a named event stream and processes each received event with a provided closure.
+///
+/// Attempts to listen for events of type `T` identified by `event_name`. If the subscription is successful,
+/// it invokes the specified subscriber command and processes each incoming event payload using the `process_event` closure.
+/// If the subscription fails, logs an error and returns early.
+///
+/// # Type Parameters
+/// - `T`: The event payload type. Must implement `DeserializeOwned` and `Debug`.
+/// - `F`: A closure that processes each event payload.
+///
+/// # Examples
+///
+/// ```
+/// use serde::Deserialize;
+///
+/// #[derive(Debug, Deserialize)]
+/// struct MyEvent {
+///     value: i32,
+/// }
+///
+/// async fn example() {
+///     listen_events::<MyEvent, _>(
+///         "my_event",
+///         "my_subscriber_command",
+///         |event| {
+///             println!("Received value: {}", event.value);
+///         }
+///     ).await;
+/// }
+/// ```pub async fn listen_events<T, F>(
     event_name: &str,
     subscriber: impl Into<String>,
     mut process_event: F,
@@ -66,8 +94,39 @@ pub async fn listen_events<T, F>(
 /// * `FR` - The type of the closure that processes removal events
 ///
 /// # Errors
-/// Logs an error and returns early if subscription to either event stream fails.
-pub async fn listen_add_remove<A, R, FA, FR>(
+/// Concurrently listens for two related event streams and processes added and removed events with separate handlers.
+///
+/// Subscribes to two event streams identified by `added_event_name` and `removed_event_name`. For each incoming event,
+/// invokes the corresponding closure (`process_added` or `process_removed`) with the event payload. If subscription to
+/// either stream fails, logs an error and returns early. The function exits when both streams are complete.
+///
+/// # Type Parameters
+///
+/// - `A`: Type of the payload for added events. Must implement `DeserializeOwned` and `Debug`.
+/// - `R`: Type of the payload for removed events. Must implement `DeserializeOwned` and `Debug`.
+/// - `FA`: Closure type for processing added events.
+/// - `FR`: Closure type for processing removed events.
+///
+/// # Examples
+///
+/// ```
+/// use serde::Deserialize;
+///
+/// #[derive(Debug, Deserialize)]
+/// struct Added { id: u32 }
+///
+/// #[derive(Debug, Deserialize)]
+/// struct Removed { id: u32 }
+///
+/// async fn example() {
+///     listen_add_remove(
+///         "item_added",
+///         |added: Added| println!("Added: {:?}", added),
+///         "item_removed",
+///         |removed: Removed| println!("Removed: {:?}", removed),
+///     ).await;
+/// }
+/// ```pub async fn listen_add_remove<A, R, FA, FR>(
     added_event_name: &str,
     mut process_added: FA,
     removed_event_name: &str,
