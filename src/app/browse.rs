@@ -413,7 +413,7 @@ fn ResolvedRow(
                 <Text tag=TextTag::Em>{label}</Text>
             </TableCell>
             <TableCell class>
-                <CopyToClipBoardButton text=text button_text=button_text disabled />
+                <CopyToClipBoardButton text button_text disabled />
             </TableCell>
         </TableRow>
     }
