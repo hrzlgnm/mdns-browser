@@ -11,7 +11,7 @@ async fn listen_for_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
     listen_events(
         "metrics",
         "subscribe_metrics".to_string(),
-        |event: MetricsEventRes| {
+        move |event: MetricsEventRes| {
             event_writer.update(|evts| {
                 *evts = event.metrics.into_iter().collect::<Vec<_>>();
                 evts.sort_by(|a, b| a.0.cmp(&b.0));

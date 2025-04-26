@@ -30,7 +30,7 @@ use super::{
 async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
     listen_add_remove(
         "service-type-found",
-        |event: ServiceTypeFoundEventRes| {
+        move |event: ServiceTypeFoundEventRes| {
             let mut set = HashSet::new();
             event_writer.update(|sts| {
                 sts.push(event.service_type);
@@ -39,7 +39,7 @@ async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>)
             });
         },
         "service-type-removed",
-        |event: ServiceTypeRemovedEventRes| {
+        move |event: ServiceTypeRemovedEventRes| {
             event_writer.update(|evts| {
                 evts.retain(|st| st != &event.service_type);
                 evts.sort();
@@ -54,7 +54,7 @@ async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
     listen_events(
         "can-browse-changed",
         "subscribe_can_browse".to_string(),
-        |event: CanBrowseChangedEventRes| {
+        move |event: CanBrowseChangedEventRes| {
             event_writer.update(|evt| *evt = event.can_browse);
         },
     )
@@ -64,14 +64,14 @@ async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
 async fn listen_for_resolve_events(event_writer: WriteSignal<ResolvedServices>) {
     listen_add_remove(
         "service-resolved",
-        |event: ServiceResolvedEventRes| {
+        move |event: ServiceResolvedEventRes| {
             event_writer.update(|evts| {
                 evts.retain(|r| r.instance_name != event.service.instance_name);
                 evts.push(event.service);
             });
         },
         "service-removed",
-        |event: ServiceRemovedEventRes| {
+        move |event: ServiceRemovedEventRes| {
             event_writer.update(|evts| {
                 for item in evts.iter_mut() {
                     if item.instance_name == event.instance_name {
@@ -376,18 +376,19 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
 
 #[component]
 fn ResolvedRow(
-    #[prop(optional, into)] class: MaybeProp<String>,
     #[prop(into)] label: String,
     #[prop(optional, into)] text: Option<String>,
     #[prop(optional, into)] button_text: Option<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
 ) -> impl IntoView {
+    let is_desktop = IsDesktopInjection::expect_context();
+    let table_cell_class = get_class(&is_desktop, "resolved-service-table-cell");
     view! {
         <TableRow>
             <TableCell>
                 <Text tag=TextTag::Em>{label}</Text>
             </TableCell>
-            <TableCell class>
+            <TableCell class=table_cell_class>
                 <CopyToClipBoardButton text button_text disabled />
             </TableCell>
         </TableRow>
@@ -476,35 +477,30 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                     <Table>
                         <TableBody>
                             <ResolvedRow
-                                class=table_cell_class
                                 label="Hostname"
                                 text=host_to_copy
                                 button_text=host_to_show.clone()
                                 disabled=resolved_service.dead
                             />
                             <ResolvedRow
-                                class=table_cell_class
                                 label="Port"
                                 text=resolved_service.port.to_string()
                                 button_text=resolved_service.port.to_string()
                                 disabled=resolved_service.dead
                             />
                             <ResolvedRow
-                                class=table_cell_class
                                 label="Type"
                                 text=service_type_to_copy.clone()
                                 button_text=service_type_to_show.clone()
                                 disabled=resolved_service.dead
                             />
                             <ResolvedRow
-                                class=table_cell_class
                                 label="IP"
                                 text=first_address.first().cloned().unwrap()
                                 button_text=first_address.first().cloned().unwrap()
                                 disabled=resolved_service.dead
                             />
                             <ResolvedRow
-                                class=table_cell_class
                                 label="Updated at"
                                 text=timestamp_str.clone()
                                 button_text=timestamp_str

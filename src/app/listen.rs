@@ -7,7 +7,7 @@ use tauri_sys::event::listen;
 pub async fn listen_events<T, F>(event_name: &str, subscriber: String, mut process_event: F)
 where
     T: DeserializeOwned + 'static + std::fmt::Debug,
-    F: FnMut(T),
+    F: FnMut(T) + 'static,
 {
     let mut events = match listen::<T>(event_name).await {
         Ok(events) => events,
@@ -40,8 +40,8 @@ pub async fn listen_add_remove<A, R, FA, FR>(
 ) where
     A: DeserializeOwned + 'static + std::fmt::Debug,
     R: DeserializeOwned + 'static + std::fmt::Debug,
-    FA: FnMut(A),
-    FR: FnMut(R),
+    FA: FnMut(A) + 'static,
+    FR: FnMut(R) + 'static,
 {
     let added = listen::<A>(added_event_name).await;
     let added = match added {
