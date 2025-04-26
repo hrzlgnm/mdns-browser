@@ -26,16 +26,16 @@ use super::{
     is_desktop::IsDesktopInjection, values_table::ValuesTable,
 };
 
-async fn listen_and_process_events<T, F>(event_name: &str, event_processor: F)
+async fn listen_and_process_events<T, F>(event_name: &str, mut process_event: F)
 where
     T: DeserializeOwned + 'static + std::fmt::Debug,
-    F: Fn(T),
+    F: FnMut(T),
 {
     match listen::<T>(event_name).await {
         Ok(mut events) => {
             while let Some(event) = events.next().await {
                 log::debug!("Received event '{}': {:#?}", event_name, event.payload);
-                event_processor(event.payload);
+                process_event(event.payload);
             }
         }
         Err(err) => {
@@ -476,11 +476,8 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let card_title = get_instance_name(resolved_service.instance_name.as_str());
     let details_title = card_title.clone();
     let show_details = RwSignal::new(false);
-    let first_address = if resolved_service.dead {
-        vec![]
-    } else {
-        addrs.clone()
-    };
+    let first_address = addrs.clone();
+
     let timestamp_str = as_local_datetime
         .format("%Y-%m-%d %H:%M:%S%.3f")
         .to_string();
