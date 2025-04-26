@@ -1,8 +1,9 @@
 use chrono::{DateTime, Local};
-use futures::{select, StreamExt};
+use futures::StreamExt;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use models::*;
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use shared_constants::{AUTO_COMPLETE_AUTO_FOCUS_DELAY, SPLASH_SCREEN_DURATION, VERIFY_TIMEOUT};
 use std::collections::HashSet;
@@ -25,102 +26,87 @@ use super::{
     is_desktop::IsDesktopInjection, values_table::ValuesTable,
 };
 
-async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
-    log_fn!("listen_for_service_type_events", {
-        log::debug!("-> Listen on service type events");
-        let found = listen::<ServiceTypeFoundEventRes>("service-type-found")
-            .await
-            .expect("to listen on service-type-found");
-        let removed = listen::<ServiceTypeRemovedEventRes>("service-type-removed")
-            .await
-            .expect("to listen on service-type-removed");
-
-        let mut found_fused = found.fuse();
-        let mut removed_fused = removed.fuse();
-
-        spawn_local(invoke_no_args("browse_types"));
-
-        loop {
-            select! {
-                event = found_fused.next() => {
-                    if let Some(event) = event {
-                        log::debug!("Received event 'service-type-found': {:#?}", event);
-                        let mut set = HashSet::new();
-                        event_writer.update(|sts| {
-                            sts.push(event.payload.service_type);
-                            sts.retain(|st| set.insert(st.clone()));
-                            sts.sort();
-                        });
-                   }
-                }
-                event = removed_fused.next() => {
-                    if let Some(event) = event {
-                        log::debug!("Received event 'service-type-removed': {:#?}", event);
-                        event_writer.update(|evts| {
-                            evts.retain(|st| st != &event.payload.service_type);
-                            evts.sort();
-                        });
-                    }
-                }
-                complete => break,
+async fn listen_and_process_events<T, F>(event_name: &str, event_processor: F)
+where
+    T: DeserializeOwned + 'static + std::fmt::Debug,
+    F: Fn(T),
+{
+    match listen::<T>(event_name).await {
+        Ok(mut events) => {
+            while let Some(event) = events.next().await {
+                log::debug!("Received event '{}': {:#?}", event_name, event.payload);
+                event_processor(event.payload);
             }
         }
+        Err(err) => {
+            log::error!(
+                "Failed to listen to event: {}. Error: {:?}",
+                event_name,
+                err
+            );
+        }
+    }
+}
+
+async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
+    spawn_local(async move {
+        listen_and_process_events("service-type-found", |event: ServiceTypeFoundEventRes| {
+            let mut set = HashSet::new();
+            event_writer.update(|sts| {
+                sts.push(event.service_type);
+                sts.retain(|st| set.insert(st.clone()));
+                sts.sort();
+            });
+        })
+        .await;
     });
+    spawn_local(async move {
+        listen_and_process_events(
+            "service-type-removed",
+            |event: ServiceTypeRemovedEventRes| {
+                event_writer.update(|evts| {
+                    evts.retain(|st| st != &event.service_type);
+                    evts.sort();
+                });
+            },
+        )
+        .await;
+    });
+    spawn_local(invoke_no_args("browse_types"));
 }
 
 async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
-    log_fn!("listen_for_can_browse_change_events", {
-        let mut can_browse = listen::<CanBrowseChangedEventRes>("can-browse-changed")
-            .await
-            .expect("to listen can-browse-changed");
-
-        spawn_local(invoke_no_args("subscribe_can_browse"));
-        while let Some(event) = can_browse.next().await {
-            log::debug!("Received can browse changed: {:#?}", event);
-            event_writer.update(|evt| *evt = event.payload.can_browse);
-        }
+    spawn_local(async move {
+        listen_and_process_events("can-browse-changed", |event: CanBrowseChangedEventRes| {
+            event_writer.update(|evt| *evt = event.can_browse);
+        })
+        .await;
     });
+    spawn_local(invoke_no_args("subscribe_can_browse"));
 }
 
 async fn listen_for_resolve_events(event_writer: WriteSignal<ResolvedServices>) {
-    log_fn!("listen_for_resolve_events", {
-        log::debug!("-> Listen on resolve events");
-        let resolved = listen::<ResolvedServiceEventRes>("service-resolved")
-            .await
-            .expect("to listen on service-resolved");
-        let removed = listen::<ServiceRemovedEventRes>("service-removed")
-            .await
-            .expect("to listen on service-removed");
-
-        let mut resolved_fused = resolved.fuse();
-        let mut removed_fused = removed.fuse();
-        loop {
-            select! {
-                event = resolved_fused.next() => {
-                    if let Some(event) = event {
-                        log::debug!("Received event 'service-resolved': {:#?}", event);
-                        event_writer.update(|evts| {
-                             evts.retain(|r| r.instance_name != event.payload.service.instance_name);
-                             evts.push(event.payload.service);
-                        });
+    spawn_local(async move {
+        listen_and_process_events("service-resolved", |event: ResolvedServiceEventRes| {
+            event_writer.update(|evts| {
+                evts.retain(|r| r.instance_name != event.service.instance_name);
+                evts.push(event.service);
+            });
+        })
+        .await;
+    });
+    spawn_local(async move {
+        listen_and_process_events("service-removed", |event: ServiceRemovedEventRes| {
+            event_writer.update(|evts| {
+                for item in evts.iter_mut() {
+                    if item.instance_name == event.instance_name {
+                        item.die_at(event.at_ms);
+                        break;
                     }
                 }
-                event = removed_fused.next() => {
-                    if let Some(event) = event {
-                        log::debug!("Received event 'service-removed': {:#?}", event);
-                        event_writer.update(|evts| {
-                            for item in evts.iter_mut() {
-                                if item.instance_name == event.payload.instance_name {
-                                    item.die_at(event.payload.at_ms);
-                                    break;
-                                }
-                            }
-                        });
-                    }
-                }
-                complete => break,
-            }
-        }
+            });
+        })
+        .await;
     });
 }
 
@@ -130,24 +116,12 @@ struct BrowseManyArgs {
     serviceTypes: Vec<String>,
 }
 
-async fn browse(service_type: &str) {
-    log_fn!(format!("browse({})", &service_type), {
-        let _ = invoke::<()>(
-            "browse_many",
-            &BrowseManyArgs {
-                serviceTypes: vec![service_type.to_string()],
-            },
-        )
-        .await;
-    });
-}
-
 async fn browse_many(service_types: Vec<String>) {
-    log_fn!(format!("browse_many({:?})", &service_types), {
+    log_fn!(format!("browse_many({:?})", service_types), {
         let _ = invoke::<()>(
             "browse_many",
             &BrowseManyArgs {
-                serviceTypes: service_types.clone(),
+                serviceTypes: service_types.to_vec(),
             },
         )
         .await;
@@ -270,13 +244,13 @@ fn drop_trailing_dot(fqn: &str) -> String {
 /// # Examples
 ///
 /// ```
-/// let result = drop_local_and_last_dot("example.local.");
+/// let result = drop_local_and_trailing_dot("example.local.");
 /// assert_eq!(result, "example");
 ///
-/// let alias = drop_local_and_last_dot("service.");
-/// assert_eq!(alias, "service");
+/// let alias =
+/// drop_locdrop_locdrop_locdrop_locdrop_locdrop_locdrop_locdrop_locdrop_local_and_trailing_dotas, "service");
 /// ```
-fn drop_local_and_last_dot(fqn: &str) -> String {
+fn drop_local_and_trailing_dot(fqn: &str) -> String {
     let without_local = fqn.strip_suffix(".local.").unwrap_or(fqn);
     drop_trailing_dot(without_local)
 }
@@ -425,6 +399,26 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
     }
 }
 
+#[component]
+fn ResolvedRow(
+    #[prop(optional, into)] class: MaybeProp<String>,
+    #[prop(into)] label: String,
+    #[prop(optional, into)] text: Option<String>,
+    #[prop(optional, into)] button_text: Option<String>,
+    #[prop(optional, into)] disabled: Signal<bool>,
+) -> impl IntoView {
+    view! {
+        <TableRow>
+            <TableCell>
+                <Text tag=TextTag::Em>{label}</Text>
+            </TableCell>
+            <TableCell class>
+                <CopyToClipBoardButton text=text button_text=button_text disabled />
+            </TableCell>
+        </TableRow>
+    }
+}
+
 /// Component that shows a resolved service as a card
 #[component]
 fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
@@ -457,9 +451,9 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     };
 
     let host_to_copy = drop_trailing_dot(&resolved_service.hostname);
-    let host_to_show = drop_local_and_last_dot(&resolved_service.hostname);
+    let host_to_show = drop_local_and_trailing_dot(&resolved_service.hostname);
     let service_type_to_copy = drop_trailing_dot(&resolved_service.service_type);
-    let service_type_to_show = drop_local_and_last_dot(&resolved_service.service_type);
+    let service_type_to_show = drop_local_and_trailing_dot(&resolved_service.service_type);
 
     let updated_at = DateTime::from_timestamp_millis(resolved_service.updated_at_ms as i64)
         .expect("To get convert");
@@ -509,66 +503,41 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                 <CardPreview>
                     <Table>
                         <TableBody>
-                            <TableRow>
-                                <TableCell>
-                                    <Text tag=TextTag::Em>"Hostname"</Text>
-                                </TableCell>
-                                <TableCell class=table_cell_class>
-                                    <CopyToClipBoardButton
-                                        text=Some(host_to_copy.clone())
-                                        button_text=Some(host_to_show)
-                                        disabled=resolved_service.dead
-                                    />
-                                </TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>
-                                    <Text tag=TextTag::Em>"Port"</Text>
-                                </TableCell>
-                                <TableCell class=table_cell_class>
-                                    <CopyToClipBoardButton
-                                        text=Some(resolved_service.port.to_string())
-                                        button_text=Some(resolved_service.port.to_string())
-                                        disabled=resolved_service.dead
-                                    />
-                                </TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>
-                                    <Text tag=TextTag::Em>"Type"</Text>
-                                </TableCell>
-                                <TableCell class=table_cell_class>
-                                    <CopyToClipBoardButton
-                                        text=Some(service_type_to_copy)
-                                        button_text=Some(service_type_to_show)
-                                        disabled=resolved_service.dead
-                                    />
-                                </TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>
-                                    <Text tag=TextTag::Em>"IP"</Text>
-                                </TableCell>
-                                <TableCell class=table_cell_class>
-                                    <CopyToClipBoardButton
-                                        text=first_address.first().cloned()
-                                        button_text=first_address.first().cloned()
-                                        disabled=resolved_service.dead
-                                    />
-                                </TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>
-                                    <Text tag=TextTag::Em>"Updated at"</Text>
-                                </TableCell>
-                                <TableCell class=table_cell_class>
-                                    <CopyToClipBoardButton
-                                        text=Some(timestamp_str.clone())
-                                        button_text=Some(timestamp_str)
-                                        disabled=resolved_service.dead
-                                    />
-                                </TableCell>
-                            </TableRow>
+                            <ResolvedRow
+                                class=table_cell_class
+                                label="Hostname"
+                                text=host_to_copy
+                                button_text=host_to_show.clone()
+                                disabled=resolved_service.dead
+                            />
+                            <ResolvedRow
+                                class=table_cell_class
+                                label="Port"
+                                text=resolved_service.port.to_string()
+                                button_text=resolved_service.port.to_string()
+                                disabled=resolved_service.dead
+                            />
+                            <ResolvedRow
+                                class=table_cell_class
+                                label="Type"
+                                text=service_type_to_copy.clone()
+                                button_text=service_type_to_show.clone()
+                                disabled=resolved_service.dead
+                            />
+                            <ResolvedRow
+                                class=table_cell_class
+                                label="IP"
+                                text=first_address.first().cloned().unwrap()
+                                button_text=first_address.first().cloned().unwrap()
+                                disabled=resolved_service.dead
+                            />
+                            <ResolvedRow
+                                class=table_cell_class
+                                label="Updated at"
+                                text=timestamp_str.clone()
+                                button_text=timestamp_str
+                                disabled=resolved_service.dead
+                            />
                             <TableRow>
                                 <TableCell>
                                     <Button
@@ -751,14 +720,14 @@ pub fn Browse() -> impl IntoView {
     let browsing_or_service_type_invalid_or_cannot_browse =
         Signal::derive(move || !can_browse.get() || browsing.get() || service_type_invalid.get());
 
-    let browse_many_action = Action::new_local(|input: &ServiceTypes| {
+    let browse_all_action = Action::new_local(|input: &ServiceTypes| {
         let input = input.clone();
         async move { browse_many(input.clone()).await }
     });
 
     let browse_action = Action::new_local(|input: &String| {
         let input = input.clone();
-        async move { browse(input.as_str()).await }
+        async move { browse_many(vec![input]).await }
     });
 
     Effect::watch(
@@ -778,7 +747,7 @@ pub fn Browse() -> impl IntoView {
                 && service_type.get_untracked().is_empty()
             {
                 log::info!("Added services while browsing all: {:?}, browsing", added);
-                browse_many_action.dispatch(added.clone());
+                browse_all_action.dispatch(added.clone());
             }
         },
         false,
@@ -814,7 +783,7 @@ pub fn Browse() -> impl IntoView {
         browsing.set(true);
         let value = service_type.get_untracked();
         if value.is_empty() {
-            browse_many_action.dispatch(service_types.get_untracked());
+            browse_all_action.dispatch(service_types.get_untracked());
         } else {
             browse_action.dispatch(value);
         }
