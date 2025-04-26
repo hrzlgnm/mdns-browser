@@ -8,20 +8,22 @@ body {
     display: none;
 }
 .mobile-outer-layout {
+    border: 0;
 }
 
 .mobile-metrics-layout {
+    border: 0;
 }
 
 .mobile-browse-layout {
     padding-top: 5px;
 }
 .mobile-resolved-service-card {
-    width: 480px; !important;
+    width: 480px;
 }
 .mobile-resolved-service-grid {
     grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)) !important;
-    grid-gap: 8px 8px; !important;
+    grid-gap: 8px 8px !important;
 }
 .mobile-resolved-service-value-cell {
     width: 350px;
@@ -35,6 +37,7 @@ body {
 }
 
 .desktop-metrics-layout {
+    border: 0;
 }
 
 .metrics-grid {
@@ -50,11 +53,11 @@ body {
 }
 
 .desktop-resolved-service-card {
-    width: 520px; !important;
+    width: 520px;
 }
 .desktop-resolved-service-grid {
     grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)) !important;
-    grid-gap: 10px 10px; !important;
+    grid-gap: 10px 10px !important;
 }
 .desktop-resolved-service-value-cell {
     width: 400px;
@@ -70,6 +73,7 @@ body {
 }
 
 .desktop-input > .thaw-input__input {
+    border: 0;
 }
 
 .thaw-card-header__header {
