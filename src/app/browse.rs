@@ -42,7 +42,6 @@ async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>)
         move |event: ServiceTypeRemovedEventRes| {
             event_writer.update(|evts| {
                 evts.retain(|st| st != &event.service_type);
-                evts.sort();
             });
         },
     )
