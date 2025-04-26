@@ -52,7 +52,7 @@ async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>)
 async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
     listen_events(
         "can-browse-changed",
-        "subscribe_can_browse".to_string(),
+        "subscribe_can_browse",
         move |event: CanBrowseChangedEventRes| {
             event_writer.update(|evt| *evt = event.can_browse);
         },

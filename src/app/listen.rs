@@ -4,8 +4,11 @@ use leptos::task::spawn_local;
 use serde::de::DeserializeOwned;
 use tauri_sys::event::listen;
 
-pub async fn listen_events<T, F>(event_name: &str, subscriber: String, mut process_event: F)
-where
+pub async fn listen_events<T, F>(
+    event_name: &str,
+    subscriber: impl Into<String>,
+    mut process_event: F,
+) where
     T: DeserializeOwned + 'static + std::fmt::Debug,
     F: FnMut(T) + 'static,
 {
@@ -21,10 +24,7 @@ where
         }
     };
 
-    spawn_local(async move {
-        let invoke = subscriber.clone();
-        invoke_no_args(invoke.as_str()).await;
-    });
+    spawn_local(invoke_no_args(subscriber.into()));
 
     while let Some(event) = events.next().await {
         log::debug!("Received event {}: {:#?}", event_name, event.payload);
