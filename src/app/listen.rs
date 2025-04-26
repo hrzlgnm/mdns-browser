@@ -46,11 +46,11 @@ pub async fn listen_add_remove<A, R, FA, FR>(
     let added = listen::<A>(added_event_name).await;
     let added = match added {
         Ok(added) => added,
-        Err(added) => {
+        Err(err) => {
             log::error!(
                 "Failed to listen to event: {}. Error: {:?}",
                 added_event_name,
-                added
+                err
             );
             return;
         }
@@ -59,11 +59,11 @@ pub async fn listen_add_remove<A, R, FA, FR>(
     let removed = listen::<R>(removed_event_name).await;
     let removed = match removed {
         Ok(removed) => removed,
-        Err(removed) => {
+        Err(err) => {
             log::error!(
                 "Failed to listen to event: {}. Error: {:?}",
                 removed_event_name,
-                removed
+                err
             );
             return;
         }
