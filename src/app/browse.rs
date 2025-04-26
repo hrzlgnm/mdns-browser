@@ -247,8 +247,8 @@ fn drop_trailing_dot(fqn: &str) -> String {
 /// let result = drop_local_and_trailing_dot("example.local.");
 /// assert_eq!(result, "example");
 ///
-/// let alias =
-/// drop_locdrop_locdrop_locdrop_locdrop_locdrop_locdrop_locdrop_locdrop_local_and_trailing_dotas, "service");
+/// let alias = drop_local_and_trailing_dot("service");
+/// assert_eq!(result, "service");
 /// ```
 fn drop_local_and_trailing_dot(fqn: &str) -> String {
     let without_local = fqn.strip_suffix(".local.").unwrap_or(fqn);
