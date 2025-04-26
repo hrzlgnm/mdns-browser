@@ -44,8 +44,8 @@ pub async fn listen_add_remove<A, R, FA, FR>(
     FR: FnMut(R) + 'static,
 {
     let added = listen::<A>(added_event_name).await;
-    let added = match added {
-        Ok(added) => added,
+    let mut added_fused = match added {
+        Ok(added) => added.fuse(),
         Err(err) => {
             log::error!(
                 "Failed to listen to event: {}. Error: {:?}",
@@ -57,8 +57,8 @@ pub async fn listen_add_remove<A, R, FA, FR>(
     };
 
     let removed = listen::<R>(removed_event_name).await;
-    let removed = match removed {
-        Ok(removed) => removed,
+    let mut removed_fused = match removed {
+        Ok(removed) => removed.fuse(),
         Err(err) => {
             log::error!(
                 "Failed to listen to event: {}. Error: {:?}",
@@ -69,8 +69,6 @@ pub async fn listen_add_remove<A, R, FA, FR>(
         }
     };
 
-    let mut added_fused = added.fuse();
-    let mut removed_fused = removed.fuse();
     loop {
         select! {
             added = added_fused.next() => {
