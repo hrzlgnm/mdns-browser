@@ -162,7 +162,7 @@ async fn browse_many(service_types: Vec<String>) {
         let _ = invoke::<()>(
             "browse_many",
             &BrowseManyArgs {
-                serviceTypes: service_types.to_vec(),
+                serviceTypes: service_types.clone(),
             },
         )
         .await;
