@@ -457,7 +457,36 @@ mod tests {
         assert!(service.dead);
         assert_eq!(service.updated_at_ms, 0);
     }
+    #[test]
+    fn test_get_instance_name() {
+        // Test with standard service name format
+        let service = ResolvedService {
+            instance_fullname: "My Service._http._tcp.local".to_string(),
+            service_type: "_http._tcp.local".to_string(),
+            hostname: "hostname.local".to_string(),
+            port: 80,
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))],
+            subtype: None,
+            txt: vec![],
+            updated_at_ms: 0,
+            dead: false,
+        };
+        assert_eq!(service.get_instance_name(), "My Service");
 
+        // Test with dot in the instance name
+        let service = ResolvedService {
+            instance_fullname: "My.Complex.Service._http._tcp.local".to_string(),
+            service_type: "_http._tcp.local".to_string(),
+            hostname: "hostname.local".to_string(),
+            port: 80,
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))],
+            subtype: None,
+            txt: vec![],
+            updated_at_ms: 0,
+            dead: false,
+        };
+        assert_eq!(service.get_instance_name(), "My.Complex.Service");
+    }
     #[test]
     fn test_matches_query() {
         let service = ResolvedService {
