@@ -457,7 +457,10 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                 <CardHeader>
                     <Flex justify=FlexJustify::SpaceAround align=FlexAlign::Stretch>
                         <CopyToClipBoardButton
-                            class=get_class(&is_desktop, "resolved-service-card-title resolved-service-card-title")
+                            class=get_class(
+                                &is_desktop,
+                                "resolved-service-card-title resolved-service-card-title",
+                            )
                             size=ButtonSize::Large
                             text=Some(resolved_service.instance_fullname.clone())
                             button_text=Some(card_title)
@@ -514,7 +517,10 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                             <DialogBody class="resolved-service-details-dialog-body">
                                                 <Scrollbar class="resolved-service-details-dialog-scrollarea">
                                                     <Flex vertical=true>
-                                                        <DialogTitle class=get_class(&is_desktop, "resolved-service-details-dialog-title resolved-service-details-dialog-title")>{details_title}</DialogTitle>
+                                                        <DialogTitle class=get_class(
+                                                            &is_desktop,
+                                                            "resolved-service-details-dialog-title resolved-service-details-dialog-title",
+                                                        )>{details_title}</DialogTitle>
                                                         <ValuesTable values=subtype title="subtype" />
                                                         <ValuesTable values=addrs title="IPs" />
                                                         <ValuesTable values=txts title="txt" />
