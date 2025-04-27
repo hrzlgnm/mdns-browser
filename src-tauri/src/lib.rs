@@ -36,6 +36,13 @@ struct ManagedState {
 }
 
 impl ManagedState {
+    /// Creates a new `ManagedState` with a fresh shared mDNS daemon and empty state for service queries and subscriptions.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let state = ManagedState::new();
+    /// ```
     fn new() -> Self {
         Self {
             daemon: get_shared_daemon(),
@@ -80,8 +87,13 @@ fn from_service_info(info: &ServiceInfo) -> ResolvedService {
 ///
 /// This helper centralizes event emission and handles any errors internally.
 /// If window.emit returns an error, it is logged and not propagated.
-/// Use this helper to avoid repetitive error handling.
-fn emit_event<T>(window: &Window, event: &str, payload: &T)
+/// Emits a serialized event with the given payload to the specified Tauri window, logging any emission errors internally.
+///
+/// # Examples
+///
+/// ```
+/// emit_event(&window, "service-found", &service_info);
+/// ```fn emit_event<T>(window: &Window, event: &str, payload: &T)
 where
     T: serde::Serialize,
 {
@@ -91,6 +103,20 @@ where
 }
 
 #[tauri::command]
+/// Starts browsing for available mDNS service types and emits events for discovered or removed types.
+///
+/// Initiates asynchronous browsing for mDNS service types, emitting events to the Tauri window when service types are found or removed. Returns an error if the daemon cannot be locked or browsing cannot be started.
+///
+/// # Returns
+/// 
+/// Returns `Ok(())` if browsing was successfully started, or an error message if initialization fails.
+///
+/// # Examples
+///
+/// ```
+/// let result = browse_types(window, state);
+/// assert!(result.is_ok());
+/// ```
 fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String> {
     let mdns = state
         .daemon
@@ -166,6 +192,20 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
 }
 
 #[tauri::command]
+/// Stops all active mDNS service type browsing sessions.
+///
+/// Attempts to stop browsing for each currently tracked service type. Returns an error if locking the daemon or queriers fails.
+///
+/// # Errors
+///
+/// Returns an error string if the daemon or queriers cannot be locked.
+///
+/// # Examples
+///
+/// ```
+/// let result = stop_browse(state);
+/// assert!(result.is_ok());
+/// ```
 fn stop_browse(state: State<ManagedState>) -> Result<(), String> {
     let mdns = state
         .daemon
@@ -186,6 +226,16 @@ fn stop_browse(state: State<ManagedState>) -> Result<(), String> {
 }
 
 #[tauri::command]
+/// Verifies the existence and reachability of an mDNS service instance by its full name.
+///
+/// Returns an error if the verification fails or if the daemon cannot be accessed.
+///
+/// # Examples
+///
+/// ```
+/// let result = verify("_example._tcp.local.".to_string(), state);
+/// assert!(result.is_ok() || result.is_err());
+/// ```
 fn verify(instance_fullname: String, state: State<ManagedState>) -> Result<(), String> {
     let mdns = state
         .daemon
@@ -198,6 +248,16 @@ fn verify(instance_fullname: String, state: State<ManagedState>) -> Result<(), S
 }
 
 #[tauri::command]
+/// Starts browsing for multiple mDNS service types and emits discovery events to the Tauri window.
+///
+/// For each provided service type, initiates asynchronous browsing if not already active. Emits events to the frontend window for service discovery, resolution, removal, and search lifecycle changes.
+///
+/// # Examples
+///
+/// ```
+/// // Start browsing for two service types and handle events in the frontend.
+/// browse_many(vec!["_http._tcp.local.".to_string(), "_printer._tcp.local.".to_string()], window, state);
+/// ```
 fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedState>) {
     for service_type in service_types {
         let mut queriers = match state.queriers.lock() {
@@ -367,6 +427,16 @@ fn subscribe_can_browse(window: Window, state: State<ManagedState>) {
 }
 
 #[tauri::command]
+/// Subscribes the frontend to periodic mDNS daemon metrics updates.
+///
+/// Emits a "metrics" event to the window whenever the metrics change. Only the first subscription is honored; subsequent calls have no effect.
+///
+/// # Examples
+///
+/// ```
+/// subscribe_metrics(window, state);
+/// // The frontend will receive "metrics" events when metrics change.
+/// ```
 fn subscribe_metrics(window: Window, state: State<ManagedState>) {
     // Avoid multiple subscriptions when the frontend is reloaded.
     if state
@@ -401,6 +471,16 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
 }
 
 #[tauri::command]
+/// Opens the specified URL using the system's default handler.
+///
+/// Returns an error if the URL cannot be opened.
+///
+/// # Examples
+///
+/// ```
+/// let result = open_url(app_handle, "https://example.com".to_string());
+/// assert!(result.is_ok());
+/// ```
 fn open_url(app: AppHandle, url: String) -> Result<(), String> {
     let opener = app.opener();
     opener
@@ -589,11 +669,28 @@ fn can_auto_update() -> bool {
 
 #[cfg(mobile)]
 #[tauri::command]
+/// Returns `true` if the application is running on a desktop platform, otherwise `false`.
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(is_desktop(), false); // On non-desktop builds
+/// ```
 fn is_desktop() -> bool {
     false
 }
 
 #[tauri::command]
+/// Copies the provided text to the system clipboard.
+///
+/// Returns an error if the clipboard operation fails.
+///
+/// # Examples
+///
+/// ```
+/// let window = tauri::Window::default();
+/// copy_to_clipboard(window, "Hello, world!".to_string()).unwrap();
+/// ```
 fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
     let app = window.app_handle();
     app.clipboard()
