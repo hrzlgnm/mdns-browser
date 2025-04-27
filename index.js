@@ -1,7 +1,7 @@
 /**
  * Workarounds for thaw inputs wrapped by components `AutoComplete` or `Input`
  * providing no possibility to set attributes or to add onkeydown event listeners.
- * We want no spell checking no autocorrection or capitalization in our inputs 
+ * We want no spell checking no autocorrection or capitalization in our inputs
  * mostly dealing with lower case characters.
  */
 window.addEventListener("TrunkApplicationStarted", function () {
@@ -25,7 +25,9 @@ window.addEventListener("TrunkApplicationStarted", function () {
         }
         if (input.getAttribute("placeholder")?.includes("Service")) {
             input.addEventListener("keydown", function (event) {
-                const inputIsValid = autocomplete?.getAttribute("class")?.includes("service-type-valid");
+                const inputIsValid = autocomplete
+                    ?.getAttribute("class")
+                    ?.includes("service-type-valid");
                 handleEnterKey(event, inputIsValid);
             });
         }
