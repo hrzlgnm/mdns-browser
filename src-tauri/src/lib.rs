@@ -30,7 +30,7 @@ type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
 struct ManagedState {
     daemon: SharedServiceDaemon,
-    running_browsers: Arc<Mutex<HashSet<String>>>,
+    queriers: Arc<Mutex<HashSet<String>>>,
     metrics_subscribed: AtomicBool,
     can_browse_subscribed: AtomicBool,
 }
@@ -39,7 +39,7 @@ impl ManagedState {
     fn new() -> Self {
         Self {
             daemon: get_shared_daemon(),
-            running_browsers: Arc::new(Mutex::new(HashSet::new())),
+            queriers: Arc::new(Mutex::new(HashSet::new())),
             metrics_subscribed: AtomicBool::new(false),
             can_browse_subscribed: AtomicBool::new(false),
         }
@@ -91,164 +91,190 @@ where
 }
 
 #[tauri::command]
-fn browse_types(window: Window, state: State<ManagedState>) {
-    if let Ok(mdns) = state.daemon.lock() {
-        let mdns_for_task = mdns.clone();
-        if mdns_for_task.stop_browse(MDNS_SD_META_SERVICE).is_ok() {
-            log::trace!("Stopped browsing for service types");
-        }
-        tauri::async_runtime::spawn(async move {
-            let receiver = match mdns_for_task.browse(MDNS_SD_META_SERVICE) {
-                Ok(receiver) => receiver,
-                Err(e) => {
-                    log::error!("Failed to browse for service types: {:?}", e);
-                    return;
+fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String> {
+    let mdns = state
+        .daemon
+        .lock()
+        .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
+
+    mdns.stop_browse(MDNS_SD_META_SERVICE).map_err(|e| {
+        format!(
+            "Failed to stop browsing for {}: {:?}",
+            MDNS_SD_META_SERVICE, e
+        )
+    })?;
+
+    let mdns_for_task = mdns.clone();
+    tauri::async_runtime::spawn(async move {
+        let receiver = match mdns_for_task.browse(MDNS_SD_META_SERVICE) {
+            Ok(receiver) => receiver,
+            Err(e) => {
+                log::error!("Failed to browse for service types: {:?}", e);
+                return;
+            }
+        };
+        while let Ok(event) = receiver.recv_async().await {
+            match event {
+                ServiceEvent::ServiceFound(_service_type, full_name) => {
+                    log::debug!("Service type found: {}", full_name);
+                    match check_service_type_fully_qualified(full_name.as_str()) {
+                        Ok(_) => {
+                            emit_event(
+                                &window,
+                                "service-type-found",
+                                &ServiceTypeFoundEvent {
+                                    service_type: full_name,
+                                },
+                            );
+                        }
+                        Err(e) => {
+                            log::warn!("Ignoring invalid service type `{}`: {}", full_name, e)
+                        }
+                    }
                 }
-            };
-            while let Ok(event) = receiver.recv_async().await {
-                match event {
-                    ServiceEvent::ServiceFound(_service_type, full_name) => {
-                        log::debug!("Service type found: {}", full_name);
-                        match check_service_type_fully_qualified(full_name.as_str()) {
-                            Ok(_) => {
-                                emit_event(
-                                    &window,
-                                    "service-type-found",
-                                    &ServiceTypeFoundEvent {
-                                        service_type: full_name,
-                                    },
-                                );
-                            }
-                            Err(e) => {
-                                log::warn!("Ignoring invalid service type `{}`: {}", full_name, e)
-                            }
+                ServiceEvent::ServiceRemoved(_service_type, full_name) => {
+                    log::debug!("Service type removed: {}", full_name);
+                    match check_service_type_fully_qualified(full_name.as_str()) {
+                        Ok(_) => {
+                            emit_event(
+                                &window,
+                                "service-type-removed",
+                                &ServiceTypeRemovedEvent {
+                                    service_type: full_name.clone(),
+                                },
+                            );
+                        }
+                        Err(e) => {
+                            log::warn!("Ignoring invalid service type `{}`: {}", full_name, e)
                         }
                     }
-                    ServiceEvent::ServiceRemoved(_service_type, full_name) => {
-                        log::debug!("Service type removed: {}", full_name);
-                        match check_service_type_fully_qualified(full_name.as_str()) {
-                            Ok(_) => {
-                                emit_event(
-                                    &window,
-                                    "service-type-removed",
-                                    &ServiceTypeRemovedEvent {
-                                        service_type: full_name.clone(),
-                                    },
-                                );
-                            }
-                            Err(e) => {
-                                log::warn!("Ignoring invalid service type `{}`: {}", full_name, e)
-                            }
-                        }
+                }
+                ServiceEvent::SearchStopped(service_type) => {
+                    if service_type == MDNS_SD_META_SERVICE {
+                        log::debug!("Service type browsing stopped: {}", service_type);
+                        break;
                     }
-                    ServiceEvent::SearchStopped(service_type) => {
-                        if service_type == MDNS_SD_META_SERVICE {
-                            break;
-                        }
-                    }
-                    _ => {
-                        log::debug!("Ignoring event: {:?}", event);
-                    }
+                }
+                _ => {
+                    log::debug!("Ignoring event: {:?}", event);
                 }
             }
-            log::debug!("Browse type task ending.");
-        });
-    }
+        }
+        log::debug!("Browse type task ending.");
+    });
+    Ok(())
 }
 
 #[tauri::command]
-fn stop_browse(state: State<ManagedState>) {
-    if let Ok(mdns) = state.daemon.lock() {
-        if let Ok(mut running_browsers) = state.running_browsers.lock() {
-            running_browsers.iter().for_each(|ty_domain| {
-                if let Err(e) = mdns.stop_browse(ty_domain) {
-                    log::error!("Failed to stop browsing for {ty_domain}: {:?}", e);
-                }
-            });
-            running_browsers.clear();
+fn stop_browse(state: State<ManagedState>) -> Result<(), String> {
+    let mdns = state
+        .daemon
+        .lock()
+        .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
+    let mut running_browsers = state
+        .queriers
+        .lock()
+        .map_err(|e| format!("Failed to lock running browsers: {:?}", e))?;
+    for ty_domain in running_browsers.iter() {
+        if let Err(e) = mdns.stop_browse(ty_domain) {
+            log::error!("Failed to stop browsing for {}: {:?}", ty_domain, e);
         }
     }
+
+    running_browsers.clear();
+    Ok(())
 }
 
 #[tauri::command]
-fn verify(instance_fullname: String, state: State<ManagedState>) {
+fn verify(instance_fullname: String, state: State<ManagedState>) -> Result<(), String> {
+    let mdns = state
+        .daemon
+        .lock()
+        .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
     log::debug!("verifying {}", instance_fullname);
-    if let Ok(mdns) = state.daemon.lock() {
-        if let Err(e) = mdns.verify(instance_fullname.clone(), VERIFY_TIMEOUT) {
-            log::error!("Failed to verify {instance_fullname}: {:?}", e);
-        }
-    }
+    mdns.verify(instance_fullname.clone(), VERIFY_TIMEOUT)
+        .map_err(|e| format!("Failed to verify {instance_fullname}: {:?}", e))?;
+    Ok(())
 }
 
 #[tauri::command]
 fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedState>) {
     for service_type in service_types {
-        if let Ok(mdns) = state.daemon.lock() {
-            if let Ok(mut running_browsers) = state.running_browsers.lock() {
-                if !running_browsers.contains(&service_type) {
-                    running_browsers.insert(service_type.clone());
-                    let receiver = match mdns.browse(service_type.as_str()) {
-                        Ok(receiver) => receiver,
-                        Err(e) => {
-                            log::error!(
-                                "Failed to start browsing for {service_type} browse: {:?}",
-                                e,
-                            );
-                            return;
-                        }
-                    };
-                    let window = window.clone();
-                    tauri::async_runtime::spawn(async move {
-                        while let Ok(event) = receiver.recv_async().await {
-                            match event {
-                                ServiceEvent::ServiceFound(_service_type, instance_name) => {
-                                    emit_event(
-                                        &window,
-                                        "service-found",
-                                        &ServiceFoundEvent {
-                                            instance_name,
-                                            at_ms: timestamp_millis(),
-                                        },
-                                    )
-                                }
-                                ServiceEvent::SearchStarted(service_type) => emit_event(
-                                    &window,
-                                    "search-started",
-                                    &SearchStartedEvent { service_type },
-                                ),
-                                ServiceEvent::ServiceResolved(info) => emit_event(
-                                    &window,
-                                    "service-resolved",
-                                    &ServiceResolvedEvent {
-                                        service: from_service_info(&info),
-                                    },
-                                ),
+        let mut queriers = match state.queriers.lock() {
+            Ok(browsers) => browsers,
+            Err(err) => {
+                log::error!("Failed to lock running browsers: {:?}", err);
+                continue;
+            }
+        };
+        if !queriers.insert(service_type.clone()) {
+            continue;
+        }
+        let mdns = match state.daemon.lock() {
+            Ok(mdns) => mdns,
+            Err(err) => {
+                log::error!("Failed to lock daemon: {:?}", err);
+                continue;
+            }
+        };
+        let receiver = match mdns.browse(service_type.as_str()) {
+            Ok(receiver) => receiver,
+            Err(e) => {
+                log::error!(
+                    "Failed to start browsing for {service_type} browse: {:?}",
+                    e,
+                );
+                continue;
+            }
+        };
 
-                                ServiceEvent::ServiceRemoved(_service_type, instance_name) => {
-                                    emit_event(
-                                        &window,
-                                        "service-removed",
-                                        &ServiceRemovedEvent {
-                                            instance_name,
-                                            at_ms: timestamp_millis(),
-                                        },
-                                    );
-                                }
-                                ServiceEvent::SearchStopped(service_type) => {
-                                    emit_event(
-                                        &window,
-                                        "search-stopped",
-                                        &SearchStoppedEvent { service_type },
-                                    );
-                                    break;
-                                }
-                            }
-                        }
-                        log::debug!("Browse task for {} ending.", &service_type);
-                    });
+        let window = window.clone();
+        tauri::async_runtime::spawn(async move {
+            while let Ok(event) = receiver.recv_async().await {
+                match event {
+                    ServiceEvent::ServiceFound(_service_type, instance_name) => emit_event(
+                        &window,
+                        "service-found",
+                        &ServiceFoundEvent {
+                            instance_name,
+                            at_ms: timestamp_millis(),
+                        },
+                    ),
+                    ServiceEvent::SearchStarted(service_type) => emit_event(
+                        &window,
+                        "search-started",
+                        &SearchStartedEvent { service_type },
+                    ),
+                    ServiceEvent::ServiceResolved(info) => emit_event(
+                        &window,
+                        "service-resolved",
+                        &ServiceResolvedEvent {
+                            service: from_service_info(&info),
+                        },
+                    ),
+
+                    ServiceEvent::ServiceRemoved(_service_type, instance_name) => {
+                        emit_event(
+                            &window,
+                            "service-removed",
+                            &ServiceRemovedEvent {
+                                instance_name,
+                                at_ms: timestamp_millis(),
+                            },
+                        );
+                    }
+                    ServiceEvent::SearchStopped(service_type) => {
+                        emit_event(
+                            &window,
+                            "search-stopped",
+                            &SearchStoppedEvent { service_type },
+                        );
+                        break;
+                    }
                 }
             }
-        }
+            log::debug!("Browse task for {} ending.", &service_type);
+        });
     }
 }
 
@@ -375,12 +401,12 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
 }
 
 #[tauri::command]
-fn open_url(app: AppHandle, url: String) {
+fn open_url(app: AppHandle, url: String) -> Result<(), String> {
     let opener = app.opener();
-    let r = opener.open_url(url.clone(), None::<String>);
-    if r.is_err() {
-        log::error!("Failed to open {}: {:?}", url, r);
-    }
+    opener
+        .open_url(url.clone(), None::<String>)
+        .map_err(|e| format!("Failed to open URL {}: {:?}", url, e))?;
+    Ok(())
 }
 
 #[cfg(desktop)]
@@ -568,11 +594,12 @@ fn is_desktop() -> bool {
 }
 
 #[tauri::command]
-fn copy_to_clipboard(window: Window, contents: String) {
+fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
     let app = window.app_handle();
-    if let Err(e) = app.clipboard().write_text(contents) {
-        log::error!("Failed to copy to clipboard: {}", e);
-    }
+    app.clipboard()
+        .write_text(contents.clone())
+        .map_err(|e| format!("Failed to copy {} to clipboard: {:?}", contents, e))?;
+    Ok(())
 }
 
 #[cfg(desktop)]
