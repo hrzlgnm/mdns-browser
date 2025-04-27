@@ -65,7 +65,7 @@ async fn listen_for_resolve_events(event_writer: WriteSignal<ResolvedServices>) 
         "service-resolved",
         move |event: ServiceResolvedEventRes| {
             event_writer.update(|evts| {
-                evts.retain(|r| r.instance_name != event.service.instance_name);
+                evts.retain(|r| r.instance_fullname != event.service.instance_fullname);
                 evts.push(event.service);
             });
         },
@@ -73,7 +73,7 @@ async fn listen_for_resolve_events(event_writer: WriteSignal<ResolvedServices>) 
         move |event: ServiceRemovedEventRes| {
             event_writer.update(|evts| {
                 for item in evts.iter_mut() {
-                    if item.instance_name == event.instance_name {
+                    if item.instance_fullname == event.instance_name {
                         item.die_at(event.at_ms);
                         break;
                     }
@@ -122,14 +122,6 @@ async fn verify_instance(instance_fullname: String) {
         )
         .await;
     });
-}
-
-fn get_instance_name(input: &str) -> String {
-    if let Some(prefix) = input.split('.').next() {
-        prefix.to_string()
-    } else {
-        input.to_string()
-    }
 }
 
 fn is_subsequence(search_term: &str, target: &str) -> bool {
@@ -397,7 +389,7 @@ fn ResolvedRow(
 /// Component that shows a resolved service as a card
 #[component]
 fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
-    let instance_fullname = RwSignal::new(resolved_service.instance_name.clone());
+    let instance_fullname = RwSignal::new(resolved_service.instance_fullname.clone());
     let verify_action = Action::new_local(|instance_fullname: &String| {
         let instance_fullname = instance_fullname.clone();
         async move { verify_instance(instance_fullname.clone()).await }
@@ -425,6 +417,8 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
         }
     };
 
+    let card_title = resolved_service.get_instance_name().clone();
+    let details_title = card_title.clone();
     let host_to_copy = drop_trailing_dot(&resolved_service.hostname);
     let host_to_show = drop_local_and_trailing_dot(&resolved_service.hostname);
     let service_type_to_copy = drop_trailing_dot(&resolved_service.service_type);
@@ -448,8 +442,6 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
         Some(s) => vec![s],
     };
 
-    let card_title = get_instance_name(resolved_service.instance_name.as_str());
-    let details_title = card_title.clone();
     let show_details = RwSignal::new(false);
     let first_address = addrs.first().cloned().unwrap_or_default();
 
@@ -465,8 +457,9 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                 <CardHeader>
                     <Flex justify=FlexJustify::SpaceAround align=FlexAlign::Stretch>
                         <CopyToClipBoardButton
+                            class=get_class(&is_desktop, "resolved-service-card-title")
                             size=ButtonSize::Large
-                            text=Some(card_title.clone())
+                            text=Some(resolved_service.instance_fullname.clone())
                             button_text=Some(card_title)
                             disabled=resolved_service.dead
                         />
@@ -521,7 +514,10 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                             <DialogBody class="resolved-service-details-dialog-body">
                                                 <Scrollbar class="resolved-service-details-dialog-scrollarea">
                                                     <Flex vertical=true>
-                                                        <DialogTitle>{details_title}</DialogTitle>
+                                                        <DialogTitle class=get_class(
+                                                            &is_desktop,
+                                                            "resolved-service-details-dialog-title",
+                                                        )>{details_title}</DialogTitle>
                                                         <ValuesTable values=subtype title="subtype" />
                                                         <ValuesTable values=addrs title="IPs" />
                                                         <ValuesTable values=txts title="txt" />
@@ -639,8 +635,12 @@ pub fn Browse() -> impl IntoView {
                 std::cmp::Ordering::Equal => b.service_type.cmp(&a.service_type),
                 other => other,
             }),
-            SortKind::InstanceAsc => sorted.sort_by(|a, b| a.instance_name.cmp(&b.instance_name)),
-            SortKind::InstanceDesc => sorted.sort_by(|a, b| b.instance_name.cmp(&a.instance_name)),
+            SortKind::InstanceAsc => {
+                sorted.sort_by(|a, b| a.instance_fullname.cmp(&b.instance_fullname))
+            }
+            SortKind::InstanceDesc => {
+                sorted.sort_by(|a, b| b.instance_fullname.cmp(&a.instance_fullname))
+            }
             SortKind::ServiceTypeAsc => sorted.sort_by(|a, b| a.service_type.cmp(&b.service_type)),
             SortKind::ServiceTypeDesc => sorted.sort_by(|a, b| b.service_type.cmp(&a.service_type)),
             SortKind::TimestampAsc => sorted.sort_by_key(|i| i.updated_at_ms),
@@ -882,7 +882,7 @@ pub fn Browse() -> impl IntoView {
             <Grid class=grid_class>
                 <For
                     each=move || filtered_services.get()
-                    key=|rs| format!("{}{}", rs.instance_name.clone(), rs.updated_at_ms)
+                    key=|rs| format!("{}{}", rs.instance_fullname.clone(), rs.updated_at_ms)
                     children=move |resolved_service| {
                         view! { <ResolvedServiceItem resolved_service /> }
                     }

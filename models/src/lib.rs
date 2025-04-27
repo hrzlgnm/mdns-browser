@@ -31,7 +31,7 @@ impl TxtRecord {
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct ResolvedService {
-    pub instance_name: String,
+    pub instance_fullname: String,
     pub service_type: String,
     pub hostname: String,
     pub port: u16,
@@ -43,6 +43,15 @@ pub struct ResolvedService {
 }
 
 impl ResolvedService {
+    pub fn get_instance_name(&self) -> String {
+        self.instance_fullname
+            .strip_suffix(&self.service_type)
+            .unwrap_or(&self.instance_fullname)
+            .strip_suffix('.')
+            .unwrap_or(&self.instance_fullname)
+            .to_string()
+    }
+
     pub fn die_at(&mut self, at_ms: u64) {
         self.dead = true;
         self.updated_at_ms = at_ms;
@@ -52,7 +61,7 @@ impl ResolvedService {
         if query.is_empty() {
             return true;
         }
-        self.instance_name.to_lowercase().contains(&query)
+        self.instance_fullname.to_lowercase().contains(&query)
             || self.service_type.to_lowercase().contains(&query)
             || self.hostname.to_lowercase().contains(&query)
             || self.port.to_string().contains(&query)
@@ -353,7 +362,7 @@ mod tests {
 
         // Act
         let service = ResolvedService {
-            instance_name: instance_name.clone(),
+            instance_fullname: instance_name.clone(),
             service_type: service_type.clone(),
             hostname: hostname.clone(),
             port,
@@ -365,7 +374,7 @@ mod tests {
         };
 
         // Assert
-        assert_eq!(service.instance_name, instance_name);
+        assert_eq!(service.instance_fullname, instance_name);
         assert_eq!(service.service_type, service_type);
         assert_eq!(service.hostname, hostname);
         assert_eq!(service.port, port);
@@ -380,7 +389,7 @@ mod tests {
     fn test_die_at_method() {
         // Arrange
         let mut service = ResolvedService {
-            instance_name: "test_service".to_string(),
+            instance_fullname: "test_service".to_string(),
             service_type: "_banan._tcp.local.".to_string(),
             hostname: "test.local".to_string(),
             port: 8080,
@@ -405,7 +414,7 @@ mod tests {
     fn test_die_at_when_already_dead() {
         // Arrange
         let mut service = ResolvedService {
-            instance_name: "test_service".to_string(),
+            instance_fullname: "test_service".to_string(),
             service_type: "_banan._tcp.local.".to_string(),
             hostname: "test.local".to_string(),
             port: 8080,
@@ -430,7 +439,7 @@ mod tests {
     fn test_die_at_with_boundary_timestamp() {
         // Arrange
         let mut service = ResolvedService {
-            instance_name: "test_service".to_string(),
+            instance_fullname: "test_service".to_string(),
             service_type: "_banan._tcp.local.".to_string(),
             hostname: "test.local".to_string(),
             port: 8080,
@@ -448,11 +457,40 @@ mod tests {
         assert!(service.dead);
         assert_eq!(service.updated_at_ms, 0);
     }
+    #[test]
+    fn test_get_instance_name() {
+        // Test with standard service name format
+        let service = ResolvedService {
+            instance_fullname: "My Service._http._tcp.local".to_string(),
+            service_type: "_http._tcp.local".to_string(),
+            hostname: "hostname.local".to_string(),
+            port: 80,
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))],
+            subtype: None,
+            txt: vec![],
+            updated_at_ms: 0,
+            dead: false,
+        };
+        assert_eq!(service.get_instance_name(), "My Service");
 
+        // Test with dot in the instance name
+        let service = ResolvedService {
+            instance_fullname: "My.Complex.Service._http._tcp.local".to_string(),
+            service_type: "_http._tcp.local".to_string(),
+            hostname: "hostname.local".to_string(),
+            port: 80,
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))],
+            subtype: None,
+            txt: vec![],
+            updated_at_ms: 0,
+            dead: false,
+        };
+        assert_eq!(service.get_instance_name(), "My.Complex.Service");
+    }
     #[test]
     fn test_matches_query() {
         let service = ResolvedService {
-            instance_name: "MyService".to_string(),
+            instance_fullname: "MyService".to_string(),
             service_type: "_http._tcp".to_string(),
             hostname: "my-host.local".to_string(),
             port: 8080,
@@ -508,7 +546,7 @@ mod tests {
     #[test]
     fn test_matches_query_empty_fields() {
         let service = ResolvedService {
-            instance_name: "".to_string(),
+            instance_fullname: "".to_string(),
             service_type: "".to_string(),
             hostname: "".to_string(),
             port: 0,
@@ -526,7 +564,7 @@ mod tests {
     #[test]
     fn test_matches_query_partial_matches() {
         let service = ResolvedService {
-            instance_name: "MyService".to_string(),
+            instance_fullname: "MyService".to_string(),
             service_type: "_http._tcp".to_string(),
             hostname: "my-host.local".to_string(),
             port: 8080,

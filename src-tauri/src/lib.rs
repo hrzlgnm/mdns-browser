@@ -64,7 +64,7 @@ fn from_service_info(info: &ServiceInfo) -> ResolvedService {
         .collect();
     sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).expect("To be partial comparable"));
     ResolvedService {
-        instance_name: info.get_fullname().into(),
+        instance_fullname: info.get_fullname().into(),
         service_type: info.get_type().into(),
         hostname: info.get_hostname().into(),
         port: info.get_port(),
@@ -83,8 +83,9 @@ fn from_service_info(info: &ServiceInfo) -> ResolvedService {
 /// Use this helper to avoid repetitive error handling.
 fn emit_event<T>(window: &Window, event: &str, payload: &T)
 where
-    T: serde::Serialize,
+    T: serde::Serialize + std::fmt::Debug,
 {
+    log::trace!("Emitting event: {} with payload: {:#?}", event, payload);
     if let Err(e) = window.emit(event, payload) {
         log::error!("Failed to emit {} event: {:?}", event, e);
     }
@@ -116,7 +117,6 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
         while let Ok(event) = receiver.recv_async().await {
             match event {
                 ServiceEvent::ServiceFound(_service_type, full_name) => {
-                    log::debug!("Service type found: {}", full_name);
                     match check_service_type_fully_qualified(full_name.as_str()) {
                         Ok(_) => {
                             emit_event(
@@ -133,7 +133,6 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
                     }
                 }
                 ServiceEvent::ServiceRemoved(_service_type, full_name) => {
-                    log::debug!("Service type removed: {}", full_name);
                     match check_service_type_fully_qualified(full_name.as_str()) {
                         Ok(_) => {
                             emit_event(
@@ -156,7 +155,7 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
                     }
                 }
                 _ => {
-                    log::debug!("Ignoring event: {:?}", event);
+                    log::debug!("Ignoring event: {:#?}", event);
                 }
             }
         }
