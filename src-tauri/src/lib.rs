@@ -13,11 +13,13 @@ use shared_constants::{
     INTERFACES_CAN_BROWSE_CHECK_INTERVAL, MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL,
     VERIFY_TIMEOUT,
 };
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     net::IpAddr,
-    sync::{Arc, Mutex},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc, Mutex,
+    },
 };
 use tauri::Emitter;
 use tauri::{AppHandle, Manager, State, Window};
@@ -28,7 +30,7 @@ type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
 struct ManagedState {
     daemon: SharedServiceDaemon,
-    running_browsers: Arc<Mutex<Vec<String>>>,
+    running_browsers: Arc<Mutex<HashSet<String>>>,
     metrics_subscribed: AtomicBool,
     can_browse_subscribed: AtomicBool,
 }
@@ -37,7 +39,7 @@ impl ManagedState {
     fn new() -> Self {
         Self {
             daemon: get_shared_daemon(),
-            running_browsers: Arc::new(Mutex::new(Vec::new())),
+            running_browsers: Arc::new(Mutex::new(HashSet::new())),
             metrics_subscribed: AtomicBool::new(false),
             can_browse_subscribed: AtomicBool::new(false),
         }
@@ -184,7 +186,7 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
         if let Ok(mdns) = state.daemon.lock() {
             if let Ok(mut running_browsers) = state.running_browsers.lock() {
                 if !running_browsers.contains(&service_type) {
-                    running_browsers.push(service_type.clone());
+                    running_browsers.insert(service_type.clone());
                     let receiver = match mdns.browse(service_type.as_str()) {
                         Ok(receiver) => receiver,
                         Err(e) => {
