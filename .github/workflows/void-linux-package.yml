@@ -72,7 +72,7 @@ jobs:
           xbps-rindex --privkey private.pem --sign-pkg hostdir/binpkgs/*.xbps
 
       - name: 🛡️ Attest build provenance (publish release only)
-        uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # v2.2.3
+        uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd # v2.3.0
         with:
           subject-path: |
             ~/void-packages/hostdir/binpkgs/*
