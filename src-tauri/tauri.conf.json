@@ -1,7 +1,7 @@
 {
     "build": {
-        "beforeDevCommand": "trunk serve --log debug",
-        "beforeBuildCommand": "trunk build",
+        "beforeDevCommand": "trunk --skip-version-check serve --log debug",
+        "beforeBuildCommand": "trunk --skip-version-check build",
         "frontendDist": "../dist",
         "devUrl": "http://localhost:1420"
     },
