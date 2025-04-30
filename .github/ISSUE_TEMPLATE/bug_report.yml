@@ -1,7 +1,7 @@
 name: Bug Report
 description: File a bug report to help us improve
 title: "[Bug]: "
-labels: ["bug", "triage"]
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
@@ -41,7 +41,7 @@ body:
     validations:
       required: true
   - type: dropdown
-    id: os
+    id: install-method
     attributes:
       label: Install Method
       description: What installation method did you use
