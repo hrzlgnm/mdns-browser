@@ -64,3 +64,8 @@ body:
       label: Relevant log output
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       render: shell
+  - type: markdown
+    attributes:
+      value: |
+        **Screenshots**
+        If applicable, please drag and drop a screenshot into this issue to help explain the problem.
