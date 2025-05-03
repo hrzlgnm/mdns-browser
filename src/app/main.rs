@@ -1,5 +1,4 @@
 use leptos::prelude::*;
-use leptos_meta::provide_meta_context;
 use thaw::{
     ConfigProvider, Flex, FlexJustify, Grid, GridItem, Icon, Layout, Text, Theme, ToasterProvider,
 };
@@ -15,7 +14,6 @@ use super::{
 /// The main app component
 #[component]
 pub fn Main() -> impl IntoView {
-    provide_meta_context();
     let theme = RwSignal::new(Theme::dark());
     let set_body_background_color = move |color: String| {
         if let Some(document) = window().document() {
