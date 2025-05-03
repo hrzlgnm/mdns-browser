@@ -185,7 +185,7 @@ dependencies = [
  "objc2-foundation 0.3.1",
  "parking_lot",
  "percent-encoding",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
  "wl-clipboard-rs",
  "x11rb",
 ]
@@ -1388,7 +1388,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "976dd42dc7e85965fe702eb8164f21f450704bdde31faefd6471dba214cb594e"
 dependencies = [
  "libc",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2215,7 +2215,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.61.0",
+ "windows-core 0.60.1",
 ]
 
 [[package]]
@@ -4340,7 +4340,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -4759,7 +4759,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.4.15",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -4772,7 +4772,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.9.4",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -5866,7 +5866,7 @@ dependencies = [
  "getrandom 0.3.2",
  "once_cell",
  "rustix 1.0.7",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -5882,9 +5882,9 @@ dependencies = [
 
 [[package]]
 name = "thaw"
-version = "0.4.6"
+version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3cb1c56a9dd5f6065c89b404887e200deff2ae7756fa74a7481b0aed037ecd3"
+checksum = "de5ae2cb227bc4f269dd8ba2efb730509f1008eb2dfebfc25facf9d74fc73451"
 dependencies = [
  "cfg-if",
  "chrono",
@@ -5905,9 +5905,9 @@ dependencies = [
 
 [[package]]
 name = "thaw_components"
-version = "0.3.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "243dc24f885b1880372cac1cadd64929e05044c094fee1b82f8a8497c90059cb"
+checksum = "8963ad3a3d5bf47a64abe12d1deaa4760774751f5953335fe0806fe35645fe3a"
 dependencies = [
  "cfg-if",
  "leptos",
@@ -5930,9 +5930,9 @@ dependencies = [
 
 [[package]]
 name = "thaw_utils"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4a02051778efb4e365286e3cc79eb7c988f373855587453dcd367c34a36d1451"
+checksum = "c3a80028493030263acd93d3e21e57a2dd8dd6772c7439de02c4636c63bb1b6b"
 dependencies = [
  "cfg-if",
  "chrono",
@@ -6816,7 +6816,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
