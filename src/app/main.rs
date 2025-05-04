@@ -1,5 +1,7 @@
 use leptos::prelude::*;
-use thaw::{ConfigProvider, Grid, GridItem, Layout, Text, Theme, ToasterProvider};
+use thaw::{
+    ConfigProvider, Flex, FlexJustify, Grid, GridItem, Layout, Text, Theme, ToasterProvider,
+};
 
 use super::{
     about::About,
@@ -45,7 +47,9 @@ pub fn Main() -> impl IntoView {
                                 </Show>
                             </GridItem>
                             <GridItem column=1>
-                                <ThemeSwitcher theme />
+                                <Flex justify=FlexJustify::End>
+                                    <ThemeSwitcher theme />
+                                </Flex>
                             </GridItem>
                         </Grid>
                         <Metrics />

@@ -1,5 +1,5 @@
 use leptos::prelude::*;
-use thaw::{Flex, FlexJustify, Icon, Theme};
+use thaw::{Icon, Theme};
 
 #[component]
 pub fn ThemeSwitcher(theme: RwSignal<Theme>) -> impl IntoView {
@@ -21,8 +21,6 @@ pub fn ThemeSwitcher(theme: RwSignal<Theme>) -> impl IntoView {
     });
 
     view! {
-        <Flex justify=FlexJustify::End>
-            <Icon height="2em" width="2em" icon=icon on_click=on_switch_click />
-        </Flex>
+        <Icon height="2em" width="2em" icon=icon on_click=on_switch_click />
     }
 }
