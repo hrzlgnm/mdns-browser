@@ -14,7 +14,6 @@ use thaw::{
     FlexJustify, Grid, GridItem, Input, Layout, MessageBar, MessageBarBody, MessageBarIntent,
     MessageBarTitle, Scrollbar, Select, Table, TableBody, TableCell, TableRow, Text, TextTag,
 };
-use thaw_utils::Model;
 
 use crate::{app::about::open_url, log_fn};
 
@@ -153,7 +152,7 @@ fn get_prefix(s: &str) -> &str {
 /// Component that auto completes service types
 #[component]
 fn AutoCompleteServiceType(
-    #[prop(optional, into)] value: Model<String>,
+    #[prop(optional, into)] value: RwSignal<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
     #[prop(optional, into)] invalid: Signal<bool>,
     #[prop(optional, into)] comp_ref: ComponentRef<AutoCompleteRef>,
@@ -164,7 +163,7 @@ fn AutoCompleteServiceType(
             .get()
             .into_iter()
             .filter(|s| {
-                let input = value.get().clone();
+                let input = value.get();
                 let lookup = get_prefix(input.as_str());
                 let prefix = get_prefix(s.split('.').next().unwrap_or(s));
                 jaro_winkler(lookup, prefix) >= 0.75 || is_subsequence(lookup, prefix)
