@@ -8,4 +8,5 @@ mod listen;
 mod macros;
 pub mod main;
 mod metrics;
+mod theme_switcher;
 mod values_table;

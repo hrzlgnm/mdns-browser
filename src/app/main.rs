@@ -1,7 +1,5 @@
 use leptos::prelude::*;
-use thaw::{
-    ConfigProvider, Flex, FlexJustify, Grid, GridItem, Icon, Layout, Text, Theme, ToasterProvider,
-};
+use thaw::{ConfigProvider, Grid, GridItem, Layout, Text, Theme, ToasterProvider};
 
 use super::{
     about::About,
@@ -9,6 +7,7 @@ use super::{
     css::get_class,
     is_desktop::{get_is_desktop, IsDesktopInjection},
     metrics::Metrics,
+    theme_switcher::ThemeSwitcher,
 };
 
 /// The main app component
@@ -27,20 +26,8 @@ pub fn Main() -> impl IntoView {
     Effect::new(move |_| {
         set_body_background_color(theme.get().color.color_neutral_background_1);
     });
-    let icon = RwSignal::new(icondata::BsSun);
-    let dark = RwSignal::new(true);
     let (is_desktop, set_is_desktop) = signal(false);
     LocalResource::new(move || get_is_desktop(set_is_desktop));
-    let on_switch_click = move |_| {
-        dark.set(!dark.get());
-        if dark.get() {
-            icon.set(icondata::BsSun);
-            theme.set(Theme::dark());
-        } else {
-            icon.set(icondata::BsMoonStars);
-            theme.set(Theme::light());
-        }
-    };
     let layout_class = get_class(&is_desktop, "outer-layout");
     provide_context(IsDesktopInjection(is_desktop));
     view! {
@@ -58,9 +45,7 @@ pub fn Main() -> impl IntoView {
                                 </Show>
                             </GridItem>
                             <GridItem column=1>
-                                <Flex justify=FlexJustify::End>
-                                    <Icon height="2em" width="2em" icon on_click=on_switch_click />
-                                </Flex>
+                                <ThemeSwitcher theme />
                             </GridItem>
                         </Grid>
                         <Metrics />
