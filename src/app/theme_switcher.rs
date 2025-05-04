@@ -20,7 +20,5 @@ pub fn ThemeSwitcher(theme: RwSignal<Theme>) -> impl IntoView {
         }
     });
 
-    view! {
-        <Icon height="2em" width="2em" icon=icon on_click=on_switch_click />
-    }
+    view! { <Icon height="2em" width="2em" icon=icon on_click=on_switch_click /> }
 }
