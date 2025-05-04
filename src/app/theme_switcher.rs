@@ -24,12 +24,7 @@ pub fn ThemeSwitcher(theme: RwSignal<Theme>) -> impl IntoView {
 
     view! {
         <Flex justify=FlexJustify::End>
-            <Icon
-                height="2em"
-                width="2em"
-                icon=icon
-                on_click=on_switch_click
-            />
+            <Icon height="2em" width="2em" icon=icon on_click=on_switch_click />
         </Flex>
     }
 }
