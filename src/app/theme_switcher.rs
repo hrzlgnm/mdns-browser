@@ -3,10 +3,8 @@ use thaw::{Flex, FlexJustify, Icon, Theme};
 
 #[component]
 pub fn ThemeSwitcher(theme: RwSignal<Theme>) -> impl IntoView {
-    let dark = RwSignal::new(theme.get_untracked().name.eq("dark"));
-
+    let dark = Memo::new(move |_| theme.get().name.eq("dark"));
     let on_switch_click = move |_| {
-        dark.set(!dark.get());
         if dark.get() {
             theme.set(Theme::dark());
         } else {
