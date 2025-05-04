@@ -27,7 +27,7 @@ prepare() {
     export RUSTUP_TOOLCHAIN=stable
     cargo --locked install trunk@0.21.13 --no-default-features --features rustls
     cargo --locked install tauri-cli@2.5.0
-    cargo --locked install cargo-auditable@0.6.6
+    cargo --locked install cargo-auditable@0.6.7
     rustup toolchain install \$RUSTUP_TOOLCHAIN --target wasm32-unknown-unknown --profile minimal --no-self-update
     cargo fetch --locked --target "\$(rustc -vV | sed -n 's/host: //p')"
     cargo fetch --locked --target wasm32-unknown-unknown
