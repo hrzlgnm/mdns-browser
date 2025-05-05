@@ -19,8 +19,7 @@ use std::{
         Arc, Mutex,
     },
 };
-use tauri::Emitter;
-use tauri::{AppHandle, Manager, State, Window};
+use tauri::{AppHandle, Emitter, Manager, State, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_opener::OpenerExt;
 
@@ -516,6 +515,27 @@ struct Args {
     disable_dmabuf_renderer: bool,
 }
 
+#[tauri::command]
+#[cfg(mobile)]
+fn is_desktop() -> bool {
+    false
+}
+
+#[tauri::command]
+#[cfg(desktop)]
+fn is_desktop() -> bool {
+    true
+}
+
+#[tauri::command]
+fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
+    let app = window.app_handle();
+    app.clipboard()
+        .write_text(contents.clone())
+        .map_err(|e| format!("Failed to copy {} to clipboard: {:?}", contents, e))?;
+    Ok(())
+}
+
 #[cfg(desktop)]
 mod foreign_crate {
     #[derive(Copy, Clone, PartialEq, Eq, Debug)]
@@ -567,41 +587,7 @@ mod foreign_crate {
 }
 
 #[cfg(desktop)]
-#[tauri::command]
-fn is_desktop() -> bool {
-    true
-}
-
-#[cfg(desktop)]
-#[tauri::command]
-fn can_auto_update() -> bool {
-    #[cfg(target_os = "linux")]
-    {
-        false
-    }
-    #[cfg(not(target_os = "linux"))]
-    {
-        true
-    }
-}
-
-#[cfg(mobile)]
-#[tauri::command]
-fn is_desktop() -> bool {
-    false
-}
-
-#[tauri::command]
-fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
-    let app = window.app_handle();
-    app.clipboard()
-        .write_text(contents.clone())
-        .map_err(|e| format!("Failed to copy {} to clipboard: {:?}", contents, e))?;
-    Ok(())
-}
-
-#[cfg(desktop)]
-mod app_updates {
+mod autoupdate {
     use models::UpdateMetadata;
     use serde::Serialize;
     use std::sync::Mutex;
@@ -676,6 +662,18 @@ mod app_updates {
     }
 
     pub struct PendingUpdate(pub Mutex<Option<Update>>);
+
+    #[tauri::command]
+    #[cfg(target_os = "linux")]
+    pub fn can_auto_update() -> bool {
+        false
+    }
+
+    #[tauri::command]
+    #[cfg(not(target_os = "linux"))]
+    pub fn can_auto_update() -> bool {
+        true
+    }
 }
 
 #[cfg(desktop)]
@@ -697,7 +695,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
-        .manage(app_updates::PendingUpdate(Mutex::new(None)))
+        .manage(autoupdate::PendingUpdate(Mutex::new(None)))
         .plugin(
             tauri_plugin_log::Builder::default()
                 .targets(log_targets)
@@ -723,11 +721,11 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            app_updates::fetch_update,
-            app_updates::install_update,
+            autoupdate::fetch_update,
+            autoupdate::install_update,
+            autoupdate::can_auto_update,
             browse_many,
             browse_types,
-            can_auto_update,
             copy_to_clipboard,
             is_desktop,
             open_url,
