@@ -409,13 +409,8 @@ fn open_url(app: AppHandle, url: String) -> Result<(), String> {
 
 #[cfg(desktop)]
 #[tauri::command]
-fn version(window: Window) -> String {
-    window
-        .app_handle()
-        .config()
-        .version
-        .clone()
-        .unwrap_or(String::from("Unknown"))
+fn version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
 }
 
 #[cfg(desktop)]
