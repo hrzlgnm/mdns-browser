@@ -9,7 +9,7 @@
         "active": false
     },
     "productName": "mDNS Browser",
-    "version": "0.15.3",
+    "version": "0.16.0",
     "identifier": "com.github.hrzlgnm.mdns-browser",
     "plugins": {},
     "app": {
