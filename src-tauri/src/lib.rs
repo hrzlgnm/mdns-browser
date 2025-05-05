@@ -5,8 +5,6 @@ use clap::Parser;
 use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
 use models::check_service_type_fully_qualified;
 use models::*;
-#[cfg(not(windows))]
-use pnet::datalink;
 #[cfg(all(desktop, not(debug_assertions)))]
 use shared_constants::SPLASH_SCREEN_DURATION;
 use shared_constants::{
@@ -279,6 +277,7 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
 
 #[cfg(not(windows))]
 fn has_mdns_capable_interfaces() -> bool {
+    use pnet::datalink;
     let interfaces = datalink::interfaces();
     interfaces.iter().any(|interface| {
         let capable = !interface.ips.is_empty()
