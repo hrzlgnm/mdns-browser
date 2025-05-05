@@ -166,6 +166,11 @@ pub struct ServiceRemovedEventRes {
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct ThemeChangedEventRes {
+    pub theme: String,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct CanBrowseChangedEventRes {
     pub can_browse: bool,
 }
