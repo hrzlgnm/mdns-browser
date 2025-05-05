@@ -477,6 +477,38 @@ mod linux {
     }
 }
 
+#[tauri::command]
+#[cfg(mobile)]
+fn is_desktop() -> bool {
+    false
+}
+
+#[tauri::command]
+#[cfg(desktop)]
+fn is_desktop() -> bool {
+    true
+}
+
+#[tauri::command]
+fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
+    let app = window.app_handle();
+    app.clipboard()
+        .write_text(contents.clone())
+        .map_err(|e| format!("Failed to copy {} to clipboard: {:?}", contents, e))?;
+    Ok(())
+}
+
+#[tauri::command]
+fn theme(window: Window) -> Theme {
+    match window.theme() {
+        Ok(theme) => theme,
+        Err(err) => {
+            log::error!("Failed to get theme: {:?}, using dark", err);
+            Theme::Dark
+        }
+    }
+}
+
 #[cfg(desktop)]
 #[derive(Parser, Debug)]
 #[command(
@@ -508,38 +540,6 @@ struct Args {
         help = "Disable dmabuf renderer, useful when having rendering issues"
     )]
     disable_dmabuf_renderer: bool,
-}
-
-#[tauri::command]
-#[cfg(mobile)]
-fn is_desktop() -> bool {
-    false
-}
-
-#[tauri::command]
-#[cfg(desktop)]
-fn is_desktop() -> bool {
-    true
-}
-
-#[tauri::command]
-fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
-    let app = window.app_handle();
-    app.clipboard()
-        .write_text(contents.clone())
-        .map_err(|e| format!("Failed to copy {} to clipboard: {:?}", contents, e))?;
-    Ok(())
-}
-
-#[tauri::command]
-fn theme(window: Window) -> Theme {
-    match window.theme() {
-        Ok(theme) => theme,
-        Err(err) => {
-            log::error!("Failed to get theme: {:?}, using dark", err);
-            Theme::Dark
-        }
-    }
 }
 
 #[cfg(desktop)]
