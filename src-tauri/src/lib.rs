@@ -167,17 +167,17 @@ fn stop_browse(state: State<ManagedState>) -> Result<(), String> {
         .daemon
         .lock()
         .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
-    let mut running_browsers = state
+    let mut queriers = state
         .queriers
         .lock()
-        .map_err(|e| format!("Failed to lock running browsers: {:?}", e))?;
-    for ty_domain in running_browsers.iter() {
+        .map_err(|e| format!("Failed to lock running queriers: {:?}", e))?;
+    for ty_domain in queriers.iter() {
         if let Err(e) = mdns.stop_browse(ty_domain) {
             log::error!("Failed to stop browsing for {}: {:?}", ty_domain, e);
         }
     }
 
-    running_browsers.clear();
+    queriers.clear();
     Ok(())
 }
 
@@ -197,9 +197,9 @@ fn verify(instance_fullname: String, state: State<ManagedState>) -> Result<(), S
 fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedState>) {
     for service_type in service_types {
         let mut queriers = match state.queriers.lock() {
-            Ok(browsers) => browsers,
+            Ok(queriers) => queriers,
             Err(err) => {
-                log::error!("Failed to lock running browsers: {:?}", err);
+                log::error!("Failed to lock running queriers: {:?}", err);
                 continue;
             }
         };
