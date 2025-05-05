@@ -11,7 +11,7 @@ use tauri_sys::event::listen;
 ///
 /// # Parameters
 /// * `event_name` - The name of the event to listen for
-/// * `subscriber` - The name of the command to invoke for subscription
+/// * `subscriber` - Optional name of the command to invoke for subscription
 /// * `process_event` - Closure that will be called for each received event
 ///
 /// # Type Parameters
@@ -22,7 +22,7 @@ use tauri_sys::event::listen;
 /// Logs an error and returns early if event subscription fails.
 pub async fn listen_events<T, F>(
     event_name: &str,
-    subscriber: impl Into<String>,
+    subscriber: Option<impl Into<String>>,
     mut process_event: F,
 ) where
     T: DeserializeOwned + 'static + std::fmt::Debug,
@@ -40,7 +40,9 @@ pub async fn listen_events<T, F>(
         }
     };
 
-    spawn_local(invoke_no_args(subscriber.into()));
+    if let Some(subscriber) = subscriber {
+        spawn_local(invoke_no_args(subscriber.into()));
+    }
 
     while let Some(event) = events.next().await {
         log::debug!("Received event {}: {:#?}", event_name, event.payload);

@@ -19,7 +19,7 @@ use std::{
         Arc, Mutex,
     },
 };
-use tauri::{AppHandle, Emitter, Manager, State, Window};
+use tauri::{AppHandle, Emitter, Manager, State, Theme, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_opener::OpenerExt;
 
@@ -531,6 +531,17 @@ fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+fn theme(window: Window) -> Theme {
+    match window.theme() {
+        Ok(theme) => theme,
+        Err(err) => {
+            log::error!("Failed to get theme: {:?}, using dark", err);
+            Theme::Dark
+        }
+    }
+}
+
 #[cfg(desktop)]
 mod foreign_crate {
     #[derive(Copy, Clone, PartialEq, Eq, Debug)]
@@ -727,6 +738,7 @@ pub fn run() {
             subscribe_can_browse,
             subscribe_metrics,
             stop_browse,
+            theme,
             verify,
             version,
         ])
@@ -755,6 +767,7 @@ pub fn run_mobile() {
             subscribe_can_browse,
             subscribe_metrics,
             stop_browse,
+            theme,
             verify,
         ])
         .run(tauri::generate_context!())

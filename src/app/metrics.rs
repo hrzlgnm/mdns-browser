@@ -10,7 +10,7 @@ use super::listen::listen_events;
 async fn listen_for_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
     listen_events(
         "metrics",
-        "subscribe_metrics",
+        Some("subscribe_metrics"),
         move |event: MetricsEventRes| {
             event_writer.update(|evts| {
                 *evts = event.metrics.into_iter().collect::<Vec<_>>();
