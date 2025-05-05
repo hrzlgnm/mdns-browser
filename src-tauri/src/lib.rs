@@ -493,11 +493,10 @@ fn is_desktop() -> bool {
 fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
     let app = window.app_handle();
     app.clipboard()
-        .write_text(contents.clone())
-        .map_err(|e| format!("Failed to copy {} to clipboard: {:?}", contents, e))?;
+        .write_text(contents)
+        .map_err(|e| format!("Failed to copy to clipboard: {:?}", e))?;
     Ok(())
 }
-
 #[tauri::command]
 fn theme(window: Window) -> Theme {
     match window.theme() {
