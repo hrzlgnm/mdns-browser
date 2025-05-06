@@ -227,19 +227,6 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
         tauri::async_runtime::spawn(async move {
             while let Ok(event) = receiver.recv_async().await {
                 match event {
-                    ServiceEvent::ServiceFound(_service_type, instance_name) => emit_event(
-                        &window,
-                        "service-found",
-                        &ServiceFoundEvent {
-                            instance_name,
-                            at_ms: timestamp_millis(),
-                        },
-                    ),
-                    ServiceEvent::SearchStarted(service_type) => emit_event(
-                        &window,
-                        "search-started",
-                        &SearchStartedEvent { service_type },
-                    ),
                     ServiceEvent::ServiceResolved(info) => emit_event(
                         &window,
                         "service-resolved",
@@ -258,14 +245,10 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
                             },
                         );
                     }
-                    ServiceEvent::SearchStopped(service_type) => {
-                        emit_event(
-                            &window,
-                            "search-stopped",
-                            &SearchStoppedEvent { service_type },
-                        );
+                    ServiceEvent::SearchStopped(_service_type) => {
                         break;
                     }
+                    _ => {}
                 }
             }
             log::debug!("Browse task for {} ending.", &service_type);

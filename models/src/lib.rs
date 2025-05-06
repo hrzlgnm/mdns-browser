@@ -42,6 +42,8 @@ pub struct ResolvedService {
     pub dead: bool,
 }
 
+pub type ResolvedServices = Vec<ResolvedService>;
+
 impl ResolvedService {
     pub fn get_instance_name(&self) -> String {
         self.instance_fullname
@@ -119,46 +121,38 @@ pub struct MetricsEvent {
     pub metrics: HashMap<String, i64>,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct ServiceResolvedEvent {
-    pub service: ResolvedService,
-}
-
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct SearchStartedEvent {
-    pub service_type: String,
-}
-
-pub type SearchStoppedEvent = SearchStartedEvent;
-
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct ServiceRemovedEvent {
-    pub instance_name: String,
-    pub at_ms: u64,
-}
-
-pub type ServiceFoundEvent = ServiceRemovedEvent;
-pub type ServiceTypeFoundEvent = SearchStartedEvent;
-pub type ServiceTypeRemovedEvent = SearchStartedEvent;
-
-pub type ResolvedServices = Vec<ResolvedService>;
-
 #[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug)]
 pub struct MetricsEventRes {
     pub metrics: HashMap<String, i64>,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct ServiceTypeFoundEventRes {
-    pub service_type: String,
+pub struct ServiceResolvedEvent {
+    pub service: ResolvedService,
 }
-pub type ServiceTypeRemovedEventRes = ServiceTypeFoundEventRes;
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct ServiceResolvedEventRes {
     pub service: ResolvedService,
 }
 
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct ServiceTypeFoundEvent {
+    pub service_type: String,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct ServiceTypeFoundEventRes {
+    pub service_type: String,
+}
+pub type ServiceTypeRemovedEvent = ServiceTypeFoundEvent;
+pub type ServiceTypeRemovedEventRes = ServiceTypeFoundEventRes;
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct ServiceRemovedEvent {
+    pub instance_name: String,
+    pub at_ms: u64,
+}
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct ServiceRemovedEventRes {
     pub instance_name: String,
