@@ -151,9 +151,7 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
                         break;
                     }
                 }
-                _ => {
-                    log::debug!("Ignoring event: {:#?}", event);
-                }
+                _ => {}
             }
         }
         log::debug!("Browse type task ending.");
@@ -691,6 +689,7 @@ mod autoupdate {
 
 #[cfg(desktop)]
 pub fn run() {
+    use chrono::Utc;
     use tauri_plugin_log::{Target, TargetKind};
     let args = Args::parse();
 
@@ -704,6 +703,7 @@ pub fn run() {
     if args.log_to_file {
         log_targets.push(Target::new(TargetKind::LogDir { file_name: None }));
     }
+    let colors = tauri_plugin_log::fern::colors::ColoredLevelConfig::default();
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
@@ -713,6 +713,17 @@ pub fn run() {
             tauri_plugin_log::Builder::default()
                 .targets(log_targets)
                 .level(args.log_level)
+                .format(move |out, message, record| {
+                    let now = Utc::now(); // Get the current local time
+                    let level = format!("{:<5}", colors.color(record.level()));
+                    out.finish(format_args!(
+                        "{date} {level} {target}: {message}",
+                        date = now.format("%Y-%m-%dT%H:%M:%S%.6fZ"),
+                        level = level,
+                        target = record.target(),
+                        message = message
+                    ))
+                })
                 .build(),
         )
         .plugin(tauri_plugin_updater::Builder::new().build())

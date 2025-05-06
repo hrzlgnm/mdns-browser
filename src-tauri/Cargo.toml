@@ -12,6 +12,7 @@ tauri-build = { version = "2.0.0", features = [] }
 clap = { version = "4.5.19", features = ["derive"] }
 tauri-plugin-updater = "2.0.1"
 thiserror = "2.0.0"
+chrono = "0.4.41"
 
 [dependencies]
 # crates
@@ -21,7 +22,7 @@ serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.128"
 tauri = { version = "2.0.0", features = [] }
 tauri-plugin-clipboard-manager = "2.0.0"
-tauri-plugin-log = "2.0.0"
+tauri-plugin-log = { version = "2.0.0", features = ["colored"] }
 tauri-plugin-opener = "2.2.0"
 tokio = { version = "1.40.0", features = ["time"] }
 
