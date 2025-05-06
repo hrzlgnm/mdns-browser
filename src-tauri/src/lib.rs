@@ -90,21 +90,21 @@ where
 
 #[tauri::command]
 fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String> {
-    let mdns = state
+    let daemon = state
         .daemon
         .lock()
         .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
 
-    mdns.stop_browse(MDNS_SD_META_SERVICE).map_err(|e| {
+    daemon.stop_browse(MDNS_SD_META_SERVICE).map_err(|e| {
         format!(
             "Failed to stop browsing for {}: {:?}",
             MDNS_SD_META_SERVICE, e
         )
     })?;
 
-    let mdns_for_task = mdns.clone();
+    let daemon = daemon.clone();
     tauri::async_runtime::spawn(async move {
-        let receiver = match mdns_for_task.browse(MDNS_SD_META_SERVICE) {
+        let receiver = match daemon.browse(MDNS_SD_META_SERVICE) {
             Ok(receiver) => receiver,
             Err(e) => {
                 log::error!("Failed to browse for service types: {:?}", e);
@@ -163,32 +163,33 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
 
 #[tauri::command]
 fn stop_browse(state: State<ManagedState>) -> Result<(), String> {
-    let mdns = state
+    let daemon = state
         .daemon
         .lock()
         .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
-    let mut running_browsers = state
+    let mut queriers = state
         .queriers
         .lock()
-        .map_err(|e| format!("Failed to lock running browsers: {:?}", e))?;
-    for ty_domain in running_browsers.iter() {
-        if let Err(e) = mdns.stop_browse(ty_domain) {
+        .map_err(|e| format!("Failed to lock running queriers: {:?}", e))?;
+    for ty_domain in queriers.iter() {
+        if let Err(e) = daemon.stop_browse(ty_domain) {
             log::error!("Failed to stop browsing for {}: {:?}", ty_domain, e);
         }
     }
 
-    running_browsers.clear();
+    queriers.clear();
     Ok(())
 }
 
 #[tauri::command]
 fn verify(instance_fullname: String, state: State<ManagedState>) -> Result<(), String> {
-    let mdns = state
+    let daemon = state
         .daemon
         .lock()
         .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
     log::debug!("verifying {}", instance_fullname);
-    mdns.verify(instance_fullname.clone(), VERIFY_TIMEOUT)
+    daemon
+        .verify(instance_fullname.clone(), VERIFY_TIMEOUT)
         .map_err(|e| format!("Failed to verify {instance_fullname}: {:?}", e))?;
     Ok(())
 }
@@ -196,24 +197,24 @@ fn verify(instance_fullname: String, state: State<ManagedState>) -> Result<(), S
 #[tauri::command]
 fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedState>) {
     for service_type in service_types {
-        let mut queriers = match state.queriers.lock() {
-            Ok(browsers) => browsers,
+        let daemon = match state.daemon.lock() {
+            Ok(daemon) => daemon,
             Err(err) => {
-                log::error!("Failed to lock running browsers: {:?}", err);
+                log::error!("Failed to lock daemon: {:?}", err);
+                continue;
+            }
+        };
+        let mut queriers = match state.queriers.lock() {
+            Ok(queriers) => queriers,
+            Err(err) => {
+                log::error!("Failed to lock running queriers: {:?}", err);
                 continue;
             }
         };
         if !queriers.insert(service_type.clone()) {
             continue;
         }
-        let mdns = match state.daemon.lock() {
-            Ok(mdns) => mdns,
-            Err(err) => {
-                log::error!("Failed to lock daemon: {:?}", err);
-                continue;
-            }
-        };
-        let receiver = match mdns.browse(service_type.as_str()) {
+        let receiver = match daemon.browse(service_type.as_str()) {
             Ok(receiver) => receiver,
             Err(e) => {
                 log::error!(
@@ -371,12 +372,12 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
         .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
         .is_ok()
     {
-        if let Ok(mdns) = state.daemon.lock() {
-            let mdns = mdns.clone();
+        if let Ok(daemon) = state.daemon.lock() {
+            let daemon = daemon.clone();
             let mut old_metrics = HashMap::new();
             tauri::async_runtime::spawn(async move {
                 loop {
-                    if let Ok(metrics_receiver) = mdns.get_metrics() {
+                    if let Ok(metrics_receiver) = daemon.get_metrics() {
                         if let Ok(metrics) = metrics_receiver.recv_async().await {
                             if old_metrics == metrics {
                                 continue;
