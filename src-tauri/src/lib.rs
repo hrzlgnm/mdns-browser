@@ -5,8 +5,6 @@ use clap::Parser;
 use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
 use models::check_service_type_fully_qualified;
 use models::*;
-#[cfg(not(windows))]
-use pnet::datalink;
 #[cfg(all(desktop, not(debug_assertions)))]
 use shared_constants::SPLASH_SCREEN_DURATION;
 use shared_constants::{
@@ -21,8 +19,7 @@ use std::{
         Arc, Mutex,
     },
 };
-use tauri::Emitter;
-use tauri::{AppHandle, Manager, State, Window};
+use tauri::{AppHandle, Emitter, Manager, State, Theme, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_opener::OpenerExt;
 
@@ -93,21 +90,21 @@ where
 
 #[tauri::command]
 fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String> {
-    let mdns = state
+    let daemon = state
         .daemon
         .lock()
         .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
 
-    mdns.stop_browse(MDNS_SD_META_SERVICE).map_err(|e| {
+    daemon.stop_browse(MDNS_SD_META_SERVICE).map_err(|e| {
         format!(
             "Failed to stop browsing for {}: {:?}",
             MDNS_SD_META_SERVICE, e
         )
     })?;
 
-    let mdns_for_task = mdns.clone();
+    let daemon = daemon.clone();
     tauri::async_runtime::spawn(async move {
-        let receiver = match mdns_for_task.browse(MDNS_SD_META_SERVICE) {
+        let receiver = match daemon.browse(MDNS_SD_META_SERVICE) {
             Ok(receiver) => receiver,
             Err(e) => {
                 log::error!("Failed to browse for service types: {:?}", e);
@@ -154,9 +151,7 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
                         break;
                     }
                 }
-                _ => {
-                    log::debug!("Ignoring event: {:#?}", event);
-                }
+                _ => {}
             }
         }
         log::debug!("Browse type task ending.");
@@ -166,32 +161,33 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
 
 #[tauri::command]
 fn stop_browse(state: State<ManagedState>) -> Result<(), String> {
-    let mdns = state
+    let daemon = state
         .daemon
         .lock()
         .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
-    let mut running_browsers = state
+    let mut queriers = state
         .queriers
         .lock()
-        .map_err(|e| format!("Failed to lock running browsers: {:?}", e))?;
-    for ty_domain in running_browsers.iter() {
-        if let Err(e) = mdns.stop_browse(ty_domain) {
+        .map_err(|e| format!("Failed to lock running queriers: {:?}", e))?;
+    for ty_domain in queriers.iter() {
+        if let Err(e) = daemon.stop_browse(ty_domain) {
             log::error!("Failed to stop browsing for {}: {:?}", ty_domain, e);
         }
     }
 
-    running_browsers.clear();
+    queriers.clear();
     Ok(())
 }
 
 #[tauri::command]
 fn verify(instance_fullname: String, state: State<ManagedState>) -> Result<(), String> {
-    let mdns = state
+    let daemon = state
         .daemon
         .lock()
         .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
     log::debug!("verifying {}", instance_fullname);
-    mdns.verify(instance_fullname.clone(), VERIFY_TIMEOUT)
+    daemon
+        .verify(instance_fullname.clone(), VERIFY_TIMEOUT)
         .map_err(|e| format!("Failed to verify {instance_fullname}: {:?}", e))?;
     Ok(())
 }
@@ -199,24 +195,24 @@ fn verify(instance_fullname: String, state: State<ManagedState>) -> Result<(), S
 #[tauri::command]
 fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedState>) {
     for service_type in service_types {
-        let mut queriers = match state.queriers.lock() {
-            Ok(browsers) => browsers,
+        let daemon = match state.daemon.lock() {
+            Ok(daemon) => daemon,
             Err(err) => {
-                log::error!("Failed to lock running browsers: {:?}", err);
+                log::error!("Failed to lock daemon: {:?}", err);
+                continue;
+            }
+        };
+        let mut queriers = match state.queriers.lock() {
+            Ok(queriers) => queriers,
+            Err(err) => {
+                log::error!("Failed to lock running queriers: {:?}", err);
                 continue;
             }
         };
         if !queriers.insert(service_type.clone()) {
             continue;
         }
-        let mdns = match state.daemon.lock() {
-            Ok(mdns) => mdns,
-            Err(err) => {
-                log::error!("Failed to lock daemon: {:?}", err);
-                continue;
-            }
-        };
-        let receiver = match mdns.browse(service_type.as_str()) {
+        let receiver = match daemon.browse(service_type.as_str()) {
             Ok(receiver) => receiver,
             Err(e) => {
                 log::error!(
@@ -231,19 +227,6 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
         tauri::async_runtime::spawn(async move {
             while let Ok(event) = receiver.recv_async().await {
                 match event {
-                    ServiceEvent::ServiceFound(_service_type, instance_name) => emit_event(
-                        &window,
-                        "service-found",
-                        &ServiceFoundEvent {
-                            instance_name,
-                            at_ms: timestamp_millis(),
-                        },
-                    ),
-                    ServiceEvent::SearchStarted(service_type) => emit_event(
-                        &window,
-                        "search-started",
-                        &SearchStartedEvent { service_type },
-                    ),
                     ServiceEvent::ServiceResolved(info) => emit_event(
                         &window,
                         "service-resolved",
@@ -262,14 +245,10 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
                             },
                         );
                     }
-                    ServiceEvent::SearchStopped(service_type) => {
-                        emit_event(
-                            &window,
-                            "search-stopped",
-                            &SearchStoppedEvent { service_type },
-                        );
+                    ServiceEvent::SearchStopped(_service_type) => {
                         break;
                     }
+                    _ => {}
                 }
             }
             log::debug!("Browse task for {} ending.", &service_type);
@@ -279,6 +258,7 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
 
 #[cfg(not(windows))]
 fn has_mdns_capable_interfaces() -> bool {
+    use pnet::datalink;
     let interfaces = datalink::interfaces();
     interfaces.iter().any(|interface| {
         let capable = !interface.ips.is_empty()
@@ -373,27 +353,34 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
         .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
         .is_ok()
     {
-        if let Ok(mdns) = state.daemon.lock() {
-            let mdns_for_task = mdns.clone();
+        if let Ok(daemon) = state.daemon.lock() {
+            let daemon = daemon.clone();
             let mut old_metrics = HashMap::new();
             tauri::async_runtime::spawn(async move {
                 loop {
-                    tokio::time::sleep(METRICS_CHECK_INTERVAL).await;
-                    if let Ok(metrics_receiver) = mdns_for_task.get_metrics() {
+                    if let Ok(metrics_receiver) = daemon.get_metrics() {
                         if let Ok(metrics) = metrics_receiver.recv_async().await {
-                            if old_metrics != metrics {
-                                emit_event(
-                                    &window,
-                                    "metrics",
-                                    &MetricsEvent {
-                                        metrics: metrics.clone(),
-                                    },
-                                );
-                                old_metrics = metrics;
+                            if old_metrics == metrics {
+                                continue;
                             }
+                            emit_event(
+                                &window,
+                                "metrics",
+                                &MetricsEvent {
+                                    metrics: metrics.clone(),
+                                },
+                            );
+                            old_metrics = metrics;
+                        } else {
+                            break;
                         }
+                    } else {
+                        break;
                     }
+
+                    tokio::time::sleep(METRICS_CHECK_INTERVAL).await;
                 }
+                log::debug!("Metrics task is ending");
             });
         }
     }
@@ -410,13 +397,8 @@ fn open_url(app: AppHandle, url: String) -> Result<(), String> {
 
 #[cfg(desktop)]
 #[tauri::command]
-fn version(window: Window) -> String {
-    window
-        .app_handle()
-        .config()
-        .version
-        .clone()
-        .unwrap_or(String::from("Unknown"))
+fn version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
 }
 
 #[cfg(desktop)]
@@ -482,6 +464,45 @@ mod linux {
             }
         }
     }
+}
+
+#[tauri::command]
+#[cfg(mobile)]
+fn is_desktop() -> bool {
+    false
+}
+
+#[tauri::command]
+#[cfg(desktop)]
+fn is_desktop() -> bool {
+    true
+}
+
+#[tauri::command]
+fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
+    let app = window.app_handle();
+    app.clipboard()
+        .write_text(contents)
+        .map_err(|e| format!("Failed to copy to clipboard: {:?}", e))?;
+    Ok(())
+}
+
+#[cfg(desktop)]
+#[tauri::command]
+fn theme(window: Window) -> Theme {
+    match window.theme() {
+        Ok(theme) => theme,
+        Err(err) => {
+            log::error!("Failed to get theme: {:?}, using dark", err);
+            Theme::Dark
+        }
+    }
+}
+
+#[cfg(mobile)]
+#[tauri::command]
+fn theme() -> Theme {
+    Theme::Dark
 }
 
 #[cfg(desktop)]
@@ -568,41 +589,7 @@ mod foreign_crate {
 }
 
 #[cfg(desktop)]
-#[tauri::command]
-fn is_desktop() -> bool {
-    true
-}
-
-#[cfg(desktop)]
-#[tauri::command]
-fn can_auto_update() -> bool {
-    #[cfg(target_os = "linux")]
-    {
-        false
-    }
-    #[cfg(not(target_os = "linux"))]
-    {
-        true
-    }
-}
-
-#[cfg(mobile)]
-#[tauri::command]
-fn is_desktop() -> bool {
-    false
-}
-
-#[tauri::command]
-fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
-    let app = window.app_handle();
-    app.clipboard()
-        .write_text(contents.clone())
-        .map_err(|e| format!("Failed to copy {} to clipboard: {:?}", contents, e))?;
-    Ok(())
-}
-
-#[cfg(desktop)]
-mod app_updates {
+mod autoupdate {
     use models::UpdateMetadata;
     use serde::Serialize;
     use std::sync::Mutex;
@@ -677,10 +664,23 @@ mod app_updates {
     }
 
     pub struct PendingUpdate(pub Mutex<Option<Update>>);
+
+    #[tauri::command]
+    #[cfg(target_os = "linux")]
+    pub fn can_auto_update() -> bool {
+        false
+    }
+
+    #[tauri::command]
+    #[cfg(not(target_os = "linux"))]
+    pub fn can_auto_update() -> bool {
+        true
+    }
 }
 
 #[cfg(desktop)]
 pub fn run() {
+    use chrono::Utc;
     use tauri_plugin_log::{Target, TargetKind};
     let args = Args::parse();
 
@@ -694,15 +694,27 @@ pub fn run() {
     if args.log_to_file {
         log_targets.push(Target::new(TargetKind::LogDir { file_name: None }));
     }
+    let colors = tauri_plugin_log::fern::colors::ColoredLevelConfig::default();
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
-        .manage(app_updates::PendingUpdate(Mutex::new(None)))
+        .manage(autoupdate::PendingUpdate(Mutex::new(None)))
         .plugin(
             tauri_plugin_log::Builder::default()
                 .targets(log_targets)
                 .level(args.log_level)
+                .format(move |out, message, record| {
+                    let now = Utc::now();
+                    let level = format!("{:<5}", colors.color(record.level()));
+                    out.finish(format_args!(
+                        "{date} {level} {target}: {message}",
+                        date = now.format("%Y-%m-%dT%H:%M:%S%.6fZ"),
+                        level = level,
+                        target = record.target(),
+                        message = message
+                    ))
+                })
                 .build(),
         )
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -724,17 +736,18 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            app_updates::fetch_update,
-            app_updates::install_update,
+            autoupdate::fetch_update,
+            autoupdate::install_update,
+            autoupdate::can_auto_update,
             browse_many,
             browse_types,
-            can_auto_update,
             copy_to_clipboard,
             is_desktop,
             open_url,
             subscribe_can_browse,
             subscribe_metrics,
             stop_browse,
+            theme,
             verify,
             version,
         ])
@@ -763,6 +776,7 @@ pub fn run_mobile() {
             subscribe_can_browse,
             subscribe_metrics,
             stop_browse,
+            theme,
             verify,
         ])
         .run(tauri::generate_context!())

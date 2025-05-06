@@ -95,7 +95,7 @@ pub fn About() -> impl IntoView {
     let github_action = Action::new_local(|action: &String| {
         let action = action.clone();
         async move {
-            open_url(action.clone().as_str()).await;
+            open_url(action.as_str()).await;
         }
     });
 
