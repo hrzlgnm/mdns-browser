@@ -714,7 +714,7 @@ pub fn run() {
                 .targets(log_targets)
                 .level(args.log_level)
                 .format(move |out, message, record| {
-                    let now = Utc::now(); // Get the current local time
+                    let now = Utc::now();
                     let level = format!("{:<5}", colors.color(record.level()));
                     out.finish(format_args!(
                         "{date} {level} {target}: {message}",
