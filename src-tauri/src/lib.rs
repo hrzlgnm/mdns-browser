@@ -372,26 +372,33 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
         .is_ok()
     {
         if let Ok(mdns) = state.daemon.lock() {
-            let mdns_for_task = mdns.clone();
+            let mdns = mdns.clone();
             let mut old_metrics = HashMap::new();
             tauri::async_runtime::spawn(async move {
                 loop {
-                    tokio::time::sleep(METRICS_CHECK_INTERVAL).await;
-                    if let Ok(metrics_receiver) = mdns_for_task.get_metrics() {
+                    if let Ok(metrics_receiver) = mdns.get_metrics() {
                         if let Ok(metrics) = metrics_receiver.recv_async().await {
-                            if old_metrics != metrics {
-                                emit_event(
-                                    &window,
-                                    "metrics",
-                                    &MetricsEvent {
-                                        metrics: metrics.clone(),
-                                    },
-                                );
-                                old_metrics = metrics;
+                            if old_metrics == metrics {
+                                continue;
                             }
+                            emit_event(
+                                &window,
+                                "metrics",
+                                &MetricsEvent {
+                                    metrics: metrics.clone(),
+                                },
+                            );
+                            old_metrics = metrics;
+                        } else {
+                            break;
                         }
+                    } else {
+                        break;
                     }
+
+                    tokio::time::sleep(METRICS_CHECK_INTERVAL).await;
                 }
+                log::debug!("Metrics task is ending");
             });
         }
     }
@@ -477,6 +484,37 @@ mod linux {
     }
 }
 
+#[tauri::command]
+#[cfg(mobile)]
+fn is_desktop() -> bool {
+    false
+}
+
+#[tauri::command]
+#[cfg(desktop)]
+fn is_desktop() -> bool {
+    true
+}
+
+#[tauri::command]
+fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
+    let app = window.app_handle();
+    app.clipboard()
+        .write_text(contents)
+        .map_err(|e| format!("Failed to copy to clipboard: {:?}", e))?;
+    Ok(())
+}
+#[tauri::command]
+fn theme(window: Window) -> Theme {
+    match window.theme() {
+        Ok(theme) => theme,
+        Err(err) => {
+            log::error!("Failed to get theme: {:?}, using dark", err);
+            Theme::Dark
+        }
+    }
+}
+
 #[cfg(desktop)]
 #[derive(Parser, Debug)]
 #[command(
@@ -508,38 +546,6 @@ struct Args {
         help = "Disable dmabuf renderer, useful when having rendering issues"
     )]
     disable_dmabuf_renderer: bool,
-}
-
-#[tauri::command]
-#[cfg(mobile)]
-fn is_desktop() -> bool {
-    false
-}
-
-#[tauri::command]
-#[cfg(desktop)]
-fn is_desktop() -> bool {
-    true
-}
-
-#[tauri::command]
-fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
-    let app = window.app_handle();
-    app.clipboard()
-        .write_text(contents.clone())
-        .map_err(|e| format!("Failed to copy {} to clipboard: {:?}", contents, e))?;
-    Ok(())
-}
-
-#[tauri::command]
-fn theme(window: Window) -> Theme {
-    match window.theme() {
-        Ok(theme) => theme,
-        Err(err) => {
-            log::error!("Failed to get theme: {:?}, using dark", err);
-            Theme::Dark
-        }
-    }
 }
 
 #[cfg(desktop)]
