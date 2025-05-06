@@ -486,6 +486,8 @@ fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
         .map_err(|e| format!("Failed to copy to clipboard: {:?}", e))?;
     Ok(())
 }
+
+#[cfg(desktop)]
 #[tauri::command]
 fn theme(window: Window) -> Theme {
     match window.theme() {
@@ -495,6 +497,12 @@ fn theme(window: Window) -> Theme {
             Theme::Dark
         }
     }
+}
+
+#[cfg(mobile)]
+#[tauri::command]
+fn theme() -> Theme {
+    Theme::Dark
 }
 
 #[cfg(desktop)]
