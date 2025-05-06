@@ -198,7 +198,7 @@ fn verify(instance_fullname: String, state: State<ManagedState>) -> Result<(), S
 fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedState>) {
     for service_type in service_types {
         let daemon = match state.daemon.lock() {
-            Ok(mdns) => mdns,
+            Ok(daemon) => daemon,
             Err(err) => {
                 log::error!("Failed to lock daemon: {:?}", err);
                 continue;
