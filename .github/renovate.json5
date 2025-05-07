@@ -1,6 +1,6 @@
 {
-    $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-    automergeType: 'pr',
+    $schema: "https://docs.renovatebot.com/renovate-schema.json",
+    automergeType: "pr",
     patch: {
         automerge: true,
     },
@@ -8,65 +8,54 @@
         automerge: true,
     },
     extends: [
-        'config:best-practices',
-        ':dependencyDashboard',
-        ':enableVulnerabilityAlerts',
-        ':rebaseStalePrs',
-        ':semanticCommits',
-        ':semanticPrefixChore',
-        ':separateMajorReleases',
-        ':prImmediately',
+        "config:best-practices",
+        ":dependencyDashboard",
+        ":enableVulnerabilityAlerts",
+        ":rebaseStalePrs",
+        ":semanticCommits",
+        ":semanticPrefixChore",
+        ":separateMajorReleases",
+        ":prImmediately",
     ],
     prConcurrentLimit: 0,
     lockFileMaintenance: {
         enabled: true,
-        schedule: [
-            'on the first day of the month',
-        ],
+        schedule: ["on the first day of the month"],
     },
     packageRules: [
         {
-            matchDatasources: [
-                'crate',
-            ],
+            matchDatasources: ["crate"],
             automerge: true,
-            minimumReleaseAge: '5 days',
-            matchUpdateTypes: [
-                'minor',
-                'patch',
-            ],
-            matchPackageNames: [
-                'tauri{/,}**',
-            ],
+            minimumReleaseAge: "5 days",
+            matchUpdateTypes: ["minor", "patch"],
+            matchPackageNames: ["tauri{/,}**"],
         },
     ],
     customManagers: [
         {
-            matchStringsStrategy: 'any',
-            customType: 'regex',
-            fileMatch: [
-                '^\\.github/workflows/.*\\.yml$',
-            ],
+            matchStringsStrategy: "any",
+            customType: "regex",
+            managerFilePatterns: ["/^\\.github/workflows/.*\\.yml$/"],
             matchStrings: [
-                'crate:\\s*(?<depName>[^\\s]+)\\s*version:\\s*(?<currentValue>[^\\s]+)',
+                "crate:\\s*(?<depName>[^\\s]+)\\s*version:\\s*(?<currentValue>[^\\s]+)",
             ],
-            depTypeTemplate: 'build-dependencies',
-            datasourceTemplate: 'crate',
-            versioningTemplate: 'semver',
+            depTypeTemplate: "build-dependencies",
+            datasourceTemplate: "crate",
+            versioningTemplate: "semver",
         },
         {
-            matchStringsStrategy: 'any',
-            customType: 'regex',
-            fileMatch: [
-                '^\\.github/docker/.*/Dockerfile$',
-                '^aur-template/.*.sh$',
+            matchStringsStrategy: "any",
+            customType: "regex",
+            managerFilePatterns: [
+                "/^\\.github/docker/.*/Dockerfile$/",
+                "/^aur-template/.*.sh$/",
             ],
             matchStrings: [
-                'cargo.*install (?<depName>\\S+)@(?<currentValue>\\S+)',
+                "cargo.*install (?<depName>\\S+)@(?<currentValue>\\S+)",
             ],
-            depTypeTemplate: 'build-dependencies',
-            datasourceTemplate: 'crate',
-            versioningTemplate: 'semver',
+            depTypeTemplate: "build-dependencies",
+            datasourceTemplate: "crate",
+            versioningTemplate: "semver",
         },
     ],
 }
