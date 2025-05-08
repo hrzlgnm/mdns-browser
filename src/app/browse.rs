@@ -10,9 +10,10 @@ use tauri_sys::core::invoke;
 use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSize, Badge, BadgeAppearance,
     BadgeColor, BadgeSize, Button, ButtonAppearance, ButtonSize, Card, CardHeader, CardPreview,
-    ComponentRef, Dialog, DialogBody, DialogSurface, DialogTitle, Flex, FlexAlign, FlexGap,
-    FlexJustify, Grid, GridItem, Input, Layout, MessageBar, MessageBarBody, MessageBarIntent,
-    MessageBarTitle, Scrollbar, Select, Table, TableBody, TableCell, TableRow, Text, TextTag,
+    Checkbox, ComponentRef, Dialog, DialogBody, DialogSurface, DialogTitle, Flex, FlexAlign,
+    FlexGap, FlexJustify, Grid, GridItem, Input, Layout, MessageBar, MessageBarBody,
+    MessageBarIntent, MessageBarTitle, Scrollbar, Select, Table, TableBody, TableCell, TableRow,
+    Text, TextTag,
 };
 
 use crate::{app::about::open_url, log_fn};
@@ -600,6 +601,29 @@ fn start_auto_focus_timer(
     });
 }
 
+async fn get_protocol_flags(ipv4writer: WriteSignal<bool>, ipv6writer: WriteSignal<bool>) {
+    let flags = invoke::<ProtocolFlags>("get_protocol_flags", &()).await;
+    log::debug!("get_protocol_flags: {:?}", flags);
+    ipv4writer.set(flags.ipv4);
+    ipv6writer.set(flags.ipv6);
+}
+
+#[derive(Serialize, Deserialize)]
+#[allow(non_snake_case)]
+struct ProtocolFlagsArgs {
+    flags: ProtocolFlags,
+}
+
+async fn update_protocol_flags(flags: ProtocolFlags) {
+    let _ = invoke::<()>(
+        "set_protocol_flags",
+        &ProtocolFlagsArgs {
+            flags: flags.clone(),
+        },
+    )
+    .await;
+}
+
 /// Renders the main browsing interface for network services.
 ///
 /// This component sets up reactive state and event listeners to manage service discovery and browsing.
@@ -618,9 +642,14 @@ fn start_auto_focus_timer(
 pub fn Browse() -> impl IntoView {
     let (can_browse, set_can_browse) = signal(false);
     let (service_types, set_service_types) = signal(ServiceTypes::new());
+    let ipv4checked = RwSignal::new(true);
+    let ipv6checked = RwSignal::new(true);
     provide_context(ServiceTypesInjection(service_types));
     LocalResource::new(move || listen_for_service_type_events(set_service_types));
     LocalResource::new(move || listen_for_can_browse_change_events(set_can_browse));
+    LocalResource::new(move || {
+        get_protocol_flags(ipv4checked.write_only(), ipv6checked.write_only())
+    });
     let (resolved, set_resolved) = signal(ResolvedServices::new());
     let (sort_kind, set_sort_kind) = signal(SortKind::HostnameAsc);
     let sorted_resolved = Memo::new(move |_| {
@@ -673,6 +702,13 @@ pub fn Browse() -> impl IntoView {
     });
 
     let browsing = RwSignal::new(false);
+    let checkbox_class = Signal::derive(move || {
+        if browsing.get() {
+            String::from("fake-disabled")
+        } else {
+            String::new()
+        }
+    });
     let service_type = RwSignal::new(String::new());
     let not_browsing = Signal::derive(move || !browsing.get());
     let service_type_invalid = Signal::derive(move || {
@@ -695,6 +731,25 @@ pub fn Browse() -> impl IntoView {
         let input = input.clone();
         async move { browse_many(vec![input]).await }
     });
+
+    let set_protcol_flags_action = Action::new_local(|flags: &ProtocolFlags| {
+        let flags = flags.clone();
+        async move { update_protocol_flags(flags).await }
+    });
+
+    Effect::watch(
+        move || (ipv4checked.get(), ipv6checked.get()),
+        move |protocol_flags, previous_protocol_flags, _| {
+            if protocol_flags != previous_protocol_flags.unwrap_or(&(true, true)) {
+                set_protcol_flags_action.dispatch(ProtocolFlags {
+                    ipv4: protocol_flags.0,
+                    ipv6: protocol_flags.1,
+                });
+                spawn_local(invoke_no_args("browse_types"));
+            }
+        },
+        false,
+    );
 
     Effect::watch(
         move || service_types.get(),
@@ -821,6 +876,13 @@ pub fn Browse() -> impl IntoView {
                         </MessageBarBody>
                     </MessageBar>
                 </Show>
+                <Flex
+                    gap=FlexGap::Small
+                    align=FlexAlign::Center
+                    justify=FlexJustify::Start>
+                    <Checkbox class=checkbox_class checked=ipv4checked label="IPv4"/>
+                    <Checkbox class=checkbox_class checked=ipv6checked label="IPv6"/>
+                </Flex>
                 <Flex gap=FlexGap::Small align=FlexAlign::Center justify=FlexJustify::Start>
                     <AutoCompleteServiceType
                         invalid=service_type_invalid

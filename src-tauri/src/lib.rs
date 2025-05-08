@@ -2,7 +2,7 @@
 use clap::builder::TypedValueParser as _;
 #[cfg(desktop)]
 use clap::Parser;
-use mdns_sd::{ServiceDaemon, ServiceEvent, ServiceInfo};
+use mdns_sd::{IfKind, ServiceDaemon, ServiceEvent, ServiceInfo};
 use models::check_service_type_fully_qualified;
 use models::*;
 #[cfg(all(desktop, not(debug_assertions)))]
@@ -30,6 +30,8 @@ struct ManagedState {
     queriers: Arc<Mutex<HashSet<String>>>,
     metrics_subscribed: AtomicBool,
     can_browse_subscribed: AtomicBool,
+    ipv4_enabled: AtomicBool,
+    ipv6_enabled: AtomicBool,
 }
 
 impl ManagedState {
@@ -39,6 +41,8 @@ impl ManagedState {
             queriers: Arc::new(Mutex::new(HashSet::new())),
             metrics_subscribed: AtomicBool::new(false),
             can_browse_subscribed: AtomicBool::new(false),
+            ipv4_enabled: AtomicBool::new(true),
+            ipv6_enabled: AtomicBool::new(true),
         }
     }
 }
@@ -401,6 +405,70 @@ fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
 
+#[tauri::command]
+fn get_protocol_flags(state: State<ManagedState>) -> ProtocolFlags {
+    let ipv4_enabled = state.ipv4_enabled.load(Ordering::SeqCst);
+    let ipv6_enabled = state.ipv6_enabled.load(Ordering::SeqCst);
+    log::debug!(
+        "get_protocol_flags: ipv4_enabled: {}, ipv6_enabled: {}",
+        ipv4_enabled,
+        ipv6_enabled
+    );
+    ProtocolFlags {
+        ipv4: ipv4_enabled,
+        ipv6: ipv6_enabled,
+    }
+}
+
+fn update_interface(
+    current_flag: bool,
+    new_flag: bool,
+    state_flag: &std::sync::atomic::AtomicBool,
+    daemon: &std::sync::Mutex<ServiceDaemon>,
+    if_kind: &IfKind,
+) -> Result<(), String> {
+    if current_flag != new_flag {
+        state_flag.store(new_flag, Ordering::SeqCst);
+        let daemon = daemon
+            .lock()
+            .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
+        if new_flag {
+            daemon
+                .enable_interface(if_kind.clone())
+                .map_err(|e| format!("Failed to enable {:?} interface: {:?}", if_kind, e))?;
+        } else {
+            daemon
+                .disable_interface(if_kind.clone())
+                .map_err(|e| format!("Failed to disable {:?} interface: {:?}", if_kind, e))?;
+        }
+    }
+    Ok(())
+}
+
+#[tauri::command]
+fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Result<(), String> {
+    log::debug!("Setting protocol flags: {:?}", flags);
+    let current_ipv4 = state.ipv4_enabled.load(Ordering::SeqCst);
+    update_interface(
+        current_ipv4,
+        flags.ipv4,
+        &state.ipv4_enabled,
+        &state.daemon,
+        &IfKind::IPv4,
+    )?;
+
+    let current_ipv6 = state.ipv6_enabled.load(Ordering::SeqCst);
+    update_interface(
+        current_ipv6,
+        flags.ipv6,
+        &state.ipv6_enabled,
+        &state.daemon,
+        &IfKind::IPv6,
+    )?;
+
+    Ok(())
+}
+
 #[cfg(desktop)]
 #[cfg(target_os = "linux")]
 mod linux {
@@ -742,8 +810,10 @@ pub fn run() {
             browse_many,
             browse_types,
             copy_to_clipboard,
+            get_protocol_flags,
             is_desktop,
             open_url,
+            set_protocol_flags,
             subscribe_can_browse,
             subscribe_metrics,
             stop_browse,
@@ -771,8 +841,10 @@ pub fn run_mobile() {
             browse_many,
             browse_types,
             copy_to_clipboard,
+            get_protocol_flags,
             is_desktop,
             open_url,
+            set_protocol_flags,
             subscribe_can_browse,
             subscribe_metrics,
             stop_browse,
