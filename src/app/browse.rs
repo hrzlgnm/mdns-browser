@@ -876,12 +876,9 @@ pub fn Browse() -> impl IntoView {
                         </MessageBarBody>
                     </MessageBar>
                 </Show>
-                <Flex
-                    gap=FlexGap::Small
-                    align=FlexAlign::Center
-                    justify=FlexJustify::Start>
-                    <Checkbox class=checkbox_class checked=ipv4checked label="IPv4"/>
-                    <Checkbox class=checkbox_class checked=ipv6checked label="IPv6"/>
+                <Flex gap=FlexGap::Small align=FlexAlign::Center justify=FlexJustify::Start>
+                    <Checkbox class=checkbox_class checked=ipv4checked label="IPv4" />
+                    <Checkbox class=checkbox_class checked=ipv6checked label="IPv6" />
                 </Flex>
                 <Flex gap=FlexGap::Small align=FlexAlign::Center justify=FlexJustify::Start>
                     <AutoCompleteServiceType
