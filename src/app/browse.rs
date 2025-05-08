@@ -734,7 +734,10 @@ pub fn Browse() -> impl IntoView {
 
     let set_protocol_flags_action = Action::new_local(|flags: &ProtocolFlags| {
         let flags = flags.clone();
-        async move { update_protocol_flags(flags).await }
+        async move {
+            update_protocol_flags(flags).await;
+            invoke_no_args("browse_types").await;
+        }
     });
 
     Effect::watch(
@@ -745,7 +748,6 @@ pub fn Browse() -> impl IntoView {
                     ipv4: protocol_flags.0,
                     ipv6: protocol_flags.1,
                 });
-                spawn_local(invoke_no_args("browse_types"));
             }
         },
         false,
