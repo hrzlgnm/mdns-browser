@@ -424,14 +424,10 @@ fn update_interface(
     current_flag: bool,
     new_flag: bool,
     state_flag: &std::sync::atomic::AtomicBool,
-    daemon: &std::sync::Mutex<ServiceDaemon>,
+    daemon: &std::sync::MutexGuard<ServiceDaemon>,
     if_kind: &IfKind,
 ) -> Result<(), String> {
     if current_flag != new_flag {
-        state_flag.store(new_flag, Ordering::SeqCst);
-        let daemon = daemon
-            .lock()
-            .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
         if new_flag {
             daemon
                 .enable_interface(if_kind.clone())
@@ -441,6 +437,7 @@ fn update_interface(
                 .disable_interface(if_kind.clone())
                 .map_err(|e| format!("Failed to disable {:?} interface: {:?}", if_kind, e))?;
         }
+        state_flag.store(new_flag, Ordering::SeqCst);
     }
     Ok(())
 }
@@ -448,12 +445,16 @@ fn update_interface(
 #[tauri::command]
 fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Result<(), String> {
     log::debug!("Setting protocol flags: {:?}", flags);
+    let daemon = state
+        .daemon
+        .lock()
+        .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
     let current_ipv4 = state.ipv4_enabled.load(Ordering::SeqCst);
     update_interface(
         current_ipv4,
         flags.ipv4,
         &state.ipv4_enabled,
-        &state.daemon,
+        &daemon,
         &IfKind::IPv4,
     )?;
 
@@ -462,7 +463,7 @@ fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Resul
         current_ipv6,
         flags.ipv6,
         &state.ipv6_enabled,
-        &state.daemon,
+        &daemon,
         &IfKind::IPv6,
     )?;
 
