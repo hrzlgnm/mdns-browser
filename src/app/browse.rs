@@ -732,7 +732,7 @@ pub fn Browse() -> impl IntoView {
         async move { browse_many(vec![input]).await }
     });
 
-    let set_protcol_flags_action = Action::new_local(|flags: &ProtocolFlags| {
+    let set_protocol_flags_action = Action::new_local(|flags: &ProtocolFlags| {
         let flags = flags.clone();
         async move { update_protocol_flags(flags).await }
     });
@@ -741,7 +741,7 @@ pub fn Browse() -> impl IntoView {
         move || (ipv4checked.get(), ipv6checked.get()),
         move |protocol_flags, previous_protocol_flags, _| {
             if protocol_flags != previous_protocol_flags.unwrap_or(&(true, true)) {
-                set_protcol_flags_action.dispatch(ProtocolFlags {
+                set_protocol_flags_action.dispatch(ProtocolFlags {
                     ipv4: protocol_flags.0,
                     ipv6: protocol_flags.1,
                 });
