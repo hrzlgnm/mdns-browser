@@ -169,7 +169,22 @@ pub struct CanBrowseChangedEventRes {
     pub can_browse: bool,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone, Eq, PartialEq, Debug)]
+pub struct ProtocolFlags {
+    pub ipv4: bool,
+    pub ipv6: bool,
+}
+
+impl Default for ProtocolFlags {
+    fn default() -> Self {
+        Self {
+            ipv4: true,
+            ipv6: true,
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateMetadata {
     pub version: String,
