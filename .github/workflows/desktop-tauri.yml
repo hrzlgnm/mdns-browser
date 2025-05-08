@@ -112,7 +112,7 @@ jobs:
         uses: baptiste0928/cargo-install@91c5da15570085bcde6f4d7aed98cb82d6769fd3 # v3
         with:
           crate: trunk
-          version: 0.21.13
+          version: 0.21.14
           locked: true
           args: --no-default-features
           features: rustls
