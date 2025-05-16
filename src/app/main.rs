@@ -16,7 +16,7 @@ use super::{
 #[component]
 pub fn Main() -> impl IntoView {
     let theme = RwSignal::new(Theme::dark());
-    let set_body_background_color = move |color: String| {
+    let set_body_background_color = move |color: &String| {
         if let Some(document) = window().document() {
             if let Some(body) = document.body() {
                 let _ = body
@@ -26,7 +26,7 @@ pub fn Main() -> impl IntoView {
         }
     };
     Effect::new(move |_| {
-        set_body_background_color(theme.get().color.color_neutral_background_1);
+        set_body_background_color(theme.get().color.color_neutral_background_1());
     });
     let (is_desktop, set_is_desktop) = signal(false);
     LocalResource::new(move || get_is_desktop(set_is_desktop));
