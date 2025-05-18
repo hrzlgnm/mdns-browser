@@ -3149,6 +3149,7 @@ dependencies = [
  "leptos",
  "log",
  "models",
+ "reactive_stores",
  "serde",
  "serde-wasm-bindgen",
  "shared_constants",
@@ -3233,6 +3234,7 @@ dependencies = [
 name = "models"
 version = "0.17.1"
 dependencies = [
+ "reactive_stores",
  "serde",
  "serde_with",
  "thiserror 2.0.12",

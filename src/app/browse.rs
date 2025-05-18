@@ -1,7 +1,9 @@
+use crate::{app::about::open_url, log_fn};
 use chrono::{DateTime, Local};
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use models::*;
+use reactive_stores::{Field, Patch, Store, StoreFieldIterator};
 use serde::{Deserialize, Serialize};
 use shared_constants::{AUTO_COMPLETE_AUTO_FOCUS_DELAY, SPLASH_SCREEN_DURATION, VERIFY_TIMEOUT};
 use std::collections::HashSet;
@@ -15,8 +17,6 @@ use thaw::{
     MessageBarIntent, MessageBarTitle, Scrollbar, Select, Table, TableBody, TableCell, TableRow,
     Text, TextTag,
 };
-
-use crate::{app::about::open_url, log_fn};
 
 use super::{
     clipboard::CopyToClipBoardButton,
@@ -60,25 +60,49 @@ async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
     .await;
 }
 
-async fn listen_for_resolve_events(event_writer: WriteSignal<ResolvedServices>) {
+#[derive(Serialize, Deserialize, Clone, Debug, Store, Default, Eq, PartialEq)]
+struct ResolvedServiceStore {
+    #[store(key: String = |rs| rs.instance_fullname.clone())]
+    resolved: Vec<ResolvedService>,
+    sort_kind: SortKind,
+}
+
+fn to_local_timestamp(timestamp: u64) -> String {
+    DateTime::from_timestamp_nanos(timestamp as i64)
+        .with_timezone(&Local)
+        .format("%Y-%m-%d %H:%M:%S%.6f")
+        .to_string()
+}
+
+async fn listen_for_resolve_events(store: Store<ResolvedServiceStore>) {
     listen_add_remove(
         "service-resolved",
         move |event: ServiceResolvedEventRes| {
-            event_writer.update(|evts| {
-                evts.retain(|r| r.instance_fullname != event.service.instance_fullname);
-                evts.push(event.service);
-            });
+            store
+                .resolved()
+                .iter_unkeyed()
+                .find(|rs| rs.read_untracked().instance_fullname == event.service.instance_fullname)
+                .map(|rs| {
+                    rs.patch(event.service.clone());
+                    apply_sort_kind(store, &store.sort_kind().get_untracked());
+                })
+                .unwrap_or_else(|| {
+                    store.resolved().write().push(event.service.clone());
+                    apply_sort_kind(store, &store.sort_kind().get_untracked());
+                });
         },
         "service-removed",
         move |event: ServiceRemovedEventRes| {
-            event_writer.update(|evts| {
-                for item in evts.iter_mut() {
-                    if item.instance_fullname == event.instance_name {
-                        item.die_at(event.at_ns);
-                        break;
-                    }
-                }
-            });
+            if let Some(rs) = store
+                .resolved()
+                .iter_unkeyed()
+                .find(|rs| rs.read_untracked().instance_fullname == event.instance_name)
+            {
+                let mut dead = rs.read().clone();
+                dead.die_at(event.at_ns);
+                rs.patch(dead);
+                apply_sort_kind(store, &store.sort_kind().get_untracked());
+            }
         },
     )
     .await;
@@ -368,8 +392,8 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
 #[component]
 fn ResolvedRow(
     #[prop(into)] label: String,
-    #[prop(optional, into)] text: Option<String>,
-    #[prop(optional, into)] button_text: Option<String>,
+    #[prop(optional, into)] text: Signal<String>,
+    #[prop(optional, into)] button_text: Signal<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
 ) -> impl IntoView {
     let is_desktop = IsDesktopInjection::expect_context();
@@ -386,10 +410,9 @@ fn ResolvedRow(
     }
 }
 
-/// Component that shows a resolved service as a card
+/// Component that shows a resolved service reactivly as a card
 #[component]
-fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
-    let instance_fullname = RwSignal::new(resolved_service.instance_fullname.clone());
+fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -> impl IntoView {
     let verify_action = Action::new_local(|instance_fullname: &String| {
         let instance_fullname = instance_fullname.clone();
         async move { verify_instance(instance_fullname.clone()).await }
@@ -397,7 +420,7 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let verifying = RwSignal::new(false);
     let on_verify_click = move |_| {
         verifying.set(true);
-        verify_action.dispatch(instance_fullname.get_untracked());
+        verify_action.dispatch(resolved_service.instance_fullname().get_untracked());
         set_timeout(
             move || {
                 verifying.set(false);
@@ -410,46 +433,61 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
         let url = url.clone();
         async move { open_url(url.as_str()).await }
     });
-    let url = RwSignal::new(get_open_url(&resolved_service));
+
+    let url = Memo::new(move |_| get_open_url(&resolved_service.get()));
+
     let on_open_click = move |_| {
-        if let Some(url) = url.get_untracked() {
+        if let Some(url) = url.get() {
             open_action.dispatch(url.clone());
         }
     };
 
-    let card_title = resolved_service.get_instance_name().clone();
-    let details_title = card_title.clone();
-    let host_to_copy = drop_trailing_dot(&resolved_service.hostname);
-    let host_to_show = drop_local_and_trailing_dot(&resolved_service.hostname);
-    let service_type_to_copy = drop_trailing_dot(&resolved_service.service_type);
-    let service_type_to_show = drop_local_and_trailing_dot(&resolved_service.service_type);
+    let updated_at = Memo::new(move |_| to_local_timestamp(resolved_service.updated_at_ns().get()));
 
-    let updated_at = DateTime::from_timestamp_nanos(resolved_service.updated_at_ns as i64);
-    let as_local_datetime: DateTime<Local> = updated_at.with_timezone(&Local);
-    let addrs = resolved_service
-        .addresses
-        .iter()
-        .map(|a| a.to_string())
-        .collect::<Vec<_>>();
-    let txts = resolved_service
-        .txt
-        .iter()
-        .map(|t| t.to_string())
-        .collect::<Vec<_>>();
-    let subtype = match resolved_service.subtype {
+    let addrs = Memo::new(move |_| {
+        resolved_service
+            .addresses()
+            .get()
+            .iter()
+            .map(|a| a.to_string())
+            .collect::<Vec<_>>()
+    });
+
+    let txts = Memo::new(move |_| {
+        resolved_service
+            .txt()
+            .get()
+            .iter()
+            .map(|t| t.to_string())
+            .collect::<Vec<_>>()
+    });
+
+    let subtype = Memo::new(move |_| match resolved_service.subtype().get() {
         None => vec![],
-        Some(s) => vec![s],
-    };
+        Some(s) => vec![s.to_owned()],
+    });
 
+    let title = Signal::derive(move || resolved_service.get().get_instance_name());
     let show_details = RwSignal::new(false);
-    let first_address = addrs.first().cloned().unwrap_or_default();
+    let first_address = Memo::new(move |_| {
+        addrs
+            .get()
+            .first()
+            .map(|a| a.to_string())
+            .unwrap_or_default()
+    });
 
-    let timestamp_str = as_local_datetime
-        .format("%Y-%m-%d %H:%M:%S%.6f")
-        .to_string();
     let is_desktop = IsDesktopInjection::expect_context();
     let card_class = get_class(&is_desktop, "resolved-service-card");
     let value_cell_class = get_class(&is_desktop, "resolved-service-value-cell");
+    let dead = resolved_service.dead();
+    let port = Memo::new(move |_| resolved_service.port().get().to_string());
+    let hostname = resolved_service.hostname();
+    let hostname_display = Memo::new(move |_| drop_trailing_dot(&hostname.get()));
+    let instance_fullname = resolved_service.instance_fullname();
+    let service_type = resolved_service.service_type();
+    let service_type_display =
+        Memo::new(move |_| drop_local_and_trailing_dot(service_type.get().as_str()));
     view! {
         <GridItem>
             <Card class=card_class>
@@ -458,9 +496,9 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                         <CopyToClipBoardButton
                             class=get_class(&is_desktop, "resolved-service-card-title")
                             size=ButtonSize::Large
-                            text=Some(resolved_service.instance_fullname.clone())
-                            button_text=Some(card_title)
-                            disabled=resolved_service.dead
+                            text=instance_fullname
+                            button_text=title
+                            disabled=dead
                         />
                     </Flex>
                 </CardHeader>
@@ -469,40 +507,35 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                         <TableBody>
                             <ResolvedRow
                                 label="Hostname"
-                                text=host_to_copy
-                                button_text=host_to_show
-                                disabled=resolved_service.dead
+                                text=hostname
+                                button_text=hostname_display
+                                disabled=dead
                             />
-                            <ResolvedRow
-                                label="Port"
-                                text=resolved_service.port.to_string()
-                                button_text=resolved_service.port.to_string()
-                                disabled=resolved_service.dead
-                            />
+                            <ResolvedRow label="Port" text=port button_text=port disabled=dead />
                             <ResolvedRow
                                 label="Type"
-                                text=service_type_to_copy
-                                button_text=service_type_to_show
-                                disabled=resolved_service.dead
+                                text=service_type
+                                button_text=service_type_display
+                                disabled=dead
                             />
                             <ResolvedRow
                                 label="IP"
-                                text=first_address.clone()
+                                text=first_address
                                 button_text=first_address
-                                disabled=resolved_service.dead
+                                disabled=dead
                             />
                             <ResolvedRow
                                 label="Updated at"
-                                text=timestamp_str.clone()
-                                button_text=timestamp_str
-                                disabled=resolved_service.dead
+                                text=updated_at
+                                button_text=updated_at
+                                disabled=dead
                             />
                             <TableRow>
                                 <TableCell>
                                     <Button
                                         size=ButtonSize::Small
                                         appearance=ButtonAppearance::Primary
-                                        disabled=resolved_service.dead
+                                        disabled=dead
                                         on_click=move |_| show_details.set(true)
                                         icon=icondata::MdiListBox
                                     >
@@ -516,10 +549,10 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                                         <DialogTitle class=get_class(
                                                             &is_desktop,
                                                             "resolved-service-details-dialog-title",
-                                                        )>{details_title}</DialogTitle>
-                                                        <ValuesTable values=subtype title="subtype" />
-                                                        <ValuesTable values=addrs title="IPs" />
-                                                        <ValuesTable values=txts title="txt" />
+                                                        )>{title}</DialogTitle>
+                                                        <ValuesTable values=subtype title="subtype".to_string() />
+                                                        <ValuesTable values=addrs title="IPs".to_string() />
+                                                        <ValuesTable values=txts title="txt".to_string() />
                                                     </Flex>
                                                 </Scrollbar>
                                             </DialogBody>
@@ -533,17 +566,18 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
                                             size=ButtonSize::Small
                                             appearance=ButtonAppearance::Primary
                                             on_click=on_verify_click
-                                            disabled=resolved_service.dead
-                                            icon=icondata::MdiCheckAll
+                                            disabled=dead
+                                            icon=icondata::MdiRefresh
                                         >
-                                            "Verify"
+                                            "Refresh"
                                         </Button>
                                         <Button
                                             size=ButtonSize::Small
                                             appearance=ButtonAppearance::Primary
                                             on_click=on_open_click
-                                            disabled=url.get_untracked().is_none()
-                                                || resolved_service.dead
+                                            disabled=Memo::new(move |_| {
+                                                url.get().is_none() || dead.get()
+                                            })
                                             icon=icondata::MdiOpenInNew
                                         >
                                             "Open"
@@ -569,8 +603,9 @@ impl ServiceTypesInjection {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug, Default, Eq, PartialEq)]
 enum SortKind {
+    #[default]
     HostnameAsc,
     HostnameDesc,
     InstanceAsc,
@@ -623,6 +658,50 @@ async fn update_protocol_flags(flags: ProtocolFlags) {
     .await;
 }
 
+fn apply_sort_kind(store: Store<ResolvedServiceStore>, sort_kind: &SortKind) {
+    match sort_kind {
+        SortKind::HostnameAsc => {
+            store
+                .resolved()
+                .write()
+                .sort_by(|a, b| match a.hostname.cmp(&b.hostname) {
+                    std::cmp::Ordering::Equal => a.service_type.cmp(&b.service_type),
+                    other => other,
+                })
+        }
+        SortKind::HostnameDesc => {
+            store
+                .resolved()
+                .write()
+                .sort_by(|a, b| match b.hostname.cmp(&a.hostname) {
+                    std::cmp::Ordering::Equal => b.service_type.cmp(&a.service_type),
+                    other => other,
+                })
+        }
+        SortKind::InstanceAsc => store
+            .resolved()
+            .write()
+            .sort_by(|a, b| a.instance_fullname.cmp(&b.instance_fullname)),
+        SortKind::InstanceDesc => store
+            .resolved()
+            .write()
+            .sort_by(|a, b| b.instance_fullname.cmp(&a.instance_fullname)),
+        SortKind::ServiceTypeAsc => store
+            .resolved()
+            .write()
+            .sort_by(|a, b| a.service_type.cmp(&b.service_type)),
+        SortKind::ServiceTypeDesc => store
+            .resolved()
+            .write()
+            .sort_by(|a, b| b.service_type.cmp(&a.service_type)),
+        SortKind::TimestampAsc => store.resolved().write().sort_by_key(|i| i.updated_at_ns),
+        SortKind::TimestampDesc => store
+            .resolved()
+            .write()
+            .sort_by_key(|i| std::cmp::Reverse(i.updated_at_ns)),
+    }
+}
+
 /// Renders the main browsing interface for network services.
 ///
 /// This component sets up reactive state and event listeners to manage service discovery and browsing.
@@ -648,63 +727,37 @@ pub fn Browse() -> impl IntoView {
     let (service_types, set_service_types) = signal(ServiceTypes::new());
     let ipv4checked = RwSignal::new(true);
     let ipv6checked = RwSignal::new(true);
+    // Stop any previous browsing, to ensure not browsing on frontend reload
+    spawn_local(stop_browse());
     provide_context(ServiceTypesInjection(service_types));
     LocalResource::new(move || listen_for_service_type_events(set_service_types));
     LocalResource::new(move || listen_for_can_browse_change_events(set_can_browse));
     LocalResource::new(move || {
         get_protocol_flags(ipv4checked.write_only(), ipv6checked.write_only())
     });
-    let (resolved, set_resolved) = signal(ResolvedServices::new());
-    let (sort_kind, set_sort_kind) = signal(SortKind::HostnameAsc);
-    let sorted_resolved = Memo::new(move |_| {
-        let mut sorted = resolved.get().clone();
-        match sort_kind.get() {
-            SortKind::HostnameAsc => sorted.sort_by(|a, b| match a.hostname.cmp(&b.hostname) {
-                std::cmp::Ordering::Equal => a.service_type.cmp(&b.service_type),
-                other => other,
-            }),
-            SortKind::HostnameDesc => sorted.sort_by(|a, b| match b.hostname.cmp(&a.hostname) {
-                std::cmp::Ordering::Equal => b.service_type.cmp(&a.service_type),
-                other => other,
-            }),
-            SortKind::InstanceAsc => {
-                sorted.sort_by(|a, b| a.instance_fullname.cmp(&b.instance_fullname))
-            }
-            SortKind::InstanceDesc => {
-                sorted.sort_by(|a, b| b.instance_fullname.cmp(&a.instance_fullname))
-            }
-            SortKind::ServiceTypeAsc => sorted.sort_by(|a, b| a.service_type.cmp(&b.service_type)),
-            SortKind::ServiceTypeDesc => sorted.sort_by(|a, b| b.service_type.cmp(&a.service_type)),
-            SortKind::TimestampAsc => sorted.sort_by_key(|i| i.updated_at_ns),
-            SortKind::TimestampDesc => sorted.sort_by_key(|i| std::cmp::Reverse(i.updated_at_ns)),
-        }
-        sorted
-    });
-    let sort_value = RwSignal::new("HostnameAsc".to_string());
-    let query = RwSignal::new(String::new());
+    let store = Store::new(ResolvedServiceStore::default());
 
-    let filtered_services = Memo::new(move |_| {
-        let query = query.get();
-        sorted_resolved
-            .get()
-            .clone()
-            .into_iter()
-            .filter(|service| service.matches_query(&query))
-            .collect::<Vec<_>>()
-    });
+    let sort_value = RwSignal::new("HostnameAsc".to_string());
 
     Effect::new(move |_| match sort_value.get().as_str() {
-        "HostnameAsc" => set_sort_kind.set(SortKind::HostnameAsc),
-        "HostnameDesc" => set_sort_kind.set(SortKind::HostnameDesc),
-        "InstanceAsc" => set_sort_kind.set(SortKind::InstanceAsc),
-        "InstanceDesc" => set_sort_kind.set(SortKind::InstanceDesc),
-        "ServiceTypeAsc" => set_sort_kind.set(SortKind::ServiceTypeAsc),
-        "ServiceTypeDesc" => set_sort_kind.set(SortKind::ServiceTypeDesc),
-        "TimestampAsc" => set_sort_kind.set(SortKind::TimestampAsc),
-        "TimestampDesc" => set_sort_kind.set(SortKind::TimestampDesc),
+        "HostnameAsc" => store.sort_kind().set(SortKind::HostnameAsc),
+        "HostnameDesc" => store.sort_kind().set(SortKind::HostnameDesc),
+        "InstanceAsc" => store.sort_kind().set(SortKind::InstanceAsc),
+        "InstanceDesc" => store.sort_kind().set(SortKind::InstanceDesc),
+        "ServiceTypeAsc" => store.sort_kind().set(SortKind::ServiceTypeAsc),
+        "ServiceTypeDesc" => store.sort_kind().set(SortKind::ServiceTypeDesc),
+        "TimestampAsc" => store.sort_kind().set(SortKind::TimestampAsc),
+        "TimestampDesc" => store.sort_kind().set(SortKind::TimestampDesc),
         _ => {}
     });
 
+    Effect::watch(
+        move || store.sort_kind().get(),
+        move |sort_kind, _, _| apply_sort_kind(store, sort_kind),
+        false,
+    );
+
+    let query = RwSignal::new(String::new());
     let browsing = RwSignal::new(false);
     let checkbox_class = Signal::derive(move || {
         if browsing.get() {
@@ -713,6 +766,7 @@ pub fn Browse() -> impl IntoView {
             String::new()
         }
     });
+
     let service_type = RwSignal::new(String::new());
     let not_browsing = Signal::derive(move || !browsing.get());
     let service_type_invalid = Signal::derive(move || {
@@ -760,6 +814,7 @@ pub fn Browse() -> impl IntoView {
     Effect::watch(
         move || service_types.get(),
         move |service_types, previous_service_types, _| {
+            use leptos::prelude::GetUntracked;
             let old_set: HashSet<_> = previous_service_types
                 .unwrap_or(&vec![])
                 .iter()
@@ -788,6 +843,7 @@ pub fn Browse() -> impl IntoView {
             h.clear();
         }
     };
+
     Effect::new(move |_| {
         // Set a timeout to focus the autocomplete after splash screen
         // This is part of the tutorial timer that should be stopped on user interaction
@@ -805,8 +861,9 @@ pub fn Browse() -> impl IntoView {
     };
 
     let on_browse_click = move |_| {
+        use leptos::prelude::GetUntracked;
         clear_tutorial_timer();
-        set_resolved.set(Vec::new());
+        store.resolved().write().clear();
         browsing.set(true);
         let value = service_type.get_untracked();
         if value.is_empty() {
@@ -855,7 +912,7 @@ pub fn Browse() -> impl IntoView {
         false,
     );
 
-    LocalResource::new(move || listen_for_resolve_events(set_resolved));
+    LocalResource::new(move || listen_for_resolve_events(store));
     let is_desktop = IsDesktopInjection::expect_context();
     let layout_class = get_class(&is_desktop, "browse-layout");
     let input_class = get_class(&is_desktop, "input");
@@ -912,14 +969,13 @@ pub fn Browse() -> impl IntoView {
                         size=BadgeSize::Large
                         color=BadgeColor::Subtle
                     >
-                        {{
-                            move || {
-                                format!(
-                                    "{} / {}",
-                                    filtered_services.get().len(),
-                                    resolved.get().len(),
-                                )
-                            }
+                        {move || {
+                            let filtered = store
+                                .resolved()
+                                .iter_unkeyed()
+                                .filter(|rs| rs.read().matches_query(&query.get()))
+                                .count();
+                            format!("{}/{}", filtered, store.resolved().read().len())
                         }}
                     </Badge>
                 </Flex>
@@ -945,12 +1001,12 @@ pub fn Browse() -> impl IntoView {
             </Flex>
             <Grid class=grid_class>
                 <For
-                    each=move || filtered_services.get()
-                    key=|rs| format!("{}{}", rs.instance_fullname.clone(), rs.updated_at_ns)
-                    children=move |resolved_service| {
-                        view! { <ResolvedServiceItem resolved_service /> }
-                    }
-                />
+                    each=move || store.resolved()
+                    key=move |row| row.get().instance_fullname
+                    let:resolved_service
+                >
+                    <ResolvedServiceItem resolved_service />
+                </For>
             </Grid>
         </Layout>
     }

@@ -2,6 +2,7 @@ use leptos::prelude::*;
 use thaw::{Table, TableBody, TableCell, TableCellLayout, TableHeader, TableHeaderCell, TableRow};
 
 use thaw::{Button, ButtonAppearance, ButtonSize, ToasterInjection};
+use thaw_utils::Model;
 
 use super::{
     clipboard::{copy_to_clipboard, create_clipboard_toast},
@@ -45,14 +46,15 @@ fn CopyableTableCell(
 
 /// Component to render a string vector into a table
 #[component]
-pub fn ValuesTable(values: Vec<String>, #[prop(into)] title: String) -> impl IntoView {
-    let (values, _) = signal(values);
-    let (title, _) = signal(title);
+pub fn ValuesTable(
+    #[prop(into)] values: Signal<Vec<String>>,
+    #[prop(into)] title: Model<String>,
+) -> impl IntoView {
     view! {
         <Show
             when=move || !values.get().is_empty()
             fallback=move || {
-                view! { <p class="hidden"></p> }
+                view! { <div class="hidden" /> }
             }
         >
             <Table>

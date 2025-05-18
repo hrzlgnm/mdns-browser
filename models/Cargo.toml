@@ -4,6 +4,7 @@ version = "0.17.1"
 edition = "2021"
 
 [dependencies]
+reactive_stores = "0.2"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_with = "3"
 thiserror = "2.0.0"

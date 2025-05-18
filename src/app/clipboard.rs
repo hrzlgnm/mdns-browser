@@ -38,12 +38,11 @@ pub fn create_clipboard_toast(text: &str) -> impl IntoView {
 pub fn CopyToClipBoardButton(
     #[prop(optional, into)] class: MaybeProp<String>,
     #[prop(default = ButtonSize::Small.into(), into)] size: ButtonSize,
-    text: Option<String>,
-    button_text: Option<String>,
+    #[prop(into)] text: Signal<String>,
+    #[prop(into)] button_text: Signal<String>,
     #[prop(optional, into)] disabled: Signal<bool>,
 ) -> impl IntoView {
     let is_desktop = IsDesktopInjection::expect_context();
-    let (text_to_copy, _) = signal(text.clone().unwrap_or_default());
     let copy_to_clipboard_action = Action::new_local(|input: &String| {
         let input = input.clone();
         async move { copy_to_clipboard(input.clone()).await }
@@ -51,7 +50,7 @@ pub fn CopyToClipBoardButton(
 
     let toaster = ToasterInjection::expect_context();
     let on_copy_to_clipboard_click = move |_| {
-        let text = text_to_copy.get_untracked();
+        let text = text.get_untracked();
         copy_to_clipboard_action.dispatch(text.clone());
         if is_desktop.get_untracked() {
             toaster.dispatch_toast(
@@ -69,7 +68,7 @@ pub fn CopyToClipBoardButton(
             appearance=ButtonAppearance::Subtle
             size=size
         >
-            {button_text}
+            {button_text.get()}
         </Button>
     }
 }
