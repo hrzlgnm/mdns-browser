@@ -74,7 +74,7 @@ async fn listen_for_resolve_events(event_writer: WriteSignal<ResolvedServices>) 
             event_writer.update(|evts| {
                 for item in evts.iter_mut() {
                     if item.instance_fullname == event.instance_name {
-                        item.die_at(event.at_ms);
+                        item.die_at(event.at_ns);
                         break;
                     }
                 }
@@ -424,8 +424,7 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let service_type_to_copy = drop_trailing_dot(&resolved_service.service_type);
     let service_type_to_show = drop_local_and_trailing_dot(&resolved_service.service_type);
 
-    let updated_at = DateTime::from_timestamp_millis(resolved_service.updated_at_ms as i64)
-        .expect("To get convert");
+    let updated_at = DateTime::from_timestamp_nanos(resolved_service.updated_at_ns as i64);
     let as_local_datetime: DateTime<Local> = updated_at.with_timezone(&Local);
     let addrs = resolved_service
         .addresses
@@ -446,7 +445,7 @@ fn ResolvedServiceItem(resolved_service: ResolvedService) -> impl IntoView {
     let first_address = addrs.first().cloned().unwrap_or_default();
 
     let timestamp_str = as_local_datetime
-        .format("%Y-%m-%d %H:%M:%S%.3f")
+        .format("%Y-%m-%d %H:%M:%S%.6f")
         .to_string();
     let is_desktop = IsDesktopInjection::expect_context();
     let card_class = get_class(&is_desktop, "resolved-service-card");
@@ -671,8 +670,8 @@ pub fn Browse() -> impl IntoView {
             }
             SortKind::ServiceTypeAsc => sorted.sort_by(|a, b| a.service_type.cmp(&b.service_type)),
             SortKind::ServiceTypeDesc => sorted.sort_by(|a, b| b.service_type.cmp(&a.service_type)),
-            SortKind::TimestampAsc => sorted.sort_by_key(|i| i.updated_at_ms),
-            SortKind::TimestampDesc => sorted.sort_by_key(|i| std::cmp::Reverse(i.updated_at_ms)),
+            SortKind::TimestampAsc => sorted.sort_by_key(|i| i.updated_at_ns),
+            SortKind::TimestampDesc => sorted.sort_by_key(|i| std::cmp::Reverse(i.updated_at_ns)),
         }
         sorted
     });
@@ -942,7 +941,7 @@ pub fn Browse() -> impl IntoView {
             <Grid class=grid_class>
                 <For
                     each=move || filtered_services.get()
-                    key=|rs| format!("{}{}", rs.instance_fullname.clone(), rs.updated_at_ms)
+                    key=|rs| format!("{}{}", rs.instance_fullname.clone(), rs.updated_at_ns)
                     children=move |resolved_service| {
                         view! { <ResolvedServiceItem resolved_service /> }
                     }
