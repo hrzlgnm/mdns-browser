@@ -22,15 +22,6 @@
         enabled: false,
         schedule: ["on the first day of the month"],
     },
-    packageRules: [
-        {
-            matchDatasources: ["crate"],
-            automerge: true,
-            minimumReleaseAge: "5 days",
-            matchUpdateTypes: ["minor", "patch"],
-            matchPackageNames: ["tauri{/,}**"],
-        },
-    ],
     customManagers: [
         {
             matchStringsStrategy: "any",
