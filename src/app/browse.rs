@@ -718,17 +718,13 @@ fn apply_sort_kind(store: Store<ResolvedServiceStore>, sort_kind: &SortKind) {
 /// ```
 #[component]
 pub fn Browse() -> impl IntoView {
-    // Stop browsing when the component is mounted,
-    // so after a reload of the frontend we don't have
-    // queriers active
+    // Stop any previously started browsing, to ensure we not browsing after a frontend reload
     spawn_local(stop_browse());
 
     let (can_browse, set_can_browse) = signal(false);
     let (service_types, set_service_types) = signal(ServiceTypes::new());
     let ipv4checked = RwSignal::new(true);
     let ipv6checked = RwSignal::new(true);
-    // Stop any previous browsing, to ensure not browsing on frontend reload
-    spawn_local(stop_browse());
     provide_context(ServiceTypesInjection(service_types));
     LocalResource::new(move || listen_for_service_type_events(set_service_types));
     LocalResource::new(move || listen_for_can_browse_change_events(set_can_browse));
