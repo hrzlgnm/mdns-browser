@@ -639,6 +639,11 @@ async fn update_protocol_flags(flags: ProtocolFlags) {
 /// ```
 #[component]
 pub fn Browse() -> impl IntoView {
+    // Stop browsing when the component is mounted,
+    // so after a reload of the frontend we don't have
+    // queriers active
+    spawn_local(stop_browse());
+
     let (can_browse, set_can_browse) = signal(false);
     let (service_types, set_service_types) = signal(ServiceTypes::new());
     let ipv4checked = RwSignal::new(true);
