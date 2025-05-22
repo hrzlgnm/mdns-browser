@@ -39,6 +39,8 @@ pub fn ThemeSwitcher(theme: RwSignal<Theme>) -> impl IntoView {
             icondata::BsMoonStars
         }
     });
-
-    view! { <Icon height="2em" width="2em" icon=icon on_click=on_switch_click /> }
+    move || {
+        let icon = icon.get();
+        view! { <Icon height="2em" width="2em" icon on_click=on_switch_click /> }
+    }
 }
