@@ -67,8 +67,8 @@ struct ResolvedServiceStore {
     sort_kind: SortKind,
 }
 
-fn to_local_timestamp(timestamp: u64) -> String {
-    DateTime::from_timestamp_nanos(timestamp as i64)
+fn to_local_timestamp(timestamp_ns: u64) -> String {
+    DateTime::from_timestamp_nanos(timestamp_ns as i64)
         .with_timezone(&Local)
         .format("%Y-%m-%d %H:%M:%S%.6f")
         .to_string()
