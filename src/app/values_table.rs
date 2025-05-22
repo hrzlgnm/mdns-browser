@@ -52,7 +52,7 @@ pub fn ValuesTable(
 ) -> impl IntoView {
     view! {
         <Show
-            when=move || !values.get().is_empty()
+            when=move || values.with(|v| !v.is_empty())
             fallback=move || {
                 view! { <div class="hidden" /> }
             }
