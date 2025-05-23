@@ -42,7 +42,7 @@ models = { path = "./models" }
 # of the uuid crate to avoid a build errors due to
 # crates depending on uuid but not setting it
 [dependencies.uuid]
-version = "1.13.1"
+version = "1.17.0"
 features = ["js", "v4"]
 
 
@@ -50,5 +50,5 @@ features = ["js", "v4"]
 members = ["models", "shared_constants", "src-tauri"]
 
 [workspace.dependencies]
-reactive_stores = "0.2"
-serde = { version = "1.0.210", features = ["derive"] }
+reactive_stores = "0.2.2"
+serde = { version = "1.0.219", features = ["derive"] }

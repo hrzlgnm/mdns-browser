@@ -735,6 +735,18 @@ pub fn Browse() -> impl IntoView {
         get_protocol_flags(ipv4checked.write_only(), ipv6checked.write_only())
     });
     let store = Store::new(ResolvedServiceStore::default());
+    let filtered = Store::new(ResolvedServiceStore::default());
+    let query = RwSignal::new(String::new());
+
+    Effect::watch(
+        move || (query.get(), store.resolved().get()),
+        move |(query, resolved), _, _| {
+            let mut res = resolved.clone();
+            res.retain(|rs| rs.matches_query(query));
+            *filtered.resolved().write() = res;
+        },
+        true,
+    );
 
     let sort_value = RwSignal::new("HostnameAsc".to_string());
 
@@ -756,7 +768,6 @@ pub fn Browse() -> impl IntoView {
         false,
     );
 
-    let query = RwSignal::new(String::new());
     let browsing = RwSignal::new(false);
     let checkbox_class = Signal::derive(move || {
         if browsing.get() {
@@ -969,12 +980,7 @@ pub fn Browse() -> impl IntoView {
                         color=BadgeColor::Subtle
                     >
                         {move || {
-                            let filtered = store
-                                .resolved()
-                                .iter_unkeyed()
-                                .filter(|rs| rs.read().matches_query(&query.get()))
-                                .count();
-                            format!("{}/{}", filtered, store.resolved().read().len())
+                           format!("{}/{}", filtered.resolved().read().len(), store.resolved().read().len())
                         }}
                     </Badge>
                 </Flex>
@@ -1000,7 +1006,7 @@ pub fn Browse() -> impl IntoView {
             </Flex>
             <Grid class=grid_class>
                 <For
-                    each=move || store.resolved()
+                    each=move || filtered.resolved()
                     key=move |row| row.get().instance_fullname
                     let:resolved_service
                 >
