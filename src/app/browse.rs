@@ -88,7 +88,7 @@ async fn listen_for_resolve_events(store: Store<ResolvedServiceStore>) {
                 .unwrap_or_else(|| {
                     store.resolved().write().push(event.service.clone());
                 });
-            // TODO: Replace by a binary serach insert replace
+            // TODO: Replace by a binary search insert replace
             apply_sort_kind(store, &store.sort_kind().get_untracked());
         },
         "service-removed",
@@ -101,7 +101,7 @@ async fn listen_for_resolve_events(store: Store<ResolvedServiceStore>) {
                 let mut dead = rs.read().clone();
                 dead.die_at(event.at_ns);
                 *rs.write() = dead;
-                // TODO: Replace by a binary serach insert replace
+                // TODO: Replace by a binary search insert replace
                 apply_sort_kind(store, &store.sort_kind().get_untracked());
             }
         },
