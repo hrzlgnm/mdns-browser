@@ -568,9 +568,9 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
                                             appearance=ButtonAppearance::Primary
                                             on_click=on_verify_click
                                             disabled=dead
-                                            icon=icondata::MdiRefresh
+                                            icon=icondata::MdiCheckAll
                                         >
-                                            "Refresh"
+                                            "Verify"
                                         </Button>
                                         <Button
                                             size=ButtonSize::Small
