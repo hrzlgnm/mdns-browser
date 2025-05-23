@@ -50,10 +50,10 @@ pub fn ValuesTable(
     #[prop(into)] values: Signal<Vec<String>>,
     #[prop(into)] title: Model<String>,
 ) -> impl IntoView {
-    let is_empty = Signal::derive(move || values.with(|v| v.is_empty()));
+    let has_values = Signal::derive(move || values.with(|v| !v.is_empty()));
     view! {
         <Show
-            when=move || is_empty.get()
+            when=move || has_values.get()
             fallback=move || {
                 view! { <div class="hidden" /> }
             }
