@@ -12,7 +12,7 @@ use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSize, Badge, BadgeAppearance,
     BadgeColor, BadgeSize, Button, ButtonAppearance, ButtonSize, Card, CardHeader, CardPreview,
     Checkbox, ComponentRef, Dialog, DialogBody, DialogSurface, DialogTitle, Flex, FlexAlign,
-    FlexGap, FlexJustify, Grid, GridItem, Input, Layout, MessageBar, MessageBarBody,
+    FlexGap, FlexJustify, Grid, GridItem, Icon, Input, Layout, MessageBar, MessageBarBody,
     MessageBarIntent, MessageBarTitle, Scrollbar, Select, Table, TableBody, TableCell, TableRow,
     Text, TextTag,
 };
@@ -401,7 +401,6 @@ fn ResolvedRow(
     #[prop(into)] label: String,
     #[prop(optional, into)] text: Signal<String>,
     #[prop(optional, into)] button_text: Signal<String>,
-    #[prop(optional, into)] disabled: Signal<bool>,
 ) -> impl IntoView {
     let is_desktop = IsDesktopInjection::expect_context();
     let value_cell_class = get_class(&is_desktop, "resolved-service-value-cell");
@@ -411,7 +410,7 @@ fn ResolvedRow(
                 <Text tag=TextTag::Em>{label}</Text>
             </TableCell>
             <TableCell class=value_cell_class>
-                <CopyToClipBoardButton text button_text disabled />
+                <CopyToClipBoardButton text button_text />
             </TableCell>
         </TableRow>
     }
@@ -496,17 +495,24 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
     let service_type = resolved_service.service_type();
     let service_type_display =
         Memo::new(move |_| drop_local_and_trailing_dot(service_type.get().as_str()));
+    let dead_or_alive_icon_class = Memo::new(move |_| {
+        if dead.get() {
+            "resolved-service-dead".to_string()
+        } else {
+            "resolved-service-alive".to_string()
+        }
+    });
     view! {
         <GridItem>
             <Card class=card_class>
                 <CardHeader>
-                    <Flex justify=FlexJustify::SpaceAround align=FlexAlign::Stretch>
+                    <Flex justify=FlexJustify::SpaceBetween align=FlexAlign::Stretch>
+                        <Icon icon=icondata::MdiCircle class=dead_or_alive_icon_class />
                         <CopyToClipBoardButton
                             class=get_class(&is_desktop, "resolved-service-card-title")
                             size=ButtonSize::Large
                             text=instance_fullname
                             button_text=title
-                            disabled=dead
                         />
                     </Flex>
                 </CardHeader>
@@ -517,33 +523,24 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
                                 label="Hostname"
                                 text=hostname
                                 button_text=hostname_display
-                                disabled=dead
                             />
-                            <ResolvedRow label="Port" text=port button_text=port disabled=dead />
+                            <ResolvedRow label="Port" text=port button_text=port />
                             <ResolvedRow
                                 label="Type"
                                 text=service_type
                                 button_text=service_type_display
-                                disabled=dead
                             />
-                            <ResolvedRow
-                                label="IP"
-                                text=first_address
-                                button_text=first_address
-                                disabled=dead
-                            />
+                            <ResolvedRow label="IP" text=first_address button_text=first_address />
                             <ResolvedRow
                                 label="Updated at"
                                 text=updated_at
                                 button_text=updated_at
-                                disabled=dead
                             />
                             <TableRow>
                                 <TableCell>
                                     <Button
                                         size=ButtonSize::Small
                                         appearance=ButtonAppearance::Primary
-                                        disabled=dead
                                         on_click=move |_| show_details.set(true)
                                         icon=icondata::MdiListBox
                                     >
@@ -583,9 +580,7 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
                                             size=ButtonSize::Small
                                             appearance=ButtonAppearance::Primary
                                             on_click=on_open_click
-                                            disabled=Memo::new(move |_| {
-                                                url.get().is_none() || dead.get()
-                                            })
+                                            disabled=Memo::new(move |_| { url.get().is_none() })
                                             icon=icondata::MdiOpenInNew
                                         >
                                             "Open"

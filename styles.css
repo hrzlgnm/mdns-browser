@@ -124,6 +124,16 @@ body {
     max-height: 90vh;
 }
 
+.resolved-service-dead {
+    margin-top: 5px;
+    color: var(--colorStatusDangerForeground1);
+}
+
+.resolved-service-alive {
+    margin-top: 5px;
+    color: var(--colorBrandForeground1);
+}
+
 .fake-disabled {
     pointer-events: none;
     opacity: 0.5;

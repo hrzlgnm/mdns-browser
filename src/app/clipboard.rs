@@ -37,7 +37,6 @@ pub fn CopyToClipBoardButton(
     #[prop(default = ButtonSize::Small.into(), into)] size: ButtonSize,
     #[prop(into)] text: Signal<String>,
     #[prop(into)] button_text: Signal<String>,
-    #[prop(optional, into)] disabled: Signal<bool>,
 ) -> impl IntoView {
     let is_desktop = IsDesktopInjection::expect_context();
     let copy_to_clipboard_action = Action::new_local(|input: &String| {
@@ -60,7 +59,6 @@ pub fn CopyToClipBoardButton(
     view! {
         <Button
             class=class
-            disabled=disabled
             on_click=on_copy_to_clipboard_click
             appearance=ButtonAppearance::Subtle
             size=size
