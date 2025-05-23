@@ -1,10 +1,10 @@
-use reactive_stores::{Patch, Store};
+use reactive_stores::Store;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Display, net::IpAddr, time::SystemTime};
 
 pub type ServiceTypes = Vec<String>;
 
-#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, Store, Patch)]
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, Store)]
 pub struct TxtRecord {
     pub key: String,
     pub val: Option<String>,
@@ -30,7 +30,7 @@ impl TxtRecord {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Store, Patch)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Store)]
 pub struct ResolvedService {
     pub instance_fullname: String,
     pub service_type: String,

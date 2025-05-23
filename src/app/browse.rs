@@ -3,7 +3,7 @@ use chrono::{DateTime, Local};
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use models::*;
-use reactive_stores::{Field, Patch, Store, StoreFieldIterator};
+use reactive_stores::{Field, Store, StoreFieldIterator};
 use serde::{Deserialize, Serialize};
 use shared_constants::{AUTO_COMPLETE_AUTO_FOCUS_DELAY, SPLASH_SCREEN_DURATION, VERIFY_TIMEOUT};
 use std::collections::HashSet;
@@ -83,7 +83,7 @@ async fn listen_for_resolve_events(store: Store<ResolvedServiceStore>) {
                 .iter_unkeyed()
                 .find(|rs| rs.read_untracked().instance_fullname == event.service.instance_fullname)
                 .map(|rs| {
-                    rs.patch(event.service.clone());
+                    *rs.write() = event.service.clone();
                     apply_sort_kind(store, &store.sort_kind().get_untracked());
                 })
                 .unwrap_or_else(|| {
@@ -100,7 +100,7 @@ async fn listen_for_resolve_events(store: Store<ResolvedServiceStore>) {
             {
                 let mut dead = rs.read().clone();
                 dead.die_at(event.at_ns);
-                rs.patch(dead);
+                *rs.write() = dead;
                 apply_sort_kind(store, &store.sort_kind().get_untracked());
             }
         },
