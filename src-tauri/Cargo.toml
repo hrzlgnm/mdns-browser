@@ -6,25 +6,25 @@ authors = ["hrzlgnm"]
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "2.0.0", features = [] }
+tauri-build = { version = "2.2.0" }
 
 [target.'cfg(not(any(target_os="android",target_os="ios")))'.dependencies]
 clap = { version = "4.5.19", features = ["derive"] }
 tauri-plugin-updater = "2.0.1"
-thiserror = "2.0.0"
-chrono = "0.4.41"
+thiserror = { workspace = true }
+chrono = { workspace = true }
 
 [dependencies]
 # crates
-log = "0.4.22"
+log = { workspace = true }
 mdns-sd = { version = "0.13.0", features = ["async", "log"] }
-serde = { version = "1.0.210", features = ["derive"] }
+serde = { workspace = true }
 serde_json = "1.0.128"
 tauri = { version = "2.0.0", features = [] }
 tauri-plugin-clipboard-manager = "2.0.0"
 tauri-plugin-log = { version = "2.0.0", features = ["colored"] }
 tauri-plugin-opener = "2.2.0"
-tokio = { version = "1.40.0", features = ["time"] }
+tokio = { workspace = true }
 
 # local
 models = { path = "../models" }
