@@ -1,4 +1,3 @@
-use crate::{app::about::open_url, log_fn};
 use chrono::{DateTime, Local};
 use leptos::prelude::*;
 use leptos::task::spawn_local;
@@ -19,6 +18,7 @@ use thaw::{
 };
 
 use super::{
+    about::open_url,
     clipboard::CopyToClipBoardButton,
     css::get_class,
     invoke::invoke_no_args,
@@ -60,11 +60,18 @@ async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
     .await;
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, Store, Default, Eq, PartialEq)]
-struct ResolvedServiceStore {
+#[derive(Store, Default)]
+struct Resolved {
     #[store(key: String = |rs| rs.instance_fullname.clone())]
-    resolved: Vec<ResolvedService>,
-    sort_kind: SortKind,
+    services: Vec<ResolvedService>,
+    sort_by: SortKind,
+    query: String,
+}
+
+#[derive(Store, Default)]
+struct Filtered {
+    #[store(key: String = |rs| rs.instance_fullname.clone())]
+    services: Vec<ResolvedService>,
 }
 
 fn to_local_timestamp(timestamp_ns: u64) -> String {
@@ -74,27 +81,27 @@ fn to_local_timestamp(timestamp_ns: u64) -> String {
         .to_string()
 }
 
-async fn listen_for_resolve_events(store: Store<ResolvedServiceStore>) {
+async fn listen_for_resolve_events(store: Store<Resolved>) {
     listen_add_remove(
         "service-resolved",
         move |event: ServiceResolvedEventRes| {
             store
-                .resolved()
+                .services()
                 .iter_unkeyed()
                 .find(|rs| rs.read_untracked().instance_fullname == event.service.instance_fullname)
                 .map(|rs| {
                     *rs.write() = event.service.clone();
                 })
                 .unwrap_or_else(|| {
-                    store.resolved().write().push(event.service.clone());
+                    store.services().write().push(event.service.clone());
                 });
             // TODO: Replace by a binary search insert replace
-            apply_sort_kind(store, &store.sort_kind().get_untracked());
+            apply_sort_kind(store, &store.sort_by().get_untracked());
         },
         "service-removed",
         move |event: ServiceRemovedEventRes| {
             if let Some(rs) = store
-                .resolved()
+                .services()
                 .iter_unkeyed()
                 .find(|rs| rs.read_untracked().instance_fullname == event.instance_name)
             {
@@ -102,7 +109,7 @@ async fn listen_for_resolve_events(store: Store<ResolvedServiceStore>) {
                 dead.die_at(event.at_ns);
                 *rs.write() = dead;
                 // TODO: Replace by a binary search insert replace
-                apply_sort_kind(store, &store.sort_kind().get_untracked());
+                apply_sort_kind(store, &store.sort_by().get_untracked());
             }
         },
     )
@@ -116,15 +123,13 @@ struct BrowseManyArgs {
 }
 
 async fn browse_many(service_types: Vec<String>) {
-    log_fn!(format!("browse_many({:?})", service_types), {
-        let _ = invoke::<()>(
-            "browse_many",
-            &BrowseManyArgs {
-                serviceTypes: service_types.clone(),
-            },
-        )
-        .await;
-    });
+    let _ = invoke::<()>(
+        "browse_many",
+        &BrowseManyArgs {
+            serviceTypes: service_types.clone(),
+        },
+    )
+    .await;
 }
 
 async fn stop_browse() {
@@ -138,15 +143,13 @@ struct VerifyArgs<'a> {
 }
 
 async fn verify_instance(instance_fullname: String) {
-    log_fn!(format!("verify_instance({})", &instance_fullname), {
-        let _ = invoke::<()>(
-            "verify",
-            &VerifyArgs {
-                instanceFullname: &instance_fullname,
-            },
-        )
-        .await;
-    });
+    let _ = invoke::<()>(
+        "verify",
+        &VerifyArgs {
+            instanceFullname: &instance_fullname,
+        },
+    )
+    .await;
 }
 
 fn is_subsequence(search_term: &str, target: &str) -> bool {
@@ -604,7 +607,7 @@ impl ServiceTypesInjection {
     }
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Debug, Default)]
 enum SortKind {
     #[default]
     HostnameAsc,
@@ -659,11 +662,11 @@ async fn update_protocol_flags(flags: ProtocolFlags) {
     .await;
 }
 
-fn apply_sort_kind(store: Store<ResolvedServiceStore>, sort_kind: &SortKind) {
+fn apply_sort_kind(store: Store<Resolved>, sort_kind: &SortKind) {
     match sort_kind {
         SortKind::HostnameAsc => {
             store
-                .resolved()
+                .services()
                 .write()
                 .sort_by(|a, b| match a.hostname.cmp(&b.hostname) {
                     std::cmp::Ordering::Equal => a.service_type.cmp(&b.service_type),
@@ -672,7 +675,7 @@ fn apply_sort_kind(store: Store<ResolvedServiceStore>, sort_kind: &SortKind) {
         }
         SortKind::HostnameDesc => {
             store
-                .resolved()
+                .services()
                 .write()
                 .sort_by(|a, b| match b.hostname.cmp(&a.hostname) {
                     std::cmp::Ordering::Equal => b.service_type.cmp(&a.service_type),
@@ -680,24 +683,24 @@ fn apply_sort_kind(store: Store<ResolvedServiceStore>, sort_kind: &SortKind) {
                 })
         }
         SortKind::InstanceAsc => store
-            .resolved()
+            .services()
             .write()
             .sort_by(|a, b| a.instance_fullname.cmp(&b.instance_fullname)),
         SortKind::InstanceDesc => store
-            .resolved()
+            .services()
             .write()
             .sort_by(|a, b| b.instance_fullname.cmp(&a.instance_fullname)),
         SortKind::ServiceTypeAsc => store
-            .resolved()
+            .services()
             .write()
             .sort_by(|a, b| a.service_type.cmp(&b.service_type)),
         SortKind::ServiceTypeDesc => store
-            .resolved()
+            .services()
             .write()
             .sort_by(|a, b| b.service_type.cmp(&a.service_type)),
-        SortKind::TimestampAsc => store.resolved().write().sort_by_key(|i| i.updated_at_ns),
+        SortKind::TimestampAsc => store.services().write().sort_by_key(|i| i.updated_at_ns),
         SortKind::TimestampDesc => store
-            .resolved()
+            .services()
             .write()
             .sort_by_key(|i| std::cmp::Reverse(i.updated_at_ns)),
     }
@@ -732,16 +735,15 @@ pub fn Browse() -> impl IntoView {
     LocalResource::new(move || {
         get_protocol_flags(ipv4checked.write_only(), ipv6checked.write_only())
     });
-    let store = Store::new(ResolvedServiceStore::default());
-    let filtered = Store::new(ResolvedServiceStore::default());
-    let query = RwSignal::new(String::new());
+    let store = Store::new(Resolved::default());
+    let filtered = Store::new(Filtered::default());
 
     Effect::watch(
-        move || (query.get(), store.resolved().get()),
-        move |(query, resolved), _, _| {
-            let mut res = resolved.clone();
-            res.retain(|rs| rs.matches_query(query));
-            *filtered.resolved().write() = res;
+        move || (store.query().get(), store.services().get()),
+        move |(query, services), _, _| {
+            let mut services = services.clone();
+            services.retain(|rs| rs.matches_query(query));
+            *filtered.services().write() = services;
         },
         true,
     );
@@ -749,19 +751,19 @@ pub fn Browse() -> impl IntoView {
     let sort_value = RwSignal::new("HostnameAsc".to_string());
 
     Effect::new(move |_| match sort_value.get().as_str() {
-        "HostnameAsc" => store.sort_kind().set(SortKind::HostnameAsc),
-        "HostnameDesc" => store.sort_kind().set(SortKind::HostnameDesc),
-        "InstanceAsc" => store.sort_kind().set(SortKind::InstanceAsc),
-        "InstanceDesc" => store.sort_kind().set(SortKind::InstanceDesc),
-        "ServiceTypeAsc" => store.sort_kind().set(SortKind::ServiceTypeAsc),
-        "ServiceTypeDesc" => store.sort_kind().set(SortKind::ServiceTypeDesc),
-        "TimestampAsc" => store.sort_kind().set(SortKind::TimestampAsc),
-        "TimestampDesc" => store.sort_kind().set(SortKind::TimestampDesc),
+        "HostnameAsc" => store.sort_by().set(SortKind::HostnameAsc),
+        "HostnameDesc" => store.sort_by().set(SortKind::HostnameDesc),
+        "InstanceAsc" => store.sort_by().set(SortKind::InstanceAsc),
+        "InstanceDesc" => store.sort_by().set(SortKind::InstanceDesc),
+        "ServiceTypeAsc" => store.sort_by().set(SortKind::ServiceTypeAsc),
+        "ServiceTypeDesc" => store.sort_by().set(SortKind::ServiceTypeDesc),
+        "TimestampAsc" => store.sort_by().set(SortKind::TimestampAsc),
+        "TimestampDesc" => store.sort_by().set(SortKind::TimestampDesc),
         _ => {}
     });
 
     Effect::watch(
-        move || store.sort_kind().get(),
+        move || store.sort_by().get(),
         move |sort_kind, _, _| apply_sort_kind(store, sort_kind),
         false,
     );
@@ -871,7 +873,7 @@ pub fn Browse() -> impl IntoView {
     let on_browse_click = move |_| {
         use leptos::prelude::GetUntracked;
         clear_tutorial_timer();
-        store.resolved().write().clear();
+        store.services().write().clear();
         browsing.set(true);
         let value = service_type.get_untracked();
         if value.is_empty() {
@@ -980,8 +982,8 @@ pub fn Browse() -> impl IntoView {
                         {move || {
                             format!(
                                 "{}/{}",
-                                filtered.resolved().read().len(),
-                                store.resolved().read().len(),
+                                filtered.services().read().len(),
+                                store.services().read().len(),
                             )
                         }}
                     </Badge>
@@ -999,7 +1001,7 @@ pub fn Browse() -> impl IntoView {
                         <option label="Last Updated (Descending)" value="TimestampDesc" />
                     </Select>
                     <Input
-                        value=query
+                        value=store.query()
                         placeholder="Quick filter"
                         class=input_class
                         on_focus=on_quick_filter_focus
@@ -1008,7 +1010,7 @@ pub fn Browse() -> impl IntoView {
             </Flex>
             <Grid class=grid_class>
                 <For
-                    each=move || filtered.resolved()
+                    each=move || filtered.services()
                     key=move |row| row.get().instance_fullname
                     let:resolved_service
                 >

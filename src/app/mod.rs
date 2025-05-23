@@ -5,7 +5,6 @@ mod css;
 mod invoke;
 mod is_desktop;
 mod listen;
-mod macros;
 pub mod main;
 mod metrics;
 mod theme_switcher;

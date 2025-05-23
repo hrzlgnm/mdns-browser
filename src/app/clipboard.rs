@@ -4,7 +4,6 @@ use tauri_sys::core::invoke;
 use thaw::{Button, ButtonAppearance, ButtonSize, Toast, ToastBody, ToastTitle, ToasterInjection};
 
 use super::is_desktop::IsDesktopInjection;
-use crate::log_fn;
 
 #[derive(Serialize, Deserialize)]
 struct CopyToClipboardArgs<'a> {
@@ -12,15 +11,13 @@ struct CopyToClipboardArgs<'a> {
 }
 
 pub async fn copy_to_clipboard(contents: String) {
-    log_fn!(format!("copy_to_clipboard({})", &contents), {
-        let _ = invoke::<()>(
-            "copy_to_clipboard",
-            &CopyToClipboardArgs {
-                contents: &contents,
-            },
-        )
-        .await;
-    });
+    let _ = invoke::<()>(
+        "copy_to_clipboard",
+        &CopyToClipboardArgs {
+            contents: &contents,
+        },
+    )
+    .await;
 }
 
 pub fn create_clipboard_toast(text: &str) -> impl IntoView {
