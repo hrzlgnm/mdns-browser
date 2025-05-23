@@ -40,7 +40,7 @@ pub struct ResolvedService {
     pub subtype: Option<String>,
     pub txt: Vec<TxtRecord>,
     #[serde(with = "serde_with::As::<serde_with::DisplayFromStr>")]
-    pub updated_at_ns: u64,
+    pub updated_at_micros: u64,
     pub dead: bool,
 }
 
@@ -54,9 +54,9 @@ impl ResolvedService {
             .to_string()
     }
 
-    pub fn die_at(&mut self, at_ns: u64) {
+    pub fn die_at(&mut self, at_micros: u64) {
         self.dead = true;
-        self.updated_at_ns = at_ns;
+        self.updated_at_micros = at_micros;
     }
 
     pub fn matches_query(&self, query: &str) -> bool {
@@ -80,13 +80,13 @@ impl ResolvedService {
     }
 }
 
-pub fn timestamp_nanos() -> u64 {
+pub fn timestamp_micros() -> u64 {
     let now = SystemTime::now();
     let since_epoch = now
         .duration_since(SystemTime::UNIX_EPOCH)
-        .expect("To have a duration since unix epoch");
+        .unwrap_or_default();
 
-    since_epoch.as_secs() * 1_000_000_000 + u64::from(since_epoch.subsec_nanos())
+    since_epoch.as_secs() * 1_000_000 + u64::from(since_epoch.subsec_micros())
 }
 
 fn string_with_control_characters_escaped(input: String) -> String {
@@ -153,13 +153,13 @@ pub type ServiceTypeRemovedEventRes = ServiceTypeFoundEventRes;
 pub struct ServiceRemovedEvent {
     pub instance_name: String,
     #[serde(with = "serde_with::As::<serde_with::DisplayFromStr>")]
-    pub at_ns: u64,
+    pub at_micros: u64,
 }
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct ServiceRemovedEventRes {
     pub instance_name: String,
     #[serde(with = "serde_with::As::<serde_with::DisplayFromStr>")]
-    pub at_ns: u64,
+    pub at_micros: u64,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
@@ -386,7 +386,7 @@ mod tests {
             addresses: addresses.clone(),
             subtype: subtype.clone(),
             txt: txt.clone(),
-            updated_at_ns: updated_at_ms,
+            updated_at_micros: updated_at_ms,
             dead,
         };
 
@@ -398,7 +398,7 @@ mod tests {
         assert_eq!(service.addresses, addresses);
         assert_eq!(service.subtype, subtype);
         assert_eq!(service.txt, txt);
-        assert_eq!(service.updated_at_ns, updated_at_ms);
+        assert_eq!(service.updated_at_micros, updated_at_ms);
         assert_eq!(service.dead, dead);
     }
 
@@ -413,7 +413,7 @@ mod tests {
             addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))],
             subtype: None,
             txt: vec![],
-            updated_at_ns: 1620000000000,
+            updated_at_micros: 1620000000000,
             dead: false,
         };
 
@@ -424,7 +424,7 @@ mod tests {
 
         // Assert
         assert!(service.dead);
-        assert_eq!(service.updated_at_ns, new_updated_at_ms);
+        assert_eq!(service.updated_at_micros, new_updated_at_ms);
     }
 
     #[test]
@@ -438,7 +438,7 @@ mod tests {
             addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))],
             subtype: None,
             txt: vec![],
-            updated_at_ns: 1620000000000,
+            updated_at_micros: 1620000000000,
             dead: true,
         };
 
@@ -449,7 +449,7 @@ mod tests {
 
         // Assert
         assert!(service.dead);
-        assert_eq!(service.updated_at_ns, new_updated_at_ms);
+        assert_eq!(service.updated_at_micros, new_updated_at_ms);
     }
 
     #[test]
@@ -463,7 +463,7 @@ mod tests {
             addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))],
             subtype: None,
             txt: vec![],
-            updated_at_ns: 1620000000000,
+            updated_at_micros: 1620000000000,
             dead: false,
         };
 
@@ -472,7 +472,7 @@ mod tests {
 
         // Assert
         assert!(service.dead);
-        assert_eq!(service.updated_at_ns, 0);
+        assert_eq!(service.updated_at_micros, 0);
     }
     #[test]
     fn test_get_instance_name() {
@@ -485,7 +485,7 @@ mod tests {
             addresses: vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))],
             subtype: None,
             txt: vec![],
-            updated_at_ns: 0,
+            updated_at_micros: 0,
             dead: false,
         };
         assert_eq!(service.get_instance_name(), "My Service");
@@ -499,7 +499,7 @@ mod tests {
             addresses: vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))],
             subtype: None,
             txt: vec![],
-            updated_at_ns: 0,
+            updated_at_micros: 0,
             dead: false,
         };
         assert_eq!(service.get_instance_name(), "My.Complex.Service");
@@ -520,7 +520,7 @@ mod tests {
                 key: "key".to_string(),
                 val: Some("value".to_string()),
             }],
-            updated_at_ns: 0,
+            updated_at_micros: 0,
             dead: false,
         };
 
@@ -570,7 +570,7 @@ mod tests {
             addresses: vec![],
             subtype: None,
             txt: vec![],
-            updated_at_ns: 0,
+            updated_at_micros: 0,
             dead: true,
         };
 
@@ -594,7 +594,7 @@ mod tests {
                 key: "key".to_string(),
                 val: Some("val".to_string()),
             }],
-            updated_at_ns: 2349284,
+            updated_at_micros: 2349284,
             dead: false,
         };
 
