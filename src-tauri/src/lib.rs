@@ -72,7 +72,7 @@ fn from_service_info(info: &ServiceInfo) -> ResolvedService {
         addresses: sorted_addresses,
         subtype: info.get_subtype().clone(),
         txt: sorted_txt,
-        updated_at_ns: timestamp_nanos(),
+        updated_at_micros: timestamp_micros(),
         dead: false,
     }
 }
@@ -245,7 +245,7 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
                             "service-removed",
                             &ServiceRemovedEvent {
                                 instance_name,
-                                at_ns: timestamp_nanos(),
+                                at_micros: timestamp_micros(),
                             },
                         );
                     }

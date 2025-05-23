@@ -74,11 +74,14 @@ struct Filtered {
     services: Vec<ResolvedService>,
 }
 
-fn to_local_timestamp(timestamp_ns: u64) -> String {
-    DateTime::from_timestamp_nanos(timestamp_ns as i64)
-        .with_timezone(&Local)
-        .format("%Y-%m-%d %H:%M:%S%.6f")
-        .to_string()
+fn to_local_timestamp(timestamp_micros: u64) -> String {
+    DateTime::from_timestamp_micros(timestamp_micros as i64)
+        .map(|dt| {
+            dt.with_timezone(&Local)
+                .format("%Y-%m-%d %H:%M:%S%.6f")
+                .to_string()
+        })
+        .unwrap_or_else(|| "Invalid timestamp".to_string())
 }
 
 async fn listen_for_resolve_events(store: Store<Resolved>) {
@@ -106,7 +109,7 @@ async fn listen_for_resolve_events(store: Store<Resolved>) {
                 .find(|rs| rs.read_untracked().instance_fullname == event.instance_name)
             {
                 let mut dead = rs.read().clone();
-                dead.die_at(event.at_ns);
+                dead.die_at(event.at_micros);
                 *rs.write() = dead;
                 // TODO: Replace by a binary search insert replace
                 apply_sort_kind(store, &store.sort_by().get_untracked());
@@ -446,7 +449,8 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
         }
     };
 
-    let updated_at = Memo::new(move |_| to_local_timestamp(resolved_service.updated_at_ns().get()));
+    let updated_at =
+        Memo::new(move |_| to_local_timestamp(resolved_service.updated_at_micros().get()));
 
     let addrs = Memo::new(move |_| {
         resolved_service
@@ -698,11 +702,14 @@ fn apply_sort_kind(store: Store<Resolved>, sort_kind: &SortKind) {
             .services()
             .write()
             .sort_by(|a, b| b.service_type.cmp(&a.service_type)),
-        SortKind::TimestampAsc => store.services().write().sort_by_key(|i| i.updated_at_ns),
+        SortKind::TimestampAsc => store
+            .services()
+            .write()
+            .sort_by_key(|i| i.updated_at_micros),
         SortKind::TimestampDesc => store
             .services()
             .write()
-            .sort_by_key(|i| std::cmp::Reverse(i.updated_at_ns)),
+            .sort_by_key(|i| std::cmp::Reverse(i.updated_at_micros)),
     }
 }
 
