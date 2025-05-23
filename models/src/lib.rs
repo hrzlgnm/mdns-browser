@@ -1,9 +1,10 @@
+use reactive_stores::Store;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Display, net::IpAddr, time::SystemTime};
 
 pub type ServiceTypes = Vec<String>;
 
-#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, Store)]
 pub struct TxtRecord {
     pub key: String,
     pub val: Option<String>,
@@ -29,7 +30,7 @@ impl TxtRecord {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Store)]
 pub struct ResolvedService {
     pub instance_fullname: String,
     pub service_type: String,
@@ -42,8 +43,6 @@ pub struct ResolvedService {
     pub updated_at_ns: u64,
     pub dead: bool,
 }
-
-pub type ResolvedServices = Vec<ResolvedService>;
 
 impl ResolvedService {
     pub fn get_instance_name(&self) -> String {
@@ -59,6 +58,7 @@ impl ResolvedService {
         self.dead = true;
         self.updated_at_ns = at_ns;
     }
+
     pub fn matches_query(&self, query: &str) -> bool {
         let query = query.to_lowercase();
         if query.is_empty() {

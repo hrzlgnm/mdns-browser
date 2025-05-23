@@ -9,14 +9,11 @@ use thaw::{
 };
 
 use super::invoke::invoke_no_args;
-use crate::log_fn;
 
 async fn fetch_update() -> Option<UpdateMetadata> {
-    log_fn!("fetch_update", {
-        let update = invoke::<Option<UpdateMetadata>>("fetch_update", &()).await;
-        log::debug!("Got update: {:?}", update);
-        update
-    })
+    let update = invoke::<Option<UpdateMetadata>>("fetch_update", &()).await;
+    log::debug!("Got update: {:?}", update);
+    update
 }
 
 async fn install_update() {
@@ -29,24 +26,18 @@ struct OpenArgs<'a> {
 }
 
 pub async fn open_url(url: &str) {
-    log_fn!(format!("open_url({})", &url), {
-        let _ = invoke::<()>("open_url", &OpenArgs { url }).await;
-    });
+    let _ = invoke::<()>("open_url", &OpenArgs { url }).await;
 }
 
 async fn get_version(writer: WriteSignal<String>) {
-    log_fn!("get_version", {
-        let ver = invoke::<String>("version", &()).await;
-        writer.update(|v| *v = ver);
-    });
+    let ver = invoke::<String>("version", &()).await;
+    writer.update(|v| *v = ver);
 }
 
 async fn get_can_auto_update(writer: WriteSignal<bool>) {
-    log_fn!("get_can_auto_update", {
-        let can_auto_update = invoke::<bool>("can_auto_update", &()).await;
-        log::debug!("Got can_auto_update  {can_auto_update}");
-        writer.update(|v| *v = can_auto_update);
-    });
+    let can_auto_update = invoke::<bool>("can_auto_update", &()).await;
+    log::debug!("Got can_auto_update  {can_auto_update}");
+    writer.update(|v| *v = can_auto_update);
 }
 
 /// Component for info about the app
