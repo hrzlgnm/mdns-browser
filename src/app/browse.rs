@@ -980,7 +980,11 @@ pub fn Browse() -> impl IntoView {
                         color=BadgeColor::Subtle
                     >
                         {move || {
-                           format!("{}/{}", filtered.resolved().read().len(), store.resolved().read().len())
+                            format!(
+                                "{}/{}",
+                                filtered.resolved().read().len(),
+                                store.resolved().read().len(),
+                            )
                         }}
                     </Badge>
                 </Flex>
