@@ -2,5 +2,3 @@
 name = "shared_constants"
 version = "0.17.1"
 edition = "2021"
-
-[dependencies]
