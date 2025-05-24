@@ -125,12 +125,10 @@ body {
 }
 
 .resolved-service-dead {
-    margin-top: 5px;
     color: var(--colorStatusDangerForeground1);
 }
 
 .resolved-service-alive {
-    margin-top: 5px;
     color: var(--colorBrandForeground1);
 }
 

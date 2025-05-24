@@ -506,8 +506,14 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
         <GridItem>
             <Card class=card_class>
                 <CardHeader>
-                    <Flex justify=FlexJustify::SpaceBetween align=FlexAlign::Stretch>
-                        <Icon icon=icondata::MdiCircle class=dead_or_alive_icon_class />
+                    <Flex
+                        justify=FlexJustify::FlexStart
+                        align=FlexAlign::Stretch
+                        gap=FlexGap::Size(0)
+                    >
+                        <Flex vertical=true justify=FlexJustify::SpaceAround gap=FlexGap::Size(0)>
+                            <Icon icon=icondata::MdiCircle class=dead_or_alive_icon_class />
+                        </Flex>
                         <CopyToClipBoardButton
                             class=get_class(&is_desktop, "resolved-service-card-title")
                             size=ButtonSize::Large
@@ -554,7 +560,21 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
                                                         <DialogTitle class=get_class(
                                                             &is_desktop,
                                                             "resolved-service-details-dialog-title",
-                                                        )>{title}</DialogTitle>
+                                                        )>
+                                                            <Flex justify=FlexJustify::FlexStart gap=FlexGap::Small>
+                                                                <Flex
+                                                                    vertical=true
+                                                                    justify=FlexJustify::SpaceAround
+                                                                    gap=FlexGap::Size(0)
+                                                                >
+                                                                    <Icon
+                                                                        icon=icondata::MdiCircle
+                                                                        class=dead_or_alive_icon_class
+                                                                    />
+                                                                </Flex>
+                                                                {move || title.get()}
+                                                            </Flex>
+                                                        </DialogTitle>
                                                         <ValuesTable values=subtype title="subtype".to_string() />
                                                         <ValuesTable values=addrs title="IPs".to_string() />
                                                         <ValuesTable values=txts title="txt".to_string() />
