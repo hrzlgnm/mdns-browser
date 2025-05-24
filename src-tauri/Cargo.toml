@@ -6,7 +6,7 @@ authors = ["hrzlgnm"]
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "2.2.0" }
+tauri-build = { version = "2.2.0", features = [] }
 
 [target.'cfg(not(any(target_os="android",target_os="ios")))'.dependencies]
 clap = { version = "4.5.19", features = ["derive"] }
