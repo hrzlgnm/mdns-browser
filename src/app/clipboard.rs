@@ -72,9 +72,7 @@ pub fn CopyToClipBoardButton(
                 >
                     <Flex align=FlexAlign::Center justify=FlexJustify::Center gap=FlexGap::Small>
                         <Icon icon=icon class=icon_class />
-                        <Text class=class>
-                            {move || button_text.get()}
-                        </Text>
+                        <Text class=class>{move || button_text.get()}</Text>
                     </Flex>
                 </Button>
             }
@@ -86,9 +84,7 @@ pub fn CopyToClipBoardButton(
                     appearance=ButtonAppearance::Subtle
                     size=size
                 >
-                    <Text class=class>
-                        {move || button_text.get()}
-                    </Text>
+                    <Text class=class>{move || button_text.get()}</Text>
                 </Button>
             }
         }
