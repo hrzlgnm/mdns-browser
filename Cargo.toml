@@ -37,14 +37,6 @@ tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", branch = "v
 shared_constants = { path = "./shared_constants" }
 models = { path = "./models" }
 
-# workaround: explicitly select the feature "js"
-# of the uuid crate to avoid a build errors due to
-# crates depending on uuid but not setting it
-[dependencies.uuid]
-version = "1.17.0"
-features = ["js", "v4"]
-
-
 [workspace]
 members = ["models", "shared_constants", "src-tauri"]
 

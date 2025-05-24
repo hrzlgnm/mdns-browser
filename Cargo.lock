@@ -3157,7 +3157,6 @@ dependencies = [
  "tauri-sys",
  "thaw",
  "thaw_utils",
- "uuid",
 ]
 
 [[package]]
