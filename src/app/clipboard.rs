@@ -50,7 +50,7 @@ pub fn CopyToClipBoardButton(
     });
 
     let toaster = ToasterInjection::expect_context();
-    let on_copy_to_clipboard_click = move |_| {
+    let on_click = move |_| {
         let text = text.get_untracked();
         copy_to_clipboard_action.dispatch(text.clone());
         if is_desktop.get_untracked() {
@@ -60,31 +60,21 @@ pub fn CopyToClipBoardButton(
             );
         }
     };
-
+    let appearance = ButtonAppearance::Subtle;
     move || {
         if let Some(icon) = icon {
             view! {
-                <Button
-                    class=class
-                    on_click=on_copy_to_clipboard_click
-                    appearance=ButtonAppearance::Subtle
-                    size=size
-                >
+                <Button class on_click appearance size>
                     <Flex align=FlexAlign::Center justify=FlexJustify::Center gap=FlexGap::Small>
                         <Icon icon=icon class=icon_class />
-                        <Text class=class>{move || button_text.get()}</Text>
+                        <Text class>{move || button_text.get()}</Text>
                     </Flex>
                 </Button>
             }
         } else {
             view! {
-                <Button
-                    class=class
-                    on_click=on_copy_to_clipboard_click
-                    appearance=ButtonAppearance::Subtle
-                    size=size
-                >
-                    <Text class=class>{move || button_text.get()}</Text>
+                <Button class on_click appearance size>
+                    <Text class>{move || button_text.get()}</Text>
                 </Button>
             }
         }
