@@ -68,6 +68,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-block;
+    font-size: var(--fontSizeBase400);
 }
 
 .mobile-resolved-service-card-title {
@@ -125,7 +126,7 @@ body {
 }
 
 .resolved-service-dead {
-    color: var(--colorStatusDangerForeground1);
+    color: var(--colorPaletteDarkOrangeForeground1);
 }
 
 .resolved-service-alive {

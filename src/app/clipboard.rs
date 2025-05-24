@@ -1,7 +1,10 @@
 use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
 use tauri_sys::core::invoke;
-use thaw::{Button, ButtonAppearance, ButtonSize, Toast, ToastBody, ToastTitle, ToasterInjection};
+use thaw::{
+    Button, ButtonAppearance, ButtonSize, Flex, FlexAlign, FlexGap, FlexJustify, Icon, Text, Toast,
+    ToastBody, ToastTitle, ToasterInjection,
+};
 
 use super::is_desktop::IsDesktopInjection;
 
@@ -37,6 +40,8 @@ pub fn CopyToClipBoardButton(
     #[prop(default = ButtonSize::Small.into(), into)] size: ButtonSize,
     #[prop(into)] text: Signal<String>,
     #[prop(into)] button_text: Signal<String>,
+    #[prop(into, default=None)] icon: Option<icondata_core::Icon>,
+    #[prop(optional, into)] icon_class: MaybeProp<String>,
 ) -> impl IntoView {
     let is_desktop = IsDesktopInjection::expect_context();
     let copy_to_clipboard_action = Action::new_local(|input: &String| {
@@ -45,7 +50,7 @@ pub fn CopyToClipBoardButton(
     });
 
     let toaster = ToasterInjection::expect_context();
-    let on_copy_to_clipboard_click = move |_| {
+    let on_click = move |_| {
         let text = text.get_untracked();
         copy_to_clipboard_action.dispatch(text.clone());
         if is_desktop.get_untracked() {
@@ -55,15 +60,23 @@ pub fn CopyToClipBoardButton(
             );
         }
     };
-
-    view! {
-        <Button
-            class=class
-            on_click=on_copy_to_clipboard_click
-            appearance=ButtonAppearance::Subtle
-            size=size
-        >
-            {move || button_text.get()}
-        </Button>
+    let appearance = ButtonAppearance::Subtle;
+    move || {
+        if let Some(icon) = icon {
+            view! {
+                <Button class on_click appearance size>
+                    <Flex align=FlexAlign::Center justify=FlexJustify::Center gap=FlexGap::Small>
+                        <Icon icon=icon class=icon_class />
+                        <Text class>{move || button_text.get()}</Text>
+                    </Flex>
+                </Button>
+            }
+        } else {
+            view! {
+                <Button class on_click appearance size>
+                    <Text class>{move || button_text.get()}</Text>
+                </Button>
+            }
+        }
     }
 }

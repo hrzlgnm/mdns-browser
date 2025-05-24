@@ -506,21 +506,14 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
         <GridItem>
             <Card class=card_class>
                 <CardHeader>
-                    <Flex
-                        justify=FlexJustify::FlexStart
-                        align=FlexAlign::Center
-                        gap=FlexGap::Size(0)
-                    >
-                        <Flex vertical=true justify=FlexJustify::SpaceAround gap=FlexGap::Size(0)>
-                            <Icon icon=icondata::MdiCircle class=dead_or_alive_icon_class />
-                        </Flex>
-                        <CopyToClipBoardButton
-                            class=get_class(&is_desktop, "resolved-service-card-title")
-                            size=ButtonSize::Large
-                            text=instance_fullname
-                            button_text=title
-                        />
-                    </Flex>
+                    <CopyToClipBoardButton
+                        class=get_class(&is_desktop, "resolved-service-card-title")
+                        size=ButtonSize::Large
+                        text=instance_fullname
+                        button_text=title
+                        icon=Some(icondata::MdiCircle)
+                        icon_class=dead_or_alive_icon_class
+                    />
                 </CardHeader>
                 <CardPreview>
                     <Table>
@@ -557,10 +550,7 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
                                             <DialogBody class="resolved-service-details-dialog-body">
                                                 <Scrollbar class="resolved-service-details-dialog-scrollarea">
                                                     <Flex vertical=true>
-                                                        <DialogTitle class=get_class(
-                                                            &is_desktop,
-                                                            "resolved-service-details-dialog-title",
-                                                        )>
+                                                        <DialogTitle>
                                                             <Flex
                                                                 justify=FlexJustify::FlexStart
                                                                 align=FlexAlign::Center
@@ -570,7 +560,9 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
                                                                     icon=icondata::MdiCircle
                                                                     class=dead_or_alive_icon_class
                                                                 />
-                                                                {move || title.get()}
+                                                                <Text class="resolved-service-details-dialog-title">
+                                                                    {move || title.get()}
+                                                                </Text>
                                                             </Flex>
                                                         </DialogTitle>
                                                         <ValuesTable values=subtype title="subtype".to_string() />
