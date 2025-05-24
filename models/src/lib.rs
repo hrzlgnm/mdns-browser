@@ -77,6 +77,8 @@ impl ResolvedService {
                 .as_ref()
                 .is_some_and(|sub| sub.to_lowercase().contains(&query))
             || self.txt.iter().any(|txt| txt.matches_query(&query))
+            || (query == "dead" && self.dead)
+            || (query == "alive" && !self.dead)
     }
 }
 
@@ -450,6 +452,10 @@ mod tests {
         // Assert
         assert!(service.dead);
         assert_eq!(service.updated_at_micros, new_updated_at_ms);
+
+        // Assert matches query for dead status
+        assert!(service.matches_query("dead"));
+        assert!(!service.matches_query("alive"));
     }
 
     #[test]
@@ -558,6 +564,10 @@ mod tests {
         assert!(service.matches_query("key"));
         assert!(service.matches_query("value"));
         assert!(!service.matches_query("other-key"));
+
+        // Test for dead status
+        assert!(!service.matches_query("dead"));
+        assert!(service.matches_query("alive"));
     }
 
     #[test]
