@@ -63,7 +63,7 @@ pub fn CopyToClipBoardButton(
             appearance=ButtonAppearance::Subtle
             size=size
         >
-            {button_text.get()}
+            {move || button_text.get()}
         </Button>
     }
 }
