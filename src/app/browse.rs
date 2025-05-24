@@ -508,7 +508,7 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
                 <CardHeader>
                     <Flex
                         justify=FlexJustify::FlexStart
-                        align=FlexAlign::Stretch
+                        align=FlexAlign::Center
                         gap=FlexGap::Size(0)
                     >
                         <Flex vertical=true justify=FlexJustify::SpaceAround gap=FlexGap::Size(0)>
@@ -561,17 +561,15 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
                                                             &is_desktop,
                                                             "resolved-service-details-dialog-title",
                                                         )>
-                                                            <Flex justify=FlexJustify::FlexStart gap=FlexGap::Small>
-                                                                <Flex
-                                                                    vertical=true
-                                                                    justify=FlexJustify::SpaceAround
-                                                                    gap=FlexGap::Size(0)
-                                                                >
-                                                                    <Icon
-                                                                        icon=icondata::MdiCircle
-                                                                        class=dead_or_alive_icon_class
-                                                                    />
-                                                                </Flex>
+                                                            <Flex
+                                                                justify=FlexJustify::FlexStart
+                                                                align=FlexAlign::Center
+                                                                gap=FlexGap::Small
+                                                            >
+                                                                <Icon
+                                                                    icon=icondata::MdiCircle
+                                                                    class=dead_or_alive_icon_class
+                                                                />
                                                                 {move || title.get()}
                                                             </Flex>
                                                         </DialogTitle>
