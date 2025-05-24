@@ -3145,6 +3145,7 @@ dependencies = [
  "console_log",
  "futures",
  "icondata",
+ "icondata_core",
  "js-sys",
  "leptos",
  "log",
