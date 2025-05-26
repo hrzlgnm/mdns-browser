@@ -7,5 +7,6 @@ mod is_desktop;
 mod listen;
 pub mod main;
 mod metrics;
+mod protocol_flags;
 mod theme_switcher;
 mod values_table;
