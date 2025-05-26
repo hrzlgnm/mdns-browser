@@ -174,7 +174,7 @@ pub struct CanBrowseChangedEventRes {
     pub can_browse: bool,
 }
 
-#[derive(Deserialize, Serialize, Clone, Eq, PartialEq, Debug)]
+#[derive(Deserialize, Serialize, Clone, Eq, PartialEq, Debug, Store)]
 pub struct ProtocolFlags {
     pub ipv4: bool,
     pub ipv6: bool,
