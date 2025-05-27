@@ -58,6 +58,7 @@ Usage: mdns-browser [OPTIONS]
 
 Options:
   -l, --log-level <LOG_LEVEL>    [default: info] [possible values: trace, debug, info, warn, error]
+  -D, --enable-devtools          Enable devtools at startup
   -f, --log-to-file              Enable logging to file
   -d, --disable-dmabuf-renderer  Disable dmabuf renderer, useful when having rendering issues
   -h, --help                     Print help
@@ -74,6 +75,12 @@ If enabled, a log file will be created in a platform-specific location:
 - macOS: `~/Library/Logs/com.github.hrzlgnm.mdns-browser`
 
 The log file will be named `mdns-browser.log` and will contain log messages with a log-level having at least a level specified by the `log-level` option.
+
+### enable-devtools
+
+If enabled, the devtools will be open at startup
+
+This option has been added with release [v0.19.0](https://github.com/hrzlgnm/mdns-browser/releases/tag/mdns-browser-v0.19.0)
 
 ### disable-dmabuf-renderer (Linux only)
 
