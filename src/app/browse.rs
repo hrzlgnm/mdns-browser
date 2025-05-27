@@ -103,11 +103,10 @@ async fn listen_for_resolve_events(store: Store<Resolved>) {
         },
         "service-removed",
         move |event: ServiceRemovedEventRes| {
-            if let Some(rs) = store
-                .services()
-                .iter_unkeyed()
-                .find(|rs| rs.read_untracked().instance_fullname == event.instance_name)
-            {
+            if let Some(rs) = store.services().iter_unkeyed().find(|rs| {
+                let rs = rs.read_untracked();
+                rs.instance_fullname == event.instance_name && !rs.dead
+            }) {
                 let mut dead = rs.read().clone();
                 dead.die_at(event.at_micros);
                 *rs.write() = dead;
