@@ -418,7 +418,10 @@ fn ResolvedRow(
 
 /// Component that shows a resolved service reactivly as a card
 #[component]
-fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -> impl IntoView {
+fn ResolvedServiceItem(
+    #[prop(into)] resolved_service: Field<ResolvedService>,
+    #[prop(into)] browsing: Signal<bool>,
+) -> impl IntoView {
     let verify_action = Action::new_local(|instance_fullname: &String| {
         let instance_fullname = instance_fullname.clone();
         async move { verify_instance(instance_fullname.clone()).await }
@@ -502,6 +505,8 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
             "resolved-service-alive".to_string()
         }
     });
+    let cannot_verify = Signal::derive(move || dead.get() || !browsing.get());
+
     view! {
         <GridItem>
             <Card class=card_class>
@@ -581,7 +586,7 @@ fn ResolvedServiceItem(#[prop(into)] resolved_service: Field<ResolvedService>) -
                                             size=ButtonSize::Small
                                             appearance=ButtonAppearance::Primary
                                             on_click=on_verify_click
-                                            disabled=dead
+                                            disabled=cannot_verify
                                             icon=icondata::MdiCheckAll
                                         >
                                             "Verify"
@@ -826,8 +831,8 @@ pub fn Browse() -> impl IntoView {
     };
 
     let on_browse_click = move |_| {
-        use leptos::prelude::GetUntracked;
         clear_tutorial_timer();
+        filtered.services().write().clear();
         store.services().write().clear();
         browsing.set(true);
         let value = service_type.get_untracked();
@@ -966,7 +971,7 @@ pub fn Browse() -> impl IntoView {
                     key=move |row| row.get().instance_fullname
                     let:resolved_service
                 >
-                    <ResolvedServiceItem resolved_service />
+                    <ResolvedServiceItem resolved_service browsing />
                 </For>
             </Grid>
         </Layout>
