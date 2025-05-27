@@ -20,7 +20,7 @@ log = { workspace = true }
 mdns-sd = { version = "0.13.0", features = ["async", "log"] }
 serde = { workspace = true }
 serde_json = "1.0.128"
-tauri = { version = "2.0.0", features = [] }
+tauri = { version = "2.0.0", features = ["devtools"] }
 tauri-plugin-clipboard-manager = "2.0.0"
 tauri-plugin-log = { version = "2.0.0", features = ["colored"] }
 tauri-plugin-opener = "2.2.0"
