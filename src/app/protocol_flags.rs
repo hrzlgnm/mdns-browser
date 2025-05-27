@@ -11,8 +11,7 @@ use crate::app::invoke::invoke_no_args;
 async fn get_protocol_flags(store: Store<ProtocolFlags>) {
     let flags = invoke::<ProtocolFlags>("get_protocol_flags", &()).await;
     log::debug!("get_protocol_flags: {:?}", flags);
-    store.ipv4().set(flags.ipv4);
-    store.ipv6().set(flags.ipv6);
+    store.set(flags);
 }
 
 #[derive(Serialize, Deserialize)]
@@ -48,8 +47,10 @@ pub fn ProtocolFlags(#[prop(optional, into)] disabled: Signal<bool>) -> impl Int
 
     Effect::watch(
         move || protocol_flags.get(),
-        move |protocol_flags, _, _| {
-            set_protocol_flags_action.dispatch(protocol_flags.clone());
+        move |protocol_flags, previous_protocol_flags, _| {
+            if previous_protocol_flags.unwrap_or(&ProtocolFlags::default()) != protocol_flags {
+                set_protocol_flags_action.dispatch(protocol_flags.clone());
+            }
         },
         false,
     );
