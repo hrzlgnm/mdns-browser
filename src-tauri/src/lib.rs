@@ -591,6 +591,13 @@ struct Args {
     )]
     log_level: foreign_crate::LevelFilter,
     #[arg(
+        short = 'D',
+        long,
+        default_value_t = false,
+        help = "Enable devtools at startup"
+    )]
+    enable_devtools: bool,
+    #[arg(
         short = 'f',
         long,
         default_value_t = false,
@@ -787,7 +794,7 @@ pub fn run() {
                 .build(),
         )
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .setup(|app| {
+        .setup(move |app| {
             let splashscreen_window = app
                 .get_webview_window("splashscreen")
                 .expect("Splashscreen window to exist");
@@ -799,8 +806,9 @@ pub fn run() {
                 tokio::time::sleep(SPLASH_SCREEN_DURATION).await;
                 splashscreen_window.close().expect("To close");
                 main_window.show().expect("To show");
-                #[cfg(debug_assertions)]
-                main_window.open_devtools();
+                if args.enable_devtools {
+                    main_window.open_devtools();
+                }
             });
             Ok(())
         })
