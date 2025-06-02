@@ -65,7 +65,6 @@ where
     T: DeserializeOwned + 'static + std::fmt::Debug,
     F: FnMut(T) + 'static,
 {
-    // Convert snake_case to kebab-case
     let event_name_kebab = event_name_snake.replace('_', "-");
     let subscriber = format!("subscribe_{}", event_name_snake);
 

@@ -23,9 +23,9 @@ async fn listen_to_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
 }
 
 /// Component for metrics
-/// Displays a live-updating grid of non-zero metrics received from an asynchronous event source.
+/// Displays a live-updating grid of metrics received from an asynchronous event source.
 ///
-/// The component subscribes to "metrics" events and updates its UI reactively as new metric
+/// The component subscribes to "metrics-changed" events and updates its UI reactively as new metric
 /// contents arrives. Each metric is shown with its name and value in a styled layout.
 /// Metrics with a value of zero are filtered out from the display.
 #[component]
