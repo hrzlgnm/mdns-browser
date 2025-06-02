@@ -19,7 +19,28 @@ use tauri_sys::event::listen;
 /// * `F` - The type of the closure that processes events
 ///
 /// # Errors
-/// Logs an error and returns early if event subscription fails.
+/// Listens for events of a specified type and processes each event using a provided closure.
+///
+/// Subscribes to an event stream with the given event name. If a subscriber command is provided, it is invoked before processing events. Each received event payload is passed to the `process_event` closure. If event subscription fails, logs an error and returns early.
+///
+/// # Type Parameters
+/// - `T`: The type of the event payload, which must implement `DeserializeOwned` and `Debug`.
+/// - `F`: The closure type that processes each event payload.
+///
+/// # Examples
+///
+/// ```
+/// use serde::Deserialize;
+///
+/// #[derive(Debug, Deserialize)]
+/// struct MyEvent { value: i32 }
+///
+/// listen_events::<MyEvent, _>(
+///     Some("subscribe_my_event"),
+///     "my-event-changed",
+///     |payload| println!("Received: {:?}", payload)
+/// ).await;
+/// ```
 pub(crate) async fn listen_events<T, F>(
     subscriber: Option<impl Into<String>>,
     event_name: &str,
@@ -50,6 +71,18 @@ pub(crate) async fn listen_events<T, F>(
     }
 }
 
+/// Listens for events with a given snake_case name, converting it to kebab-case and subscribing to the corresponding event stream.
+///
+/// Converts the provided snake_case event name to kebab-case, constructs a subscriber command, and listens for events with the `-changed` suffix. Invokes the provided closure for each received event payload.
+///
+/// # Examples
+///
+/// ```
+/// // Listens for "user_profile-changed" events and prints the payload.
+/// listen_to_named_event::<MyEventType, _>("user_profile", |payload| {
+///     println!("{:?}", payload);
+/// }).await;
+/// ```
 pub(crate) async fn listen_to_named_event<T, F>(event_name_snake: &str, process_event: F)
 where
     T: DeserializeOwned + 'static + std::fmt::Debug,
@@ -86,7 +119,38 @@ where
 /// * `FR` - The type of the closure that processes removal events
 ///
 /// # Errors
-/// Logs an error and returns early if subscription to either event stream fails.
+/// Listens concurrently for addition and removal events, invoking handlers for each event type.
+///
+/// Subscribes to two event streams—one for additions and one for removals—using the provided event names. If a subscriber command is specified, it is invoked before processing events. For each received event, the corresponding handler closure is called with the event payload. The function returns when both event streams are closed.
+///
+/// # Parameters
+/// - `subscriber`: Optional command to invoke before processing events.
+/// - `added_event_name`: Name of the event stream for additions.
+/// - `process_added`: Closure to handle addition event payloads.
+/// - `removed_event_name`: Name of the event stream for removals.
+/// - `process_removed`: Closure to handle removal event payloads.
+///
+/// # Examples
+///
+/// ```
+/// use serde::Deserialize;
+///
+/// #[derive(Debug, Deserialize)]
+/// struct ItemAdded { id: u32 }
+///
+/// #[derive(Debug, Deserialize)]
+/// struct ItemRemoved { id: u32 }
+///
+/// async fn example() {
+///     listen_add_remove(
+///         Some("subscribe_items"),
+///         "item-added",
+///         |added: ItemAdded| println!("Added: {:?}", added),
+///         "item-removed",
+///         |removed: ItemRemoved| println!("Removed: {:?}", removed),
+///     ).await;
+/// }
+/// ```
 pub(crate) async fn listen_add_remove<A, R, FA, FR>(
     subscriber: Option<impl Into<String>>,
     added_event_name: &str,

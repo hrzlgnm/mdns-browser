@@ -27,6 +27,9 @@ use super::{
     values_table::ValuesTable,
 };
 
+/// Listens for service type addition and removal events and updates the provided signal accordingly.
+///
+/// Subscribes to `"service-type-found"` and `"service-type-removed"` events, updating the set of service types in the signal. Ensures the list remains unique and sorted after additions, and removes service types when they are no longer available.
 async fn listen_to_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
     listen_add_remove(
         Some("browse-types"),
@@ -49,6 +52,9 @@ async fn listen_to_service_type_events(event_writer: WriteSignal<ServiceTypes>) 
     .await;
 }
 
+/// Subscribes to "can_browse" events and updates the browsing capability signal accordingly.
+///
+/// Updates the provided signal whenever a "can_browse" event is received, reflecting whether browsing is currently allowed.
 async fn listen_to_can_browse_events(event_writer: WriteSignal<bool>) {
     listen_to_named_event("can_browse", move |event: CanBrowseChangedEventRes| {
         event_writer.update(|evt| *evt = event.can_browse);
@@ -80,6 +86,17 @@ fn to_local_timestamp(timestamp_micros: u64) -> String {
         .unwrap_or_else(|| "Invalid timestamp".to_string())
 }
 
+/// Listens for service resolution and removal events, updating the resolved services store accordingly.
+///
+/// On receiving a `"service-resolved"` event, updates or inserts the resolved service and reapplies sorting.  
+/// On receiving a `"service-removed"` event, marks the corresponding service as dead with a timestamp and reapplies sorting.
+///
+/// # Examples
+///
+/// ```
+/// // Usage within an async context:
+/// listen_for_resolve_events(store).await;
+/// ```
 async fn listen_for_resolve_events(store: Store<Resolved>) {
     listen_add_remove(
         None::<String>,
@@ -711,6 +728,18 @@ fn apply_sort_kind(store: Store<Resolved>, sort_kind: &SortKind) {
 /// // Integrate `view` into your Leptos application layout as needed.
 /// ```
 #[component]
+/// Renders the main network service browsing interface with filtering, sorting, and interactive controls.
+///
+/// Displays a UI for discovering, filtering, and interacting with network services. Handles browsing state, service type selection, sorting, and quick filtering. Reactively updates the list of resolved services based on network events and user actions. Provides controls to start/stop browsing, select service types, and view service details. Shows network status and adapts layout for desktop or mobile environments.
+///
+/// # Examples
+///
+/// ```
+/// // In a Leptos app, include the Browse component in your view hierarchy:
+/// view! {
+///     <Browse />
+/// }
+/// ```
 pub fn Browse() -> impl IntoView {
     // Stop any previously started browsing, to ensure we not browsing after a frontend reload
     spawn_local(stop_browse());
