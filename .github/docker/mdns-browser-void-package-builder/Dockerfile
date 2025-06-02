@@ -1,4 +1,4 @@
-FROM ghcr.io/void-linux/void-glibc@sha256:6ddd6c7cab4e4ec305d4df2339cf32e8d4bd53e7ee3bb00e2ce31beaad74d9ab
+FROM ghcr.io/void-linux/void-glibc@sha256:2a4a2c1a9b2df5083c254a6800a2ccce03326fea001cbb6c8fcb22631da035fe
 RUN xbps-install -Syu || xbps-install -yu xbps \
     && xbps-install -yu \
     && xbps-install -y bash git rustup base-devel curl jq util-linux coreutils binutils bsdtar findutils \
