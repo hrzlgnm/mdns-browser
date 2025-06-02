@@ -5,19 +5,15 @@ use thaw::{
     Layout, Text, TextTag,
 };
 
-use super::listen::listen_events;
+use super::listen::listen_to_named_event;
 
-async fn listen_for_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
-    listen_events(
-        "metrics",
-        Some("subscribe_metrics"),
-        move |event: MetricsEventRes| {
-            event_writer.update(|evts| {
-                *evts = event.metrics.into_iter().collect::<Vec<_>>();
-                evts.sort_by(|a, b| a.0.cmp(&b.0));
-            });
-        },
-    )
+async fn listen_to_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
+    listen_to_named_event("metrics", move |event: MetricsEventRes| {
+        event_writer.update(|evts| {
+            *evts = event.metrics.into_iter().collect::<Vec<_>>();
+            evts.sort_by(|a, b| a.0.cmp(&b.0));
+        });
+    })
     .await;
 }
 
@@ -25,7 +21,7 @@ async fn listen_for_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
 #[component]
 pub fn Metrics() -> impl IntoView {
     let metrics = RwSignal::new(Vec::new());
-    LocalResource::new(move || listen_for_metrics_event(metrics));
+    LocalResource::new(move || listen_to_metrics_event(metrics));
     view! {
         <Layout class="metrics-layout">
             <Accordion multiple=true>

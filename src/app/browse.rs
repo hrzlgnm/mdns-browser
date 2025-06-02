@@ -22,13 +22,14 @@ use super::{
     css::get_class,
     invoke::invoke_no_args,
     is_desktop::IsDesktopInjection,
-    listen::{listen_add_remove, listen_events},
+    listen::{listen_add_remove, listen_to_named_event},
     protocol_flags::ProtocolFlags,
     values_table::ValuesTable,
 };
 
-async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
+async fn listen_to_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
     listen_add_remove(
+        Some("browse-types"),
         "service-type-found",
         move |event: ServiceTypeFoundEventRes| {
             let mut set = HashSet::new();
@@ -46,17 +47,12 @@ async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>)
         },
     )
     .await;
-    spawn_local(invoke_no_args("browse_types"));
 }
 
-async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
-    listen_events(
-        "can-browse-changed",
-        Some("subscribe_can_browse"),
-        move |event: CanBrowseChangedEventRes| {
-            event_writer.update(|evt| *evt = event.can_browse);
-        },
-    )
+async fn listen_to_can_browse_events(event_writer: WriteSignal<bool>) {
+    listen_to_named_event("can_browse", move |event: CanBrowseChangedEventRes| {
+        event_writer.update(|evt| *evt = event.can_browse);
+    })
     .await;
 }
 
@@ -86,6 +82,7 @@ fn to_local_timestamp(timestamp_micros: u64) -> String {
 
 async fn listen_for_resolve_events(store: Store<Resolved>) {
     listen_add_remove(
+        None::<String>,
         "service-resolved",
         move |event: ServiceResolvedEventRes| {
             store
@@ -721,8 +718,8 @@ pub fn Browse() -> impl IntoView {
     let (can_browse, set_can_browse) = signal(false);
     let (service_types, set_service_types) = signal(ServiceTypes::new());
     provide_context(ServiceTypesInjection(service_types));
-    LocalResource::new(move || listen_for_service_type_events(set_service_types));
-    LocalResource::new(move || listen_for_can_browse_change_events(set_can_browse));
+    LocalResource::new(move || listen_to_service_type_events(set_service_types));
+    LocalResource::new(move || listen_to_can_browse_events(set_can_browse));
     let store = Store::new(Resolved::default());
     let filtered = Store::new(Filtered::default());
 

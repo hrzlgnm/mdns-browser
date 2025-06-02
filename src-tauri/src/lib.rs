@@ -369,7 +369,7 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
                             }
                             emit_event(
                                 &window,
-                                "metrics",
+                                "metrics-changed",
                                 &MetricsEvent {
                                     metrics: metrics.clone(),
                                 },
