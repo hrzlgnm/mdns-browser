@@ -4,24 +4,12 @@ use leptos::task::spawn_local;
 use serde::de::DeserializeOwned;
 use tauri_sys::event::listen;
 
-/// Listens for events of type `T` and processes them using the provided closure.
-///
-/// This function subscribes to events of the specified name, invokes a subscriber command,
-/// and then continuously processes incoming events with the provided callback function.
-///
-/// # Parameters
-/// * `subscriber` - Optional name of the command to invoke for subscription
-/// * `event_name` - The name of the event to listen for
-/// * `process_event` - Closure that will be called for each received event
-///
-/// # Type Parameters
-/// * `T` - The type of the event payload, must implement `DeserializeOwned` and `Debug`
-/// * `F` - The type of the closure that processes events
-///
-/// # Errors
 /// Listens for events of a specified type and processes each event using a provided closure.
 ///
-/// Subscribes to an event stream with the given event name. If a subscriber command is provided, it is invoked before processing events. Each received event payload is passed to the `process_event` closure. If event subscription fails, logs an error and returns early.
+/// Subscribes to an event stream with the given event name. If a subscriber command is provided,
+/// it is invoked before processing events.
+/// Each received event payload is passed to the `process_event` closure.
+/// If event subscription fails, logs an error and returns early.
 ///
 /// # Type Parameters
 /// - `T`: The type of the event payload, which must implement `DeserializeOwned` and `Debug`.
@@ -71,18 +59,7 @@ pub(crate) async fn listen_events<T, F>(
     }
 }
 
-/// Listens for events with a given snake_case name, converting it to kebab-case and subscribing to the corresponding event stream.
-///
-/// Converts the provided snake_case event name to kebab-case, constructs a subscriber command, and listens for events with the `-changed` suffix. Invokes the provided closure for each received event payload.
-///
-/// # Examples
-///
-/// ```
-/// // Listens for "user_profile-changed" events and prints the payload.
-/// listen_to_named_event::<MyEventType, _>("user_profile", |payload| {
-///     println!("{:?}", payload);
-/// }).await;
-/// ```
+/// Listens for events with a given snake_case name, subscribing to the corresponding event stream.
 pub(crate) async fn listen_to_named_event<T, F>(event_name_snake: &str, process_event: F)
 where
     T: DeserializeOwned + 'static + std::fmt::Debug,
@@ -100,28 +77,13 @@ where
     .await;
 }
 
-/// Concurrently listens for two related event types (added and removed) and processes them with separate handlers.
-///
-/// This function subscribes to two event streams and uses `futures::select!` to handle events from either stream.
-/// It's particularly useful for handling paired events like item addition and removal.
-///
-/// # Parameters
-/// * `subscriber` - Optional name of the command to invoke for subscription
-/// * `added_event_name` - The name of the event for additions
-/// * `process_added` - Closure that will be called for each addition event
-/// * `removed_event_name` - The name of the event for removals
-/// * `process_removed` - Closure that will be called for each removal event
-///
-/// # Type Parameters
-/// * `A` - The type of the addition event payload, must implement `DeserializeOwned` and `Debug`
-/// * `R` - The type of the removal event payload, must implement `DeserializeOwned` and `Debug`
-/// * `FA` - The type of the closure that processes addition events
-/// * `FR` - The type of the closure that processes removal events
-///
-/// # Errors
 /// Listens concurrently for addition and removal events, invoking handlers for each event type.
 ///
-/// Subscribes to two event streams—one for additions and one for removals—using the provided event names. If a subscriber command is specified, it is invoked before processing events. For each received event, the corresponding handler closure is called with the event payload. The function returns when both event streams are closed.
+/// Subscribes to two event streams — one for additions and one for removals — using the
+/// provided event names.
+/// If a subscriber command is specified, it is invoked before processing events.
+/// For each received event, the corresponding handler closure is called with the event payload.
+/// The function returns when both event streams are closed.
 ///
 /// # Parameters
 /// - `subscriber`: Optional command to invoke before processing events.

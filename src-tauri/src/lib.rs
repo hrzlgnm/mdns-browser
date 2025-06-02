@@ -352,7 +352,9 @@ fn subscribe_can_browse(window: Window, state: State<ManagedState>) {
 #[tauri::command]
 /// Subscribes to periodic mDNS daemon metrics updates and emits changes to the frontend.
 ///
-/// Starts a background task that polls the mDNS daemon for metrics at regular intervals. When metrics data changes, emits a `"metrics-changed"` event to the Tauri window. Ensures only one subscription is active at a time for the application window.
+/// Starts a background task that polls the mDNS daemon for metrics at regular intervals.
+/// When metrics contents changes, emits a `"metrics-changed"` event to the Tauri window.
+/// Ensures only one subscription is active at a time for the application window.
 fn subscribe_metrics(window: Window, state: State<ManagedState>) {
     // Avoid multiple subscriptions when the frontend is reloaded.
     if state
