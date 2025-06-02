@@ -105,7 +105,10 @@ pub fn About() -> impl IntoView {
         ));
     };
     let on_report_issue_click = move |_| {
-        github_action.dispatch(format!("{}/issues/new", GITHUB_BASE_URL));
+        github_action.dispatch(format!(
+            "{}/issues/new?template=bug_report.yml",
+            GITHUB_BASE_URL
+        ));
     };
     let on_releases_click = move |_| {
         github_action.dispatch(format!("{}/releases/", GITHUB_BASE_URL));
