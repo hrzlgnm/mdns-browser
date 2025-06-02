@@ -33,7 +33,8 @@ pub fn create_clipboard_toast(text: &str) -> impl IntoView {
     }
 }
 
-/// Component that allows to copy the shown text as a outlined button, a button click copies the text  to the clipboard
+/// Component that allows to copy the shown text as a outlined button,
+/// a button click copies the text to the clipboard
 #[component]
 pub fn CopyToClipBoardButton(
     #[prop(optional, into)] class: MaybeProp<String>,
