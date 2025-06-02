@@ -23,6 +23,14 @@ pub async fn copy_to_clipboard(contents: String) {
     .await;
 }
 
+/// Creates a toast notification indicating that the specified text was copied to the clipboard.
+///
+/// # Examples
+///
+/// ```
+/// let toast = create_clipboard_toast("example text");
+/// // Renders a toast with the message: "Copied `example text` to clipboard"
+/// ```
 pub fn create_clipboard_toast(text: &str) -> impl IntoView {
     let text = text.to_string();
     view! {
@@ -33,7 +41,8 @@ pub fn create_clipboard_toast(text: &str) -> impl IntoView {
     }
 }
 
-/// Component that allows to copy the shown text as a outlined button, a button click copies the text  to the clipboard
+/// Component that allows to copy the shown text as a outlined button with an optional icon.
+/// A button click copies the text to the clipboard
 #[component]
 pub fn CopyToClipBoardButton(
     #[prop(optional, into)] class: MaybeProp<String>,

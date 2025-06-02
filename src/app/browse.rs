@@ -22,17 +22,23 @@ use super::{
     css::get_class,
     invoke::invoke_no_args,
     is_desktop::IsDesktopInjection,
-    listen::{listen_add_remove, listen_events},
+    listen::{listen_add_remove, listen_to_named_event},
     protocol_flags::ProtocolFlags,
     values_table::ValuesTable,
 };
 
-async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>) {
+/// Listens for service type addition and removal events and updates the provided signal accordingly.
+///
+/// Subscribes to `"service-type-found"` and `"service-type-removed"` events, updating the set of
+/// service types in the signal. Ensures the list remains unique and sorted after additions, and
+/// removes service types when they are no longer available.
+async fn listen_to_service_type_events(writer: WriteSignal<ServiceTypes>) {
     listen_add_remove(
+        Some("browse-types"),
         "service-type-found",
         move |event: ServiceTypeFoundEventRes| {
             let mut set = HashSet::new();
-            event_writer.update(|sts| {
+            writer.update(|sts| {
                 sts.push(event.service_type);
                 sts.retain(|st| set.insert(st.clone()));
                 sts.sort();
@@ -40,23 +46,22 @@ async fn listen_for_service_type_events(event_writer: WriteSignal<ServiceTypes>)
         },
         "service-type-removed",
         move |event: ServiceTypeRemovedEventRes| {
-            event_writer.update(|evts| {
+            writer.update(|evts| {
                 evts.retain(|st| st != &event.service_type);
             });
         },
     )
     .await;
-    spawn_local(invoke_no_args("browse_types"));
 }
 
-async fn listen_for_can_browse_change_events(event_writer: WriteSignal<bool>) {
-    listen_events(
-        "can-browse-changed",
-        Some("subscribe_can_browse"),
-        move |event: CanBrowseChangedEventRes| {
-            event_writer.update(|evt| *evt = event.can_browse);
-        },
-    )
+/// Subscribes to "can_browse" events and updates the browsing capability signal accordingly.
+///
+/// Updates the provided signal whenever a "can_browse" event is received,
+/// reflecting whether browsing is currently allowed.
+async fn listen_to_can_browse_events(writer: WriteSignal<bool>) {
+    listen_to_named_event("can_browse", move |event: CanBrowseChangedEventRes| {
+        writer.update(|evt| *evt = event.can_browse);
+    })
     .await;
 }
 
@@ -84,8 +89,15 @@ fn to_local_timestamp(timestamp_micros: u64) -> String {
         .unwrap_or_else(|| "Invalid timestamp".to_string())
 }
 
+/// Listens for service resolution and removal events, updating the store accordingly.
+///
+/// On receiving a `"service-resolved"` event, updates or inserts the resolved service and
+/// reapplies sorting.
+/// On receiving a `"service-removed"` event, marks the corresponding service as dead
+/// with a timestamp and reapplies sorting.
 async fn listen_for_resolve_events(store: Store<Resolved>) {
     listen_add_remove(
+        None::<String>,
         "service-resolved",
         move |event: ServiceResolvedEventRes| {
             store
@@ -699,19 +711,20 @@ fn apply_sort_kind(store: Store<Resolved>, sort_kind: &SortKind) {
     }
 }
 
-/// Renders the main browsing interface for network services.
+/// Renders the main service browsing interface with filtering, sorting, and interactive controls.
 ///
-/// This component sets up reactive state and event listeners to manage service discovery and browsing.
-/// It initializes signals for service types, resolved services, sorting order, and query filtering, and
-/// provides UI controls including an autocomplete input, browse/stop buttons, and sorting options. The view
-/// automatically updates as services are discovered, sorted, and filtered, offering a dynamic user interface.
+/// Displays a UI for discovering, filtering, and interacting with network services.
+/// Handles browsing state, service type selection, sorting, and quick filtering.
+/// Reactively updates the list of resolved services based on network events and user actions.
+/// Provides controls to start/stop browsing, select service types, and view service details.
 ///
 /// # Examples
 ///
 /// ```
-/// // Create the browsing component view.
-/// let view = Browse();
-/// // Integrate `view` into your Leptos application layout as needed.
+/// // In a Leptos app, include the Browse component in your view hierarchy:
+/// view! {
+///     <Browse />
+/// }
 /// ```
 #[component]
 pub fn Browse() -> impl IntoView {
@@ -721,8 +734,8 @@ pub fn Browse() -> impl IntoView {
     let (can_browse, set_can_browse) = signal(false);
     let (service_types, set_service_types) = signal(ServiceTypes::new());
     provide_context(ServiceTypesInjection(service_types));
-    LocalResource::new(move || listen_for_service_type_events(set_service_types));
-    LocalResource::new(move || listen_for_can_browse_change_events(set_can_browse));
+    LocalResource::new(move || listen_to_service_type_events(set_service_types));
+    LocalResource::new(move || listen_to_can_browse_events(set_can_browse));
     let store = Store::new(Resolved::default());
     let filtered = Store::new(Filtered::default());
 
