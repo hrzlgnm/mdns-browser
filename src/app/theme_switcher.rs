@@ -5,13 +5,6 @@ use thaw::{Icon, Theme};
 
 use super::listen::listen_events;
 
-/// A Leptos UI component that displays a theme toggle button and manages theme switching.
-///
-/// Initializes the theme state by fetching the current theme asynchronously and listens for
-/// theme change events to keep the UI in sync. Clicking the button toggles between light and
-/// dark themes, updating the provided reactive signal accordingly.
-/// The button icon reflects the current theme.
-#[component]
 /// A Leptos UI component that displays a theme toggle button and synchronizes with system theme changes.
 ///
 /// Initializes the theme state by fetching the current theme asynchronously and listens for `"theme-changed"` events to keep the UI in sync. Renders an icon button that toggles between light and dark themes when clicked, updating the provided reactive theme signal.
@@ -21,15 +14,7 @@ use super::listen::listen_events;
 ///
 /// # Returns
 /// A view containing the theme switcher button.
-///
-/// # Examples
-///
-/// ```
-/// use leptos::*;
-/// let theme = create_rw_signal(Theme::light());
-/// let view = ThemeSwitcher(theme);
-/// // Renders a button that toggles the theme and updates `theme` accordingly.
-/// ```
+#[component]
 pub fn ThemeSwitcher(theme: RwSignal<Theme>) -> impl IntoView {
     LocalResource::new(move || async move {
         let theme_str = invoke::<String>("theme", &()).await;
