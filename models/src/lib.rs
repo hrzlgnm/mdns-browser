@@ -131,13 +131,8 @@ fn byte_array_hexlified(byte_array: &[u8]) -> String {
         .join("")
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct MetricsEvent {
-    pub metrics: HashMap<String, i64>,
-}
-
 #[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug)]
-pub struct MetricsEventRes {
+pub struct MetricsChangedEvent {
     pub metrics: HashMap<String, i64>,
 }
 
@@ -147,21 +142,11 @@ pub struct ServiceResolvedEvent {
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct ServiceResolvedEventRes {
-    pub service: ResolvedService,
-}
-
-#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct ServiceTypeFoundEvent {
     pub service_type: String,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct ServiceTypeFoundEventRes {
-    pub service_type: String,
-}
 pub type ServiceTypeRemovedEvent = ServiceTypeFoundEvent;
-pub type ServiceTypeRemovedEventRes = ServiceTypeFoundEventRes;
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct ServiceRemovedEvent {
@@ -169,20 +154,14 @@ pub struct ServiceRemovedEvent {
     #[serde(with = "serde_with::As::<serde_with::DisplayFromStr>")]
     pub at_micros: u64,
 }
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct ServiceRemovedEventRes {
-    pub instance_name: String,
-    #[serde(with = "serde_with::As::<serde_with::DisplayFromStr>")]
-    pub at_micros: u64,
-}
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct ThemeChangedEventRes {
+pub struct ThemeChangedEvent {
     pub theme: String,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct CanBrowseChangedEventRes {
+pub struct CanBrowseChangedEvent {
     pub can_browse: bool,
 }
 

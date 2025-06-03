@@ -310,7 +310,7 @@ async fn poll_can_browse(window: Window) {
     emit_event(
         &window,
         "can-browse-changed",
-        &CanBrowseChangedEventRes {
+        &CanBrowseChangedEvent {
             can_browse: current,
         },
     );
@@ -322,7 +322,7 @@ async fn poll_can_browse(window: Window) {
             emit_event(
                 &window,
                 "can-browse-changed",
-                &CanBrowseChangedEventRes {
+                &CanBrowseChangedEvent {
                     can_browse: current,
                 },
             );
@@ -342,7 +342,7 @@ fn subscribe_can_browse(window: Window, state: State<ManagedState>) {
         emit_event(
             &window,
             "can-browse-changed",
-            &CanBrowseChangedEventRes {
+            &CanBrowseChangedEvent {
                 can_browse: has_mdns_capable_interfaces(),
             },
         );
@@ -375,7 +375,7 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
                             emit_event(
                                 &window,
                                 "metrics-changed",
-                                &MetricsEvent {
+                                &MetricsChangedEvent {
                                     metrics: metrics.clone(),
                                 },
                             );

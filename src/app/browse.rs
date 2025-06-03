@@ -52,7 +52,7 @@ async fn listen_to_service_type_events(writer: WriteSignal<ServiceTypes>) {
     listen_add_remove(
         browse_types,
         "service-type-found",
-        move |event: ServiceTypeFoundEventRes| {
+        move |event: ServiceTypeFoundEvent| {
             let mut set = HashSet::new();
             writer.update(|sts| {
                 sts.push(event.service_type);
@@ -61,7 +61,7 @@ async fn listen_to_service_type_events(writer: WriteSignal<ServiceTypes>) {
             });
         },
         "service-type-removed",
-        move |event: ServiceTypeRemovedEventRes| {
+        move |event: ServiceTypeRemovedEvent| {
             writer.update(|evts| {
                 evts.retain(|st| st != &event.service_type);
             });
@@ -75,7 +75,7 @@ async fn listen_to_service_type_events(writer: WriteSignal<ServiceTypes>) {
 /// Updates the provided signal whenever a "can_browse" event is received,
 /// reflecting whether browsing is currently allowed.
 async fn listen_to_can_browse_events(writer: WriteSignal<bool>) {
-    listen_to_named_event("can_browse", move |event: CanBrowseChangedEventRes| {
+    listen_to_named_event("can_browse", move |event: CanBrowseChangedEvent| {
         writer.update(|evt| *evt = event.can_browse);
     })
     .await;
@@ -118,7 +118,7 @@ async fn listen_for_resolve_events(store: Store<Resolved>) {
     listen_add_remove(
         async || {},
         "service-resolved",
-        move |event: ServiceResolvedEventRes| {
+        move |event: ServiceResolvedEvent| {
             store
                 .services()
                 .iter_unkeyed()
@@ -136,7 +136,7 @@ async fn listen_for_resolve_events(store: Store<Resolved>) {
             apply_sort_kind(store, &store.sort_by().get_untracked());
         },
         "service-removed",
-        move |event: ServiceRemovedEventRes| {
+        move |event: ServiceRemovedEvent| {
             if let Some(rs) = store.services().iter_unkeyed().find(|rs| {
                 let rs = rs.read_untracked();
                 rs.instance_fullname == event.instance_name && !rs.dead
