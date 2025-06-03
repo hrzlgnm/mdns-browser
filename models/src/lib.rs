@@ -60,14 +60,15 @@ impl ResolvedService {
     }
 
     pub fn matches_except_updated_at(&self, other: &Self) -> bool {
-        self.instance_fullname == other.instance_fullname
-            && self.service_type == other.service_type
-            && self.hostname == other.hostname
-            && self.port == other.port
-            && self.addresses == other.addresses
-            && self.subtype == other.subtype
-            && self.txt == other.txt
-            && self.dead == other.dead
+        let self_normalized = ResolvedService {
+            updated_at_micros: 0,
+            ..self.clone()
+        };
+        let other_normalized = ResolvedService {
+            updated_at_micros: 0,
+            ..other.clone()
+        };
+        self_normalized == other_normalized
     }
 
     pub fn matches_query(&self, query: &str) -> bool {
