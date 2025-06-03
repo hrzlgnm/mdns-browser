@@ -6,11 +6,11 @@ authors = ["hrzlgnm"]
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "2.2.0", features = [] }
+tauri-build = { version = "2.2", features = [] }
 
 [target.'cfg(not(any(target_os="android",target_os="ios")))'.dependencies]
-clap = { version = "4.5.19", features = ["derive"] }
-tauri-plugin-updater = "2.0.1"
+clap = { version = "4.5", features = ["derive"] }
+tauri-plugin-updater = "2.0"
 thiserror = { workspace = true }
 chrono = { workspace = true }
 
