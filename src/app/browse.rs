@@ -29,7 +29,7 @@ use super::{
 
 /// Initiates browsing for available network service types asynchronously.
 ///
-/// Invokes the `"browse-types"` command to start discovering service types on the network.
+/// Invokes the `"browse_types"` command to start discovering service types on the network.
 /// Intended for use within the service browsing UI and related event listeners.
 ///
 /// # Examples
