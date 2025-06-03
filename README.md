@@ -36,16 +36,18 @@ Screenshots from [v0.11.28](https://github.com/hrzlgnm/mdns-browser/releases/tag
 <!--toc:start-->
 
 - [mDNS-Browser Overview](#mdns-browser)
-  - [How to Build](#building)
-  - [Command line options](#command-line-options)
-  - [Where to find the executables?](#where-to-find-the-executables)
-    - [GitHub Release](#github-releases)
-    - [Winget Installation](#winget-installation)
-    - [Arch Linux (AUR)](#arch-linux-aur)
-    - [Void Linux](#void-linux)
-  - [Privacy](#privacy)
-  - [Acknowledgments](#acknowledgments)
-  <!--toc:end-->
+    - [How to Build](#building)
+    - [Command line options](#command-line-options)
+    - [Where to find the executables?](#where-to-find-the-executables)
+        - [GitHub Release](#github-releases)
+        - [Winget Installation](#winget-installation)
+        - [Arch Linux (AUR)](#arch-linux-aur)
+        - [Void Linux](#void-linux)
+    - [Auditable binaries](#auditable-binaries)
+    - [Attested build artifacts](#attested-build-artifacts)
+    - [Privacy](#privacy)
+    - [Acknowledgments](#acknowledgments)
+      <!--toc:end-->
 
 ## Building
 
@@ -144,6 +146,19 @@ sudo xbps-install -S mdns-browser
 ```
 
 During installation, you will be prompted to accept a public key signed by `hrzlgnm@users.noreply.github.com`. The repository and package are signed with a key having the fingerprint: `64:6d:b9:23:3d:ad:9d:f1:b0:fe:64:8e:da:46:57:d3`.
+
+## Auditable binaries
+
+The binaries built for desktop targets are now all build in auditable mode using [cargo-auditable](https://github.com/rust-secure-code/cargo-auditable?tab=readme-ov-file#cargo-auditable).
+For information on how to audit the binaries see [Usage](https://github.com/rust-secure-code/cargo-auditable?tab=readme-ov-file#usage)
+
+Since release v0.8.x
+
+## Attested build artifacts
+
+The build artifacts are now attested. Attestations information about the binaries is available [here](https://github.com/hrzlgnm/mdns-browser/attestations). For more information and details on how to verify those, see [Verifying artifact attestations with the GitHub CLI](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds#verifying-artifact-attestations-with-the-github-cli)
+
+Since release v0.8.x
 
 ## Privacy
 
