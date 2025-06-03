@@ -19,7 +19,7 @@
     ],
     prConcurrentLimit: 0,
     lockFileMaintenance: {
-        enabled: false,
+        enabled: true,
         schedule: ["on the first day of the month"],
     },
     customManagers: [
