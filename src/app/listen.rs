@@ -64,7 +64,7 @@ pub(crate) async fn listen_add_remove<A, R, FA, FR, S, Fut>(
     FA: FnMut(A) + 'static,
     FR: FnMut(R) + 'static,
     S: FnOnce() -> Fut,
-    Fut: Future<Output = ()>,
+    Fut: Future<Output = ()> + 'static,
 {
     let mut added_fused = match listen::<A>(added_event_name).await {
         Ok(added) => added.fuse(),
