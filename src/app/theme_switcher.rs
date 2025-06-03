@@ -18,7 +18,7 @@ pub fn ThemeSwitcher(theme: RwSignal<Theme>) -> impl IntoView {
         log::debug!("Got theme: {:?}", theme_str);
         theme.update(|v| *v = Theme::from(theme_str));
 
-        listen_events::<_, _, _, _>(
+        listen_events(
             async || {},
             "theme-changed",
             move |event: ThemeChangedEventRes| {
