@@ -8,6 +8,17 @@ use thaw::{Checkbox, Flex, FlexAlign, FlexGap, FlexJustify};
 
 use super::browse::browse_types;
 
+/// Asynchronously fetches the current protocol flags from the backend and updates the provided reactive store.
+///
+/// This function invokes the Tauri command `"get_protocol_flags"` to retrieve the latest protocol flags and sets the result in the given store.
+///
+/// # Examples
+///
+/// ```
+/// let store = Store::new(ProtocolFlags::default());
+/// get_protocol_flags(store).await;
+/// // The store now contains the updated protocol flags.
+/// ```
 async fn get_protocol_flags(store: Store<ProtocolFlags>) {
     let flags = invoke::<ProtocolFlags>("get_protocol_flags", &()).await;
     log::debug!("get_protocol_flags: {:?}", flags);
@@ -24,6 +35,20 @@ async fn update_protocol_flags(flags: ProtocolFlags) {
 }
 
 #[component]
+/// A Leptos UI component for displaying and updating IPv4 and IPv6 protocol flags.
+///
+/// Renders two checkboxes for toggling IPv4 and IPv6 protocol support, synchronizing their state with a reactive store and backend via Tauri commands. The component visually disables interaction when the optional `disabled` signal is true.
+///
+/// # Parameters
+/// - `disabled`: An optional reactive signal that, when true, applies a visual "disabled" style to the checkboxes.
+///
+/// # Examples
+///
+/// ```
+/// use leptos::*;
+/// let disabled = create_signal(false);
+/// let view = ProtocolFlags(disabled);
+/// ```
 pub fn ProtocolFlags(#[prop(optional, into)] disabled: Signal<bool>) -> impl IntoView {
     let protocol_flags = Store::new(ProtocolFlags::default());
     LocalResource::new(move || get_protocol_flags(protocol_flags));
