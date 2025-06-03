@@ -108,8 +108,7 @@ fn to_local_timestamp(timestamp_micros: u64) -> String {
 /// Listens for service resolution and removal events, updating the store accordingly.
 ///
 /// On receiving a `"service-resolved"` event, updates or inserts the resolved service and
-/// reapplies sorting.
-/// On receiving a `"service-removed"` event, marks the corresponding service as dead
+/// reapplies sorting.  On receiving a `"service-removed"` event, marks the corresponding service as dead
 /// Listens for service resolution and removal events, updating the resolved services store accordingly.
 ///
 /// On receiving a service resolution event, updates or inserts the resolved service and reapplies sorting.
@@ -125,7 +124,10 @@ async fn listen_for_resolve_events(store: Store<Resolved>) {
                 .iter_unkeyed()
                 .find(|rs| rs.read_untracked().instance_fullname == event.service.instance_fullname)
                 .map(|rs| {
-                    *rs.write() = event.service.clone();
+                    // Only update if fields other than timestamp have changed
+                    if !rs.read().matches_except_updated_at(&event.service) {
+                        *rs.write() = event.service.clone();
+                    }
                 })
                 .unwrap_or_else(|| {
                     store.services().write().push(event.service.clone());
