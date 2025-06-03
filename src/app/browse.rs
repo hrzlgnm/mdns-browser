@@ -27,6 +27,16 @@ use super::{
     values_table::ValuesTable,
 };
 
+/// Initiates browsing for available network service types asynchronously.
+///
+/// Invokes the `"browse-types"` command to start discovering service types on the network. Intended for use within the service browsing UI and related event listeners.
+///
+/// # Examples
+///
+/// ```
+/// // Start browsing for service types
+/// browse_types().await;
+/// ```
 pub(crate) async fn browse_types() {
     invoke_no_args("browse-types").await;
 }
@@ -35,7 +45,19 @@ pub(crate) async fn browse_types() {
 ///
 /// Subscribes to `"service-type-found"` and `"service-type-removed"` events, updating the set of
 /// service types in the signal. Ensures the list remains unique and sorted after additions, and
-/// removes service types when they are no longer available.
+/// Listens for service type discovery and removal events, updating the provided signal with the current set of available service types.
+///
+/// This function reacts to `"service-type-found"` and `"service-type-removed"` events, ensuring the signal contains a unique, sorted list of service types currently available on the network. Service types are added when discovered and removed when no longer available.
+///
+/// # Examples
+///
+/// ```
+/// use leptos::create_rw_signal;
+/// let service_types = create_rw_signal(vec![]);
+/// leptos::spawn_local(async move {
+///     listen_to_service_type_events(service_types.write_only()).await;
+/// });
+/// ```
 async fn listen_to_service_type_events(writer: WriteSignal<ServiceTypes>) {
     listen_add_remove(
         browse_types,
@@ -98,7 +120,11 @@ fn to_local_timestamp(timestamp_micros: u64) -> String {
 /// On receiving a `"service-resolved"` event, updates or inserts the resolved service and
 /// reapplies sorting.
 /// On receiving a `"service-removed"` event, marks the corresponding service as dead
-/// with a timestamp and reapplies sorting.
+/// Listens for service resolution and removal events, updating the resolved services store accordingly.
+///
+/// On receiving a service resolution event, updates or inserts the resolved service and reapplies sorting.
+/// On receiving a service removal event, marks the corresponding service as dead with a timestamp and reapplies sorting.
+/// This function operates asynchronously and reacts to network events in real time.
 async fn listen_for_resolve_events(store: Store<Resolved>) {
     listen_add_remove(
         async || {},
@@ -731,6 +757,16 @@ fn apply_sort_kind(store: Store<Resolved>, sort_kind: &SortKind) {
 /// }
 /// ```
 #[component]
+/// Renders the main network service browsing interface.
+///
+/// Displays controls for starting and stopping service discovery, selecting and filtering service types, sorting results, and viewing resolved network services. Reactively updates the UI based on network events and user interactions, providing feedback when no network is detected and managing browsing state transitions.
+///
+/// # Examples
+///
+/// ```
+/// // In your Leptos app root:
+/// leptos::mount_to_body(|| Browse());
+/// ```
 pub fn Browse() -> impl IntoView {
     // Stop any previously started browsing, to ensure we not browsing after a frontend reload
     spawn_local(stop_browse());
