@@ -29,7 +29,7 @@ use super::{
 
 /// Initiates browsing for available network service types asynchronously.
 ///
-/// Invokes the `"browse-types"` command to start discovering service types on the network.
+/// Invokes the `"browse_types"` command to start discovering service types on the network.
 /// Intended for use within the service browsing UI and related event listeners.
 ///
 /// # Examples
@@ -39,7 +39,7 @@ use super::{
 /// browse_types().await;
 /// ```
 pub(crate) async fn browse_types() {
-    invoke_no_args("browse-types").await;
+    invoke_no_args("browse_types").await;
 }
 
 /// Listens for service type addition and removal events and updates the provided signal accordingly.
