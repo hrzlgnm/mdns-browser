@@ -47,7 +47,8 @@ Screenshots from [v0.11.28](https://github.com/hrzlgnm/mdns-browser/releases/tag
     - [Attested build artifacts](#attested-build-artifacts)
     - [Privacy](#privacy)
     - [Acknowledgments](#acknowledgments)
-      <!--toc:end-->
+
+<!--toc:end-->
 
 ## Building
 
@@ -149,8 +150,8 @@ During installation, you will be prompted to accept a public key signed by `hrzl
 
 ## Auditable binaries
 
-The binaries built for desktop targets are now all build in auditable mode using [cargo-auditable](https://github.com/rust-secure-code/cargo-auditable?tab=readme-ov-file#cargo-auditable).
-For information on how to audit the binaries see [Usage](https://github.com/rust-secure-code/cargo-auditable?tab=readme-ov-file#usage)
+The binaries built for desktop targets are now all built in auditable mode using [cargo-auditable](https://github.com/rust-secure-code/cargo-auditable?tab=readme-ov-file#cargo-auditable).
+For information on how to audit the binaries, see [Usage](https://github.com/rust-secure-code/cargo-auditable?tab=readme-ov-file#usage)
 
 Since release v0.8.x
 
