@@ -1,5 +1,5 @@
 use leptos::prelude::*;
-use models::ThemeChangedEventRes;
+use models::ThemeChangedEvent;
 use tauri_sys::core::invoke;
 use thaw::{Icon, Theme};
 
@@ -24,7 +24,7 @@ pub fn ThemeSwitcher(theme: RwSignal<Theme>) -> impl IntoView {
         listen_events(
             async || {},
             "theme-changed",
-            move |event: ThemeChangedEventRes| {
+            move |event: ThemeChangedEvent| {
                 theme.update(|v| *v = Theme::from(event.theme));
             },
         )

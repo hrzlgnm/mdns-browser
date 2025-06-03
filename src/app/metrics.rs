@@ -1,5 +1,5 @@
 use leptos::prelude::*;
-use models::MetricsEventRes;
+use models::MetricsChangedEvent;
 use thaw::{
     Accordion, AccordionHeader, AccordionItem, Badge, BadgeAppearance, BadgeColor, BadgeSize,
     Layout, Text, TextTag,
@@ -13,7 +13,7 @@ use super::listen::listen_to_named_event;
 /// sorts them by metric name, and updates the given reactive signal accordingly. The signal is
 /// updated whenever new metrics are received.
 async fn listen_to_metrics_event(event_writer: RwSignal<Vec<(String, i64)>>) {
-    listen_to_named_event("metrics", move |event: MetricsEventRes| {
+    listen_to_named_event("metrics", move |event: MetricsChangedEvent| {
         event_writer.update(|evts| {
             *evts = event.metrics.into_iter().collect::<Vec<_>>();
             evts.sort_by(|a, b| a.0.cmp(&b.0));
