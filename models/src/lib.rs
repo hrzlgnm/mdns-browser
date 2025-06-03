@@ -59,6 +59,17 @@ impl ResolvedService {
         self.updated_at_micros = at_micros;
     }
 
+    pub fn matches_except_updated_at(&self, other: &Self) -> bool {
+        self.instance_fullname == other.instance_fullname
+            && self.service_type == other.service_type
+            && self.hostname == other.hostname
+            && self.port == other.port
+            && self.addresses == other.addresses
+            && self.subtype == other.subtype
+            && self.txt == other.txt
+            && self.dead == other.dead
+    }
+
     pub fn matches_query(&self, query: &str) -> bool {
         let query = query.to_lowercase();
         if query.is_empty() {
@@ -480,6 +491,7 @@ mod tests {
         assert!(service.dead);
         assert_eq!(service.updated_at_micros, 0);
     }
+
     #[test]
     fn test_get_instance_name() {
         // Test with standard service name format
@@ -510,6 +522,7 @@ mod tests {
         };
         assert_eq!(service.get_instance_name(), "My.Complex.Service");
     }
+
     #[test]
     fn test_matches_query() {
         let service = ResolvedService {
@@ -613,6 +626,35 @@ mod tests {
         assert!(service.matches_query("192"));
         assert!(service.matches_query("http"));
         assert!(service.matches_query("808"));
+    }
+
+    fn sample_service(updated_at: u64, dead: bool) -> ResolvedService {
+        ResolvedService {
+            instance_fullname: "example._http._tcp.local".to_string(),
+            service_type: "_http._tcp".to_string(),
+            hostname: "host.local".to_string(),
+            port: 8080,
+            addresses: vec!["127.0.0.1".parse::<IpAddr>().unwrap()],
+            subtype: Some("printer".to_string()),
+            txt: vec![],
+            updated_at_micros: updated_at,
+            dead,
+        }
+    }
+
+    #[test]
+    fn test_matches_except_updated_at_ignores_updated_at() {
+        let a = sample_service(100, false);
+        let b = sample_service(200, false);
+        assert!(a.matches_except_updated_at(&b));
+    }
+
+    #[test]
+    fn test_matches_except_updated_at_detects_difference() {
+        let a = sample_service(100, false);
+        let mut b = sample_service(100, false);
+        b.port = 9090;
+        assert!(!a.matches_except_updated_at(&b));
     }
 
     #[test]

@@ -125,7 +125,9 @@ async fn listen_for_resolve_events(store: Store<Resolved>) {
                 .iter_unkeyed()
                 .find(|rs| rs.read_untracked().instance_fullname == event.service.instance_fullname)
                 .map(|rs| {
-                    *rs.write() = event.service.clone();
+                    if !rs.read().matches_except_updated_at(&event.service) {
+                        *rs.write() = event.service.clone();
+                    }
                 })
                 .unwrap_or_else(|| {
                     store.services().write().push(event.service.clone());
