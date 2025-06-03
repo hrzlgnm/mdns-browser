@@ -27,6 +27,10 @@ use super::{
     values_table::ValuesTable,
 };
 
+pub(crate) async fn browse_types() {
+    invoke_no_args("browse-types").await;
+}
+
 /// Listens for service type addition and removal events and updates the provided signal accordingly.
 ///
 /// Subscribes to `"service-type-found"` and `"service-type-removed"` events, updating the set of
@@ -34,7 +38,7 @@ use super::{
 /// removes service types when they are no longer available.
 async fn listen_to_service_type_events(writer: WriteSignal<ServiceTypes>) {
     listen_add_remove(
-        Some("browse-types"),
+        browse_types,
         "service-type-found",
         move |event: ServiceTypeFoundEventRes| {
             let mut set = HashSet::new();
@@ -97,7 +101,7 @@ fn to_local_timestamp(timestamp_micros: u64) -> String {
 /// with a timestamp and reapplies sorting.
 async fn listen_for_resolve_events(store: Store<Resolved>) {
     listen_add_remove(
-        None::<String>,
+        async || {},
         "service-resolved",
         move |event: ServiceResolvedEventRes| {
             store
@@ -875,7 +879,7 @@ pub fn Browse() -> impl IntoView {
         move |can_browse, previous_can_browse, _| {
             if *can_browse && !previous_can_browse.unwrap_or(&false) {
                 service_type.set(String::new());
-                spawn_local(invoke_no_args("browse_types"));
+                spawn_local(browse_types());
                 start_auto_focus_timer(
                     move || comp_ref.get_untracked(),
                     move |h| {

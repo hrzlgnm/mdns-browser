@@ -6,7 +6,7 @@ use models::{ProtocolFlags, ProtocolFlagsStoreFields};
 use tauri_sys::core::invoke;
 use thaw::{Checkbox, Flex, FlexAlign, FlexGap, FlexJustify};
 
-use crate::app::invoke::invoke_no_args;
+use super::browse::browse_types;
 
 async fn get_protocol_flags(store: Store<ProtocolFlags>) {
     let flags = invoke::<ProtocolFlags>("get_protocol_flags", &()).await;
@@ -32,7 +32,7 @@ pub fn ProtocolFlags(#[prop(optional, into)] disabled: Signal<bool>) -> impl Int
         let flags = flags.clone();
         async move {
             update_protocol_flags(flags).await;
-            invoke_no_args("browse_types").await;
+            browse_types().await;
         }
     });
 
