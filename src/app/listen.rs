@@ -2,18 +2,16 @@ use super::invoke::invoke_no_args;
 use futures::{select, StreamExt};
 use leptos::task::spawn_local;
 use serde::de::DeserializeOwned;
+use std::future::Future;
 use tauri_sys::event::listen;
 
-/// Listens for events of a specified type and processes each event using a provided closure.
+/// Listens for events of a specified type and processes each received payload.
 ///
-/// Subscribes to an event stream with the given event name. If a subscriber command is provided,
-/// it is invoked before processing events.
-/// Each received event payload is passed to the `process_event` closure.
-/// If event subscription fails, logs an error and returns early.
+/// Initiates an asynchronous subscription using the provided subscriber function, then listens for events with the given name. For each event received, the payload is passed to the provided processing closure. If event listening fails, the function logs an error and returns early.
 ///
 /// # Type Parameters
-/// - `T`: The type of the event payload, which must implement `DeserializeOwned` and `Debug`.
-/// - `F`: The closure type that processes each event payload.
+///
+/// - `T`: The type of the event payload, which must implement `DeserializeOwned`, `'static`, and `Debug`.
 ///
 /// # Examples
 ///
@@ -23,19 +21,25 @@ use tauri_sys::event::listen;
 /// #[derive(Debug, Deserialize)]
 /// struct MyEvent { value: i32 }
 ///
-/// listen_events::<MyEvent, _>(
-///     Some("subscribe_my_event"),
-///     "my-event-changed",
-///     |payload| println!("Received: {:?}", payload)
+/// async fn subscribe() { /* subscription logic */ }
+///
+/// listen_events(
+///     subscribe,
+///     "my-event",
+///     |payload: MyEvent| {
+///         println!("Received: {:?}", payload);
+///     }
 /// ).await;
 /// ```
-pub(crate) async fn listen_events<T, F>(
-    subscriber: Option<impl Into<String>>,
+pub(crate) async fn listen_events<T, F, S, Fut>(
+    subscriber: S,
     event_name: &str,
     mut process_event: F,
 ) where
     T: DeserializeOwned + 'static + std::fmt::Debug,
     F: FnMut(T) + 'static,
+    S: FnOnce() -> Fut,
+    Fut: Future<Output = ()> + 'static,
 {
     let mut events = match listen::<T>(event_name).await {
         Ok(events) => events,
@@ -49,9 +53,7 @@ pub(crate) async fn listen_events<T, F>(
         }
     };
 
-    if let Some(subscriber) = subscriber {
-        spawn_local(invoke_no_args(subscriber.into()));
-    }
+    spawn_local(subscriber());
 
     while let Some(event) = events.next().await {
         log::debug!("Received event {}: {:#?}", event_name, event.payload);
@@ -59,37 +61,48 @@ pub(crate) async fn listen_events<T, F>(
     }
 }
 
-/// Listens for events with a given snake_case name, subscribing to the corresponding event stream.
+/// Subscribes to and processes events identified by a snake_case name.
+///
+/// Converts the provided snake_case event name to kebab-case, subscribes to the corresponding event stream, and invokes the given closure for each received event payload.
+///
+/// # Examples
+///
+/// ```
+/// listen_to_named_event::<MyEventPayload, _>("user_status", |payload| {
+///     println!("Received event: {:?}", payload);
+/// }).await;
+/// ```
 pub(crate) async fn listen_to_named_event<T, F>(event_name_snake: &str, process_event: F)
 where
     T: DeserializeOwned + 'static + std::fmt::Debug,
     F: FnMut(T) + 'static,
 {
     let event_name_kebab = event_name_snake.replace('_', "-");
-    let subscriber = format!("subscribe_{}", event_name_snake);
+    let command = format!("subscribe_{}", event_name_snake);
 
-    listen_events::<T, F>(
-        Some(subscriber),
+    listen_events::<T, F, _, _>(
+        async move || invoke_no_args(command).await,
         &format!("{}-changed", event_name_kebab),
         process_event,
     )
     .await;
 }
 
-/// Listens concurrently for addition and removal events, invoking handlers for each event type.
+/// Listens concurrently for "added" and "removed" events, processing each payload with the provided closures.
 ///
-/// Subscribes to two event streams — one for additions and one for removals — using the
-/// provided event names.
-/// If a subscriber command is specified, it is invoked before processing events.
-/// For each received event, the corresponding handler closure is called with the event payload.
-/// The function returns when both event streams are closed.
+/// Awaits the subscriber future before entering the event loop. For each event received on the added or removed streams, invokes the corresponding processing closure with the event payload. Exits when both streams are complete.
+///
+/// # Type Parameters
+///
+/// - `A`: Type of the payload for added events.
+/// - `R`: Type of the payload for removed events.
 ///
 /// # Parameters
-/// - `subscriber`: Optional command to invoke before processing events.
-/// - `added_event_name`: Name of the event stream for additions.
-/// - `process_added`: Closure to handle addition event payloads.
-/// - `removed_event_name`: Name of the event stream for removals.
-/// - `process_removed`: Closure to handle removal event payloads.
+///
+/// - `added_event_name`: Name of the event stream for added items.
+/// - `removed_event_name`: Name of the event stream for removed items.
+/// - `process_added`: Closure to process each added event payload.
+/// - `process_removed`: Closure to process each removed event payload.
 ///
 /// # Examples
 ///
@@ -97,23 +110,20 @@ where
 /// use serde::Deserialize;
 ///
 /// #[derive(Debug, Deserialize)]
-/// struct ItemAdded { id: u32 }
+/// struct Item { id: u32 }
 ///
-/// #[derive(Debug, Deserialize)]
-/// struct ItemRemoved { id: u32 }
+/// async fn subscribe() { /* ... */ }
 ///
-/// async fn example() {
-///     listen_add_remove(
-///         Some("subscribe_items"),
-///         "item-added",
-///         |added: ItemAdded| println!("Added: {:?}", added),
-///         "item-removed",
-///         |removed: ItemRemoved| println!("Removed: {:?}", removed),
-///     ).await;
-/// }
+/// listen_add_remove(
+///     subscribe,
+///     "item-added",
+///     |item: Item| println!("Added: {:?}", item),
+///     "item-removed",
+///     |item: Item| println!("Removed: {:?}", item),
+/// ).await;
 /// ```
-pub(crate) async fn listen_add_remove<A, R, FA, FR>(
-    subscriber: Option<impl Into<String>>,
+pub(crate) async fn listen_add_remove<A, R, FA, FR, S, Fut>(
+    subscriber: S,
     added_event_name: &str,
     mut process_added: FA,
     removed_event_name: &str,
@@ -123,6 +133,8 @@ pub(crate) async fn listen_add_remove<A, R, FA, FR>(
     R: DeserializeOwned + 'static + std::fmt::Debug,
     FA: FnMut(A) + 'static,
     FR: FnMut(R) + 'static,
+    S: FnOnce() -> Fut,
+    Fut: Future<Output = ()> + 'static,
 {
     let mut added_fused = match listen::<A>(added_event_name).await {
         Ok(added) => added.fuse(),
@@ -148,9 +160,7 @@ pub(crate) async fn listen_add_remove<A, R, FA, FR>(
         }
     };
 
-    if let Some(subscriber) = subscriber {
-        spawn_local(invoke_no_args(subscriber.into()));
-    }
+    subscriber().await;
 
     loop {
         select! {

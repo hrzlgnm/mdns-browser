@@ -27,14 +27,30 @@ use super::{
     values_table::ValuesTable,
 };
 
+/// Initiates browsing for available network service types asynchronously.
+///
+/// Invokes the `"browse-types"` command to start discovering service types on the network.
+/// Intended for use within the service browsing UI and related event listeners.
+///
+/// # Examples
+///
+/// ```
+/// // Start browsing for service types
+/// browse_types().await;
+/// ```
+pub(crate) async fn browse_types() {
+    invoke_no_args("browse-types").await;
+}
+
 /// Listens for service type addition and removal events and updates the provided signal accordingly.
 ///
-/// Subscribes to `"service-type-found"` and `"service-type-removed"` events, updating the set of
-/// service types in the signal. Ensures the list remains unique and sorted after additions, and
-/// removes service types when they are no longer available.
+/// This function reacts to `"service-type-found"` and `"service-type-removed"` events,
+/// ensuring the signal contains a unique, sorted list of service types currently
+/// available on the network. Service types are added when discovered and removed
+/// when no longer available.
 async fn listen_to_service_type_events(writer: WriteSignal<ServiceTypes>) {
     listen_add_remove(
-        Some("browse-types"),
+        browse_types,
         "service-type-found",
         move |event: ServiceTypeFoundEventRes| {
             let mut set = HashSet::new();
@@ -94,10 +110,14 @@ fn to_local_timestamp(timestamp_micros: u64) -> String {
 /// On receiving a `"service-resolved"` event, updates or inserts the resolved service and
 /// reapplies sorting.
 /// On receiving a `"service-removed"` event, marks the corresponding service as dead
-/// with a timestamp and reapplies sorting.
+/// Listens for service resolution and removal events, updating the resolved services store accordingly.
+///
+/// On receiving a service resolution event, updates or inserts the resolved service and reapplies sorting.
+/// On receiving a service removal event, marks the corresponding service as dead with a timestamp and reapplies sorting.
+/// This function operates asynchronously and reacts to network events in real time.
 async fn listen_for_resolve_events(store: Store<Resolved>) {
     listen_add_remove(
-        None::<String>,
+        async || {},
         "service-resolved",
         move |event: ServiceResolvedEventRes| {
             store
@@ -875,7 +895,7 @@ pub fn Browse() -> impl IntoView {
         move |can_browse, previous_can_browse, _| {
             if *can_browse && !previous_can_browse.unwrap_or(&false) {
                 service_type.set(String::new());
-                spawn_local(invoke_no_args("browse_types"));
+                spawn_local(browse_types());
                 start_auto_focus_timer(
                     move || comp_ref.get_untracked(),
                     move |h| {
