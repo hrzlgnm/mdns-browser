@@ -1,6 +1,5 @@
 use super::invoke::invoke_no_args;
 use futures::{select, StreamExt};
-use leptos::task::spawn_local;
 use serde::de::DeserializeOwned;
 use std::future::Future;
 use tauri_sys::event::listen;
@@ -39,7 +38,7 @@ pub(crate) async fn listen_events<T, F, S, Fut>(
     T: DeserializeOwned + 'static + std::fmt::Debug,
     F: FnMut(T) + 'static,
     S: FnOnce() -> Fut,
-    Fut: Future<Output = ()> + 'static,
+    Fut: Future<Output = ()>,
 {
     let mut events = match listen::<T>(event_name).await {
         Ok(events) => events,
@@ -53,7 +52,7 @@ pub(crate) async fn listen_events<T, F, S, Fut>(
         }
     };
 
-    spawn_local(subscriber());
+    subscriber().await;
 
     while let Some(event) = events.next().await {
         log::debug!("Received event {}: {:#?}", event_name, event.payload);
@@ -134,7 +133,7 @@ pub(crate) async fn listen_add_remove<A, R, FA, FR, S, Fut>(
     FA: FnMut(A) + 'static,
     FR: FnMut(R) + 'static,
     S: FnOnce() -> Fut,
-    Fut: Future<Output = ()> + 'static,
+    Fut: Future<Output = ()>,
 {
     let mut added_fused = match listen::<A>(added_event_name).await {
         Ok(added) => added.fuse(),
