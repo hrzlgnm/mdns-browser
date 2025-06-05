@@ -818,7 +818,6 @@ pub fn Browse() -> impl IntoView {
     Effect::watch(
         move || service_types.get(),
         move |service_types, previous_service_types, _| {
-            use leptos::prelude::GetUntracked;
             let old_set: HashSet<_> = previous_service_types
                 .unwrap_or(&vec![])
                 .iter()
