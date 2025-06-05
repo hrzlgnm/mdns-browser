@@ -42,7 +42,7 @@ jobs:
     steps:
       - name: 📦 Run sccache
         if: ${{ inputs.tagName == '' }}
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
 
       - name: 📦 Set Rust caching env vars only on non-release runs
         if: ${{ inputs.tagName == '' }}
