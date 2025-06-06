@@ -159,6 +159,7 @@ jobs:
           else
             echo "RUSTC_WRAPPER=${SCCACHE_PATH}" >> $GITHUB_ENV
           fi
+          env
 
       - name: 🔨 Build using tauri action (publish artifacts on release)
         uses: tauri-apps/tauri-action@42e9df6c59070d114bf90dcd3943a1b8f138b113 # v0.5.20
