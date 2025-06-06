@@ -144,12 +144,12 @@ jobs:
           Remove-Item -path certificate -include tempCert.txt
           Import-PfxCertificate -FilePath certificate/certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
 
-      - name: 📦 Run sccache
-        if: "(inputs.tagName == '') && !contains(matrix.os, 'windows')"
+      - name: 📦 Run sccache (not windows)
+        if: "inputs.tagName == '' && !contains(matrix.os, 'windows')"
         uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
 
-      - name: 📦 Set Rust caching env vars only on non-release runs
-        if: "(inputs.tagName == '') && !contains(matrix.os, 'windows')"
+      - name: 📦 Set Rust caching env vars only on non-release runs (not windows)
+        if: "inputs.tagName == '' && !contains(matrix.os, 'windows')"
         run: |
           echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
           echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
@@ -171,7 +171,7 @@ jobs:
           retryAttempts: 1
 
       - name: 📤 Upload build artifacts (push or pr builds only)
-        if: (inputs.tagName == '')
+        if: inputs.tagName == ''
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: "bundles-${{matrix.os}}${{matrix.args}}"
