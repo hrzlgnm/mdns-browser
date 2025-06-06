@@ -154,6 +154,7 @@ jobs:
         run: |
           echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
           echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
+          sccache
 
       - name: 🔨 Build using tauri action (publish artifacts on release)
         uses: tauri-apps/tauri-action@42e9df6c59070d114bf90dcd3943a1b8f138b113 # v0.5.20
