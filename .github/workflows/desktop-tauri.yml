@@ -40,16 +40,6 @@ jobs:
     name: ${{matrix.symbol}}
     runs-on: ${{ matrix.os }}
     steps:
-      - name: 📦 Run sccache
-        if: ${{ inputs.tagName == '' }}
-        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
-
-      - name: 📦 Set Rust caching env vars only on non-release runs
-        if: ${{ inputs.tagName == '' }}
-        run: |
-          echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
-          echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
-
       - name: 🔄 Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
@@ -153,6 +143,17 @@ jobs:
           certutil -decode certificate/tempCert.txt certificate/certificate.pfx
           Remove-Item -path certificate -include tempCert.txt
           Import-PfxCertificate -FilePath certificate/certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
+
+      - name: 📦 Run sccache
+        if: ${{ inputs.tagName == '' }}
+        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
+
+      - name: 📦 Set Rust caching env vars only on non-release runs
+        if: ${{ inputs.tagName == '' }}
+        shell: bash
+        run: |
+          echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
+          echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
 
       - name: 🔨 Build using tauri action (publish artifacts on release)
         uses: tauri-apps/tauri-action@42e9df6c59070d114bf90dcd3943a1b8f138b113 # v0.5.20
