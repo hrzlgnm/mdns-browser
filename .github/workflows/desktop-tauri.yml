@@ -77,39 +77,7 @@ jobs:
       - name: 📝 Check spelling using typos-action
         uses: crate-ci/typos@b1ae8d918b6e85bd611117d3d9a3be4f903ee5e4 # v1.33.1
 
-      - name: 📥 Cached install leptosfmt (ubuntu only)
-        if: contains(matrix.os, 'ubuntu')
-        uses: baptiste0928/cargo-install@91c5da15570085bcde6f4d7aed98cb82d6769fd3 # v3
-        with:
-          crate: leptosfmt
-          version: 0.1.33
-          locked: true
-
-      - name: 📐 Run leptosfmt and fail if any warnings (ubuntu only)
-        if: contains(matrix.os, 'ubuntu')
-        run: |
-          leptosfmt --check src
-
-      - name: 📐 Run rustfmt and fail if any warnings (ubuntu only)
-        if: contains(matrix.os, 'ubuntu')
-        run: |
-          cargo fmt -- --check
-          cd src-tauri
-          cargo fmt -- --check
-
-      - name: 📎 Run clippy and fail if any warnings (ubuntu only)
-        if: contains(matrix.os, 'ubuntu')
-        run: |
-          cargo clippy -- -D warnings
-          cd src-tauri
-          cargo clippy -- -D warnings
-
-      - name: ✅ Run tests (ubuntu only)
-        if: contains(matrix.os, 'ubuntu')
-        run: |
-          cargo test --all
-
-      - name: 📥 Cached Install trunk
+      - name: 📥 Cached install trunk
         uses: baptiste0928/cargo-install@91c5da15570085bcde6f4d7aed98cb82d6769fd3 # v3
         with:
           crate: trunk
@@ -132,6 +100,47 @@ jobs:
           version: 2.5.0
           locked: true
 
+      - name: 📥 Cached install leptosfmt (ubuntu only)
+        if: contains(matrix.os, 'ubuntu')
+        uses: baptiste0928/cargo-install@91c5da15570085bcde6f4d7aed98cb82d6769fd3 # v3
+        with:
+          crate: leptosfmt
+          version: 0.1.33
+          locked: true
+
+      - name: 📐 Run leptosfmt and fail if any warnings (ubuntu only)
+        if: contains(matrix.os, 'ubuntu')
+        run: |
+          leptosfmt --check src
+
+      - name: 📐 Run rustfmt and fail if any warnings (ubuntu only)
+        if: contains(matrix.os, 'ubuntu')
+        run: |
+          cargo fmt -- --check
+          cd src-tauri
+          cargo fmt -- --check
+
+      - name: 📦 Run sccache (not windows)
+        if: "inputs.tagName == '' && !contains(matrix.os, 'windows')"
+        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
+
+      - name: 📦 Set Rust caching env vars only on non-release runs (not windows)
+        if: "inputs.tagName == '' && !contains(matrix.os, 'windows')"
+        run: |
+          echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
+          echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
+
+      - name: 📎 Run clippy and fail if any warnings (ubuntu only)
+        if: contains(matrix.os, 'ubuntu')
+        run: |
+          cargo clippy -- -D warnings
+          cd src-tauri
+          cargo clippy -- -D warnings
+
+      - name: ✅ Run tests
+        run: |
+          cargo --locked test --package=models
+
       - name: 🔑 Import windows signing certificate
         if: contains(matrix.os, 'windows')
         env:
@@ -143,16 +152,6 @@ jobs:
           certutil -decode certificate/tempCert.txt certificate/certificate.pfx
           Remove-Item -path certificate -include tempCert.txt
           Import-PfxCertificate -FilePath certificate/certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
-
-      - name: 📦 Run sccache (not windows)
-        if: "inputs.tagName == '' && !contains(matrix.os, 'windows')"
-        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
-
-      - name: 📦 Set Rust caching env vars only on non-release runs (not windows)
-        if: "inputs.tagName == '' && !contains(matrix.os, 'windows')"
-        run: |
-          echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
-          echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
 
       - name: 🔨 Build using tauri action (publish artifacts on release)
         uses: tauri-apps/tauri-action@42e9df6c59070d114bf90dcd3943a1b8f138b113 # v0.5.20
