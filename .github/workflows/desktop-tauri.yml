@@ -77,35 +77,35 @@ jobs:
       - name: 📝 Check spelling using typos-action
         uses: crate-ci/typos@b1ae8d918b6e85bd611117d3d9a3be4f903ee5e4 # v1.33.1
 
-      - name: 📥 Cached install leptosfmt (macos only)
-        if: contains(matrix.os, 'macos')
+      - name: 📥 Cached install leptosfmt (ubuntu only)
+        if: contains(matrix.os, 'ubuntu')
         uses: baptiste0928/cargo-install@91c5da15570085bcde6f4d7aed98cb82d6769fd3 # v3
         with:
           crate: leptosfmt
           version: 0.1.33
           locked: true
 
-      - name: 📐 Run leptosfmt and fail if any warnings (macos only)
-        if: contains(matrix.os, 'macos')
+      - name: 📐 Run leptosfmt and fail if any warnings (ubuntu only)
+        if: contains(matrix.os, 'ubuntu')
         run: |
           leptosfmt --check src
 
-      - name: 📐 Run rustfmt and fail if any warnings (macos only)
-        if: contains(matrix.os, 'macos')
+      - name: 📐 Run rustfmt and fail if any warnings (ubuntu only)
+        if: contains(matrix.os, 'ubuntu')
         run: |
           cargo fmt -- --check
           cd src-tauri
           cargo fmt -- --check
 
-      - name: 📎 Run clippy and fail if any warnings (macos only)
-        if: contains(matrix.os, 'macos')
+      - name: 📎 Run clippy and fail if any warnings (ubuntu only)
+        if: contains(matrix.os, 'ubuntu')
         run: |
           cargo clippy -- -D warnings
           cd src-tauri
           cargo clippy -- -D warnings
 
-      - name: ✅ Run tests (macos only)
-        if: contains(matrix.os, 'macos')
+      - name: ✅ Run tests (ubuntu only)
+        if: contains(matrix.os, 'ubuntu')
         run: |
           cargo test --all
 
