@@ -137,8 +137,7 @@ jobs:
           cd src-tauri
           cargo clippy -- -D warnings
 
-      - name: ✅ Run tests (ubuntu only)
-        if: contains(matrix.os, 'ubuntu')
+      - name: ✅ Run tests
         run: |
           cargo --locked test --package=models
 
