@@ -132,8 +132,3 @@ body {
 .resolved-service-alive {
     color: var(--colorBrandForeground1);
 }
-
-.fake-disabled {
-    pointer-events: none;
-    opacity: 0.5;
-}

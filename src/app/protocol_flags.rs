@@ -61,15 +61,6 @@ pub fn ProtocolFlags(#[prop(optional, into)] disabled: Signal<bool>) -> impl Int
         }
     });
 
-    let checkbox_class = Memo::new(move |_| {
-        if disabled.get() {
-            // TODO: pass on the disabled flag to checkbox when supported instead
-            "fake-disabled".to_string()
-        } else {
-            "".to_string()
-        }
-    });
-
     Effect::watch(
         move || protocol_flags.get(),
         move |protocol_flags, previous_protocol_flags, _| {
@@ -85,8 +76,8 @@ pub fn ProtocolFlags(#[prop(optional, into)] disabled: Signal<bool>) -> impl Int
 
     view! {
         <Flex gap=FlexGap::Small align=FlexAlign::Center justify=FlexJustify::Start>
-            <Checkbox class=checkbox_class checked=ipv4checked label="IPv4" />
-            <Checkbox class=checkbox_class checked=ipv6checked label="IPv6" />
+            <Checkbox disabled checked=ipv4checked label="IPv4" />
+            <Checkbox disabled checked=ipv6checked label="IPv6" />
         </Flex>
     }
 }
