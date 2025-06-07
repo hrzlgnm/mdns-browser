@@ -77,7 +77,7 @@ jobs:
       - name: 📝 Check spelling using typos-action
         uses: crate-ci/typos@b1ae8d918b6e85bd611117d3d9a3be4f903ee5e4 # v1.33.1
 
-      - name: 📥 Cached Install trunk
+      - name: 📥 Cached install trunk
         uses: baptiste0928/cargo-install@91c5da15570085bcde6f4d7aed98cb82d6769fd3 # v3
         with:
           crate: trunk
