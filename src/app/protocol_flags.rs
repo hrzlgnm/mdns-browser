@@ -40,7 +40,7 @@ async fn update_protocol_flags(flags: ProtocolFlags) {
 /// Renders two checkboxes for toggling IPv4 and IPv6 protocol support, synchronizing their state with a reactive store and backend via Tauri commands. The component visually disables interaction when the optional `disabled` signal is true.
 ///
 /// # Parameters
-/// - `disabled`: An optional reactive signal that, when true, applies a visual "disabled" style to the checkboxes.
+/// - `disabled`: An optional reactive signal that, when true disables the checkboxes.
 ///
 /// # Examples
 ///
@@ -61,15 +61,6 @@ pub fn ProtocolFlags(#[prop(optional, into)] disabled: Signal<bool>) -> impl Int
         }
     });
 
-    let checkbox_class = Memo::new(move |_| {
-        if disabled.get() {
-            // TODO: pass on the disabled flag to checkbox when supported instead
-            "fake-disabled".to_string()
-        } else {
-            "".to_string()
-        }
-    });
-
     Effect::watch(
         move || protocol_flags.get(),
         move |protocol_flags, previous_protocol_flags, _| {
@@ -85,8 +76,8 @@ pub fn ProtocolFlags(#[prop(optional, into)] disabled: Signal<bool>) -> impl Int
 
     view! {
         <Flex gap=FlexGap::Small align=FlexAlign::Center justify=FlexJustify::Start>
-            <Checkbox class=checkbox_class checked=ipv4checked label="IPv4" />
-            <Checkbox class=checkbox_class checked=ipv6checked label="IPv6" />
+            <Checkbox disabled checked=ipv4checked label="IPv4" />
+            <Checkbox disabled checked=ipv6checked label="IPv6" />
         </Flex>
     }
 }
