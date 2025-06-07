@@ -40,7 +40,7 @@ async fn update_protocol_flags(flags: ProtocolFlags) {
 /// Renders two checkboxes for toggling IPv4 and IPv6 protocol support, synchronizing their state with a reactive store and backend via Tauri commands. The component visually disables interaction when the optional `disabled` signal is true.
 ///
 /// # Parameters
-/// - `disabled`: An optional reactive signal that, when true, applies a visual "disabled" style to the checkboxes.
+/// - `disabled`: An optional reactive signal that, when true disables the checkboxes.
 ///
 /// # Examples
 ///
