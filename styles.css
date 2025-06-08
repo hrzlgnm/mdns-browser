@@ -132,3 +132,7 @@ body {
 .resolved-service-alive {
     color: var(--colorBrandForeground1);
 }
+
+.theme-switcher {
+    cursor: pointer;
+}

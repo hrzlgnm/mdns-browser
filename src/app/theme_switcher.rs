@@ -50,6 +50,6 @@ pub fn ThemeSwitcher(theme: RwSignal<Theme>) -> impl IntoView {
     });
     move || {
         let icon = icon.get();
-        view! { <Icon height="2em" width="2em" icon on_click=on_switch_click /> }
+        view! { <Icon class="theme-switcher" height="2em" width="2em" icon on_click=on_switch_click /> }
     }
 }
