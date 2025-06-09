@@ -6,14 +6,6 @@
  * Also turn off drop events globally by just ignoring swallowing those
  */
 window.addEventListener("TrunkApplicationStarted", function () {
-    document.addEventListener("dragover", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-    });
-    document.addEventListener("drop", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-    });
     const browseButton = document.querySelector("button.thaw-button--primary");
     const inputs = document.querySelectorAll("input.thaw-input__input");
     const autocomplete = document.querySelector("div.thaw-auto-complete");

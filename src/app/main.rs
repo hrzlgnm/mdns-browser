@@ -1,8 +1,3 @@
-use leptos::prelude::*;
-use thaw::{
-    ConfigProvider, Flex, FlexJustify, Grid, GridItem, Layout, Text, Theme, ToasterProvider,
-};
-
 use super::{
     about::About,
     browse::Browse,
@@ -10,6 +5,17 @@ use super::{
     is_desktop::{get_is_desktop, IsDesktopInjection},
     metrics::Metrics,
     theme_switcher::ThemeSwitcher,
+};
+use js_sys::{
+    wasm_bindgen::{prelude::Closure, JsCast},
+    Function, Reflect,
+};
+use leptos::{
+    ev::{DragEvent, Event},
+    prelude::*,
+};
+use thaw::{
+    ConfigProvider, Flex, FlexJustify, Grid, GridItem, Layout, Text, Theme, ToasterProvider,
 };
 
 /// The main app component
@@ -27,6 +33,61 @@ pub fn Main() -> impl IntoView {
     };
     Effect::new(move |_| {
         set_body_background_color(theme.get().color.color_neutral_background_1());
+    });
+
+    // Block drop events granularly so that navigation does not happen unintendedly
+    // due to http links being dropped somewhere on the window
+    Effect::new(move |_| {
+        let window = window();
+        let should_block = |event: &Event| -> bool {
+            let Some(target) = event.target() else {
+                return true; // Block if we can't determine the target
+            };
+            let tag_name = Reflect::get(&target, &"tagName".into())
+                .ok()
+                .and_then(|val| val.as_string())
+                .unwrap_or_default()
+                .to_lowercase();
+
+            let is_editable = Reflect::get(&target, &"isContentEditable".into())
+                .ok()
+                .and_then(|val| val.as_bool())
+                .unwrap_or(false);
+
+            !(tag_name == "input" || tag_name == "textarea" || is_editable)
+        };
+
+        let dragover = Closure::<dyn FnMut(DragEvent)>::wrap(Box::new(move |e: DragEvent| {
+            if should_block(&e) {
+                e.prevent_default();
+            }
+        }));
+
+        let drop = Closure::<dyn FnMut(DragEvent)>::wrap(Box::new(move |e: DragEvent| {
+            if should_block(&e) {
+                e.prevent_default();
+            }
+        }));
+
+        if let Err(e) = window.add_event_listener_with_callback(
+            "dragover",
+            dragover.as_ref().unchecked_ref::<Function>(),
+        ) {
+            log::error!("Failed to add dragover event listener: {:?}", e)
+        }
+        if let Err(e) = window
+            .add_event_listener_with_callback("drop", drop.as_ref().unchecked_ref::<Function>())
+        {
+            log::error!("Failed to add drop event listener: {:?}", e)
+        }
+
+        // Keep the closures alive
+        // Note: forget() is required to prevent the closures from being dropped
+        // while the event listeners are still active in the JavaScript environment
+        move || {
+            dragover.forget();
+            drop.forget();
+        }
     });
     let (is_desktop, set_is_desktop) = signal(false);
     LocalResource::new(move || get_is_desktop(set_is_desktop));
