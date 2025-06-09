@@ -36,7 +36,7 @@ pub fn Main() -> impl IntoView {
     });
 
     // Block drop events granularly so that navigation does not happen unintendedly
-    // due to http links being droppped somewhere on the window
+    // due to http links being dropped somewhere on the window
     Effect::new(move |_| {
         let window = window();
         let should_block = |event: &Event| -> bool {
