@@ -80,6 +80,8 @@ pub fn Main() -> impl IntoView {
         }
 
         // Keep the closures alive
+        // Note: forget() is required to prevent the closures from being dropped
+        // while the event listeners are still active in the JavaScript environment
         move || {
             dragover.forget();
             drop.forget();
