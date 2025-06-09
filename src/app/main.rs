@@ -40,7 +40,9 @@ pub fn Main() -> impl IntoView {
     Effect::new(move |_| {
         let window = window();
         let should_block = |event: &Event| -> bool {
-            let target = event.target().unwrap();
+            let Some(target) = event.target() else {
+                return true; // Block if we can't determine the target
+            };
             let tag_name = Reflect::get(&target, &"tagName".into())
                 .ok()
                 .and_then(|val| val.as_string())
