@@ -188,7 +188,7 @@ jobs:
 
       - name: 📤 Publish debug symbols to release (windows only)
         if: contains(matrix.os, 'windows') && (inputs.tagName != '')
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2
+        uses: softprops/action-gh-release@d5382d3e6f2fa7bd53cb749d33091853d4985daf # v2
         with:
           files: target/release/mdns_browser.pdb
         env:

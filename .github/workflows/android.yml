@@ -144,7 +144,7 @@ jobs:
 
       - name: 🚀 Publish (publish only)
         if: inputs.publish
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2
+        uses: softprops/action-gh-release@d5382d3e6f2fa7bd53cb749d33091853d4985daf # v2
         with:
           name: mDNS-Browser Release v${{ steps.get-version.outputs.current-version }}
           append_body: true
