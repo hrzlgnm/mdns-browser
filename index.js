@@ -3,7 +3,6 @@
  * providing no possibility to set attributes or to add onkeydown event listeners.
  * We want no spell checking no autocorrection or capitalization in our inputs
  * mostly dealing with lower case characters.
- * Also turn off drop events globally by just ignoring swallowing those
  */
 window.addEventListener("TrunkApplicationStarted", function () {
     const browseButton = document.querySelector("button.thaw-button--primary");
