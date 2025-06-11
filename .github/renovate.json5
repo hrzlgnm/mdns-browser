@@ -1,24 +1,23 @@
 {
     $schema: "https://docs.renovatebot.com/renovate-schema.json",
-    automergeType: "pr",
     extends: [
         "config:best-practices",
+        "monorepo:tauri",
+        "security:openssf-scorecard",
         ":automergeDigest",
         ":automergeMinor",
-        ":automergePatch",
-        ":dependencyDashboard",
+        ":automergePr",
+        ":automergeRequireAllStatusChecks",
+        ":combinePatchMinorReleases",
+        ":docker",
         ":enableVulnerabilityAlerts",
+        ":maintainLockFilesMonthly",
+        ":prConcurrentLimitNone",
         ":prImmediately",
         ":rebaseStalePrs",
         ":semanticCommits",
-        ":semanticPrefixChore",
         ":separateMajorReleases",
     ],
-    prConcurrentLimit: 0,
-    lockFileMaintenance: {
-        enabled: true,
-        schedule: ["on the first day of the month"],
-    },
     customManagers: [
         {
             matchStringsStrategy: "any",
