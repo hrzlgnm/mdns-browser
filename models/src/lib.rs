@@ -31,9 +31,9 @@ impl TxtRecord {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Store)]
-pub struct InterfaceId {
-    pub index: u32,
+pub struct Interface {
     pub name: String,
+    pub index: u32,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Store)]
@@ -42,7 +42,7 @@ pub struct ResolvedService {
     pub service_type: String,
     pub hostname: String,
     pub port: u16,
-    pub addresses: HashMap<IpAddr, Vec<InterfaceId>>,
+    pub addresses: HashMap<IpAddr, Vec<Interface>>,
     pub subtype: Option<String>,
     pub txt: Vec<TxtRecord>,
     #[serde(with = "serde_with::As::<serde_with::DisplayFromStr>")]
@@ -312,29 +312,29 @@ mod tests {
     use super::*;
     use std::net::{IpAddr, Ipv4Addr};
 
-    fn get_addresses() -> HashMap<IpAddr, Vec<InterfaceId>> {
+    fn get_addresses() -> HashMap<IpAddr, Vec<Interface>> {
         let mut addresses = HashMap::new();
         addresses.insert(
             IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)),
-            vec![InterfaceId {
+            vec![Interface {
                 index: 11,
                 name: "eth0".to_string(),
             }],
         );
         addresses
     }
-    fn get_two_addresses() -> HashMap<IpAddr, Vec<InterfaceId>> {
+    fn get_two_addresses() -> HashMap<IpAddr, Vec<Interface>> {
         let mut addresses = HashMap::new();
         addresses.insert(
             IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)),
-            vec![InterfaceId {
+            vec![Interface {
                 index: 11,
                 name: "eth0".to_string(),
             }],
         );
         addresses.insert(
             "fe80::1".parse::<IpAddr>().unwrap(),
-            vec![InterfaceId {
+            vec![Interface {
                 index: 22,
                 name: "eth1".to_string(),
             }],

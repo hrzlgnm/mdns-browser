@@ -322,16 +322,11 @@ fn extract_first_non_ipv6_link_local(
 ) -> Option<std::net::IpAddr> {
     resolved_service
         .addresses
-        .iter()
-        .find_map(|&address| match address {
-            std::net::IpAddr::V4(_) => Some(address),
-            std::net::IpAddr::V6(ipv6_addr) => {
-                if !ipv6_addr.is_unicast_link_local() {
-                    Some(address)
-                } else {
-                    None
-                }
-            }
+        .clone()
+        .into_keys()
+        .find(|address| match address {
+            std::net::IpAddr::V4(_) => true,
+            std::net::IpAddr::V6(ipv6_addr) => !ipv6_addr.is_unicast_link_local(),
         })
 }
 
@@ -491,7 +486,7 @@ fn ResolvedServiceItem(
         resolved_service
             .addresses()
             .get()
-            .iter()
+            .into_keys()
             .map(|a| a.to_string())
             .collect::<Vec<_>>()
     });
