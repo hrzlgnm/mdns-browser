@@ -2,6 +2,7 @@
 use clap::builder::TypedValueParser as _;
 #[cfg(desktop)]
 use clap::Parser;
+use mdns_sd::ResolvedService as ResolvedServiceDetailed;
 use mdns_sd::{IfKind, ServiceDaemon, ServiceEvent, ServiceInfo};
 use models::check_service_type_fully_qualified;
 use models::*;
@@ -49,7 +50,38 @@ impl ManagedState {
 
 fn get_shared_daemon() -> SharedServiceDaemon {
     let daemon = ServiceDaemon::new().expect("Failed to create daemon");
+    if let Err(err) = daemon.use_service_detailed(true) {
+        log::warn!(
+            "Failed to enable detailed service info: {:?}, continuing without it",
+            err
+        );
+    }
     Arc::new(Mutex::new(daemon))
+}
+
+fn from_resolved_service_detailed(service: &ResolvedServiceDetailed) -> ResolvedService {
+    let mut sorted_addresses: Vec<IpAddr> = service.addresses.clone().into_keys().collect();
+    sorted_addresses.sort();
+    let mut sorted_txt: Vec<TxtRecord> = service
+        .txt_properties
+        .iter()
+        .map(|r| TxtRecord {
+            key: r.key().into(),
+            val: bytes_option_to_string_option_with_escaping(r.val()),
+        })
+        .collect();
+    sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).expect("To be partial comparable"));
+    ResolvedService {
+        instance_fullname: service.fullname.clone(),
+        service_type: service.ty_domain.clone(),
+        hostname: service.host.clone(),
+        port: service.port,
+        addresses: sorted_addresses,
+        subtype: service.sub_ty_domain.clone(),
+        txt: sorted_txt,
+        updated_at_micros: timestamp_micros(),
+        dead: false,
+    }
 }
 
 fn from_service_info(info: &ServiceInfo) -> ResolvedService {
@@ -238,7 +270,16 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
                             service: from_service_info(&info),
                         },
                     ),
-
+                    ServiceEvent::ServiceDetailed(service) => {
+                        let resolved_service = *service;
+                        emit_event(
+                            &window,
+                            "service-resolved",
+                            &ServiceResolvedEvent {
+                                service: from_resolved_service_detailed(&resolved_service),
+                            },
+                        );
+                    }
                     ServiceEvent::ServiceRemoved(_service_type, instance_name) => {
                         emit_event(
                             &window,
