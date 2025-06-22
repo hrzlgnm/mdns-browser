@@ -31,12 +31,18 @@ impl TxtRecord {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Store)]
+pub struct InterfaceId {
+    pub index: u32,
+    pub name: String,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Store)]
 pub struct ResolvedService {
     pub instance_fullname: String,
     pub service_type: String,
     pub hostname: String,
     pub port: u16,
-    pub addresses: Vec<IpAddr>,
+    pub addresses: HashMap<IpAddr, Vec<InterfaceId>>,
     pub subtype: Option<String>,
     pub txt: Vec<TxtRecord>,
     #[serde(with = "serde_with::As::<serde_with::DisplayFromStr>")]
@@ -80,10 +86,13 @@ impl ResolvedService {
             || self.service_type.to_lowercase().contains(&query)
             || self.hostname.to_lowercase().contains(&query)
             || self.port.to_string().contains(&query)
-            || self
-                .addresses
-                .iter()
-                .any(|addr| addr.to_string().contains(&query))
+            || self.addresses.iter().any(|addr| {
+                addr.0.to_string().contains(&query)
+                    || addr.1.iter().any(|iface| {
+                        iface.name.to_lowercase().contains(&query)
+                            || iface.index.to_string().contains(&query)
+                    })
+            })
             || self
                 .subtype
                 .as_ref()
@@ -303,6 +312,35 @@ mod tests {
     use super::*;
     use std::net::{IpAddr, Ipv4Addr};
 
+    fn get_addresses() -> HashMap<IpAddr, Vec<InterfaceId>> {
+        let mut addresses = HashMap::new();
+        addresses.insert(
+            IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)),
+            vec![InterfaceId {
+                index: 11,
+                name: "eth0".to_string(),
+            }],
+        );
+        addresses
+    }
+    fn get_two_addresses() -> HashMap<IpAddr, Vec<InterfaceId>> {
+        let mut addresses = HashMap::new();
+        addresses.insert(
+            IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)),
+            vec![InterfaceId {
+                index: 11,
+                name: "eth0".to_string(),
+            }],
+        );
+        addresses.insert(
+            "fe80::1".parse::<IpAddr>().unwrap(),
+            vec![InterfaceId {
+                index: 22,
+                name: "eth1".to_string(),
+            }],
+        );
+        addresses
+    }
     #[test]
     fn test_string_with_control_characters_escaped() {
         assert_eq!(
@@ -364,7 +402,6 @@ mod tests {
         let service_type = "_banan._tcp.local".to_string();
         let hostname = "test.local".to_string();
         let port = 8080;
-        let addresses = vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))];
         let subtype = Some("test_subtype".to_string());
         let txt = vec![];
         let updated_at_ms = 1620000000000;
@@ -376,7 +413,7 @@ mod tests {
             service_type: service_type.clone(),
             hostname: hostname.clone(),
             port,
-            addresses: addresses.clone(),
+            addresses: get_addresses(),
             subtype: subtype.clone(),
             txt: txt.clone(),
             updated_at_micros: updated_at_ms,
@@ -388,7 +425,7 @@ mod tests {
         assert_eq!(service.service_type, service_type);
         assert_eq!(service.hostname, hostname);
         assert_eq!(service.port, port);
-        assert_eq!(service.addresses, addresses);
+        assert_eq!(service.addresses, get_addresses());
         assert_eq!(service.subtype, subtype);
         assert_eq!(service.txt, txt);
         assert_eq!(service.updated_at_micros, updated_at_ms);
@@ -397,13 +434,12 @@ mod tests {
 
     #[test]
     fn test_die_at_method() {
-        // Arrange
         let mut service = ResolvedService {
             instance_fullname: "test_service".to_string(),
             service_type: "_banan._tcp.local.".to_string(),
             hostname: "test.local".to_string(),
             port: 8080,
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))],
+            addresses: get_addresses(),
             subtype: None,
             txt: vec![],
             updated_at_micros: 1620000000000,
@@ -428,7 +464,7 @@ mod tests {
             service_type: "_banan._tcp.local.".to_string(),
             hostname: "test.local".to_string(),
             port: 8080,
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))],
+            addresses: get_addresses(),
             subtype: None,
             txt: vec![],
             updated_at_micros: 1620000000000,
@@ -457,7 +493,7 @@ mod tests {
             service_type: "_banan._tcp.local.".to_string(),
             hostname: "test.local".to_string(),
             port: 8080,
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))],
+            addresses: get_addresses(),
             subtype: None,
             txt: vec![],
             updated_at_micros: 1620000000000,
@@ -480,7 +516,7 @@ mod tests {
             service_type: "_http._tcp.local".to_string(),
             hostname: "hostname.local".to_string(),
             port: 80,
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))],
+            addresses: get_addresses(),
             subtype: None,
             txt: vec![],
             updated_at_micros: 0,
@@ -494,7 +530,7 @@ mod tests {
             service_type: "_http._tcp.local".to_string(),
             hostname: "hostname.local".to_string(),
             port: 80,
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))],
+            addresses: get_addresses(),
             subtype: None,
             txt: vec![],
             updated_at_micros: 0,
@@ -510,10 +546,7 @@ mod tests {
             service_type: "_http._tcp".to_string(),
             hostname: "my-host.local".to_string(),
             port: 8080,
-            addresses: vec![
-                "192.168.1.1".parse::<IpAddr>().unwrap(),
-                "fe80::1".parse::<IpAddr>().unwrap(),
-            ],
+            addresses: get_two_addresses(),
             subtype: Some("sub-type".to_string()),
             txt: vec![TxtRecord {
                 key: "key".to_string(),
@@ -570,7 +603,7 @@ mod tests {
             service_type: "".to_string(),
             hostname: "".to_string(),
             port: 0,
-            addresses: vec![],
+            addresses: get_addresses(),
             subtype: None,
             txt: vec![],
             updated_at_micros: 0,
@@ -588,10 +621,7 @@ mod tests {
             service_type: "_http._tcp".to_string(),
             hostname: "my-host.local".to_string(),
             port: 8080,
-            addresses: vec![
-                "192.168.1.1".parse::<IpAddr>().unwrap(),
-                "fe80::1".parse::<IpAddr>().unwrap(),
-            ],
+            addresses: get_two_addresses(),
             subtype: None,
             txt: vec![TxtRecord {
                 key: "key".to_string(),
@@ -606,6 +636,10 @@ mod tests {
         assert!(service.matches_query("192"));
         assert!(service.matches_query("http"));
         assert!(service.matches_query("808"));
+        assert!(service.matches_query("eth0"));
+        assert!(service.matches_query("eth1"));
+        assert!(service.matches_query("11"));
+        assert!(service.matches_query("22"));
     }
 
     fn sample_service(updated_at: u64, dead: bool) -> ResolvedService {
@@ -614,7 +648,7 @@ mod tests {
             service_type: "_http._tcp".to_string(),
             hostname: "host.local".to_string(),
             port: 8080,
-            addresses: vec!["127.0.0.1".parse::<IpAddr>().unwrap()],
+            addresses: get_addresses(),
             subtype: Some("printer".to_string()),
             txt: vec![],
             updated_at_micros: updated_at,
