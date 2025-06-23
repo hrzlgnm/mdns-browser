@@ -1,4 +1,4 @@
-FROM archlinux:base-devel@sha256:3f808d41e09261904a04709fc210a154ee56f6a9c369a15a70c2dfac5adab498
+FROM archlinux:base-devel@sha256:bb4464b24c12e523070bc5e70412e318843d1ff37494f11ddd7f12a623547636
 RUN pacman -Syu --noconfirm \
     && pacman -S --noconfirm \
     appmenu-gtk-module \
