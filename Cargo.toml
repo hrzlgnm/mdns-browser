@@ -51,3 +51,4 @@ serde = { version = "1.0", features = ["derive"] }
 log = "0.4"
 thiserror = "2.0"
 tokio = { version = "1.45", features = ["time"] }
+mdns-sd = { git = "https://github.com/keepsimple1/mdns-sd", branch = "new-resolved-service" }
