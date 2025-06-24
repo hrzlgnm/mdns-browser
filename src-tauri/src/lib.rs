@@ -3,7 +3,7 @@ use clap::builder::TypedValueParser as _;
 #[cfg(desktop)]
 use clap::Parser;
 use mdns_sd::ResolvedService as ResolvedServiceDetailed;
-use mdns_sd::{IfKind, ServiceDaemon, ServiceEvent};
+use mdns_sd::{IfKind, InterfaceId, ServiceDaemon, ServiceEvent};
 use models::check_service_type_fully_qualified;
 use models::*;
 #[cfg(all(desktop, not(debug_assertions)))]
@@ -58,6 +58,13 @@ fn get_shared_daemon() -> SharedServiceDaemon {
     Arc::new(Mutex::new(daemon))
 }
 
+fn from_interfaceid(ifid: InterfaceId) -> Interface {
+    Interface {
+        name: ifid.name,
+        index: ifid.index,
+    }
+}
+
 fn from_resolved_service_detailed(service: &ResolvedServiceDetailed) -> ResolvedService {
     let mut sorted_txt: Vec<TxtRecord> = service
         .txt_properties
@@ -80,12 +87,7 @@ fn from_resolved_service_detailed(service: &ResolvedServiceDetailed) -> Resolved
             .map(|a| {
                 (
                     a.0,
-                    a.1.into_iter()
-                        .map(|a| Interface {
-                            name: a.name().to_string(),
-                            index: a.index(),
-                        })
-                        .collect::<Vec<_>>(),
+                    a.1.into_iter().map(from_interfaceid).collect::<Vec<_>>(),
                 )
             })
             .collect(),

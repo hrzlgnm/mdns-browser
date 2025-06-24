@@ -486,8 +486,7 @@ fn ResolvedServiceItem(
         resolved_service
             .addresses()
             .get()
-            .into_keys()
-            .map(|a| a.to_string())
+            .into_iter()
             .collect::<Vec<_>>()
     });
 
@@ -511,7 +510,7 @@ fn ResolvedServiceItem(
         addrs
             .get()
             .first()
-            .map(|a| a.to_string())
+            .map(|a| a.0.to_string())
             .unwrap_or_default()
     });
 
@@ -533,6 +532,12 @@ fn ResolvedServiceItem(
             "resolved-service-alive".to_string()
         }
     });
+
+    let addrs_display = addrs
+        .get()
+        .iter()
+        .map(|a| a.0.to_string())
+        .collect::<Vec<_>>();
     let cannot_verify = Signal::derive(move || dead.get() || !browsing.get());
 
     view! {
@@ -599,7 +604,7 @@ fn ResolvedServiceItem(
                                                             </Flex>
                                                         </DialogTitle>
                                                         <ValuesTable values=subtype title="subtype".to_string() />
-                                                        <ValuesTable values=addrs title="IPs".to_string() />
+                                                        <ValuesTable values=addrs_display title="IPs".to_string() />
                                                         <ValuesTable values=txts title="txt".to_string() />
                                                     </Flex>
                                                 </Scrollbar>
