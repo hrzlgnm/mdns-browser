@@ -216,9 +216,7 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
         let receiver = match daemon.browse(service_type.as_str()) {
             Ok(receiver) => receiver,
             Err(e) => {
-                log::error!(
-                    "Failed to start browsing for {service_type} browse: {e:?}",
-                );
+                log::error!("Failed to start browsing for {service_type} browse: {e:?}",);
                 continue;
             }
         };
@@ -410,9 +408,7 @@ fn version() -> String {
 fn get_protocol_flags(state: State<ManagedState>) -> ProtocolFlags {
     let ipv4_enabled = state.ipv4_enabled.load(Ordering::SeqCst);
     let ipv6_enabled = state.ipv6_enabled.load(Ordering::SeqCst);
-    log::debug!(
-        "get_protocol_flags: ipv4_enabled: {ipv4_enabled}, ipv6_enabled: {ipv6_enabled}"
-    );
+    log::debug!("get_protocol_flags: ipv4_enabled: {ipv4_enabled}, ipv6_enabled: {ipv6_enabled}");
     ProtocolFlags {
         ipv4: ipv4_enabled,
         ipv6: ipv6_enabled,
