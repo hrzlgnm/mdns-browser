@@ -2,7 +2,8 @@
 use clap::builder::TypedValueParser as _;
 #[cfg(desktop)]
 use clap::Parser;
-use mdns_sd::{IfKind, ServiceDaemon, ServiceEvent, ServiceInfo};
+use mdns_sd::ResolvedService as ResolvedServiceDetailed;
+use mdns_sd::{IfKind, InterfaceId, ServiceDaemon, ServiceEvent};
 use models::check_service_type_fully_qualified;
 use models::*;
 #[cfg(all(desktop, not(debug_assertions)))]
@@ -13,7 +14,6 @@ use shared_constants::{
 };
 use std::{
     collections::{HashMap, HashSet},
-    net::IpAddr,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc, Mutex,
@@ -49,14 +49,22 @@ impl ManagedState {
 
 fn get_shared_daemon() -> SharedServiceDaemon {
     let daemon = ServiceDaemon::new().expect("Failed to create daemon");
+    if let Err(err) = daemon.use_service_detailed(true) {
+        log::warn!("Failed to enable detailed service info: {err:?}, continuing without it");
+    }
     Arc::new(Mutex::new(daemon))
 }
 
-fn from_service_info(info: &ServiceInfo) -> ResolvedService {
-    let mut sorted_addresses: Vec<IpAddr> = info.get_addresses().clone().drain().collect();
-    sorted_addresses.sort();
-    let mut sorted_txt: Vec<TxtRecord> = info
-        .get_properties()
+fn from_interfaceid(ifid: InterfaceId) -> Interface {
+    Interface {
+        name: ifid.name,
+        index: ifid.index,
+    }
+}
+
+fn from_resolved_service_detailed(service: &ResolvedServiceDetailed) -> ResolvedService {
+    let mut sorted_txt: Vec<TxtRecord> = service
+        .txt_properties
         .iter()
         .map(|r| TxtRecord {
             key: r.key().into(),
@@ -65,12 +73,22 @@ fn from_service_info(info: &ServiceInfo) -> ResolvedService {
         .collect();
     sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).expect("To be partial comparable"));
     ResolvedService {
-        instance_fullname: info.get_fullname().into(),
-        service_type: info.get_type().into(),
-        hostname: info.get_hostname().into(),
-        port: info.get_port(),
-        addresses: sorted_addresses,
-        subtype: info.get_subtype().clone(),
+        instance_fullname: service.fullname.clone(),
+        service_type: service.ty_domain.clone(),
+        hostname: service.host.clone(),
+        port: service.port,
+        addresses: service
+            .addresses
+            .clone()
+            .into_iter()
+            .map(|a| {
+                (
+                    a.0,
+                    a.1.into_iter().map(from_interfaceid).collect::<Vec<_>>(),
+                )
+            })
+            .collect(),
+        subtype: service.sub_ty_domain.clone(),
         txt: sorted_txt,
         updated_at_micros: timestamp_micros(),
         dead: false,
@@ -225,14 +243,16 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
         tauri::async_runtime::spawn(async move {
             while let Ok(event) = receiver.recv_async().await {
                 match event {
-                    ServiceEvent::ServiceResolved(info) => emit_event(
-                        &window,
-                        "service-resolved",
-                        &ServiceResolvedEvent {
-                            service: from_service_info(&info),
-                        },
-                    ),
-
+                    ServiceEvent::ServiceDetailed(service) => {
+                        let resolved_service = *service;
+                        emit_event(
+                            &window,
+                            "service-resolved",
+                            &ServiceResolvedEvent {
+                                service: from_resolved_service_detailed(&resolved_service),
+                            },
+                        );
+                    }
                     ServiceEvent::ServiceRemoved(_service_type, instance_name) => {
                         emit_event(
                             &window,
