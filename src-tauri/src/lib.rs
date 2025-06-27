@@ -86,9 +86,9 @@ fn emit_event<T>(window: &Window, event: &str, payload: &T)
 where
     T: serde::Serialize + std::fmt::Debug,
 {
-    log::trace!("Emitting event: {} with payload: {:#?}", event, payload);
+    log::trace!("Emitting event: {event} with payload: {payload:#?}");
     if let Err(e) = window.emit(event, payload) {
-        log::error!("Failed to emit {} event: {:?}", event, e);
+        log::error!("Failed to emit {event} event: {e:?}");
     }
 }
 
@@ -97,21 +97,18 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
     let daemon = state
         .daemon
         .lock()
-        .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
+        .map_err(|e| format!("Failed to lock daemon: {e:?}"))?;
 
-    daemon.stop_browse(MDNS_SD_META_SERVICE).map_err(|e| {
-        format!(
-            "Failed to stop browsing for {}: {:?}",
-            MDNS_SD_META_SERVICE, e
-        )
-    })?;
+    daemon
+        .stop_browse(MDNS_SD_META_SERVICE)
+        .map_err(|e| format!("Failed to stop browsing for {MDNS_SD_META_SERVICE}: {e:?}"))?;
 
     let daemon = daemon.clone();
     tauri::async_runtime::spawn(async move {
         let receiver = match daemon.browse(MDNS_SD_META_SERVICE) {
             Ok(receiver) => receiver,
             Err(e) => {
-                log::error!("Failed to browse for service types: {:?}", e);
+                log::error!("Failed to browse for service types: {e:?}");
                 return;
             }
         };
@@ -129,7 +126,7 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
                             );
                         }
                         Err(e) => {
-                            log::warn!("Ignoring invalid service type `{}`: {}", full_name, e)
+                            log::warn!("Ignoring invalid service type `{full_name}`: {e}")
                         }
                     }
                 }
@@ -145,13 +142,13 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
                             );
                         }
                         Err(e) => {
-                            log::warn!("Ignoring invalid service type `{}`: {}", full_name, e)
+                            log::warn!("Ignoring invalid service type `{full_name}`: {e}")
                         }
                     }
                 }
                 ServiceEvent::SearchStopped(service_type) => {
                     if service_type == MDNS_SD_META_SERVICE {
-                        log::debug!("Service type browsing stopped: {}", service_type);
+                        log::debug!("Service type browsing stopped: {service_type}");
                         break;
                     }
                 }
@@ -168,14 +165,14 @@ fn stop_browse(state: State<ManagedState>) -> Result<(), String> {
     let daemon = state
         .daemon
         .lock()
-        .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
+        .map_err(|e| format!("Failed to lock daemon: {e:?}"))?;
     let mut queriers = state
         .queriers
         .lock()
-        .map_err(|e| format!("Failed to lock running queriers: {:?}", e))?;
+        .map_err(|e| format!("Failed to lock running queriers: {e:?}"))?;
     for ty_domain in queriers.iter() {
         if let Err(e) = daemon.stop_browse(ty_domain) {
-            log::error!("Failed to stop browsing for {}: {:?}", ty_domain, e);
+            log::error!("Failed to stop browsing for {ty_domain}: {e:?}");
         }
     }
 
@@ -188,11 +185,11 @@ fn verify(instance_fullname: String, state: State<ManagedState>) -> Result<(), S
     let daemon = state
         .daemon
         .lock()
-        .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
-    log::debug!("verifying {}", instance_fullname);
+        .map_err(|e| format!("Failed to lock daemon: {e:?}"))?;
+    log::debug!("verifying {instance_fullname}");
     daemon
         .verify(instance_fullname.clone(), VERIFY_TIMEOUT)
-        .map_err(|e| format!("Failed to verify {instance_fullname}: {:?}", e))?;
+        .map_err(|e| format!("Failed to verify {instance_fullname}: {e:?}"))?;
     Ok(())
 }
 
@@ -202,14 +199,14 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
         let daemon = match state.daemon.lock() {
             Ok(daemon) => daemon,
             Err(err) => {
-                log::error!("Failed to lock daemon: {:?}", err);
+                log::error!("Failed to lock daemon: {err:?}");
                 continue;
             }
         };
         let mut queriers = match state.queriers.lock() {
             Ok(queriers) => queriers,
             Err(err) => {
-                log::error!("Failed to lock running queriers: {:?}", err);
+                log::error!("Failed to lock running queriers: {err:?}");
                 continue;
             }
         };
@@ -220,8 +217,7 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
             Ok(receiver) => receiver,
             Err(e) => {
                 log::error!(
-                    "Failed to start browsing for {service_type} browse: {:?}",
-                    e,
+                    "Failed to start browsing for {service_type} browse: {e:?}",
                 );
                 continue;
             }
@@ -400,7 +396,7 @@ fn open_url(app: AppHandle, url: String) -> Result<(), String> {
     let opener = app.opener();
     opener
         .open_url(url.clone(), None::<String>)
-        .map_err(|e| format!("Failed to open URL {}: {:?}", url, e))?;
+        .map_err(|e| format!("Failed to open URL {url}: {e:?}"))?;
     Ok(())
 }
 
@@ -415,9 +411,7 @@ fn get_protocol_flags(state: State<ManagedState>) -> ProtocolFlags {
     let ipv4_enabled = state.ipv4_enabled.load(Ordering::SeqCst);
     let ipv6_enabled = state.ipv6_enabled.load(Ordering::SeqCst);
     log::debug!(
-        "get_protocol_flags: ipv4_enabled: {}, ipv6_enabled: {}",
-        ipv4_enabled,
-        ipv6_enabled
+        "get_protocol_flags: ipv4_enabled: {ipv4_enabled}, ipv6_enabled: {ipv6_enabled}"
     );
     ProtocolFlags {
         ipv4: ipv4_enabled,
@@ -436,11 +430,11 @@ fn update_interface(
         if new_flag {
             daemon
                 .enable_interface(if_kind.clone())
-                .map_err(|e| format!("Failed to enable {:?} interface: {:?}", if_kind, e))?;
+                .map_err(|e| format!("Failed to enable {if_kind:?} interface: {e:?}"))?;
         } else {
             daemon
                 .disable_interface(if_kind.clone())
-                .map_err(|e| format!("Failed to disable {:?} interface: {:?}", if_kind, e))?;
+                .map_err(|e| format!("Failed to disable {if_kind:?} interface: {e:?}"))?;
         }
         state_flag.store(new_flag, Ordering::SeqCst);
     }
@@ -449,11 +443,11 @@ fn update_interface(
 
 #[tauri::command]
 fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Result<(), String> {
-    log::debug!("Setting protocol flags: {:?}", flags);
+    log::debug!("Setting protocol flags: {flags:?}");
     let daemon = state
         .daemon
         .lock()
-        .map_err(|e| format!("Failed to lock daemon: {:?}", e))?;
+        .map_err(|e| format!("Failed to lock daemon: {e:?}"))?;
     let current_ipv4 = state.ipv4_enabled.load(Ordering::SeqCst);
     update_interface(
         current_ipv4,
@@ -557,7 +551,7 @@ fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
     let app = window.app_handle();
     app.clipboard()
         .write_text(contents)
-        .map_err(|e| format!("Failed to copy to clipboard: {:?}", e))?;
+        .map_err(|e| format!("Failed to copy to clipboard: {e:?}"))?;
     Ok(())
 }
 
@@ -567,7 +561,7 @@ fn theme(window: Window) -> Theme {
     match window.theme() {
         Ok(theme) => theme,
         Err(err) => {
-            log::error!("Failed to get theme: {:?}, using dark", err);
+            log::error!("Failed to get theme: {err:?}, using dark");
             Theme::Dark
         }
     }
