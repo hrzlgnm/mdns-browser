@@ -348,7 +348,7 @@ fn extract_first_non_ipv6_link_local(
 /// ```
 fn format_address(address: &std::net::IpAddr) -> String {
     if address.is_ipv6() {
-        format!("[{}]", address)
+        format!("[{address}]")
     } else {
         address.to_string()
     }
@@ -396,7 +396,7 @@ fn get_open_url(resolved_service: &ResolvedService) -> Option<String> {
             if p.starts_with('/') {
                 p.clone()
             } else {
-                format!("/{}", p)
+                format!("/{p}")
             }
         });
     let address = extract_first_non_ipv6_link_local(resolved_service)?;
@@ -831,7 +831,7 @@ pub fn Browse() -> impl IntoView {
                 && browsing.get_untracked()
                 && service_type.get_untracked().is_empty()
             {
-                log::info!("Added services while browsing all: {:?}, browsing", added);
+                log::info!("Added services while browsing all: {added:?}, browsing");
                 browse_all_action.dispatch(added.clone());
             }
         },

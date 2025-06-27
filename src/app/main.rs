@@ -73,12 +73,12 @@ pub fn Main() -> impl IntoView {
             "dragover",
             dragover.as_ref().unchecked_ref::<Function>(),
         ) {
-            log::error!("Failed to add dragover event listener: {:?}", e)
+            log::error!("Failed to add dragover event listener: {e:?}")
         }
         if let Err(e) = window
             .add_event_listener_with_callback("drop", drop.as_ref().unchecked_ref::<Function>())
         {
-            log::error!("Failed to add drop event listener: {:?}", e)
+            log::error!("Failed to add drop event listener: {e:?}")
         }
 
         // Keep the closures alive

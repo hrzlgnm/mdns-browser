@@ -135,7 +135,7 @@ pub fn bytes_option_to_string_option_with_escaping(maybe_bytes: Option<&[u8]>) -
 fn byte_array_hexlified(byte_array: &[u8]) -> String {
     byte_array
         .iter()
-        .map(|byte| format!("{:02x}", byte))
+        .map(|byte| format!("{byte:02x}"))
         .collect::<Vec<String>>()
         .join("")
 }

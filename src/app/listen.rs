@@ -43,11 +43,7 @@ pub(crate) async fn listen_events<T, F, S, Fut>(
     let mut events = match listen::<T>(event_name).await {
         Ok(events) => events,
         Err(err) => {
-            log::error!(
-                "Failed to listen to event: {}. Error: {:?}",
-                event_name,
-                err
-            );
+            log::error!("Failed to listen to event: {event_name}. Error: {err:?}");
             return;
         }
     };
@@ -77,11 +73,11 @@ where
     F: FnMut(T) + 'static,
 {
     let event_name_kebab = event_name_snake.replace('_', "-");
-    let command = format!("subscribe_{}", event_name_snake);
+    let command = format!("subscribe_{event_name_snake}");
 
     listen_events::<T, F, _, _>(
         async move || invoke_no_args(command).await,
-        &format!("{}-changed", event_name_kebab),
+        &format!("{event_name_kebab}-changed"),
         process_event,
     )
     .await;
@@ -138,11 +134,7 @@ pub(crate) async fn listen_add_remove<A, R, FA, FR, S, Fut>(
     let mut added_fused = match listen::<A>(added_event_name).await {
         Ok(added) => added.fuse(),
         Err(err) => {
-            log::error!(
-                "Failed to listen to event: {}. Error: {:?}",
-                added_event_name,
-                err
-            );
+            log::error!("Failed to listen to event: {added_event_name}. Error: {err:?}");
             return;
         }
     };
@@ -150,11 +142,7 @@ pub(crate) async fn listen_add_remove<A, R, FA, FR, S, Fut>(
     let mut removed_fused = match listen::<R>(removed_event_name).await {
         Ok(removed) => removed.fuse(),
         Err(err) => {
-            log::error!(
-                "Failed to listen to event: {}. Error: {:?}",
-                removed_event_name,
-                err
-            );
+            log::error!("Failed to listen to event: {removed_event_name}. Error: {err:?}");
             return;
         }
     };
