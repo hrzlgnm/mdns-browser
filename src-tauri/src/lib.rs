@@ -50,9 +50,7 @@ impl ManagedState {
 fn get_shared_daemon() -> SharedServiceDaemon {
     let daemon = ServiceDaemon::new().expect("Failed to create daemon");
     if let Err(err) = daemon.use_service_detailed(true) {
-        log::warn!(
-            "Failed to enable detailed service info: {err:?}, continuing without it"
-        );
+        log::warn!("Failed to enable detailed service info: {err:?}, continuing without it");
     }
     Arc::new(Mutex::new(daemon))
 }
