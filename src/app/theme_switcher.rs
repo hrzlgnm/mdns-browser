@@ -18,7 +18,7 @@ use super::listen::listen_events;
 pub fn ThemeSwitcher(theme: RwSignal<Theme>) -> impl IntoView {
     LocalResource::new(move || async move {
         let theme_str = invoke::<String>("theme", &()).await;
-        log::debug!("Got theme: {:?}", theme_str);
+        log::debug!("Got theme: {theme_str:?}");
         theme.update(|v| *v = Theme::from(theme_str));
 
         listen_events(
