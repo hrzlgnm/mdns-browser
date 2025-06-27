@@ -36,7 +36,7 @@ pub fn create_clipboard_toast(text: &str) -> impl IntoView {
     view! {
         <Toast>
             <ToastTitle>"Clipboard"</ToastTitle>
-            <ToastBody>{format!("Copied `{}` to clipboard", text)}</ToastBody>
+            <ToastBody>{format!("Copied `{text}` to clipboard")}</ToastBody>
         </Toast>
     }
 }

@@ -12,7 +12,7 @@ use super::invoke::invoke_no_args;
 
 async fn fetch_update() -> Option<UpdateMetadata> {
     let update = invoke::<Option<UpdateMetadata>>("fetch_update", &()).await;
-    log::debug!("Got update: {:?}", update);
+    log::debug!("Got update: {update:?}");
     update
 }
 
@@ -62,7 +62,7 @@ pub fn About() -> impl IntoView {
 
     let fetch_update_action = Action::new_local(move |_: &()| async move {
         let update = fetch_update().await;
-        log::debug!("Got update: {:?}", update);
+        log::debug!("Got update: {update:?}");
         if update.is_none() {
             show_no_update_with_timeout();
         }
@@ -100,18 +100,16 @@ pub fn About() -> impl IntoView {
 
     let on_issues_click = move |_| {
         github_action.dispatch(format!(
-            "{}/issues?q=is%3Aopen+is%3Aissue+label%3Abug",
-            GITHUB_BASE_URL
+            "{GITHUB_BASE_URL}/issues?q=is%3Aopen+is%3Aissue+label%3Abug"
         ));
     };
     let on_report_issue_click = move |_| {
         github_action.dispatch(format!(
-            "{}/issues/new?template=bug_report.yml",
-            GITHUB_BASE_URL
+            "{GITHUB_BASE_URL}/issues/new?template=bug_report.yml"
         ));
     };
     let on_releases_click = move |_| {
-        github_action.dispatch(format!("{}/releases/", GITHUB_BASE_URL));
+        github_action.dispatch(format!("{GITHUB_BASE_URL}/releases/"));
     };
 
     let on_check_update_click = move |_| {
