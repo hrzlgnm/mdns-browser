@@ -322,16 +322,11 @@ fn extract_first_non_ipv6_link_local(
 ) -> Option<std::net::IpAddr> {
     resolved_service
         .addresses
-        .iter()
-        .find_map(|&address| match address {
-            std::net::IpAddr::V4(_) => Some(address),
-            std::net::IpAddr::V6(ipv6_addr) => {
-                if !ipv6_addr.is_unicast_link_local() {
-                    Some(address)
-                } else {
-                    None
-                }
-            }
+        .clone()
+        .into_keys()
+        .find(|address| match address {
+            std::net::IpAddr::V4(_) => true,
+            std::net::IpAddr::V6(ipv6_addr) => !ipv6_addr.is_unicast_link_local(),
         })
 }
 
@@ -491,8 +486,7 @@ fn ResolvedServiceItem(
         resolved_service
             .addresses()
             .get()
-            .iter()
-            .map(|a| a.to_string())
+            .into_iter()
             .collect::<Vec<_>>()
     });
 
@@ -516,7 +510,7 @@ fn ResolvedServiceItem(
         addrs
             .get()
             .first()
-            .map(|a| a.to_string())
+            .map(|a| a.0.to_string())
             .unwrap_or_default()
     });
 
@@ -538,6 +532,12 @@ fn ResolvedServiceItem(
             "resolved-service-alive".to_string()
         }
     });
+
+    let addrs_display = addrs
+        .get()
+        .iter()
+        .map(|a| a.0.to_string())
+        .collect::<Vec<_>>();
     let cannot_verify = Signal::derive(move || dead.get() || !browsing.get());
 
     view! {
@@ -604,7 +604,7 @@ fn ResolvedServiceItem(
                                                             </Flex>
                                                         </DialogTitle>
                                                         <ValuesTable values=subtype title="subtype".to_string() />
-                                                        <ValuesTable values=addrs title="IPs".to_string() />
+                                                        <ValuesTable values=addrs_display title="IPs".to_string() />
                                                         <ValuesTable values=txts title="txt".to_string() />
                                                     </Flex>
                                                 </Scrollbar>
