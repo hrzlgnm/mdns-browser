@@ -75,7 +75,7 @@ jobs:
         run: ${{ matrix.install }}
 
       - name: 📝 Check spelling using typos-action
-        uses: crate-ci/typos@b1ae8d918b6e85bd611117d3d9a3be4f903ee5e4 # v1.33.1
+        uses: crate-ci/typos@392b78fe18a52790c53f42456e46124f77346842 # v1.34.0
 
       - name: 📥 Cached install trunk
         uses: baptiste0928/cargo-install@e38323ef017552d7f7af73a3f4db467f278310ed # v3
@@ -97,7 +97,7 @@ jobs:
         uses: baptiste0928/cargo-install@e38323ef017552d7f7af73a3f4db467f278310ed # v3
         with:
           crate: tauri-cli
-          version: 2.6.1
+          version: 2.6.2
           locked: true
 
       - name: 📥 Cached install leptosfmt (ubuntu only)
@@ -154,7 +154,7 @@ jobs:
           Import-PfxCertificate -FilePath certificate/certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
 
       - name: 🔨 Build using tauri action (publish artifacts on release)
-        uses: tauri-apps/tauri-action@42e9df6c59070d114bf90dcd3943a1b8f138b113 # v0.5.20
+        uses: tauri-apps/tauri-action@564aea5a8075c7a54c167bb0cf5b3255314a7f9d # v0.5.22
         env:
           RUSTFLAGS: "-D warnings"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
