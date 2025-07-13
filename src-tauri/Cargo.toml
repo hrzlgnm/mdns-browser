@@ -17,7 +17,10 @@ chrono = { workspace = true }
 [dependencies]
 # crates
 log = { workspace = true }
-mdns-sd = { version = "0.13", features = ["async", "log"] }
+mdns-sd = { git = "https://github.com/keepsimple1/mdns-sd", branch = "main", features = [
+    "async",
+    "log",
+] }
 serde = { workspace = true }
 serde_json = "1.0"
 tauri = { version = "2.0", features = ["devtools"] }
