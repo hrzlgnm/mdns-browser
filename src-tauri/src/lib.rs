@@ -81,6 +81,7 @@ fn from_resolved_service_detailed(resolved: &mdns_sd::ResolvedService) -> Resolv
         .map(convert_to_scoped_addr)
         .collect();
     sorted_addresses.sort();
+    sorted_addresses.dedup();
     let mut sorted_txt: Vec<TxtRecord> = resolved
         .txt_properties
         .iter()
