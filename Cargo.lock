@@ -3142,7 +3142,7 @@ checksum = "2532096657941c2fea9c289d370a250971c689d4f143798ff67113ec042024a5"
 
 [[package]]
 name = "mdns-browser"
-version = "0.20.2"
+version = "0.20.3"
 dependencies = [
  "chrono",
  "clap",
@@ -3167,7 +3167,7 @@ dependencies = [
 
 [[package]]
 name = "mdns-browser-ui"
-version = "0.20.2"
+version = "0.20.3"
 dependencies = [
  "chrono",
  "console_error_panic_hook",
@@ -3259,7 +3259,7 @@ dependencies = [
 
 [[package]]
 name = "models"
-version = "0.20.2"
+version = "0.20.3"
 dependencies = [
  "reactive_stores",
  "serde",
@@ -5261,7 +5261,7 @@ dependencies = [
 
 [[package]]
 name = "shared_constants"
-version = "0.20.2"
+version = "0.20.3"
 
 [[package]]
 name = "shlex"
