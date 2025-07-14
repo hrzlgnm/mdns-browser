@@ -13,7 +13,6 @@ use shared_constants::{
 };
 use std::{
     collections::{HashMap, HashSet},
-    net::IpAddr,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc, Mutex,
