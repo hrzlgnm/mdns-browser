@@ -291,31 +291,6 @@ fn drop_local_and_trailing_dot(fqn: &str) -> String {
 /// - An IPv4 address, or
 /// - An IPv6 address that is not unicast link-local.
 ///
-/// Returns `None` if no suitable IP address is found.
-///
-/// # Examples
-///
-/// ```
-/// use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
-///
-/// // Dummy definition for demonstration purposes.
-/// struct ResolvedService {
-///     addresses: Vec<IpAddr>,
-/// }
-///
-/// let service = ResolvedService {
-///     addresses: vec![
-///         // This IPv6 address is unicast link-local and will be skipped.
-///         IpAddr::V6(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 1)),
-///         // This IPv4 address is valid and will be returned.
-///         IpAddr::V4(Ipv4Addr::new(192, 168, 1, 5)),
-///         // This IPv6 address is not link-local and would also be valid if encountered first.
-///         IpAddr::V6(Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 1)),
-///     ],
-/// };
-///
-/// let address = extract_first_non_ipv6_link_local(&service).unwrap();
-/// assert_eq!(address, IpAddr::V4(Ipv4Addr::new(192, 168, 1, 5)));
 /// ```
 fn extract_first_non_ipv6_link_local(
     resolved_service: &ResolvedService,
@@ -323,11 +298,11 @@ fn extract_first_non_ipv6_link_local(
     resolved_service
         .addresses
         .iter()
-        .find_map(|&address| match address {
-            std::net::IpAddr::V4(_) => Some(address),
+        .find_map(|address| match address.addr {
+            std::net::IpAddr::V4(_) => Some(address.addr),
             std::net::IpAddr::V6(ipv6_addr) => {
                 if !ipv6_addr.is_unicast_link_local() {
-                    Some(address)
+                    Some(address.addr)
                 } else {
                     None
                 }

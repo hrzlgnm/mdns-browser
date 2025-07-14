@@ -56,8 +56,27 @@ fn get_shared_daemon() -> SharedServiceDaemon {
 }
 
 fn from_resolved_service_detailed(resolved: &mdns_sd::ResolvedService) -> ResolvedService {
-    let mut sorted_addresses: Vec<IpAddr> =
-        resolved.addresses.iter().map(|a| a.to_ip_addr()).collect();
+    let mut sorted_addresses: Vec<ScopedAddr> = resolved
+        .addresses
+        .iter()
+        .map(|a| match a {
+            mdns_sd::HostIp::V6(host_ip_v6) => {
+                if host_ip_v6.addr().is_unicast_link_local() {
+                    let scope = host_ip_v6.scope_id();
+                    ScopedAddr {
+                        addr: a.to_ip_addr(),
+                        scope: Some(InterfaceScope {
+                            name: scope.name.clone(),
+                            index: scope.index,
+                        }),
+                    }
+                } else {
+                    a.to_ip_addr().into()
+                }
+            }
+            _ => a.to_ip_addr().into(),
+        })
+        .collect();
     sorted_addresses.sort();
     let mut sorted_txt: Vec<TxtRecord> = resolved
         .txt_properties
