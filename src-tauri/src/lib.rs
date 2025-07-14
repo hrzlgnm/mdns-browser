@@ -13,7 +13,6 @@ use shared_constants::{
 };
 use std::{
     collections::{HashMap, HashSet},
-    net::IpAddr,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc, Mutex,
@@ -55,9 +54,32 @@ fn get_shared_daemon() -> SharedServiceDaemon {
     Arc::new(Mutex::new(daemon))
 }
 
+fn convert_to_scoped_addr(host_ip: &mdns_sd::HostIp) -> ScopedAddr {
+    match host_ip {
+        mdns_sd::HostIp::V6(host_ip_v6) => {
+            if host_ip_v6.addr().is_unicast_link_local() {
+                let scope = host_ip_v6.scope_id();
+                ScopedAddr {
+                    addr: host_ip.to_ip_addr(),
+                    scope: Some(InterfaceScope {
+                        name: scope.name.clone(),
+                        index: scope.index,
+                    }),
+                }
+            } else {
+                host_ip.to_ip_addr().into()
+            }
+        }
+        _ => host_ip.to_ip_addr().into(),
+    }
+}
+
 fn from_resolved_service_detailed(resolved: &mdns_sd::ResolvedService) -> ResolvedService {
-    let mut sorted_addresses: Vec<IpAddr> =
-        resolved.addresses.iter().map(|a| a.to_ip_addr()).collect();
+    let mut sorted_addresses: Vec<ScopedAddr> = resolved
+        .addresses
+        .iter()
+        .map(convert_to_scoped_addr)
+        .collect();
     sorted_addresses.sort();
     let mut sorted_txt: Vec<TxtRecord> = resolved
         .txt_properties

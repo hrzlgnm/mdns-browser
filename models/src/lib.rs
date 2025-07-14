@@ -30,13 +30,41 @@ impl TxtRecord {
     }
 }
 
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Store)]
+pub struct InterfaceScope {
+    pub name: String,
+    pub index: u32,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Store)]
+pub struct ScopedAddr {
+    pub addr: IpAddr,
+    pub scope: Option<InterfaceScope>,
+}
+
+impl From<IpAddr> for ScopedAddr {
+    fn from(addr: IpAddr) -> Self {
+        ScopedAddr { addr, scope: None }
+    }
+}
+
+impl Display for ScopedAddr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(scope) = &self.scope {
+            write!(f, "{}%{}", self.addr, scope.index)
+        } else {
+            write!(f, "{}", self.addr)
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Store)]
 pub struct ResolvedService {
     pub instance_fullname: String,
     pub service_type: String,
     pub hostname: String,
     pub port: u16,
-    pub addresses: Vec<IpAddr>,
+    pub addresses: Vec<ScopedAddr>,
     pub subtype: Option<String>,
     pub txt: Vec<TxtRecord>,
     #[serde(with = "serde_with::As::<serde_with::DisplayFromStr>")]
@@ -364,7 +392,7 @@ mod tests {
         let service_type = "_banan._tcp.local".to_string();
         let hostname = "test.local".to_string();
         let port = 8080;
-        let addresses = vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))];
+        let addresses = vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)).into()];
         let subtype = Some("test_subtype".to_string());
         let txt = vec![];
         let updated_at_ms = 1620000000000;
@@ -403,7 +431,7 @@ mod tests {
             service_type: "_banan._tcp.local.".to_string(),
             hostname: "test.local".to_string(),
             port: 8080,
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))],
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)).into()],
             subtype: None,
             txt: vec![],
             updated_at_micros: 1620000000000,
@@ -428,7 +456,7 @@ mod tests {
             service_type: "_banan._tcp.local.".to_string(),
             hostname: "test.local".to_string(),
             port: 8080,
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))],
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)).into()],
             subtype: None,
             txt: vec![],
             updated_at_micros: 1620000000000,
@@ -457,7 +485,7 @@ mod tests {
             service_type: "_banan._tcp.local.".to_string(),
             hostname: "test.local".to_string(),
             port: 8080,
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))],
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)).into()],
             subtype: None,
             txt: vec![],
             updated_at_micros: 1620000000000,
@@ -480,7 +508,7 @@ mod tests {
             service_type: "_http._tcp.local".to_string(),
             hostname: "hostname.local".to_string(),
             port: 80,
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))],
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)).into()],
             subtype: None,
             txt: vec![],
             updated_at_micros: 0,
@@ -494,7 +522,7 @@ mod tests {
             service_type: "_http._tcp.local".to_string(),
             hostname: "hostname.local".to_string(),
             port: 80,
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))],
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)).into()],
             subtype: None,
             txt: vec![],
             updated_at_micros: 0,
@@ -511,8 +539,8 @@ mod tests {
             hostname: "my-host.local".to_string(),
             port: 8080,
             addresses: vec![
-                "192.168.1.1".parse::<IpAddr>().unwrap(),
-                "fe80::1".parse::<IpAddr>().unwrap(),
+                "192.168.1.1".parse::<IpAddr>().unwrap().into(),
+                "fe80::1".parse::<IpAddr>().unwrap().into(),
             ],
             subtype: Some("sub-type".to_string()),
             txt: vec![TxtRecord {
@@ -589,8 +617,8 @@ mod tests {
             hostname: "my-host.local".to_string(),
             port: 8080,
             addresses: vec![
-                "192.168.1.1".parse::<IpAddr>().unwrap(),
-                "fe80::1".parse::<IpAddr>().unwrap(),
+                "192.168.1.1".parse::<IpAddr>().unwrap().into(),
+                "fe80::1".parse::<IpAddr>().unwrap().into(),
             ],
             subtype: None,
             txt: vec![TxtRecord {
@@ -614,7 +642,7 @@ mod tests {
             service_type: "_http._tcp".to_string(),
             hostname: "host.local".to_string(),
             port: 8080,
-            addresses: vec!["127.0.0.1".parse::<IpAddr>().unwrap()],
+            addresses: vec!["127.0.0.1".parse::<IpAddr>().unwrap().into()],
             subtype: Some("printer".to_string()),
             txt: vec![],
             updated_at_micros: updated_at,
