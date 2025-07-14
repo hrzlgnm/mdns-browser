@@ -56,11 +56,8 @@ fn get_shared_daemon() -> SharedServiceDaemon {
 }
 
 fn from_resolved_service_detailed(resolved: &mdns_sd::ResolvedService) -> ResolvedService {
-    let mut sorted_addresses: Vec<IpAddr> = resolved
-        .addresses
-        .iter()
-        .map(|a| a.to_ip_addr())
-        .collect();
+    let mut sorted_addresses: Vec<IpAddr> =
+        resolved.addresses.iter().map(|a| a.to_ip_addr()).collect();
     sorted_addresses.sort();
     let mut sorted_txt: Vec<TxtRecord> = resolved
         .txt_properties
