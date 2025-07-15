@@ -318,7 +318,7 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
                     || (adapter.if_type() != IfType::EthernetCsmacd
                         && adapter.if_type() != IfType::Ieee80211)
                 {
-                    Some(IfKind::from(adapter.friendly_name().as_str()))
+                    Some(IfKind::from(adapter.friendly_name()))
                 } else {
                     None
                 }
