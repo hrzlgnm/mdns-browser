@@ -515,7 +515,7 @@ fn update_interface(
     // enable those interfaces.
     if let Err(err) = daemon.disable_interface(enumerate_mdns_incapable_interfaces()) {
         // Log the error but continue, as this is not critical.
-        log::warn!("Failed to disable {if_kind:?} interface: {err:?}, continuing anyway");
+        log::warn!("Failed to disable interfaces: {err:?}, continuing anyway");
     }
     Ok(())
 }
