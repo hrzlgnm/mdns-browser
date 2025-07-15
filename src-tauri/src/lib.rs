@@ -36,7 +36,7 @@ struct ManagedState {
 impl ManagedState {
     fn new() -> Self {
         Self {
-            daemon: initilize_shared_daemon(),
+            daemon: initialize_shared_daemon(),
             queriers: Arc::new(Mutex::new(HashSet::new())),
             metrics_subscribed: AtomicBool::new(false),
             can_browse_subscribed: AtomicBool::new(false),
@@ -46,7 +46,7 @@ impl ManagedState {
     }
 }
 
-fn initilize_shared_daemon() -> SharedServiceDaemon {
+fn initialize_shared_daemon() -> SharedServiceDaemon {
     let daemon = ServiceDaemon::new().expect("Failed to create daemon");
     if let Err(err) = daemon.use_service_detailed(true) {
         eprintln!("Failed to enable detailed service info: {err:?}, continuing without it");
