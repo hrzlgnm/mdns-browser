@@ -514,7 +514,7 @@ fn update_interface(
     // We have to disable interfaces that are not needed anymore, as enabling IPv4 or IPv6 may also
     // enable those interfaces.
     if let Err(err) = daemon.disable_interface(enumerate_mdns_incapable_interfaces()) {
-        // Log the error but continue, as this is not critical.) {
+        // Log the error but continue, as this is not critical.
         log::warn!("Failed to disable {if_kind:?} interface: {err:?}, continuing anyway");
     }
     Ok(())
