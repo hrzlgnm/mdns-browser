@@ -36,7 +36,7 @@ struct ManagedState {
 impl ManagedState {
     fn new() -> Self {
         Self {
-            daemon: get_shared_daemon(),
+            daemon: initialize_shared_daemon(),
             queriers: Arc::new(Mutex::new(HashSet::new())),
             metrics_subscribed: AtomicBool::new(false),
             can_browse_subscribed: AtomicBool::new(false),
@@ -46,10 +46,13 @@ impl ManagedState {
     }
 }
 
-fn get_shared_daemon() -> SharedServiceDaemon {
+fn initialize_shared_daemon() -> SharedServiceDaemon {
     let daemon = ServiceDaemon::new().expect("Failed to create daemon");
     if let Err(err) = daemon.use_service_detailed(true) {
         log::warn!("Failed to enable detailed service info: {err:?}, continuing without it");
+    }
+    if let Err(err) = daemon.disable_interface(enumerate_mdns_incapable_interfaces()) {
+        log::warn!("Failed to disable interface: {err:?}, continuing anyway");
     }
     Arc::new(Mutex::new(daemon))
 }
@@ -282,6 +285,51 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
 }
 
 #[cfg(not(windows))]
+fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
+    use pnet::datalink;
+    let interfaces = datalink::interfaces();
+    interfaces
+        .iter()
+        .filter_map(|interface| {
+            if interface.ips.is_empty()
+                || !interface.is_running()
+                || interface.is_loopback()
+                || !interface.is_multicast()
+                || !interface.is_broadcast()
+            {
+                Some(IfKind::from(interface.name.as_str()))
+            } else {
+                None
+            }
+        })
+        .collect()
+}
+
+#[cfg(windows)]
+fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
+    use ipconfig::{IfType, OperStatus};
+
+    if let Ok(adapters) = ipconfig::get_adapters() {
+        adapters
+            .iter()
+            .filter_map(|adapter| {
+                if adapter.ip_addresses().is_empty()
+                    || adapter.oper_status() != OperStatus::IfOperStatusUp
+                    || (adapter.if_type() != IfType::EthernetCsmacd
+                        && adapter.if_type() != IfType::Ieee80211)
+                {
+                    Some(IfKind::from(adapter.friendly_name()))
+                } else {
+                    None
+                }
+            })
+            .collect()
+    } else {
+        vec![]
+    }
+}
+
+#[cfg(not(windows))]
 fn has_mdns_capable_interfaces() -> bool {
     use pnet::datalink;
     let interfaces = datalink::interfaces();
@@ -290,7 +338,7 @@ fn has_mdns_capable_interfaces() -> bool {
             && !interface.is_loopback()
             && interface.is_multicast()
             && interface.is_broadcast()
-            && interface.is_up();
+            && interface.is_running();
         log::trace!(
             "interface {} can be used for mDNS {}",
             interface.name,
@@ -460,6 +508,12 @@ fn update_interface(
                 .map_err(|e| format!("Failed to disable {if_kind:?} interface: {e:?}"))?;
         }
         state_flag.store(new_flag, Ordering::SeqCst);
+    }
+    // We have to disable interfaces that are not needed anymore, as enabling IPv4 or IPv6 may also
+    // enable those interfaces.
+    if let Err(err) = daemon.disable_interface(enumerate_mdns_incapable_interfaces()) {
+        // Log the error but continue, as this is not critical.
+        log::warn!("Failed to disable interfaces: {err:?}, continuing anyway");
     }
     Ok(())
 }
@@ -794,10 +848,6 @@ pub fn run() {
     }
     let colors = tauri_plugin_log::fern::colors::ColoredLevelConfig::default();
     tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_clipboard_manager::init())
-        .manage(ManagedState::new())
-        .manage(autoupdate::PendingUpdate(Mutex::new(None)))
         .plugin(
             tauri_plugin_log::Builder::default()
                 .targets(log_targets)
@@ -815,7 +865,11 @@ pub fn run() {
                 })
                 .build(),
         )
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .manage(ManagedState::new())
+        .manage(autoupdate::PendingUpdate(Mutex::new(None)))
         .setup(move |app| {
             let splashscreen_window = app
                 .get_webview_window("splashscreen")
