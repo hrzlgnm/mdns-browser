@@ -49,12 +49,12 @@ impl ManagedState {
 fn initialize_shared_daemon() -> SharedServiceDaemon {
     let daemon = ServiceDaemon::new().expect("Failed to create daemon");
     if let Err(err) = daemon.use_service_detailed(true) {
-    if let Err(err) = daemon.use_service_detailed(true) {
-        log::warn!("Failed to enable detailed service info: {err:?}, continuing without it");
-    }
-    if let Err(err) = daemon.disable_interface(enumerate_mdns_incapable_interfaces()) {
-        log::warn!("Failed to disable interface: {err:?}, continuing anyway");
-    }
+        if let Err(err) = daemon.use_service_detailed(true) {
+            log::warn!("Failed to enable detailed service info: {err:?}, continuing without it");
+        }
+        if let Err(err) = daemon.disable_interface(enumerate_mdns_incapable_interfaces()) {
+            log::warn!("Failed to disable interface: {err:?}, continuing anyway");
+        }
     }
     Arc::new(Mutex::new(daemon))
 }
