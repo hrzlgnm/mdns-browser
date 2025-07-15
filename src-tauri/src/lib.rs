@@ -293,15 +293,15 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
     interfaces
         .iter()
         .filter_map(|interface| {
-            if !interface.ips.is_empty()
-                && interface.is_running()
-                && !interface.is_loopback()
-                && interface.is_multicast()
-                && interface.is_broadcast()
+            if interface.ips.is_empty()
+                || !interface.is_running()
+                || interface.is_loopback()
+                || !interface.is_multicast()
+                || !interface.is_broadcast()
             {
-                None
-            } else {
                 Some(IfKind::from(interface.name.as_str()))
+            } else {
+                None
             }
         })
         .collect()
@@ -315,14 +315,14 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
         adapters
             .iter()
             .filter_map(|adapter| {
-                if !adapter.ip_addresses().is_empty()
-                    && adapter.oper_status() == OperStatus::IfOperStatusUp
-                    && (adapter.if_type() == IfType::EthernetCsmacd
-                        || adapter.if_type() == IfType::Ieee80211)
+                if adapter.ip_addresses().is_empty()
+                    || adapter.oper_status() != OperStatus::IfOperStatusUp
+                    || (adapter.if_type() != IfType::EthernetCsmacd
+                        && adapter.if_type() != IfType::Ieee80211)
                 {
-                    None
-                } else {
                     Some(IfKind::from(adapter.friendly_name().as_str()))
+                } else {
+                    None
                 }
             })
             .collect()
