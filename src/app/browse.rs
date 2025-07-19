@@ -631,13 +631,17 @@ impl ServiceTypesInjection {
 
 #[derive(Clone, Debug, Default)]
 enum SortKind {
+    InstanceAsc,
+    InstanceDesc,
     #[default]
     HostnameAsc,
     HostnameDesc,
-    InstanceAsc,
-    InstanceDesc,
+    PortAsc,
+    PortDesc,
     ServiceTypeAsc,
     ServiceTypeDesc,
+    IpAddrAsc,
+    IpAddrDesc,
     TimestampAsc,
     TimestampDesc,
 }
@@ -663,6 +667,14 @@ fn start_auto_focus_timer(
 
 fn apply_sort_kind(store: Store<Resolved>, sort_kind: &SortKind) {
     match sort_kind {
+        SortKind::InstanceAsc => store
+            .services()
+            .write()
+            .sort_by(|a, b| a.instance_fullname.cmp(&b.instance_fullname)),
+        SortKind::InstanceDesc => store
+            .services()
+            .write()
+            .sort_by(|a, b| b.instance_fullname.cmp(&a.instance_fullname)),
         SortKind::HostnameAsc => {
             store
                 .services()
@@ -681,14 +693,11 @@ fn apply_sort_kind(store: Store<Resolved>, sort_kind: &SortKind) {
                     other => other,
                 })
         }
-        SortKind::InstanceAsc => store
+        SortKind::PortAsc => store.services().write().sort_by_key(|i| i.port),
+        SortKind::PortDesc => store
             .services()
             .write()
-            .sort_by(|a, b| a.instance_fullname.cmp(&b.instance_fullname)),
-        SortKind::InstanceDesc => store
-            .services()
-            .write()
-            .sort_by(|a, b| b.instance_fullname.cmp(&a.instance_fullname)),
+            .sort_by_key(|i| std::cmp::Reverse(i.port)),
         SortKind::ServiceTypeAsc => store
             .services()
             .write()
@@ -697,6 +706,14 @@ fn apply_sort_kind(store: Store<Resolved>, sort_kind: &SortKind) {
             .services()
             .write()
             .sort_by(|a, b| b.service_type.cmp(&a.service_type)),
+        SortKind::IpAddrAsc => store
+            .services()
+            .write()
+            .sort_by(|a, b| a.addresses.cmp(&b.addresses)),
+        SortKind::IpAddrDesc => store
+            .services()
+            .write()
+            .sort_by(|a, b| b.addresses.cmp(&a.addresses)),
         SortKind::TimestampAsc => store
             .services()
             .write()
@@ -749,12 +766,16 @@ pub fn Browse() -> impl IntoView {
     let sort_value = RwSignal::new("HostnameAsc".to_string());
 
     Effect::new(move |_| match sort_value.get().as_str() {
-        "HostnameAsc" => store.sort_by().set(SortKind::HostnameAsc),
-        "HostnameDesc" => store.sort_by().set(SortKind::HostnameDesc),
         "InstanceAsc" => store.sort_by().set(SortKind::InstanceAsc),
         "InstanceDesc" => store.sort_by().set(SortKind::InstanceDesc),
+        "HostnameAsc" => store.sort_by().set(SortKind::HostnameAsc),
+        "HostnameDesc" => store.sort_by().set(SortKind::HostnameDesc),
+        "PortAsc" => store.sort_by().set(SortKind::PortAsc),
+        "PortDesc" => store.sort_by().set(SortKind::PortDesc),
         "ServiceTypeAsc" => store.sort_by().set(SortKind::ServiceTypeAsc),
         "ServiceTypeDesc" => store.sort_by().set(SortKind::ServiceTypeDesc),
+        "IpAddrAsc" => store.sort_by().set(SortKind::IpAddrAsc),
+        "IpAddrDesc" => store.sort_by().set(SortKind::IpAddrDesc),
         "TimestampAsc" => store.sort_by().set(SortKind::TimestampAsc),
         "TimestampDesc" => store.sort_by().set(SortKind::TimestampDesc),
         _ => {}
@@ -956,12 +977,16 @@ pub fn Browse() -> impl IntoView {
                 <Flex gap=FlexGap::Small align=FlexAlign::Center justify=FlexJustify::Start>
                     <Text>"Sort by"</Text>
                     <Select default_value="HostnameAsc" value=sort_value>
-                        <option label="Hostname (Ascending)" value="HostnameAsc" />
-                        <option label="Hostname (Descending)" value="HostnameDesc" />
                         <option label="Instance (Ascending)" value="InstanceAsc" />
                         <option label="Instance (Descending)" value="InstanceDesc" />
+                        <option label="Hostname (Ascending)" value="HostnameAsc" />
+                        <option label="Hostname (Descending)" value="HostnameDesc" />
+                        <option label="Port (Ascending)" value="PortAsc" />
+                        <option label="Port (Descending)" value="PortDesc" />
                         <option label="Service Type (Ascending)" value="ServiceTypeAsc" />
                         <option label="Service Type (Descending)" value="ServiceTypeDesc" />
+                        <option label="IP (Ascending)" value="IpAddrAsc" />
+                        <option label="IP (Descending)" value="IpAddrDesc" />
                         <option label="Last Updated (Ascending)" value="TimestampAsc" />
                         <option label="Last Updated (Descending)" value="TimestampDesc" />
                     </Select>
