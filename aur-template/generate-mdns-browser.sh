@@ -27,7 +27,7 @@ prepare() {
     cd "\$srcdir/\$_builddir" || exit 1
     export RUSTUP_TOOLCHAIN=stable
     cargo --locked install trunk@0.21.14 --no-default-features --features rustls
-    cargo --locked install tauri-cli@2.6.2
+    cargo --locked install tauri-cli@2.7.0
     cargo --locked install cargo-auditable@0.7.0
     rustup toolchain install \$RUSTUP_TOOLCHAIN --target wasm32-unknown-unknown --profile minimal --no-self-update
     cargo fetch --locked --target "\$(rustc -vV | sed -n 's/host: //p')"
