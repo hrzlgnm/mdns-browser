@@ -43,7 +43,7 @@ models = { path = "./models" }
 
 [workspace]
 members = ["models", "shared_constants", "src-tauri"]
-resolve = "2"
+resolver = "2"
 
 [workspace.dependencies]
 chrono = "0.4"
