@@ -3,6 +3,8 @@ name: "🖥️"
 on:
   pull_request:
     paths-ignore:
+      - "*.md"
+      - ".coderabbitai.yaml"
       - ".github/*.yml"
       - ".github/docker/**"
       - ".github/ISSUE_TEMPLATE/**"
@@ -14,6 +16,9 @@ on:
       - ".github/workflows/release-*"
       - ".github/workflows/void-*"
       - ".github/workflows/winget-*"
+      - "aur-template/**"
+      - "screenshots/**"
+      - "xbps-template/**"
     branches:
       - main
 
