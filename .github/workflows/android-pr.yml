@@ -2,6 +2,18 @@ name: "📱"
 
 on:
   pull_request:
+    paths-ignore:
+      - ".github/*.yml"
+      - ".github/docker/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/renovate.json5"
+      - ".github/workflows/bump-*"
+      - ".github/workflows/docker-*"
+      - ".github/workflows/pr-label*"
+      - ".github/workflows/publish-*"
+      - ".github/workflows/release-*"
+      - ".github/workflows/void-*"
+      - ".github/workflows/winget-*"
     branches:
       - main
 
