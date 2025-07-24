@@ -3,7 +3,7 @@ name: "📱"
 on:
   pull_request:
     paths-ignore:
-      - "*.md"
+      - "**/*.md"
       - ".coderabbitai.yaml"
       - ".github/*.yml"
       - ".github/docker/**"

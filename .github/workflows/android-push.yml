@@ -3,7 +3,7 @@ name: "📱"
 on:
   push:
     paths-ignore:
-      - "*.md"
+      - "**/*.md"
       - ".coderabbitai.yaml"
       - ".github/*.yml"
       - ".github/docker/**"
