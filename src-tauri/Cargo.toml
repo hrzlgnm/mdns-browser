@@ -17,7 +17,7 @@ chrono = { workspace = true }
 [dependencies]
 # crates
 log = { workspace = true }
-mdns-sd = { git = "https://github.com/keepsimple1/mdns-sd", branch = "main", features = [
+mdns-sd = { git = "https://github.com/keepsimple1/mdns-sd", branch = "debug-dup", features = [
     "async",
     "log",
 ] }

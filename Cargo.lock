@@ -3212,13 +3212,14 @@ dependencies = [
 [[package]]
 name = "mdns-sd"
 version = "0.13.11"
-source = "git+https://github.com/keepsimple1/mdns-sd?branch=main#45b3cdd7aa79bfebe6e23d5e0e566bf9d057f62c"
+source = "git+https://github.com/keepsimple1/mdns-sd?branch=debug-dup#b000426c1e3c59d232fff895538c08f9b39394e7"
 dependencies = [
  "fastrand",
  "flume",
  "if-addrs",
  "log",
  "mio",
+ "socket-pktinfo",
  "socket2 0.5.10",
 ]
 
@@ -5341,6 +5342,16 @@ name = "smallvec"
 version = "1.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
+
+[[package]]
+name = "socket-pktinfo"
+version = "0.3.0"
+source = "git+https://github.com/keepsimple1/socket-pktinfo?branch=try-clone#3a8dadb00836ffa613bd78daf3c76c4982d5d297"
+dependencies = [
+ "libc",
+ "socket2 0.5.10",
+ "windows-sys 0.60.2",
+]
 
 [[package]]
 name = "socket2"
