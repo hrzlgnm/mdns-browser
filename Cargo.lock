@@ -3212,7 +3212,7 @@ dependencies = [
 [[package]]
 name = "mdns-sd"
 version = "0.13.11"
-source = "git+https://github.com/keepsimple1/mdns-sd?branch=main#1b194de004e7290eff8c116f3e0cb88fadf2f03e"
+source = "git+https://github.com/keepsimple1/mdns-sd?branch=main#123ecba57b14ba810b61f96634c065bf079d79e1"
 dependencies = [
  "fastrand",
  "flume",
