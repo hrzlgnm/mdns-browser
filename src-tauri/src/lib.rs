@@ -48,8 +48,8 @@ impl ManagedState {
 
 fn initialize_shared_daemon() -> SharedServiceDaemon {
     let daemon = ServiceDaemon::new().expect("Failed to create daemon");
-    if let Err(err) = daemon.use_service_detailed(true) {
-        log::warn!("Failed to enable detailed service info: {err:?}, continuing without it");
+    if let Err(err) = daemon.use_service_data(true) {
+        log::warn!("Failed to use service data: {err:?}, continuing without it");
     }
     if let Err(err) = daemon.disable_interface(enumerate_mdns_incapable_interfaces()) {
         log::warn!("Failed to disable interface: {err:?}, continuing anyway");
@@ -57,9 +57,9 @@ fn initialize_shared_daemon() -> SharedServiceDaemon {
     Arc::new(Mutex::new(daemon))
 }
 
-fn convert_to_scoped_addr(host_ip: &mdns_sd::HostIp) -> ScopedAddr {
+fn convert_to_scoped_addr(host_ip: &mdns_sd::ScopedIp) -> ScopedAddr {
     match host_ip {
-        mdns_sd::HostIp::V6(host_ip_v6) => {
+        mdns_sd::ScopedIp::V6(host_ip_v6) => {
             if host_ip_v6.addr().is_unicast_link_local() {
                 let scope = host_ip_v6.scope_id();
                 ScopedAddr {
@@ -77,7 +77,7 @@ fn convert_to_scoped_addr(host_ip: &mdns_sd::HostIp) -> ScopedAddr {
     }
 }
 
-fn from_resolved_service_detailed(resolved: &mdns_sd::ResolvedService) -> ResolvedService {
+fn from_resolved_service(resolved: &mdns_sd::ResolvedService) -> ResolvedService {
     let mut sorted_addresses: Vec<ScopedAddr> = resolved
         .addresses
         .iter()
@@ -93,7 +93,7 @@ fn from_resolved_service_detailed(resolved: &mdns_sd::ResolvedService) -> Resolv
             val: bytes_option_to_string_option_with_escaping(r.val()),
         })
         .collect();
-    sorted_txt.sort_by(|a, b| a.key.partial_cmp(&b.key).expect("To be partial comparable"));
+    sorted_txt.sort_by(|a, b| a.key.cmp(&b.key));
     ResolvedService {
         instance_fullname: resolved.fullname.clone(),
         service_type: resolved.ty_domain.clone(),
@@ -255,11 +255,11 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
         tauri::async_runtime::spawn(async move {
             while let Ok(event) = receiver.recv_async().await {
                 match event {
-                    ServiceEvent::ServiceDetailed(resolved) => emit_event(
+                    ServiceEvent::ServiceData(resolved) => emit_event(
                         &window,
                         "service-resolved",
                         &ServiceResolvedEvent {
-                            service: from_resolved_service_detailed(&resolved),
+                            service: from_resolved_service(&resolved),
                         },
                     ),
 
