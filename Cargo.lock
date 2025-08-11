@@ -141,7 +141,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1384d3fe1eecb464229fcf6eebb72306591c56bf27b373561489458a7c73027d"
 dependencies = [
  "futures",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "wasm-bindgen-futures",
 ]
 
@@ -669,7 +669,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
 ]
 
 [[package]]
@@ -808,7 +808,7 @@ checksum = "fd8bbfdadf2f8999c6e404697bc08016dce4a3d77dec465b36c9a0652fdb3327"
 dependencies = [
  "serde",
  "serde_json",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
 ]
 
 [[package]]
@@ -2890,7 +2890,7 @@ dependencies = [
  "server_fn",
  "slotmap",
  "tachys",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "throw_error",
  "typed-builder",
  "typed-builder-macro",
@@ -2909,7 +2909,7 @@ dependencies = [
  "config",
  "regex",
  "serde",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "typed-builder",
 ]
 
@@ -3181,7 +3181,7 @@ dependencies = [
  "tauri-plugin-log",
  "tauri-plugin-opener",
  "tauri-plugin-updater",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "tokio",
 ]
 
@@ -3286,7 +3286,7 @@ dependencies = [
  "reactive_stores",
  "serde",
  "serde_with",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
 ]
 
 [[package]]
@@ -3306,7 +3306,7 @@ dependencies = [
  "once_cell",
  "png",
  "serde",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "windows-sys 0.60.2",
 ]
 
@@ -3685,7 +3685,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed0423ff9973dea4d6bd075934fdda86ebb8c05bdf9d6b0507067d4a1226371d"
 dependencies = [
  "serde",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
 ]
 
 [[package]]
@@ -3755,7 +3755,7 @@ dependencies = [
  "objc2-osa-kit",
  "serde",
  "serde_json",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
 ]
 
 [[package]]
@@ -4389,7 +4389,7 @@ dependencies = [
  "rustc-hash",
  "rustls",
  "socket2 0.5.10",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "tokio",
  "tracing",
  "web-time",
@@ -4410,7 +4410,7 @@ dependencies = [
  "rustls",
  "rustls-pki-types",
  "slab",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "tinyvec",
  "tracing",
  "web-time",
@@ -4607,7 +4607,7 @@ dependencies = [
  "send_wrapper",
  "serde",
  "slotmap",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "web-sys",
 ]
 
@@ -4658,7 +4658,7 @@ checksum = "a4e608c6638b9c18977b00b475ac1f28d14e84b27d8d42f70e0bf1e3dec127ac"
 dependencies = [
  "getrandom 0.2.16",
  "libredox",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
 ]
 
 [[package]]
@@ -4815,7 +4815,7 @@ dependencies = [
  "quote",
  "syn 2.0.104",
  "syn_derive 0.2.0",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
 ]
 
 [[package]]
@@ -5109,7 +5109,7 @@ checksum = "f3faaf9e727533a19351a43cc5a8de957372163c7d35cc48c90b75cdda13c352"
 dependencies = [
  "percent-encoding",
  "serde",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
 ]
 
 [[package]]
@@ -5230,7 +5230,7 @@ dependencies = [
  "serde_json",
  "serde_qs",
  "server_fn_macro_default",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "throw_error",
  "url",
  "wasm-bindgen",
@@ -5723,7 +5723,7 @@ dependencies = [
  "tauri-runtime",
  "tauri-runtime-wry",
  "tauri-utils",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "tokio",
  "tray-icon",
  "url",
@@ -5776,7 +5776,7 @@ dependencies = [
  "sha2",
  "syn 2.0.104",
  "tauri-utils",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "time",
  "url",
  "uuid",
@@ -5826,7 +5826,7 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-plugin",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
 ]
 
 [[package]]
@@ -5847,7 +5847,7 @@ dependencies = [
  "swift-rs",
  "tauri",
  "tauri-plugin",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "time",
 ]
 
@@ -5867,7 +5867,7 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-plugin",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "url",
  "windows",
  "zbus",
@@ -5897,7 +5897,7 @@ dependencies = [
  "tauri",
  "tauri-plugin",
  "tempfile",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "time",
  "tokio",
  "url",
@@ -5922,7 +5922,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tauri-utils",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "url",
  "windows",
 ]
@@ -5966,7 +5966,7 @@ dependencies = [
  "serde",
  "serde-wasm-bindgen",
  "serde_repr",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "wasm-bindgen",
  "wasm-bindgen-futures",
 ]
@@ -6001,7 +6001,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "swift-rs",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "toml 0.8.2",
  "url",
  "urlpattern",
@@ -6116,11 +6116,11 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "2.0.12"
+version = "2.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "567b8a2dae586314f7be2a752ec7474332959c6460e02bde30d702a66d488708"
+checksum = "c0b43c71ffa7199f8a00fe309ac01551e3c35105b50ceacd7f67ce080ec18fdf"
 dependencies = [
- "thiserror-impl 2.0.12",
+ "thiserror-impl 2.0.13",
 ]
 
 [[package]]
@@ -6136,9 +6136,9 @@ dependencies = [
 
 [[package]]
 name = "thiserror-impl"
-version = "2.0.12"
+version = "2.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f7cf42b4507d8ea322120659672cf1b9dbb93f8f2d4ecfd6e51350ff5b17a1d"
+checksum = "c65da2500f2800e48970ef01d47aeb80e328e38adf723def51b5ad1d0a8ca03e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -6452,7 +6452,7 @@ dependencies = [
  "once_cell",
  "png",
  "serde",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "windows-sys 0.59.0",
 ]
 
@@ -7003,7 +7003,7 @@ version = "0.38.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "36695906a1b53a3bf5c4289621efedac12b73eeb0b89e7e1a89b517302d5d75c"
 dependencies = [
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "windows",
  "windows-core",
 ]
@@ -7532,7 +7532,7 @@ dependencies = [
  "os_pipe",
  "rustix 0.38.44",
  "tempfile",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "tree_magic_mini",
  "wayland-backend",
  "wayland-client",
@@ -7579,7 +7579,7 @@ dependencies = [
  "sha2",
  "soup3",
  "tao-macros",
- "thiserror 2.0.12",
+ "thiserror 2.0.13",
  "url",
  "webkit2gtk",
  "webkit2gtk-sys",
