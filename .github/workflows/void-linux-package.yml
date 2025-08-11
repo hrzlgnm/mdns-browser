@@ -21,7 +21,7 @@ jobs:
       image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:b2b2c478753467fad3eaab6eba70269a216a740e1d69af529470e99bbe7fe4ba
     steps:
       - name: 🔄 Checkout
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: 🔄 Clone Void Packages and Bootstrap
         shell: bash
