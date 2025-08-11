@@ -1,68 +1,22 @@
+/** common styles for all components **/
 body {
     margin: 0;
     padding: 0;
     border: 0;
 }
-
 .hidden {
     display: none;
 }
-.mobile-outer-layout {
-    border: 0;
-}
-
-.mobile-metrics-layout {
-    border: 0;
-}
-
-.mobile-browse-layout {
-    padding-top: 5px;
-}
-.mobile-resolved-service-card {
-    width: 480px;
-}
-.mobile-resolved-service-grid {
-    grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)) !important;
-    grid-gap: 8px 8px !important;
-}
-.mobile-resolved-service-value-cell {
-    width: 350px;
-}
-
-.desktop-outer-layout {
-    padding: 10px;
-}
-.desktop-browse-layout {
-    padding-top: 10px;
-}
-
-.desktop-metrics-layout {
-    border: 0;
-}
-
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 0px;
 }
-
 .metric-item {
     border: var(--strokeWidthThin) solid var(--colorNeutralStroke2);
     padding: 2px 5px 2px 5px;
     min-width: 160px;
 }
-
-.desktop-resolved-service-card {
-    width: 520px;
-}
-.desktop-resolved-service-grid {
-    grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)) !important;
-    grid-gap: 10px 10px !important;
-}
-.desktop-resolved-service-value-cell {
-    width: 400px;
-}
-
 .resolved-service-card-title {
     white-space: nowrap;
     overflow: hidden;
@@ -70,15 +24,67 @@ body {
     display: inline-block;
     font-size: var(--fontSizeBase400);
 }
+.resolved-service-details-dialog-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+.thaw-card-header__header {
+    justify-content: space-between;
+}
+.service-type-invalid > .thaw-input {
+    border: 2px groove var(--colorStatusDangerBorder1);
+}
+.service-type-valid > .thaw-input {
+    outline: 1px solid var(--colorTransparentStroke);
+}
+.resolved-service-details-dialog-body {
+    display: flex;
+    max-width: 90vw;
+}
+.resolved-service-details-dialog-scrollarea {
+    max-height: 90vh;
+    overflow: auto;
+}
+.resolved-service-dead {
+    color: var(--colorPaletteDarkOrangeForeground1);
+}
+.resolved-service-alive {
+    color: var(--colorBrandForeground1);
+}
+.theme-switcher {
+    cursor: pointer;
+}
 
+/** mobile styles **/
+.mobile-outer-layout {
+    /** freaking front-camera holes in displays; account for safe area **/
+    padding-top: calc(env(safe-area-inset-top, 0px) + 5px);
+    border: 0;
+}
+.mobile-metrics-layout {
+    border: 0;
+}
+.mobile-browse-layout {
+    padding-top: 0px;
+}
+.mobile-resolved-service-card {
+    width: 480px;
+}
+.mobile-resolved-service-grid {
+    grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)) !important;
+    grid-gap: 8px !important;
+}
+.mobile-resolved-service-value-cell {
+    width: 350px;
+}
 .mobile-resolved-service-card-title {
     max-width: 475px;
 }
-
-.desktop-resolved-service-card-title {
-    max-width: 510px;
+.mobile-resolved-service-details-dialog-title {
+    max-width: 480px;
 }
-
 .mobile-input > .thaw-input {
     min-width: 180px;
     max-width: 180px;
@@ -88,51 +94,32 @@ body {
     max-width: 180px;
 }
 
+/** desktop styles **/
+.desktop-outer-layout {
+    padding: 10px;
+}
+.desktop-browse-layout {
+    padding-top: 10px;
+}
+.desktop-metrics-layout {
+    border: 0;
+}
+.desktop-resolved-service-card {
+    width: 520px;
+}
+.desktop-resolved-service-grid {
+    grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)) !important;
+    grid-gap: 10px !important;
+}
+.desktop-resolved-service-value-cell {
+    width: 400px;
+}
+.desktop-resolved-service-card-title {
+    max-width: 510px;
+}
 .desktop-input > .thaw-input__input {
     border: 0;
 }
-
-.thaw-card-header__header {
-    justify-content: space-between;
-}
-
-.service-type-invalid > .thaw-input {
-    border: 2px groove var(--colorStatusDangerBorder1);
-}
-.service-type-valid > .thaw-input {
-    outline: 1px solid var(--colorTransparentStroke);
-}
-
-.resolved-service-details-dialog-title {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-block;
-}
 .desktop-resolved-service-details-dialog-title {
     max-width: 520px;
-}
-.mobile-resolved-service-details-dialog-title {
-    max-width: 480px;
-}
-
-.resolved-service-details-dialog-body {
-    display: flex;
-    max-width: 90vw;
-}
-
-.resolved-service-details-dialog-scrollarea {
-    max-height: 90vh;
-}
-
-.resolved-service-dead {
-    color: var(--colorPaletteDarkOrangeForeground1);
-}
-
-.resolved-service-alive {
-    color: var(--colorBrandForeground1);
-}
-
-.theme-switcher {
-    cursor: pointer;
 }
