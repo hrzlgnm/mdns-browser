@@ -7,7 +7,6 @@ body {
 .hidden {
     display: none;
 }
-
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -75,7 +74,7 @@ body {
 }
 .mobile-resolved-service-grid {
     grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)) !important;
-    grid-gap: 8px 8px !important;
+    grid-gap: 8px !important;
 }
 .mobile-resolved-service-value-cell {
     width: 350px;
@@ -110,7 +109,7 @@ body {
 }
 .desktop-resolved-service-grid {
     grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)) !important;
-    grid-gap: 10px 10px !important;
+    grid-gap: 10px !important;
 }
 .desktop-resolved-service-value-cell {
     width: 400px;
