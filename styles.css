@@ -59,11 +59,9 @@ body {
 
 /** mobile styles **/
 .mobile-outer-layout {
-.mobile-outer-layout {
     /** freaking front-camera holes in displays; account for safe area **/
     padding-top: calc(env(safe-area-inset-top, 0px) + 5px);
     border: 0;
-}
 }
 .mobile-metrics-layout {
     border: 0;
