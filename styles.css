@@ -60,7 +60,8 @@ body {
 
 /** mobile styles **/
 .mobile-outer-layout {
-    padding: 5px 2px 5px 2px;
+    /** freaking front-camera holes in displays, who came up with those? **/
+    padding-top: 15px;
     border: 0;
 }
 .mobile-metrics-layout {
