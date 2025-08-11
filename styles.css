@@ -46,6 +46,7 @@ body {
 }
 .resolved-service-details-dialog-scrollarea {
     max-height: 90vh;
+    overflow: auto;
 }
 .resolved-service-dead {
     color: var(--colorPaletteDarkOrangeForeground1);
