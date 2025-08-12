@@ -371,7 +371,7 @@ mod tests {
     #[test]
     fn test_loopback_not_included_in_mdns_incapable_interfaces() {
         let result = enumerate_mdns_incapable_interfaces();
-        println!("{result:?}");
+        println!("Enumerated {result:?}");
         let loopback_names: std::collections::HashSet<String> = ipconfig::get_adapters()
             .map(|adapters| {
                 adapters
