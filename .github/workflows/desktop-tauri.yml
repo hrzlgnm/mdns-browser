@@ -139,7 +139,7 @@ jobs:
 
       - name: ✅ Run tests
         run: |
-          cargo --locked test --package=models
+          cargo --locked test --package=models --package=mdns-browser
 
       - name: 🔑 Import windows signing certificate
         if: contains(matrix.os, 'windows')
