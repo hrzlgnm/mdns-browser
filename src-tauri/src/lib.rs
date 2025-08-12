@@ -291,18 +291,55 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
     interfaces
         .iter()
         .filter_map(|interface| {
-            if interface.ips.is_empty()
+            // Skip loopback outright
+            if interface.is_loopback() {
+                return None;
+            }
+            let incapable = interface.ips.is_empty()
                 || !interface.is_running()
-                || interface.is_loopback()
                 || !interface.is_multicast()
-                || !interface.is_broadcast()
-            {
+                || !interface.is_broadcast();
+            if incapable {
                 Some(IfKind::from(interface.name.as_str()))
             } else {
                 None
             }
         })
         .collect()
+}
+
+#[cfg(not(windows))]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pnet::datalink;
+
+    #[test]
+    fn test_loopback_not_included_in_mdns_incapable_interfaces() {
+        let result = enumerate_mdns_incapable_interfaces();
+        log::debug!("Enumerated {result:?}");
+        // Gather actual loopback interface names on this system.
+        let loopback_names: std::collections::HashSet<String> = {
+            datalink::interfaces()
+                .into_iter()
+                .filter(|iface| iface.is_loopback())
+                .map(|iface| iface.name)
+                .collect()
+        };
+        assert!(
+            !loopback_names.is_empty(),
+            "No loopback interfaces detected on this host; test cannot validate exclusion"
+        );
+        let any_loopback_found = result.iter().any(|ifkind| match ifkind {
+            IfKind::Name(name) => loopback_names.contains(name),
+            _ => false,
+        });
+        assert!(
+            !any_loopback_found,
+            "Loopback interfaces {:?} should not be included in mdns-incapable interfaces",
+            loopback_names
+        );
+    }
 }
 
 #[cfg(windows)]
@@ -313,6 +350,10 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
         adapters
             .iter()
             .filter_map(|adapter| {
+                if adapter.if_type() == IfType::SoftwareLoopback {
+                    // Skip pseudo loopback interface
+                    return None;
+                }
                 if adapter.ip_addresses().is_empty()
                     || adapter.oper_status() != OperStatus::IfOperStatusUp
                     || (adapter.if_type() != IfType::EthernetCsmacd
@@ -326,6 +367,41 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
             .collect()
     } else {
         vec![]
+    }
+}
+
+#[cfg(windows)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ipconfig::IfType;
+
+    #[test]
+    fn test_loopback_not_included_in_mdns_incapable_interfaces() {
+        let result = enumerate_mdns_incapable_interfaces();
+        log::debug!("Enumerated {result:?}");
+        let loopback_names: std::collections::HashSet<String> = ipconfig::get_adapters()
+            .map(|adapters| {
+                adapters
+                    .into_iter()
+                    .filter(|a| a.if_type() == IfType::SoftwareLoopback)
+                    .map(|a| a.friendly_name().to_string())
+                    .collect()
+            })
+            .unwrap_or_default();
+        assert!(
+            !loopback_names.is_empty(),
+            "No loopback interfaces detected on this host; test cannot validate exclusion"
+        );
+        let loopback_present = result.iter().any(|ifkind| match ifkind {
+            IfKind::Name(name) => loopback_names.contains(name),
+            _ => false,
+        });
+        assert!(
+            !loopback_present,
+            "Software loopback adapters {:?} should not be included in mdns-incapable interfaces",
+            loopback_names
+        );
     }
 }
 
