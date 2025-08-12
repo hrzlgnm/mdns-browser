@@ -366,18 +366,29 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ipconfig::IfType;
 
     #[test]
     fn test_loopback_not_included_in_mdns_incapable_interfaces() {
         let result = enumerate_mdns_incapable_interfaces();
         println!("{result:?}");
+        let loopback_names: std::collections::HashSet<String> = ipconfig::get_adapters()
+            .map(|adapters| {
+                adapters
+                    .into_iter()
+                    .filter(|a| a.if_type() == IfType::SoftwareLoopback)
+                    .map(|a| a.friendly_name().to_string())
+                    .collect()
+            })
+            .unwrap_or_default();
         let loopback_present = result.iter().any(|ifkind| match ifkind {
-            IfKind::Name(name) => name.to_lowercase().starts_with("loopback"),
+            IfKind::Name(name) => loopback_names.contains(name),
             _ => false,
         });
         assert!(
             !loopback_present,
-            "`loopback pseudo interface` should not be included in mdns incapable interfaces"
+            "Software loopback adapters {:?} should not be included in mdns-incapable interfaces",
+            loopback_names
         );
     }
 }
