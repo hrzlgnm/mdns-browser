@@ -291,9 +291,12 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
     interfaces
         .iter()
         .filter_map(|interface| {
+            if interface.is_loopback() {
+                // Skip loopback interfaces
+                return None;
+            }
             if interface.ips.is_empty()
                 || !interface.is_running()
-                || interface.is_loopback()
                 || !interface.is_multicast()
                 || !interface.is_broadcast()
             {
@@ -305,6 +308,26 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
         .collect()
 }
 
+#[cfg(not(windows))]
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_lo_not_included_in_mdns_incapable_interfaces() {
+        let result = enumerate_mdns_incapable_interfaces();
+        println!("{result:?}");
+        let lo_present = result.iter().any(|ifkind| match ifkind {
+            IfKind::Name(name) => name == "lo",
+            _ => false,
+        });
+        assert!(
+            !lo_present,
+            "`lo` should not be included in mdns incapable interfaces"
+        );
+    }
+}
+
 #[cfg(windows)]
 fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
     use ipconfig::{IfType, OperStatus};
@@ -313,6 +336,10 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
         adapters
             .iter()
             .filter_map(|adapter| {
+                if adapter.if_type() == IfType::SoftwareLoopback {
+                    // Skip pseudo loopback interface
+                    return None;
+                }
                 if adapter.ip_addresses().is_empty()
                     || adapter.oper_status() != OperStatus::IfOperStatusUp
                     || (adapter.if_type() != IfType::EthernetCsmacd
@@ -326,6 +353,26 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
             .collect()
     } else {
         vec![]
+    }
+}
+
+#[cfg(windows)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_loopback_not_included_in_mdns_incapable_interfaces() {
+        let result = enumerate_mdns_incapable_interfaces();
+        println!("{result:?}");
+        let loopback_present = result.iter().any(|ifkind| match ifkind {
+            IfKind::Name(name) => name.to_lowercase().starts_with("loopback"),
+            _ => false,
+        });
+        assert!(
+            !loopback_present,
+            "`loopback pseudo interface` should not be included in mdns incapable interfaces"
+        );
     }
 }
 
