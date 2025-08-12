@@ -291,11 +291,15 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
     interfaces
         .iter()
         .filter_map(|interface| {
+            // Skip loopback outright
+            if interface.is_loopback() {
+                return None;
+            }
             let incapable = interface.ips.is_empty()
                 || !interface.is_running()
                 || !interface.is_multicast()
                 || !interface.is_broadcast();
-            if !interface.is_loopback() && incapable {
+            if incapable {
                 Some(IfKind::from(interface.name.as_str()))
             } else {
                 None
@@ -313,7 +317,7 @@ mod tests {
     #[test]
     fn test_loopback_not_included_in_mdns_incapable_interfaces() {
         let result = enumerate_mdns_incapable_interfaces();
-        println!("Enumerated {result:?}");
+        log::debug!("Enumerated {result:?}");
         // Gather actual loopback interface names on this system.
         let loopback_names: std::collections::HashSet<String> = {
             datalink::interfaces()
@@ -322,6 +326,10 @@ mod tests {
                 .map(|iface| iface.name)
                 .collect()
         };
+        assert!(
+            !loopback_names.is_empty(),
+            "No loopback interfaces detected on this host; test cannot validate exclusion"
+        );
         let any_loopback_found = result.iter().any(|ifkind| match ifkind {
             IfKind::Name(name) => loopback_names.contains(name),
             _ => false,
@@ -371,7 +379,7 @@ mod tests {
     #[test]
     fn test_loopback_not_included_in_mdns_incapable_interfaces() {
         let result = enumerate_mdns_incapable_interfaces();
-        println!("Enumerated {result:?}");
+        log::debug!("Enumerated {result:?}");
         let loopback_names: std::collections::HashSet<String> = ipconfig::get_adapters()
             .map(|adapters| {
                 adapters
@@ -381,6 +389,10 @@ mod tests {
                     .collect()
             })
             .unwrap_or_default();
+        assert!(
+            !loopback_names.is_empty(),
+            "No loopback interfaces detected on this host; test cannot validate exclusion"
+        );
         let loopback_present = result.iter().any(|ifkind| match ifkind {
             IfKind::Name(name) => loopback_names.contains(name),
             _ => false,
