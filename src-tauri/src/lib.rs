@@ -291,15 +291,11 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
     interfaces
         .iter()
         .filter_map(|interface| {
-            if interface.is_loopback() {
-                // Skip loopback interfaces
-                return None;
-            }
-            if interface.ips.is_empty()
+            let incapable = interface.ips.is_empty()
                 || !interface.is_running()
                 || !interface.is_multicast()
-                || !interface.is_broadcast()
-            {
+                || !interface.is_broadcast();
+            if !interface.is_loopback() && incapable {
                 Some(IfKind::from(interface.name.as_str()))
             } else {
                 None
@@ -312,18 +308,28 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use pnet::datalink;
 
     #[test]
-    fn test_lo_not_included_in_mdns_incapable_interfaces() {
+    fn test_loopback_not_included_in_mdns_incapable_interfaces() {
         let result = enumerate_mdns_incapable_interfaces();
-        println!("{result:?}");
-        let lo_present = result.iter().any(|ifkind| match ifkind {
-            IfKind::Name(name) => name == "lo",
+        println!("Enumerated {result:?}");
+        // Gather actual loopback interface names on this system.
+        let loopback_names: std::collections::HashSet<String> = {
+            datalink::interfaces()
+                .into_iter()
+                .filter(|iface| iface.is_loopback())
+                .map(|iface| iface.name)
+                .collect()
+        };
+        let any_loopback_found = result.iter().any(|ifkind| match ifkind {
+            IfKind::Name(name) => loopback_names.contains(name),
             _ => false,
         });
         assert!(
-            !lo_present,
-            "`lo` should not be included in mdns incapable interfaces"
+            !any_loopback_found,
+            "Loopback interfaces {:?} should not be included in mdns-incapable interfaces",
+            loopback_names
         );
     }
 }
