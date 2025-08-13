@@ -12,13 +12,6 @@ pub fn BackTop(
     let threshold = threshold.unwrap_or(300.0);
     let visible = RwSignal::new(false);
 
-    Effect::watch(
-        move || visible.get(),
-        |visible, _, _| {
-            log::debug!("BackTop visibility changed: {}", visible);
-        },
-        false,
-    );
 
     Effect::new(move |_| {
         let w = window();
