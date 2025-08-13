@@ -12,7 +12,6 @@ pub fn BackTop(
     let threshold = threshold.unwrap_or(300.0);
     let visible = RwSignal::new(false);
 
-
     Effect::new(move |_| {
         let w = window();
 
