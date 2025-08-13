@@ -123,3 +123,44 @@ body {
 .desktop-resolved-service-details-dialog-title {
     max-width: 520px;
 }
+
+/* Custom component style: BackTop */
+.back-top-container {
+    position: fixed;
+    right: 1rem;
+    bottom: 1.25rem;
+    z-index: 9999;
+}
+
+.back-top-button {
+    display: inline-grid;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    transition:
+        color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 22px;
+    height: 44px;
+    min-width: 44px;
+    box-shadow: var(--shadow4);
+    color: var(--colorNeutralForeground2);
+    background-color: var(--colorNeutralBackground1);
+}
+
+.back-top-button > svg {
+    font-size: 24px;
+    transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.back-top-button:hover,
+.back-top-button:active {
+    box-shadow: var(--shadow16);
+}
+.back-top-button:hover > svg {
+    color: var(--colorBrandBackgroundHover);
+}
+.back-top-button:active svg {
+    color: var(--colorBrandBackgroundPressed);
+}

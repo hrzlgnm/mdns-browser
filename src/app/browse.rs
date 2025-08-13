@@ -18,6 +18,7 @@ use thaw::{
 
 use super::{
     about::open_url,
+    backtop::BackTop,
     clipboard::CopyToClipBoardButton,
     css::get_class,
     invoke::invoke_no_args,
@@ -918,6 +919,7 @@ pub fn Browse() -> impl IntoView {
     let grid_class = get_class(&is_desktop, "resolved-service-grid");
     view! {
         <Layout class=layout_class>
+            <BackTop threshold=100 />
             <Flex vertical=true gap=FlexGap::Small>
                 <Show
                     when=move || { !can_browse.get() }

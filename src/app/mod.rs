@@ -1,4 +1,5 @@
 mod about;
+mod backtop;
 mod browse;
 mod clipboard;
 mod css;
