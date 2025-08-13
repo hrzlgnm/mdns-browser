@@ -34,7 +34,6 @@ pub fn BackTop(
 
     let on_click = move |_| {
         let w = window();
-        log::debug!("BackTop clicked, scrolling to top");
         w.scroll_to_with_x_and_y(0.0, 0.0);
     };
 
