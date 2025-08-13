@@ -41,7 +41,7 @@ pub fn BackTop(
         <div class="back-top-container">
             <Show when=move || visible.get()>
                 <button class="back-top-button" on:click=on_click>
-                    <Icon icon=icondata::AiVerticalAlignTopOutlined />
+                    <Icon icon=icondata::MdiFormatVerticalAlignTop />
                 </button>
             </Show>
         </div>
