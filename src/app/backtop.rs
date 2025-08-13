@@ -5,6 +5,27 @@ use js_sys::{
 use leptos::{ev::Event, prelude::*};
 use thaw::Icon;
 
+/// Back-to-top button component that becomes visible after the page is scrolled down a given threshold.
+///
+/// The component renders a button (showing an "up" icon) when the window's vertical scroll position exceeds
+/// `threshold` pixels. Clicking the button scrolls the window to the top (0, 0). If `threshold` is `None`,
+/// a default of 300.0 pixels is used.
+///
+/// # Parameters
+///
+/// - `threshold`: Optional vertical scroll offset in pixels after which the button is shown. Defaults to `300.0`.
+///
+/// # Examples
+///
+/// ```
+/// use crate::app::backtop::BackTop;
+///
+/// // Use the default threshold (300.0)
+/// let _component = BackTop(None);
+///
+/// // Or provide a custom threshold
+/// let _component_small = BackTop(Some(100.0));
+/// ```
 #[component]
 pub fn BackTop(
     #[prop(optional, into)] threshold: Option<f64>, // show after N pixels scrolled by default
