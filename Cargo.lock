@@ -3207,6 +3207,7 @@ dependencies = [
  "tauri-sys",
  "thaw",
  "thaw_utils",
+ "web-sys",
 ]
 
 [[package]]

@@ -15,26 +15,49 @@ pub fn BackTop(
     Effect::new(move |_| {
         let w = window();
 
-        // initial visibility check
-        visible.set(w.scroll_y().unwrap_or(0.0) > threshold);
+        // initial visibility check (don’t notify if unchanged)
+        let initial = w.scroll_y().unwrap_or(0.0) > threshold;
+        if initial != visible.get_untracked() {
+            visible.set(initial);
+        }
 
-        let scroll = Closure::<dyn FnMut(Event)>::wrap(Box::new(move |_| {
+        let scroll_listener = Closure::<dyn FnMut(Event)>::wrap(Box::new(move |_| {
             let y = w.scroll_y().unwrap_or(0.0);
-            visible.set(y > threshold);
+            let new_visible = y > threshold;
+            if new_visible != visible.get_untracked() {
+                visible.set(y > threshold);
+            }
         }));
+
         let w = window();
-        if let Err(e) = w
-            .add_event_listener_with_callback("scroll", scroll.as_ref().unchecked_ref::<Function>())
-        {
+        let opt = web_sys::AddEventListenerOptions::new();
+        opt.set_passive(true);
+        if let Err(e) = w.add_event_listener_with_callback_and_add_event_listener_options(
+            "scroll",
+            scroll_listener.as_ref().unchecked_ref::<Function>(),
+            &opt,
+        ) {
             log::error!("Failed to add scroll event listener: {e:?}")
         }
 
-        move || scroll.forget()
+        // cleanup the listener when the component is removed
+        move || {
+            if let Err(e) = w.remove_event_listener_with_callback(
+                "scroll",
+                scroll_listener.as_ref().unchecked_ref::<Function>(),
+            ) {
+                log::error!("Failed to remove scroll event listener: {e:?}")
+            }
+        }
     });
 
     let on_click = move |_| {
         let w = window();
-        w.scroll_to_with_x_and_y(0.0, 0.0);
+        let opt = web_sys::ScrollToOptions::new();
+        opt.set_top(0.0);
+        opt.set_left(0.0);
+        opt.set_behavior(web_sys::ScrollBehavior::Smooth);
+        w.scroll_to_with_scroll_to_options(&opt);
     };
 
     view! {
