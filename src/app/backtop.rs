@@ -40,8 +40,16 @@ pub fn BackTop(
         ) {
             log::error!("Failed to add scroll event listener: {e:?}")
         }
-        // keep the closure alive
-        move || scroll_listener.forget()
+
+        // cleanup the listener when the component is removed
+        move || {
+            if let Err(e) = w.remove_event_listener_with_callback(
+                "scroll",
+                scroll_listener.as_ref().unchecked_ref::<Function>(),
+            ) {
+                log::error!("Failed to remove scroll event listener: {e:?}")
+            }
+        }
     });
 
     let on_click = move |_| {
