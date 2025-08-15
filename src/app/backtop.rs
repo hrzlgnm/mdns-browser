@@ -22,7 +22,6 @@ pub fn BackTop(
         }
 
         let scroll_listener = Closure::<dyn FnMut(Event)>::wrap(Box::new(move |_| {
-            let w = w.clone();
             let y = w.scroll_y().unwrap_or(0.0);
             let new_visible = y > threshold;
             if new_visible != visible.get_untracked() {
