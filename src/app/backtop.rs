@@ -20,7 +20,6 @@ pub fn BackTop(
         if initial != visible.get_untracked() {
             visible.set(initial);
         }
-        visible.set(w.scroll_y().unwrap_or(0.0) > threshold);
 
         let scroll_listener = Closure::<dyn FnMut(Event)>::wrap(Box::new(move |_| {
             let w = w.clone();
