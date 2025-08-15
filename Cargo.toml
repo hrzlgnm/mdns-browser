@@ -26,6 +26,7 @@ reactive_stores = { workspace = true }
 serde = { workspace = true }
 serde-wasm-bindgen = "0.6"
 strsim = "0.11"
+web-sys = "0.3.77"
 
 # git
 thaw = { git = "https://github.com/thaw-ui/thaw", branch = "thaw/v0.5", package = "thaw", features = [
