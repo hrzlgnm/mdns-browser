@@ -562,28 +562,36 @@ fn ResolvedServiceItem(
                                     <Dialog open=show_details>
                                         <DialogSurface>
                                             <DialogBody class="resolved-service-details-dialog-body">
-                                                <Scrollbar class="resolved-service-details-dialog-scrollarea">
-                                                    <Flex vertical=true>
-                                                        <DialogTitle>
-                                                            <Flex
-                                                                justify=FlexJustify::FlexStart
-                                                                align=FlexAlign::Center
-                                                                gap=FlexGap::Small
-                                                            >
-                                                                <Icon
-                                                                    icon=icondata::MdiCircle
-                                                                    class=dead_or_alive_icon_class
-                                                                />
-                                                                <Text class="resolved-service-details-dialog-title">
-                                                                    {move || title.get()}
-                                                                </Text>
-                                                            </Flex>
-                                                        </DialogTitle>
-                                                        <ValuesTable values=subtype title="subtype".to_string() />
-                                                        <ValuesTable values=addrs title="IPs".to_string() />
-                                                        <ValuesTable values=txts title="txt".to_string() />
-                                                    </Flex>
-                                                </Scrollbar>
+                                                <Flex vertical=true gap=FlexGap::Small>
+                                                    <DialogTitle>
+                                                        <Flex
+                                                            justify=FlexJustify::SpaceBetween
+                                                            align=FlexAlign::Center
+                                                            gap=FlexGap::Small
+                                                        >
+                                                            <Icon
+                                                                icon=icondata::MdiCircle
+                                                                class=dead_or_alive_icon_class
+                                                            />
+                                                            <Text class="resolved-service-details-dialog-title">
+                                                                {move || title.get()}
+                                                            </Text>
+                                                            <Button
+                                                                size=ButtonSize::Small
+                                                                appearance=ButtonAppearance::Primary
+                                                                on_click=move |_| show_details.set(false)
+                                                                icon=icondata::MdiClose
+                                                            />
+                                                        </Flex>
+                                                    </DialogTitle>
+                                                    <Scrollbar class="resolved-service-details-dialog-scrollarea">
+                                                        <Flex vertical=true>
+                                                            <ValuesTable values=subtype title="subtype".to_string() />
+                                                            <ValuesTable values=addrs title="IPs".to_string() />
+                                                            <ValuesTable values=txts title="txt".to_string() />
+                                                        </Flex>
+                                                    </Scrollbar>
+                                                </Flex>
                                             </DialogBody>
                                         </DialogSurface>
                                     </Dialog>
