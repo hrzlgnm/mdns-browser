@@ -579,7 +579,7 @@ fn ResolvedServiceItem(
                                                         </DialogTitle>
                                                         <Button
                                                             size=ButtonSize::Small
-                                                            appearance=ButtonAppearance::Primary
+                                                            appearance=ButtonAppearance::Subtle
                                                             on_click=move |_| show_details.set(false)
                                                             icon=icondata::MdiClose
                                                         />
