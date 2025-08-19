@@ -97,7 +97,7 @@ jobs:
         uses: baptiste0928/cargo-install@e38323ef017552d7f7af73a3f4db467f278310ed # v3
         with:
           crate: tauri-cli
-          version: 2.7.1
+          version: 2.8.0
           locked: true
 
       - name: 📥 Cached install leptosfmt (ubuntu only)
