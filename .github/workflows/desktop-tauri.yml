@@ -78,7 +78,7 @@ jobs:
         uses: crate-ci/typos@a4c3e43aea0a9e9b9e6578d2731ebd9a27e8f6cd # v1.35.5
 
       - name: 📥 Cached install trunk
-        uses: baptiste0928/cargo-install@e38323ef017552d7f7af73a3f4db467f278310ed # v3
+        uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
         with:
           crate: trunk
           version: 0.21.14
@@ -87,14 +87,14 @@ jobs:
           features: rustls
 
       - name: 📥 Cached install cargo-auditable
-        uses: baptiste0928/cargo-install@e38323ef017552d7f7af73a3f4db467f278310ed # v3
+        uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
         with:
           crate: cargo-auditable
           version: 0.7.0
           locked: true
 
       - name: 📥 Cached install tauri-cli
-        uses: baptiste0928/cargo-install@e38323ef017552d7f7af73a3f4db467f278310ed # v3
+        uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
         with:
           crate: tauri-cli
           version: 2.8.0
@@ -102,7 +102,7 @@ jobs:
 
       - name: 📥 Cached install leptosfmt (ubuntu only)
         if: contains(matrix.os, 'ubuntu')
-        uses: baptiste0928/cargo-install@e38323ef017552d7f7af73a3f4db467f278310ed # v3
+        uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
         with:
           crate: leptosfmt
           version: 0.1.33
