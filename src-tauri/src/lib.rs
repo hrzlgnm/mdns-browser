@@ -48,9 +48,6 @@ impl ManagedState {
 
 fn initialize_shared_daemon() -> SharedServiceDaemon {
     let daemon = ServiceDaemon::new().expect("Failed to create daemon");
-    if let Err(err) = daemon.use_service_data(true) {
-        log::warn!("Failed to use service data: {err:?}, continuing without it");
-    }
     if let Err(err) = daemon.disable_interface(enumerate_mdns_incapable_interfaces()) {
         log::warn!("Failed to disable interface: {err:?}, continuing anyway");
     }
@@ -255,7 +252,7 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
         tauri::async_runtime::spawn(async move {
             while let Ok(event) = receiver.recv_async().await {
                 match event {
-                    ServiceEvent::ServiceData(resolved) => emit_event(
+                    ServiceEvent::ServiceResolved(resolved) => emit_event(
                         &window,
                         "service-resolved",
                         &ServiceResolvedEvent {
