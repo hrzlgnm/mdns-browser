@@ -11,9 +11,9 @@ use tauri_sys::core::invoke;
 use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSize, Badge, BadgeAppearance,
     BadgeColor, BadgeSize, Button, ButtonAppearance, ButtonSize, Card, CardHeader, CardPreview,
-    ComponentRef, Dialog, DialogBody, DialogSurface, DialogTitle, Flex, FlexAlign, FlexGap,
-    FlexJustify, Grid, GridItem, Icon, Input, Layout, MessageBar, MessageBarBody, MessageBarIntent,
-    MessageBarTitle, Scrollbar, Select, Table, TableBody, TableCell, TableRow, Text, TextTag,
+    ComponentRef, Dialog, DialogBody, DialogSurface, Flex, FlexAlign, FlexGap, FlexJustify, Grid,
+    GridItem, Icon, Input, Layout, MessageBar, MessageBarBody, MessageBarIntent, MessageBarTitle,
+    Scrollbar, Select, Table, TableBody, TableCell, TableRow, Text, TextTag,
 };
 
 use super::{
@@ -572,11 +572,9 @@ fn ResolvedServiceItem(
                                                             icon=icondata::MdiCircle
                                                             class=dead_or_alive_icon_class
                                                         />
-                                                        <DialogTitle>
-                                                            <Text class="resolved-service-details-dialog-title">
-                                                                {move || title.get()}
-                                                            </Text>
-                                                        </DialogTitle>
+                                                        <Text class="resolved-service-details-dialog-title">
+                                                            {move || title.get()}
+                                                        </Text>
                                                         <Button
                                                             size=ButtonSize::Small
                                                             appearance=ButtonAppearance::Subtle
