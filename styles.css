@@ -25,6 +25,7 @@ body {
     font-size: var(--fontSizeBase400);
 }
 .resolved-service-details-dialog-title {
+    max-width: 75vw;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
