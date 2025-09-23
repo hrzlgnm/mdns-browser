@@ -500,8 +500,11 @@ fn ResolvedServiceItem(
     let card_class = get_class(&is_desktop, "resolved-service-card");
     let value_cell_class = get_class(&is_desktop, "resolved-service-value-cell");
     let dead = resolved_service.dead();
-    // without the try_get we somehow run into a already disposed error
-    let dead = Memo::new(move |_| dead.try_get().unwrap_or(true));
+    // Avoid disposed-scope panics: read via try_get() default to dead when unavailable
+    let dead = {
+        let dead_signal = dead;
+        Memo::new(move |_| dead_signal.try_get().unwrap_or(true))
+    };
     let port = Memo::new(move |_| resolved_service.port().get().to_string());
     let hostname = resolved_service.hostname();
     let hostname_display = Memo::new(move |_| drop_trailing_dot(&hostname.get()));
