@@ -75,7 +75,7 @@ jobs:
         run: ${{ matrix.install }}
 
       - name: 📝 Check spelling using typos-action
-        uses: crate-ci/typos@6d35b835f6f431bbe715c4c1ccd2c7d3264e11fb # v1.37.0
+        uses: crate-ci/typos@40156d6074bf731adb169cfb8234954971dbc487 # v1.37.1
 
       - name: 📥 Cached install trunk
         uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
