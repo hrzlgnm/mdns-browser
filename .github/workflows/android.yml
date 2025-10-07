@@ -63,7 +63,7 @@ jobs:
             src-tauri -> ./target
 
       - name: 📝 Check spelling using typos-action
-        uses: crate-ci/typos@7436548694def3314aacd93ed06c721b1f91ea04 # v1.37.2
+        uses: crate-ci/typos@83157de2df0fa7c7ae20f73f9dbed44c41f2bb64 # v1.38.0
 
       - name: 📥 Cached install trunk
         uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
