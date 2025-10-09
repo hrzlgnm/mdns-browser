@@ -43,3 +43,7 @@ regex = "1.11"
 [lib]
 name = "mdns_browser_lib"
 crate-type = ["staticlib", "cdylib", "lib"]
+
+[features]
+default = []
+error_boundary = []
