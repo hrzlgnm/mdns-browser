@@ -103,7 +103,7 @@ jobs:
         run: |
           cargo --locked auditable tauri android init
           cp -a src-tauri/icons/android/mipmap-* src-tauri/gen/android/app/src/main/res/
-          cargo --locked auditable tauri android build
+          cargo --locked auditable tauri android build --features error_boundary
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.11902837
           RUSTFLAGS: "-D warnings"

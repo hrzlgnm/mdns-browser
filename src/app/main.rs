@@ -4,6 +4,7 @@ use super::{
     css::get_class,
     is_desktop::{get_is_desktop, IsDesktopInjection},
     metrics::Metrics,
+    safe_boundary::SafeBoundary,
     theme_switcher::ThemeSwitcher,
 };
 use js_sys::{
@@ -114,7 +115,9 @@ pub fn Main() -> impl IntoView {
                             </GridItem>
                         </Grid>
                         <Metrics />
-                        <Browse />
+                        <SafeBoundary>
+                            <Browse />
+                        </SafeBoundary>
                     </Suspense>
                 </Layout>
             </ToasterProvider>
