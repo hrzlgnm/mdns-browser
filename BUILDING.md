@@ -40,7 +40,6 @@ For Void Linux, install these dependencies by running:
 ```console
 sudo xbps-install -Syu
 sudo xbps-install -S \
- webkit2gtk-devel \
  libwebkit2gtk41-devel \
  curl \
  wget \
