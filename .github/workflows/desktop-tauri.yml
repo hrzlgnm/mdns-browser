@@ -165,8 +165,8 @@ jobs:
           releaseName: ${{ inputs.releaseName }}
           releaseDraft: false
           prerelease: false
-          tauriScript: cargo --locked auditable tauri --features error_boundary
-          args: ${{ matrix.args }}
+          tauriScript: cargo --locked auditable tauri
+          args: ${{ matrix.args }} --features error_boundary
           retryAttempts: 1
 
       - name: 📤 Upload build artifacts (push or pr builds only)
