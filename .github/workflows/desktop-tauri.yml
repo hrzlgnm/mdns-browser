@@ -165,7 +165,7 @@ jobs:
           releaseName: ${{ inputs.releaseName }}
           releaseDraft: false
           prerelease: false
-          tauriScript: cargo --locked auditable tauri
+          tauriScript: cargo --locked auditable tauri --features error_boundary
           args: ${{ matrix.args }}
           retryAttempts: 1
 

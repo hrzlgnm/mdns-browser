@@ -9,5 +9,6 @@ mod listen;
 pub mod main;
 mod metrics;
 mod protocol_flags;
+mod safe_boundary;
 mod theme_switcher;
 mod values_table;

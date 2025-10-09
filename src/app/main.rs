@@ -4,6 +4,7 @@ use super::{
     css::get_class,
     is_desktop::{get_is_desktop, IsDesktopInjection},
     metrics::Metrics,
+    safe_boundary::SafeBoundary,
     theme_switcher::ThemeSwitcher,
 };
 use js_sys::{
@@ -94,30 +95,32 @@ pub fn Main() -> impl IntoView {
     let layout_class = get_class(&is_desktop, "outer-layout");
     provide_context(IsDesktopInjection(is_desktop));
     view! {
-        <ConfigProvider theme>
-            <ToasterProvider>
-                <Layout class=layout_class>
-                    <Suspense fallback=|| view! { <Text>"Loading"</Text> }>
-                        <Grid cols=2>
-                            <GridItem column=0>
-                                <Show
-                                    when=move || { is_desktop.get() }
-                                    fallback=|| view! { <div class="hidden" /> }
-                                >
-                                    <About />
-                                </Show>
-                            </GridItem>
-                            <GridItem column=1>
-                                <Flex justify=FlexJustify::End>
-                                    <ThemeSwitcher theme />
-                                </Flex>
-                            </GridItem>
-                        </Grid>
-                        <Metrics />
-                        <Browse />
-                    </Suspense>
-                </Layout>
-            </ToasterProvider>
-        </ConfigProvider>
+        <SafeBoundary>
+            <ConfigProvider theme>
+                <ToasterProvider>
+                    <Layout class=layout_class>
+                        <Suspense fallback=|| view! { <Text>"Loading"</Text> }>
+                            <Grid cols=2>
+                                <GridItem column=0>
+                                    <Show
+                                        when=move || { is_desktop.get() }
+                                        fallback=|| view! { <div class="hidden" /> }
+                                    >
+                                        <About />
+                                    </Show>
+                                </GridItem>
+                                <GridItem column=1>
+                                    <Flex justify=FlexJustify::End>
+                                        <ThemeSwitcher theme />
+                                    </Flex>
+                                </GridItem>
+                            </Grid>
+                            <Metrics />
+                            <Browse />
+                        </Suspense>
+                    </Layout>
+                </ToasterProvider>
+            </ConfigProvider>
+        </SafeBoundary>
     }
 }
