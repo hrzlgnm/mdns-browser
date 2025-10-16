@@ -3,6 +3,7 @@ RUN pacman -Syu --noconfirm \
     && pacman -S --noconfirm \
     appmenu-gtk-module \
     cargo \
+    cargo-auditable \
     coreutils \
     desktop-file-utils \
     gdk-pixbuf2 \
@@ -17,6 +18,7 @@ RUN pacman -Syu --noconfirm \
     rust-wasm \
     webkit2gtk-4.1 \
     sudo \
+    trunk \
     wget \
     libsoup \
     && useradd -m -G wheel -s /bin/bash runner \
