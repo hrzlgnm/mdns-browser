@@ -13,7 +13,8 @@ RUN pacman -Syu --noconfirm \
     libappindicator-gtk3 \
     librsvg \
     openssh \
-    rustup \
+    rust \
+    rust-wasm \
     webkit2gtk-4.1 \
     sudo \
     wget \
