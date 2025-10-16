@@ -39,7 +39,6 @@ build() {
 }
 check() {
     cd "\$srcdir/\$_builddir" || exit 1
-    export RUSTUP_TOOLCHAIN=stable
     cargo test --locked --frozen --package=models
 }
 package() {
