@@ -622,34 +622,17 @@ fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Resul
 #[cfg(desktop)]
 #[cfg(target_os = "linux")]
 mod linux {
-    use regex::Regex;
-    use std::process::Command;
-    fn check_nvidia_glxinfo() -> Result<bool, ()> {
-        let is_glxinfo_installed = Command::new("sh")
-            .arg("-c")
-            .arg("command -v glxinfo")
-            .output()
-            .map(|output| output.status.success())
-            .unwrap_or(false);
-
-        if !is_glxinfo_installed {
-            eprintln!("Warning: glxinfo is not installed, cannot detect whether NVIDIA is used.");
-            return Err(());
-        }
-
-        let output = Command::new("sh")
-            .arg("-c")
-            .arg("glxinfo | grep 'OpenGL renderer string'")
-            .output();
-
-        if let Ok(out) = output {
-            let out_str = String::from_utf8_lossy(&out.stdout).to_lowercase();
-            let re = Regex::new(r"nvidia|nv\d+").unwrap();
-            return Ok(re.is_match(&out_str));
+    fn check_nvidia_kernel_module_loaded() -> Result<bool, ()> {
+        use std::path::Path;
+        let modules = ["nvidia", "nouveau"];
+        for module in &modules {
+            let path = format!("/sys/module/{}", module);
+            if Path::new(&path).exists() {
+                return Ok(true);
+            }
         }
         Ok(false)
     }
-
     fn should_disable_dmabuf(force_disable: bool) -> Result<bool, ()> {
         // Return true immediately if forced
         if force_disable {
@@ -657,7 +640,7 @@ mod linux {
             return Ok(true);
         }
         // Check for Nvidia via glxinfo
-        let nvidia_detected = check_nvidia_glxinfo()?;
+        let nvidia_detected = check_nvidia_kernel_module_loaded()?;
         if nvidia_detected {
             eprintln!("Note: NVIDIA or Nouveau detected, disabling dmabuf renderer. Expect degraded renderer performance.");
             eprintln!("See https://github.com/hrzlgnm/mdns-browser/issues/947 for more details.");

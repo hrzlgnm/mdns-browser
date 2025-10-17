@@ -3158,7 +3158,6 @@ dependencies = [
  "mdns-sd",
  "models",
  "pnet",
- "regex",
  "serde",
  "serde_json",
  "shared_constants",
