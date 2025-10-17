@@ -639,7 +639,6 @@ mod linux {
             eprintln!("Note: dmabuf renderer disabled by command line arg. Expect degraded renderer performance");
             return Ok(true);
         }
-        // Check for Nvidia via glxinfo
         let nvidia_detected = check_nvidia_kernel_module_loaded();
         if nvidia_detected {
             eprintln!("Note: NVIDIA or Nouveau detected, disabling dmabuf renderer. Expect degraded renderer performance.");
