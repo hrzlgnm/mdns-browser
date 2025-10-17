@@ -656,17 +656,10 @@ mod linux {
             eprintln!("Note: dmabuf renderer disabled by command line arg. Expect degraded renderer performance");
             return Ok(true);
         }
-        // Check basic platform conditions
-        if !std::path::Path::new("/dev/dri").exists()
-            || std::env::var("WAYLAND_DISPLAY").is_ok()
-            || std::env::var("XDG_SESSION_TYPE").unwrap_or_default() != "x11"
-        {
-            return Ok(false);
-        }
         // Check for Nvidia via glxinfo
         let nvidia_detected = check_nvidia_glxinfo()?;
         if nvidia_detected {
-            eprintln!("Note: nvidia|nouveau with X.Org detected, disabling dmabuf renderer. Expect degraded renderer performance.");
+            eprintln!("Note: NVIDIA or Nouveau detected, disabling dmabuf renderer. Expect degraded renderer performance.");
             eprintln!("See https://github.com/hrzlgnm/mdns-browser/issues/947 for more details.");
         }
         Ok(nvidia_detected)
@@ -675,10 +668,7 @@ mod linux {
     pub fn disable_webkit_dmabuf_rendering_if_needed(force_disable: bool) {
         if let Ok(disable) = should_disable_dmabuf(force_disable) {
             if disable {
-                // SAFETY: There's potential for race conditions in a multi-threaded context.
-                unsafe {
-                    std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
-                }
+                std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
             }
         }
     }
