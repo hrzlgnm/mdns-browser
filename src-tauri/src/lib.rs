@@ -640,7 +640,7 @@ mod linux {
             return Ok(true);
         }
         // Check for Nvidia via glxinfo
-        let nvidia_detected = check_nvidia_kernel_module_loaded()?;
+        let nvidia_detected = check_nvidia_kernel_module_loaded();
         if nvidia_detected {
             eprintln!("Note: NVIDIA or Nouveau detected, disabling dmabuf renderer. Expect degraded renderer performance.");
             eprintln!("See https://github.com/hrzlgnm/mdns-browser/issues/947 for more details.");
