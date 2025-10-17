@@ -659,7 +659,7 @@ mod linux {
         // Check for Nvidia via glxinfo
         let nvidia_detected = check_nvidia_glxinfo()?;
         if nvidia_detected {
-            eprintln!("Note: nvidia|nouveau with X.Org|Wayland detected, disabling dmabuf renderer. Expect degraded renderer performance.");
+            eprintln!("Note: NVIDIA or Nouveau detected, disabling dmabuf renderer. Expect degraded renderer performance.");
             eprintln!("See https://github.com/hrzlgnm/mdns-browser/issues/947 for more details.");
         }
         Ok(nvidia_detected)
