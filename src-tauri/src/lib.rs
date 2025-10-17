@@ -668,10 +668,7 @@ mod linux {
     pub fn disable_webkit_dmabuf_rendering_if_needed(force_disable: bool) {
         if let Ok(disable) = should_disable_dmabuf(force_disable) {
             if disable {
-                // SAFETY: There's potential for race conditions in a multi-threaded context.
-                unsafe {
-                    std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
-                }
+                std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
             }
         }
     }
