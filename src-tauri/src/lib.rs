@@ -656,17 +656,10 @@ mod linux {
             eprintln!("Note: dmabuf renderer disabled by command line arg. Expect degraded renderer performance");
             return Ok(true);
         }
-        // Check basic platform conditions
-        if !std::path::Path::new("/dev/dri").exists()
-            || std::env::var("WAYLAND_DISPLAY").is_ok()
-            || std::env::var("XDG_SESSION_TYPE").unwrap_or_default() != "x11"
-        {
-            return Ok(false);
-        }
         // Check for Nvidia via glxinfo
         let nvidia_detected = check_nvidia_glxinfo()?;
         if nvidia_detected {
-            eprintln!("Note: nvidia|nouveau with X.Org detected, disabling dmabuf renderer. Expect degraded renderer performance.");
+            eprintln!("Note: nvidia|nouveau with X.Org|Wayland detected, disabling dmabuf renderer. Expect degraded renderer performance.");
             eprintln!("See https://github.com/hrzlgnm/mdns-browser/issues/947 for more details.");
         }
         Ok(nvidia_detected)
