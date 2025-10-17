@@ -622,16 +622,16 @@ fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Resul
 #[cfg(desktop)]
 #[cfg(target_os = "linux")]
 mod linux {
-    fn check_nvidia_kernel_module_loaded() -> Result<bool, ()> {
+    fn check_nvidia_kernel_module_loaded() -> bool {
         use std::path::Path;
         let modules = ["nvidia", "nouveau"];
         for module in &modules {
             let path = format!("/sys/module/{}", module);
             if Path::new(&path).exists() {
-                return Ok(true);
+                return true;
             }
         }
-        Ok(false)
+        false
     }
     fn should_disable_dmabuf(force_disable: bool) -> Result<bool, ()> {
         // Return true immediately if forced
