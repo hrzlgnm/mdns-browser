@@ -178,19 +178,33 @@ jobs:
             target/**/release/bundle
             target/**/release/mdns-browser*
 
+      - name: 📦 Compress debug symbols (windows only)
+        if: contains(matrix.os, 'windows')
+        shell: pwsh
+        run: |
+          $pdb = 'target/release/mdns_browser.pdb'
+          $zip = 'target/release/mdns_browser.pdb.zip'
+          if (Test-Path $pdb) {
+            Compress-Archive -Path $pdb -DestinationPath $zip -Force
+            Write-Output "Compressed $pdb -> $zip"
+          } else {
+            Write-Error "PDB file not found: $pdb"
+            exit 1
+          }
+
       - name: 📤 Upload debug symbols (windows only)
         if: contains(matrix.os, 'windows')
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: "debug-symbols-${{matrix.os}}${{matrix.args}}"
           path: |
-            target/release/mdns_browser.pdb
+            target/release/mdns_browser.pdb.zip
 
       - name: 📤 Publish debug symbols to release (windows only)
         if: contains(matrix.os, 'windows') && (inputs.tagName != '')
         uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090 # v2
         with:
-          files: target/release/mdns_browser.pdb
+          files: target/release/mdns_browser.pdb.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -207,6 +221,7 @@ jobs:
             target/**/release/mdns-browser
             target/release/mdns-browser.exe
             target/release/mdns_browser.pdb
+            target/release/mdns_browser.pdb.zip
 
       - name: 📜 Create SBOM
         uses: anchore/sbom-action@aa0e114b2e19480f157109b9922bda359bd98b90 # v0
