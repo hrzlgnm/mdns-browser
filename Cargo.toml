@@ -54,7 +54,7 @@ resolver = "2"
 
 [workspace.dependencies]
 chrono = "0.4"
-reactive_stores = "0.2"
+reactive_stores = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 log = "0.4"
 thiserror = "2.0"
