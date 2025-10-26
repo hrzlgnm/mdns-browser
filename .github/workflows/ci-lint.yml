@@ -9,7 +9,7 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1:sha256:098a6ccba3f02f327b26e9c5082062485c68ce3a03ae896de244a2e161d5eb62
+      image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:098a6ccba3f02f327b26e9c5082062485c68ce3a03ae896de244a2e161d5eb62
 
     steps:
       - name: 🔄 Checkout
