@@ -6,8 +6,6 @@ on:
       - published
 
 jobs:
-  lint:
-    uses: ./.github/workflows/ci-lint.yml
   publish:
     permissions:
       id-token: write
