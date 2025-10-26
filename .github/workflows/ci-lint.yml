@@ -8,12 +8,10 @@ jobs:
   lint:
     name: lint
     runs-on: ubuntu-latest
-    steps:
-      - name: 🛠️ Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev
+    container:
+      image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:sha256:098a6ccba3f02f327b26e9c5082062485c68ce3a03ae896de244a2e161d5eb62 # v1
 
+    steps:
       - name: 🔄 Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
