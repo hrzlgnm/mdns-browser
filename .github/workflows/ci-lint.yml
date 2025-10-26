@@ -16,7 +16,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
+          targets: wasm32-unknown-unknown
 
       - name: 📝 Check spelling using typos-action
         uses: crate-ci/typos@80c8a4945eec0f6d464eaf9e65ed98ef085283d1 # v1.38.1
