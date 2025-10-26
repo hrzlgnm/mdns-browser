@@ -13,5 +13,5 @@ following commands:
     $ docker login ghcr.io -u YOUR_GITHUB_USER_NAME_HERE
     $ docker push ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:VERSION_NUMBER_HERE
 
-Then, change the container tag in each workflow file in the .github/workflows/
+Then, change the container tag in each workflow file in the `.github/workflows/`
 directory to refer to your new version.
