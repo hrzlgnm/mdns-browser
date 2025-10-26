@@ -8,12 +8,10 @@ jobs:
   lint:
     name: lint
     runs-on: ubuntu-latest
-    steps:
-      - name: 🛠️ Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev
+    container:
+      image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:2cb9067f02b76ef319b4f94c5456e116497c62c989989272207be64c18e4b591
 
+    steps:
       - name: 🔄 Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
@@ -22,6 +20,15 @@ jobs:
         with:
           components: rustfmt, clippy
           targets: wasm32-unknown-unknown
+
+      - name: 📦 Rust cache
+        uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+          workspaces: |
+            shared_constants -> ./target
+            models -> ./target
+            src-tauri -> ./target
 
       - name: 📝 Check spelling using typos-action
         uses: crate-ci/typos@80c8a4945eec0f6d464eaf9e65ed98ef085283d1 # v1.38.1
