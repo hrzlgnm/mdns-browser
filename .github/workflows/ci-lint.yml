@@ -1,0 +1,50 @@
+name: "Reusable ci lint workflow"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛠️ Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev
+
+      - name: 🔄 Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: 🦀 Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+
+      - name: 📝 Check spelling using typos-action
+        uses: crate-ci/typos@80c8a4945eec0f6d464eaf9e65ed98ef085283d1 # v1.38.1
+
+      - name: 📥 Cached install leptosfmt
+        uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
+        with:
+          crate: leptosfmt
+          version: 0.1.33
+          locked: true
+
+      - name: 📐 Run leptosfmt and fail if any warnings
+        run: |
+          leptosfmt --check src
+
+      - name: 📐 Run rustfmt and fail if any warnings
+        run: |
+          cargo fmt -- --check
+          cd src-tauri
+          cargo fmt -- --check
+
+      - name: 📎 Run clippy and fail if any warnings
+        run: |
+          cargo clippy -- -D warnings
+          cd src-tauri
+          cargo clippy -- -D warnings

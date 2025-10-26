@@ -27,6 +27,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lint:
+    uses: ./.github/workflows/ci-lint.yml
   pr:
     permissions:
       contents: write
