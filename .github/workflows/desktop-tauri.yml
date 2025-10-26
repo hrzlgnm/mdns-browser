@@ -25,18 +25,17 @@ jobs:
             args: "--target universal-apple-darwin"
             symbol: 🍏
             platform: macOS
-          - os: "ubuntu-22.04"
+          - os: "ubuntu-latest"
             symbol: 🐧
-            install: |
-              sudo apt-get update
-              sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
             platform: Linux
+            container_image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:2cb9067f02b76ef319b4f94c5456e116497c62c989989272207be64c18e4b591
           - os: "windows-latest"
             symbol: 🪟
             platform: Windows
 
     name: ${{matrix.symbol}}
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container_image }}
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
