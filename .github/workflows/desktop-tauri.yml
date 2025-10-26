@@ -35,7 +35,7 @@ jobs:
 
     name: ${{matrix.symbol}}
     runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container_image }}
+    container: ${{ contains(matrix.os, 'ubuntu') && matrix.container_image || null }}
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -93,7 +93,7 @@ jobs:
           version: 2.9.1
           locked: true
 
-      - name: 📦 Run sccache (not windows)
+      - name: 📦 Run sccache non-release runs (not windows)
         if: "inputs.tagName == '' && !contains(matrix.os, 'windows')"
         uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
 
@@ -107,7 +107,7 @@ jobs:
         run: |
           cargo --locked test --package=models --package=mdns-browser
 
-      - name: 🔑 Import windows signing certificate
+      - name: 🔑 Import windows signing certificate (windows only)
         if: contains(matrix.os, 'windows')
         env:
           WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
