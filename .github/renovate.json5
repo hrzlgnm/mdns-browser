@@ -20,6 +20,20 @@
     ],
     customManagers: [
         {
+            matchStringsStrategy: 'any',
+            customType: 'regex',
+            managerFilePatterns: [
+                '/^\\.github/workflows/.*\\.yml$/',
+            ],
+            depTypeTemplate: 'container',
+            datasourceTemplate: 'docker',
+            versioningTemplate: 'docker',
+            matchStrings: [
+                'container_image: "(?<depName>.*?):(?<currentValue>.*?)(?:@(?<currentDigest>sha256:[a-f0-9]+))?",',
+            ],
+            autoReplaceStringTemplate: 'container_image: "{{depName}}{{#if newValue}}:{{newValue}}{{/if}}{{#if newDigest}}@{{newDigest}}{{/if}}",',
+        },
+        {
             matchStringsStrategy: "any",
             customType: "regex",
             managerFilePatterns: ["/^\\.github/workflows/.*\\.yml$/"],

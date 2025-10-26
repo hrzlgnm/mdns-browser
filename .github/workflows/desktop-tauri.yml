@@ -25,18 +25,17 @@ jobs:
             args: "--target universal-apple-darwin"
             symbol: 🍏
             platform: macOS
-          - os: "ubuntu-22.04"
+          - os: "ubuntu-latest"
             symbol: 🐧
-            install: |
-              sudo apt-get update
-              sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
             platform: Linux
+            container_image: "ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:2cb9067f02b76ef319b4f94c5456e116497c62c989989272207be64c18e4b591"
           - os: "windows-latest"
             symbol: 🪟
             platform: Windows
 
     name: ${{matrix.symbol}}
     runs-on: ${{ matrix.os }}
+    container: ${{ contains(matrix.os, 'ubuntu') && matrix.container_image || null }}
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -94,7 +93,7 @@ jobs:
           version: 2.9.1
           locked: true
 
-      - name: 📦 Run sccache (not windows)
+      - name: 📦 Run sccache non-release runs (not windows)
         if: "inputs.tagName == '' && !contains(matrix.os, 'windows')"
         uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
 
@@ -108,7 +107,7 @@ jobs:
         run: |
           cargo --locked test --package=models --package=mdns-browser
 
-      - name: 🔑 Import windows signing certificate
+      - name: 🔑 Import windows signing certificate (windows only)
         if: contains(matrix.os, 'windows')
         env:
           WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
