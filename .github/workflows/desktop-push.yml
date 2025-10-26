@@ -12,7 +12,7 @@ on:
       - ".github/workflows/bump-*"
       - ".github/workflows/docker-*"
       - ".github/workflows/pr-label*"
-      - ".github/workflows/publish-*"
+      - ".github/workflows/*publish-*"
       - ".github/workflows/release-*"
       - ".github/workflows/void-*"
       - ".github/workflows/winget-*"
