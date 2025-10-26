@@ -29,7 +29,7 @@ jobs:
         run: |
           VERSION=${{ steps.latest_release.outputs.result }}
           SHORT_VERSION=${VERSION#*-v}
-          URL=https://github.com/hrzlgnm/mdns-browser/releases/download/{VERSION}/mdns-browser_{SHORT_VERSION}_x64-setup.exe
+          URL=https://github.com/hrzlgnm/mdns-browser/releases/download/{VERSION}/mdns-browser_{SHORT_VERSION}_x64-setup_windows.exe
           FINAL_URL=$(echo $URL | sed "s/{VERSION}/$VERSION/g" | sed "s/{SHORT_VERSION}/${SHORT_VERSION}/g")
           echo "FINAL_URL=$FINAL_URL" >> $GITHUB_ENV
           echo "SHORT_VERSION=$SHORT_VERSION" >> $GITHUB_ENV
