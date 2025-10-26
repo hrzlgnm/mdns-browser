@@ -15,7 +15,7 @@ permissions:
 jobs:
   release_info:
     name: Get release info
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       tag-name: ${{ steps.release_info.outputs.tag-name }}
     steps:
@@ -30,7 +30,7 @@ jobs:
 
   generate_checksums:
     name: Generate checksums
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     needs:
       - release_info
     strategy:
@@ -60,7 +60,7 @@ jobs:
 
   publish:
     name: Publish checksum assets
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     needs:
       - release_info
       - generate_checksums

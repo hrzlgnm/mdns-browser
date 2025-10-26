@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Detect Latest Release
         id: latest_release
@@ -46,7 +46,7 @@ jobs:
   cleanup:
     name: Cleanup branches
     needs: publish
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Run Komac
         uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
