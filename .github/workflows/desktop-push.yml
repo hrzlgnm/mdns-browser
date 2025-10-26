@@ -27,6 +27,8 @@ concurrency:
   group: ${{ github.ref == 'refs/heads/main' && format('dekstop-main-{0}', github.sha) || format('dekstop-{0}', github.ref) }}
 
 jobs:
+  lint:
+    uses: ./.github/workflows/ci-lint.yml
   push:
     permissions:
       contents: write
