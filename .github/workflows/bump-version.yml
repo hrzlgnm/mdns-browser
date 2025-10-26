@@ -16,7 +16,7 @@ jobs:
   update_version:
     permissions:
       contents: write
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.semver.outputs.semantic-version }}
 
@@ -45,7 +45,6 @@ jobs:
 
       - name: Update cargo and tauri versions
         run: |
-          sudo apt install jq
           sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' Cargo.toml
           sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' models/Cargo.toml
           sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' shared_constants/Cargo.toml
