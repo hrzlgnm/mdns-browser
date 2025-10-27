@@ -18,7 +18,7 @@ jobs:
       - name: 🦀 Install rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt, clippy
+          components: rustfmt
           targets: wasm32-unknown-unknown
 
       - name: 📦 Rust cache
@@ -50,8 +50,31 @@ jobs:
           cd src-tauri
           cargo fmt -- --check
 
+  clippy:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:2cb9067f02b76ef319b4f94c5456e116497c62c989989272207be64c18e4b591
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            dir: src-tauri
+          - target: x86_64-pc-windows-msvc
+            dir: src-tauri
+          - target: wasm32-unknown-unknown
+            dir: .
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: 🦀 Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+          targets: ${{ matrix.target }}
+
       - name: 📎 Run clippy and fail if any warnings
         run: |
-          cargo clippy -- -D warnings
-          cd src-tauri
-          cargo clippy -- -D warnings
+          cd ${{ matrix.dir }}
+          cargo clippy --target ${{ matrix.target }} -- -D warnings
