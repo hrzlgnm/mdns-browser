@@ -21,15 +21,6 @@ jobs:
           components: rustfmt
           targets: wasm32-unknown-unknown
 
-      - name: 📦 Rust cache
-        uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2
-        with:
-          save-if: ${{ github.ref == 'refs/heads/main' }}
-          workspaces: |
-            shared_constants -> ./target
-            models -> ./target
-            src-tauri -> ./target
-
       - name: 📝 Check spelling using typos-action
         uses: crate-ci/typos@80c8a4945eec0f6d464eaf9e65ed98ef085283d1 # v1.38.1
 
@@ -74,7 +65,16 @@ jobs:
           components: clippy
           targets: ${{ matrix.target }}
 
+      - name: 📦 Rust cache
+        uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+          workspaces: |
+            shared_constants -> ./target
+            models -> ./target
+            src-tauri -> ./target
+
       - name: 📎 Run clippy and fail if any warnings
         run: |
           cd ${{ matrix.dir }}
-          cargo clippy --target ${{ matrix.target }} -- -D warnings
+          cargo clippy --all-targets --target ${{ matrix.target }} -- -D warnings
