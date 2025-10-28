@@ -69,11 +69,9 @@ jobs:
       - name: 📦 Rust cache
         uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2
         with:
-          save-if: ${{ github.ref == 'refs/heads/main' }}
-          workspaces: |
-            shared_constants -> ./target
-            models -> ./target
-            src-tauri -> ./target
+          cache-bin: false
+          prefix-key: "v1-rust"
+          shared-key: "shared"
 
       - name: 📎 Run clippy and fail if any warnings
         run: |
