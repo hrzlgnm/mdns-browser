@@ -6,7 +6,7 @@ on:
 
 jobs:
   lint:
-    name: 🐧 typos, rustfmt and leptosfmt
+    name: 🐧📝📐
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:2cb9067f02b76ef319b4f94c5456e116497c62c989989272207be64c18e4b591
@@ -45,16 +45,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: "macos-latest"
-            symbol: 🍏
-          - os: "windows-latest"
-            symbol: 🪟
           - os: "ubuntu-latest"
             symbol: 🐧
             platform: Linux
             container_image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:2cb9067f02b76ef319b4f94c5456e116497c62c989989272207be64c18e4b591
+          - os: "macos-latest"
+            symbol: 🍏
+          - os: "windows-latest"
+            symbol: 🪟
     runs-on: ${{matrix.os}}
-    name: ${{matrix.symbol}} 📎
+    name: ${{matrix.symbol}}📎
     container: ${{ contains(matrix.os, 'ubuntu') && matrix.container_image || null }}
     steps:
       - name: 🔄 Checkout

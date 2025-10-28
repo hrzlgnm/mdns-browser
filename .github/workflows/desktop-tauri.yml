@@ -21,20 +21,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: "macos-latest"
-            args: "--target universal-apple-darwin"
-            symbol: 🍏
-            platform: macOS
           - os: "ubuntu-latest"
             symbol: 🐧
             platform: Linux
             container_image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:2cb9067f02b76ef319b4f94c5456e116497c62c989989272207be64c18e4b591
+          - os: "macos-latest"
+            args: "--target universal-apple-darwin"
+            symbol: 🍏
+            platform: macOS
           - os: "windows-latest"
             symbol: 🪟
             platform: Windows
 
-    name: ${{matrix.symbol}}
-    runs-on: ${{ matrix.os }}
+    name: ${{matrix.symbol}}🔨
+    runs-on: ${{matrix.os}}
     container: ${{ contains(matrix.os, 'ubuntu') && matrix.container_image || null }}
     steps:
       - name: 🔄 Checkout
