@@ -59,11 +59,6 @@ jobs:
           cache-bin: false
           prefix-key: "v1-rust"
           shared-key: "shared"
-          workspaces: |
-            . -> target
-            shared_constants -> target
-            models -> target
-            src-tauri -> target
 
       - name: 📥 Cached install trunk
         uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3

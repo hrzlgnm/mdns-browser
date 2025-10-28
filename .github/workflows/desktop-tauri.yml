@@ -63,11 +63,6 @@ jobs:
           cache-bin: false
           prefix-key: "v1-rust"
           shared-key: "shared"
-          workspaces: |
-            . -> target
-            shared_constants -> target
-            models -> target
-            src-tauri -> target
 
       - name: 🛠️ Setup | Install dependencies
         if: matrix.install != ''
