@@ -13,6 +13,7 @@ RUN apt-get update \
     libwebkit2gtk-4.1-dev \
     libxdo-dev \
     rustup \
+    unzip \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
