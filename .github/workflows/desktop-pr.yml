@@ -32,7 +32,7 @@ jobs:
     uses: ./.github/workflows/ci-lint.yml
   test:
     uses: ./.github/workflows/ci-test.yml
-  pr:
+  build:
     permissions:
       contents: write
     uses: ./.github/workflows/desktop-tauri.yml
