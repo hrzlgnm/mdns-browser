@@ -39,11 +39,8 @@ jobs:
           shared-key: "shared"
 
       - name: 📦 Run sccache (non windows)
-        if: !contains(matrix.os, 'windows')
+        if: ${{ !contains(matrix.os, 'windows') }}
         uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
-
-      - name: 📦 Set Rust caching env vars only (non windows)
-        if: !contains(matrix.os, 'windows')
         run: |
           echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
           echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
