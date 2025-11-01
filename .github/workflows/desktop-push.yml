@@ -29,7 +29,9 @@ concurrency:
 jobs:
   lint:
     uses: ./.github/workflows/ci-lint.yml
-  push:
+  test:
+    uses: ./.github/workflows/ci-test.yml
+  build:
     permissions:
       contents: write
     uses: ./.github/workflows/desktop-tauri.yml

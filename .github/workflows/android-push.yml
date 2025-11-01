@@ -27,7 +27,7 @@ concurrency:
   group: ${{ github.ref == 'refs/heads/main' && format('android-main-{0}', github.sha) || format('android-{0}', github.ref) }}
 
 jobs:
-  push:
+  build:
     permissions:
       contents: write
     uses: ./.github/workflows/android.yml
