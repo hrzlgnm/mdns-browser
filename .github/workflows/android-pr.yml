@@ -27,7 +27,7 @@ concurrency:
   group: ${{ format('android-{0}', github.ref) }}
   cancel-in-progress: true
 jobs:
-  pr:
+  build:
     permissions:
       contents: write
     uses: ./.github/workflows/android.yml
