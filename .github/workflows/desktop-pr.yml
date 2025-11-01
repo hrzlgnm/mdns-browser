@@ -30,6 +30,8 @@ concurrency:
 jobs:
   lint:
     uses: ./.github/workflows/ci-lint.yml
+  test:
+    uses: ./.github/workflows/ci-test.yml
   pr:
     permissions:
       contents: write
