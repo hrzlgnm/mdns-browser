@@ -1,0 +1,63 @@
+[
+    {
+        "label": "Tauri dev",
+        "command": "cargo",
+        "args": ["--locked", "tauri", "dev", "--", "--", "-D", "-l", "debug"],
+        "env": {},
+        "use_new_terminal": false,
+        "allow_concurrent_runs": false,
+        "reveal": "always",
+        "reveal_target": "dock",
+        "hide": "on_success",
+        "shell": "system",
+        "show_summary": true,
+        "show_command": true
+    },
+    {
+        "label": "Tauri android init",
+        "command": "cargo",
+        "args": ["--locked", "tauri", "android", "init"],
+        "env": {},
+        "use_new_terminal": false,
+        "allow_concurrent_runs": false,
+        "reveal": "always",
+        "reveal_target": "dock",
+        "hide": "on_success",
+        "shell": "system",
+        "show_summary": true,
+        "show_command": true
+    },
+    {
+        "label": "Tauri android dev",
+        "command": "cargo",
+        "args": ["--locked", "tauri", "android", "dev"],
+        "env": {},
+        "use_new_terminal": false,
+        "allow_concurrent_runs": false,
+        "reveal": "always",
+        "reveal_target": "dock",
+        "hide": "on_success",
+        "shell": "system",
+        "show_summary": true,
+        "show_command": true
+    },
+    {
+        "label": "Run tests",
+        "command": "cargo",
+        "args": [
+            "--locked",
+            "test",
+            "--package=models",
+            "--package=mdns-browser"
+        ],
+        "env": {},
+        "use_new_terminal": false,
+        "allow_concurrent_runs": false,
+        "reveal": "always",
+        "reveal_target": "dock",
+        "hide": "on_success",
+        "shell": "system",
+        "show_summary": true,
+        "show_command": true
+    }
+]
