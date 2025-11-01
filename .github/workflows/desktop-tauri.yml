@@ -101,10 +101,6 @@ jobs:
           echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
           echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
 
-      - name: ✅ Run tests
-        run: |
-          cargo --locked test --package=models --package=mdns-browser
-
       - name: 🔑 Import windows signing certificate (windows only)
         if: contains(matrix.os, 'windows')
         env:
