@@ -3,6 +3,7 @@ name: "🖥️"
 on:
   pull_request:
     paths-ignore:
+      - ".zed/**"
       - "**/*.md"
       - ".coderabbitai.yaml"
       - ".github/*.yml"
@@ -29,7 +30,9 @@ concurrency:
 jobs:
   lint:
     uses: ./.github/workflows/ci-lint.yml
-  pr:
+  test:
+    uses: ./.github/workflows/ci-test.yml
+  build:
     permissions:
       contents: write
     uses: ./.github/workflows/desktop-tauri.yml

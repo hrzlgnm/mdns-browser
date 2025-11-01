@@ -1,0 +1,52 @@
+name: "Reusable ci test workflow"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: "ubuntu-latest"
+            symbol: 🐧
+            platform: Linux
+            container_image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:41b291e0292a111400ede6b3df9dfb0b1547cf685a89a3cf11b94b4ba120b7f1
+          - os: "macos-latest"
+            symbol: 🍏
+          - os: "windows-latest"
+            symbol: 🪟
+    runs-on: ${{matrix.os}}
+    name: ${{matrix.symbol}}✅
+    container: ${{ contains(matrix.os, 'ubuntu') && matrix.container_image || null }}
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: 🦀 Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
+
+      - name: 📦 Rust cache
+        uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2
+        with:
+          cache-bin: false
+          prefix-key: "v1-rust"
+          shared-key: "shared"
+
+      - name: 📦 Run sccache
+        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
+
+      - name: 📦 Set sccache env variables
+        shell: bash
+        run: |
+          echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
+          echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
+
+      - name: ✅ Run tests
+        run: |
+          cargo --locked test --package=models --package=mdns-browser

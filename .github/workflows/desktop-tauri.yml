@@ -91,19 +91,16 @@ jobs:
           version: 2.9.2
           locked: true
 
-      - name: 📦 Run sccache non-release runs (not windows)
-        if: "inputs.tagName == '' && !contains(matrix.os, 'windows')"
+      - name: 📦 Run sccache non-release runs
+        if: inputs.tagName == ''
         uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
 
-      - name: 📦 Set Rust caching env vars only on non-release runs (not windows)
-        if: "inputs.tagName == '' && !contains(matrix.os, 'windows')"
+      - name: 📦 Set Rust caching env vars only on non-release runs
+        if: inputs.tagName == ''
+        shell: bash
         run: |
           echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
           echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
-
-      - name: ✅ Run tests
-        run: |
-          cargo --locked test --package=models --package=mdns-browser
 
       - name: 🔑 Import windows signing certificate (windows only)
         if: contains(matrix.os, 'windows')
