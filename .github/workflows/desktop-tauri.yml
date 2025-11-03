@@ -114,7 +114,7 @@ jobs:
           Remove-Item -path certificate -include tempCert.txt
           Import-PfxCertificate -FilePath certificate/certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
 
-      - name: 🔨 Build plain executables action (publish artifacts on release)
+      - name: 🔨 Build plain executables using tauri action (publish artifacts on release)
         uses: tauri-apps/tauri-action@3b50ac4d4512105f96edbaa78a6e2f9392805589 # v0.5.24
         env:
           RUSTFLAGS: "-D warnings"
