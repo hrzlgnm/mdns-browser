@@ -4,12 +4,12 @@ version = "0.25.1"
 edition = "2021"
 
 [profile.release]
-panic = "abort"
 codegen-units = 1
+debug = true
 lto = true
 opt-level = "s"
-strip = true
-debug = true
+panic = "abort"
+strip = "debuginfo"
 
 [dependencies]
 # crates
