@@ -114,7 +114,24 @@ jobs:
           Remove-Item -path certificate -include tempCert.txt
           Import-PfxCertificate -FilePath certificate/certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
 
-      - name: 🔨 Build using tauri action (publish artifacts on release)
+      - name: 🔨 Build plain executables action (publish artifacts on release)
+        uses: tauri-apps/tauri-action@3b50ac4d4512105f96edbaa78a6e2f9392805589 # v0.5.24
+        env:
+          RUSTFLAGS: "-D warnings"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        with:
+          tagName: ${{ inputs.tagName }}
+          releaseName: ${{ inputs.releaseName }}
+          releaseDraft: false
+          prerelease: false
+          tauriScript: cargo --locked auditable tauri
+          args: ${{ matrix.args }} --no-bundle
+          retryAttempts: 1
+          uploadPlainBinary: true
+
+      - name: 🔨 Build bundles using tauri action (publish artifacts on release)
         uses: tauri-apps/tauri-action@3b50ac4d4512105f96edbaa78a6e2f9392805589 # v0.5.24
         env:
           RUSTFLAGS: "-D warnings"
@@ -128,6 +145,22 @@ jobs:
           prerelease: false
           tauriScript: cargo --locked auditable tauri
           args: ${{ matrix.args }}
+          retryAttempts: 1
+
+      - name: 🔨 Build plain executables action (publish artifacts on release)
+        uses: tauri-apps/tauri-action@3b50ac4d4512105f96edbaa78a6e2f9392805589 # v0.5.24
+        env:
+          RUSTFLAGS: "-D warnings"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        with:
+          tagName: ${{ inputs.tagName }}
+          releaseName: ${{ inputs.releaseName }}
+          releaseDraft: false
+          prerelease: false
+          tauriScript: cargo --locked auditable tauri
+          args: ${{ matrix.args }} --no-bundle
           retryAttempts: 1
 
       - name: 📤 Upload build artifacts (push or pr builds only)
