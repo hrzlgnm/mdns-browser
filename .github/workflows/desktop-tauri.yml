@@ -149,6 +149,7 @@ jobs:
 
       - name: 🔨 Build plain executables action (publish artifacts on release)
         uses: tauri-apps/tauri-action@3b50ac4d4512105f96edbaa78a6e2f9392805589 # v0.5.24
+        if: ${{ !contains(matrix.os, 'macos') }}
         env:
           RUSTFLAGS: "-D warnings"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
