@@ -80,7 +80,7 @@ jobs:
         uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
         with:
           crate: tauri-cli
-          version: 2.9.2
+          version: 2.9.3
           locked: true
 
       - name: 📦 Run sccache
