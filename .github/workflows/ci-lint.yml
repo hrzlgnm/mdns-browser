@@ -24,6 +24,7 @@ jobs:
           components: rustfmt
 
       - name: 📐 Run rustfmt and fail if any warnings
+        shell: bash
         run: |
           cargo fmt -- --check
           cd src-tauri
@@ -67,6 +68,7 @@ jobs:
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
 
       - name: 📎 Run clippy and fail if any warnings
+        shell: bash
         run: |
           cargo clippy -- -D warnings
           cd src-tauri
