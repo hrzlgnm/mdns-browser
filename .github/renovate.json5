@@ -38,7 +38,7 @@
             customType: "regex",
             managerFilePatterns: [
                 "/^\\.github/workflows/.*\\.yml$/",
-                "/^\\.github/actions/**/.*\\.yml$/",
+                "/^\\.github/actions/.*/.*\\.yml$/",
             ],
             matchStrings: [
                 "crate:\\s*(?<depName>[^\\s]+)\\s*version:\\s*(?<currentValue>[^\\s]+)",
@@ -52,7 +52,7 @@
             customType: "regex",
             managerFilePatterns: [
                 "/^\\.github/docker/.*/Dockerfile$/",
-                "/^aur-template/.*.sh$/",
+                "/^aur-template/.*\\.sh$/",
             ],
             matchStrings: [
                 "cargo.*install (?<depName>\\S+)@(?<currentValue>\\S+)",
