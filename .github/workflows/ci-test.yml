@@ -36,5 +36,6 @@ jobs:
           enabled: true
 
       - name: ✅ Run tests
+        shell: bash
         run: |
           cargo --locked test --package=models --package=mdns-browser
