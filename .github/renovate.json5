@@ -36,7 +36,10 @@
         {
             matchStringsStrategy: "any",
             customType: "regex",
-            managerFilePatterns: ["/^\\.github/workflows/.*\\.yml$/"],
+            managerFilePatterns: [
+                "/^\\.github/workflows/.*\\.yml$/"
+                "/^\\.github/actions/**/.*\\.yml$/"
+            ],
             matchStrings: [
                 "crate:\\s*(?<depName>[^\\s]+)\\s*version:\\s*(?<currentValue>[^\\s]+)",
             ],
