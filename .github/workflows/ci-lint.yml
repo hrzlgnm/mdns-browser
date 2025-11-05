@@ -18,8 +18,8 @@ jobs:
       - name: 📝 Check spelling using typos-action
         uses: crate-ci/typos@07d900b8fa1097806b8adb6391b0d3e0ac2fdea7 # v1.39.0
 
-      - name: 🦀 Install rust stable
-        uses: dtolnay/rust-toolchain@stable
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
         with:
           components: rustfmt
 
@@ -60,18 +60,11 @@ jobs:
       - name: 🔄 Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: 🦀 Install rust stable
-        uses: dtolnay/rust-toolchain@stable
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
         with:
           components: clippy
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
-
-      - name: 📦 Rust cache
-        uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2
-        with:
-          cache-bin: false
-          prefix-key: "v1-rust"
-          shared-key: "shared"
 
       - name: 📎 Run clippy and fail if any warnings
         run: |

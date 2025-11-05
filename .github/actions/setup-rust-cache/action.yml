@@ -1,0 +1,30 @@
+name: Setup rust cache
+description: Sets up rust cache
+inputs:
+  targets:
+    description: "Toolchain target triples"
+    required: false
+    default: ""
+  components:
+    description: "Toolchain components"
+    required: false
+    default: ""
+  save-cache:
+    description: "Whether to save the cache"
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        components: ${{ inputs.components }}
+        targets: ${{ inputs.targets }}
+
+    - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2
+      with:
+        save-if: ${{ inputs.save-cache }}
+        cache-bin: false
+        prefix-key: "v1-rust"
+        shared-key: "shared"
