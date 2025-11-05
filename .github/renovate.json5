@@ -11,7 +11,7 @@
         ":combinePatchMinorReleases",
         ":docker",
         ":enableVulnerabilityAlerts",
-        ":maintainLockFilesWeekly",
+        // ":maintainLockFilesWeekly",
         ":prConcurrentLimitNone",
         ":prImmediately",
         ":rebaseStalePrs",
