@@ -52,55 +52,15 @@ jobs:
             exit 1
           fi
 
-      - name: 🦀 Install rust stable
-        uses: dtolnay/rust-toolchain@stable
+      - uses: ./.github/actions/setup-rust-cache
         with:
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
+          save-cache: ${{ env.BRANCH_NAME == 'main' }}
+      - uses: ./.github/actions/setup-tauri
 
-      - name: 📦 Rust cache
-        uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2
+      - uses: ./.github/actions/setup-sccache
         with:
-          cache-bin: false
-          prefix-key: "v1-rust"
-          shared-key: "shared"
-
-      - name: 🛠️ Setup | Install dependencies
-        if: matrix.install != ''
-        run: ${{ matrix.install }}
-
-      - name: 📥 Cached install trunk
-        uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
-        with:
-          crate: trunk
-          version: 0.21.14
-          locked: true
-          args: --no-default-features
-          features: rustls
-
-      - name: 📥 Cached install cargo-auditable
-        uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
-        with:
-          crate: cargo-auditable
-          version: 0.7.1
-          locked: true
-
-      - name: 📥 Cached install tauri-cli
-        uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
-        with:
-          crate: tauri-cli
-          version: 2.9.3
-          locked: true
-
-      - name: 📦 Run sccache non-release runs
-        if: inputs.tagName == ''
-        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
-
-      - name: 📦 Set Rust caching env vars only on non-release runs
-        if: inputs.tagName == ''
-        shell: bash
-        run: |
-          echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
-          echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
+          enabled: ${{ inputs.tagName == '' }}
 
       - name: 🔑 Import windows signing certificate (windows only)
         if: contains(matrix.os, 'windows')
