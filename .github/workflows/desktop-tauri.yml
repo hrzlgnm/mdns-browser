@@ -52,13 +52,16 @@ jobs:
             exit 1
           fi
 
-      - uses: ./.github/actions/setup-rust-cache
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
         with:
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
           save-cache: ${{ env.BRANCH_NAME == 'main' }}
-      - uses: ./.github/actions/setup-tauri
+      - name: 🛠️🐂
+        uses: ./.github/actions/setup-tauri
 
-      - uses: ./.github/actions/setup-sccache
+      - name: 🛠️🚀
+        uses: ./.github/actions/setup-sccache
         with:
           enabled: ${{ inputs.tagName == '' }}
 

@@ -48,13 +48,16 @@ jobs:
       - name: 🛠️ Install NDK
         run: sdkmanager "ndk;27.0.11902837"
 
-      - uses: ./.github/actions/setup-rust-cache
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
           save-cache: ${{ env.BRANCH_NAME == 'main' }}
-      - uses: ./.github/actions/setup-tauri
+      - name: 🛠️🐂
+        uses: ./.github/actions/setup-tauri
 
-      - uses: ./.github/actions/setup-sccache
+      - name: 🛠️🚀
+        uses: ./.github/actions/setup-sccache
         with:
           enabled: ${{ !inputs.publish }}
 
