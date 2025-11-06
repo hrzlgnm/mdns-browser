@@ -11,8 +11,7 @@
         ":combinePatchMinorReleases",
         ":docker",
         ":enableVulnerabilityAlerts",
-        // TODO(#1532): Reenable when upstream issue is resolved.
-        // ":maintainLockFilesWeekly",
+        ":maintainLockFilesWeekly",
         ":prConcurrentLimitNone",
         ":prImmediately",
         ":rebaseStalePrs",
