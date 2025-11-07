@@ -11,6 +11,10 @@ on:
           - patch
           - minor
           - major
+      dry-run:
+        description: dry-run
+        required: true
+        type: boolean
 
 jobs:
   update_version:
@@ -67,6 +71,7 @@ jobs:
           -f enforcement=disabled
 
       - name: Commit, tag and push
+        if: ${{ !inputs.dry-run }}
         run: |
           git add -A
           git commit -S -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
