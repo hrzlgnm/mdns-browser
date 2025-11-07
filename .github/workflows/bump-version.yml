@@ -67,7 +67,7 @@ jobs:
           gh api \
           --method PATCH \
           -H "Accept: application/vnd.github+json" \
-          /repos/${{repository}}/rulesets/${RULESET_ID} \
+          /repos/${{github.repository}}/rulesets/${RULESET_ID} \
           -f enforcement=disabled
 
       - name: Commit, tag and push
