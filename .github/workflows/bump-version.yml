@@ -25,9 +25,9 @@ jobs:
       version: ${{ steps.semver.outputs.semantic-version }}
     env:
       GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
-      RULESET_ID: 4895698
+      RULESET: repos/${{github.repository}}/rulesets/4895698
     steps:
-      - name: Checkout repository
+      - name: 🔄Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - id: semver
@@ -39,7 +39,7 @@ jobs:
           create-release: false
           dry-run: true
 
-      - name: Set up SSH signing key
+      - name: ⚙️Set up SSH signing key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/id_ed25519_signing
@@ -49,7 +49,7 @@ jobs:
           git config --global user.name "hrzlgnm"
           git config --global user.email "hrzlgnm@users.noreply.github.com"
 
-      - name: Update cargo and tauri versions
+      - name: 🔄Update cargo and tauri versions
         run: |
           sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' Cargo.toml
           sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' models/Cargo.toml
@@ -62,17 +62,18 @@ jobs:
           sed -i '/name = "models"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
           sed -i '/name = "shared_constants"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
 
-      - name: Temporary disable ruleset enforcement
+      - name: ⏳Temporary disable ruleset enforcement
         run: |
           gh api \
           -H "Accept: application/vnd.github+json" \
-          repos/${{github.repository}}/rulesets/4895698 | \
-          jq '.enforcement = "disabled"' | gh api \
+          ${RULESET} | jq '.enforcement = "disabled"' | \
+          gh api \
           --method PUT \
           -H "Accept: application/vnd.github+json" \
-          repos/${{github.repository}}/rulesets/4895698 --input -
+          ${RULESET} \
+          --input -
 
-      - name: Commit, tag and push
+      - name: 💾🏷️⬆️ Commit, tag and push
         if: ${{ !inputs.dry-run }}
         run: |
           git add -A
@@ -81,13 +82,14 @@ jobs:
           git tag -s -a mdns-browser-v${{ steps.semver.outputs.semantic-version }} -m "mDNS-Browser Release v${{ steps.semver.outputs.semantic-version}}"
           git push --tags
 
-      - name: Re-enable enforcment of rules
+      - name: 👮 Re-enable enforcment of rules
         if: always()
         run: |
           gh api \
           -H "Accept: application/vnd.github+json" \
-          repos/${{github.repository}}/rulesets/4895698 | \
-          jq '.enforcement = "active"' | gh api \
+          ${RULESET} | jq '.enforcement = "active"' | \
+          gh api \
           --method PUT \
           -H "Accept: application/vnd.github+json" \
-          repos/${{github.repository}}/rulesets/4895698 --input -
+          ${RULESET} \
+          --input -
