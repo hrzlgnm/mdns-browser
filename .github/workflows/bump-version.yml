@@ -11,6 +11,10 @@ on:
           - patch
           - minor
           - major
+      dry-run:
+        description: dry-run
+        required: true
+        type: boolean
 
 jobs:
   update_version:
@@ -19,9 +23,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.semver.outputs.semantic-version }}
-
+    env:
+      GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+      RULESET: repos/${{github.repository}}/rulesets/4895698
     steps:
-      - name: Checkout repository
+      - name: 🔄Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - id: semver
@@ -33,7 +39,7 @@ jobs:
           create-release: false
           dry-run: true
 
-      - name: Set up SSH signing key
+      - name: ⚙️Set up SSH signing key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/id_ed25519_signing
@@ -43,23 +49,47 @@ jobs:
           git config --global user.name "hrzlgnm"
           git config --global user.email "hrzlgnm@users.noreply.github.com"
 
-      - name: Update cargo and tauri versions
+      - name: 🔄Update cargo and tauri versions
         run: |
           sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' Cargo.toml
           sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' models/Cargo.toml
           sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' shared_constants/Cargo.toml
           sed -i '0,/\(version *= *\).*/s//\1"${{ steps.semver.outputs.semantic-version }}"/' src-tauri/Cargo.toml
           jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
-          jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.android.conf.json > tauri.andorid.config.json.new && mv tauri.andorid.config.json.new src-tauri/tauri.android.conf.json
+          jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
           sed -i '/name = "mdns-browser"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
           sed -i '/name = "mdns-browser-ui"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
           sed -i '/name = "models"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
           sed -i '/name = "shared_constants"/{N;s/\(version *= *\)".*"/\1"'"${{ steps.semver.outputs.semantic-version }}"'"/;}' Cargo.lock
 
-      - name: Commit, tag and push
+      - name: ⏳Temporary disable ruleset enforcement
+        run: |
+          gh api \
+          -H "Accept: application/vnd.github+json" \
+          ${RULESET} | jq '.enforcement = "disabled"' | \
+          gh api \
+          --method PUT \
+          -H "Accept: application/vnd.github+json" \
+          ${RULESET} \
+          --input -
+
+      - name: 💾🏷️⬆️ Commit, tag and push
+        if: ${{ !inputs.dry-run }}
         run: |
           git add -A
           git commit -S -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
           git push
           git tag -s -a mdns-browser-v${{ steps.semver.outputs.semantic-version }} -m "mDNS-Browser Release v${{ steps.semver.outputs.semantic-version}}"
           git push --tags
+
+      - name: 👮 Re-enable enforcement of rules
+        if: always()
+        run: |
+          gh api \
+          -H "Accept: application/vnd.github+json" \
+          ${RULESET} | jq '.enforcement = "active"' | \
+          gh api \
+          --method PUT \
+          -H "Accept: application/vnd.github+json" \
+          ${RULESET} \
+          --input -
