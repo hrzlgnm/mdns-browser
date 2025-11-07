@@ -24,7 +24,7 @@ on:
 
 concurrency:
   # On main, we want all builds to complete even if merging happens faster to make it easier to discover at which point something broke.
-  group: ${{ github.ref == 'refs/heads/main' && format('dekstop-main-{0}', github.sha) || format('dekstop-{0}', github.ref) }}
+  group: ${{ github.ref == 'refs/heads/main' && format('desktop-main-{0}', github.sha) || format('desktop-{0}', github.ref) }}
 
 jobs:
   lint:
