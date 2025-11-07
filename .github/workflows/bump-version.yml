@@ -64,11 +64,8 @@ jobs:
 
       - name: Temporary disable ruleset enforcement
         run: |
-          gh api \
-          --method PATCH \
-          -H "Accept: application/vnd.github+json" \
-          /repos/${{github.repository}}/rulesets/${RULESET_ID} \
-          -f enforcement=disabled
+          gh api --method PATCH -H "Accept: application/vnd.github+json" \
+          /repos/${{github.repository}}/rulesets/${RULESET_ID} -f enforcement=disabled
 
       - name: Commit, tag and push
         if: ${{ !inputs.dry-run }}
@@ -82,8 +79,5 @@ jobs:
       - name: Re-enable enforcment of rules
         if: always()
         run: |
-          gh api \
-          --method PATCH \
-          -H "Accept: application/vnd.github+json" \
-          /repos/${{github.repository}}/rulesets/${RULESET_ID} \
-          -f enforcement=active
+          gh api --method PATCH -H "Accept: application/vnd.github+json" \
+          /repos/${{github.repository}}/rulesets/${RULESET_ID} -f enforcement=active
