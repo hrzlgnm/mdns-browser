@@ -32,7 +32,7 @@
             }
         },
         "windows": {
-            "certificateThumbprint": "3E755AD701CB7F3AC747239CFDCD63A24144239A",
+            "certificateThumbprint": "303ADAF17B81D64EA1D94C31861BCAEF60167E17",
             "digestAlgorithm": "sha256",
             "timestampUrl": "http://timestamp.digicert.com"
         }
