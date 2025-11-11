@@ -6,11 +6,8 @@ on:
 
 jobs:
   types:
-    name: 🐧📝📐
+    name: 📝
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:41b291e0292a111400ede6b3df9dfb0b1547cf685a89a3cf11b94b4ba120b7f1
-
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
