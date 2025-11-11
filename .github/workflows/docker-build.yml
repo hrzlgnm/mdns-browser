@@ -1,18 +1,12 @@
 name: Build and Push Docker Images
 
 on:
-  push:
-    paths:
-      - ".github/docker/**/Dockerfile"
-      - ".github/workflows/docker-build.yaml"
-    branches:
-      - main
-  pull_request:
-    paths:
-      - ".github/docker/**/Dockerfile"
-      - ".github/workflows/docker-build.yaml"
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      branch:
+        type: string
+        description: The branch name we are building, eg 'main'
+        required: true
   workflow_dispatch:
   # rotate docker immages monthly
   schedule:
@@ -34,7 +28,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
       - name: Detect Changed Dockerfiles
-        if: github.event_name == 'push'
+        if: github.event_name == 'workflow_call'
         id: changes
         run: |
           if git rev-parse HEAD^ >/dev/null 2>&1; then
@@ -45,8 +39,8 @@ jobs:
 
           echo "PACKAGES=$(echo "$CHANGED_FILES" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
 
-      - name: Force build all if triggered by workflow_dispatch or schedule or pull_request
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
+      - name: Force build all if triggered by workflow_dispatch or schedule
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
           DIRS=$(git ls-tree --name-only HEAD .github/docker/* | cut -d '/' -f3 | uniq)
           echo "PACKAGES=$(echo "$DIRS" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
@@ -62,7 +56,7 @@ jobs:
           done
 
       - name: Push Docker Images
-        if: env.PACKAGES != '[]' && github.event_name != 'pull_request'
+        if: env.PACKAGES != '[]' && inputs.branch == 'main'
         run: |
           for PACKAGE in $(echo $PACKAGES | jq -r '.[]'); do
             IMAGE_NAME_V1="ghcr.io/${{ github.repository_owner }}/$PACKAGE:v1"
