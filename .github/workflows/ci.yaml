@@ -108,7 +108,7 @@ jobs:
 
   always-run:
     # used in branch protection rulesets as the only relevant step needing to pass
-    name: CI Summary
+    name: CI Status
     runs-on: ubuntu-latest
     needs: [lint, tests, android, desktop, docker]
     if: always()
