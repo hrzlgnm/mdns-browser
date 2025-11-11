@@ -113,10 +113,15 @@ jobs:
     needs: [lint, tests, android, desktop, docker]
     if: always()
     steps:
-      - name: Fail if any dependent job failed
+      - name: Create JSON summary
+        id: summary
         run: |
-          for job in lint tests android  desktop docker; do
-            result="${{ needs[$job].result }}"
+          echo '${{ toJSON(needs) }}' > needs.json
+          cat needs.json | jq
+
+      - name: Aggregate results dynamically
+        run: |
+          jq -r 'to_entries[] | "\(.key) \(.value.result)"' needs.json | while read job result; do
             echo "$job → $result"
             if [[ "$result" == "failure" ]]; then
               echo "❌ $job failed."
