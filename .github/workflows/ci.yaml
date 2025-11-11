@@ -1,0 +1,133 @@
+name: "CI"
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
+concurrency:
+  # On main, we want all builds to complete even if merging happens faster to make it easier to discover at which point something broke.
+  group: ${{ github.ref == 'refs/heads/main' && format('ci-main-{0}', github.sha) || format('ci-{0}', github.ref) }}
+  cancel-in-progress: true
+
+jobs:
+  label-pr:
+    if: github.event_name == 'pull_request'
+    name: "🏷️ Label PR"
+    permissions:
+      contents: read # for TimonVS/pr-labeler-action to read config file
+      pull-requests: write # for TimonVS/pr-labeler-action to add labels in PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: TimonVS/pr-labeler-action@f9c084306ce8b3f488a8f3ee1ccedc6da131d1af # v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+  changes:
+    name: "🔍 Detect Changes"
+    runs-on: ubuntu-latest
+    outputs:
+      tauri: ${{ steps.filter.outputs.tauri }}
+      docker: ${{ steps.filter.outputs.docker }}
+      branch: ${{ steps.branch.outputs.branch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for changes
+        uses: dorny/paths-filter@v3.0.2
+        id: filter
+        with:
+          filters: |
+            tauri:
+              - '.github/workflows/**'
+              - '.github/actions/**'
+              - '.github/*.yml'
+              - '.github/*.json5'
+              - 'models/**'
+              - 'public/**'
+              - 'shared_constants/**'
+              - 'src/**'
+              - 'src-tauri/**'
+              - 'index.html'
+              - 'index.js'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+              - 'typos.toml'
+              - 'style.css'
+              - '.taurignore'
+            docker:
+              - '.github/docker/**'
+              - '.github/workflows/docker-build.yml'
+
+      - name: Output branch name
+        id: branch
+        run: |
+          echo "branch=${{ env.BRANCH_NAME }}" >> $GITHUB_OUTPUT
+  lint:
+    needs: changes
+    if: needs.changes.outputs.tauri == 'true'
+    uses: ./.github/workflows/ci-lint.yml
+
+  tests:
+    needs: changes
+    if: needs.changes.outputs.tauri == 'true'
+    uses: ./.github/workflows/ci-test.yml
+
+  android:
+    name: "📱"
+    needs: changes
+    if: needs.changes.outputs.tauri == 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/android.yml
+    secrets: inherit
+
+  desktop:
+    name: "🖥️"
+    needs: changes
+    if: needs.changes.outputs.tauri == 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/desktop-tauri.yml
+    secrets: inherit
+
+  docker:
+    name: "🐳"
+    needs: changes
+    if: needs.changes.outputs.docker == 'true'
+    permissions:
+      contents: read
+      packages: write # Needed to push to GHCR
+
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      branch: ${{ needs.changes.outputs.branch }}
+
+  always-run:
+    # used in branch protection rulesets as the only relevant step needing to pass
+    name: CI Status
+    runs-on: ubuntu-latest
+    needs: [lint, tests, android, desktop, docker]
+    if: always()
+    steps:
+      - name: Create JSON summary
+        id: summary
+        run: |
+          echo '${{ toJSON(needs) }}' > needs.json
+          cat needs.json | jq
+
+      - name: Aggregate results dynamically
+        run: |
+          jq -r 'to_entries[] | "\(.key) \(.value.result)"' needs.json | while read job result; do
+            echo "$job → $result"
+            if [[ "$result" == "failure" || "$result" == "cancelled" ]]; then
+              echo "❌ $job failed or was cancelled"
+              exit 1
+            fi
+          done
+          echo "✅ None of the required jobs failed."
