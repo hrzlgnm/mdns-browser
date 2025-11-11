@@ -68,6 +68,11 @@ jobs:
         id: branch
         run: |
           echo "branch=${{ env.BRANCH_NAME }}" >> $GITHUB_OUTPUT
+
+  typos:
+    if: always()
+    uses: ./.github/workflows/ci-typos.yml
+
   lint:
     needs: changes
     if: needs.changes.outputs.tauri == 'true'
@@ -112,7 +117,7 @@ jobs:
     # used in branch protection rulesets as the only relevant step needing to pass
     name: CI Status
     runs-on: ubuntu-latest
-    needs: [lint, tests, android, desktop, docker]
+    needs: [typos, lint, tests, android, desktop, docker]
     if: always()
     steps:
       - name: Create JSON summary
