@@ -125,8 +125,8 @@ jobs:
         run: |
           jq -r 'to_entries[] | "\(.key) \(.value.result)"' needs.json | while read job result; do
             echo "$job → $result"
-            if [[ "$result" == "failure" ]]; then
-              echo "❌ $job failed."
+            if [[ "$result" == "failure" || "$result" == "cancelled" ]]; then
+              echo "❌ $job failed or was cancelled"
               exit 1
             fi
           done
