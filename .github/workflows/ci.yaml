@@ -113,4 +113,14 @@ jobs:
     needs: [lint, tests, android, desktop, docker]
     if: always()
     steps:
-      - run: echo "CI Passed"
+      - name: Fail if any dependent job failed
+        run: |
+          for job in lint tests android  desktop docker; do
+            result="${{ needs[$job].result }}"
+            echo "$job → $result"
+            if [[ "$result" == "failure" ]]; then
+              echo "❌ $job failed."
+              exit 1
+            fi
+          done
+          echo "✅ None of the required jobs failed."
