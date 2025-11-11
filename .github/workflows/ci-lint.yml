@@ -15,11 +15,6 @@ jobs:
       - name: 🔄 Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: 📝 Check spelling using typos-action
-        uses: crate-ci/typos@07d900b8fa1097806b8adb6391b0d3e0ac2fdea7 # v1.39.0
-        with:
-          config: ./typos.toml
-
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
         with:
