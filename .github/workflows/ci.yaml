@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   label-pr:
+    if: github.event_name == 'pull_request'
     name: "🏷️ Label PR"
     permissions:
       contents: read # for TimonVS/pr-labeler-action to read config file
