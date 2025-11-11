@@ -70,6 +70,7 @@ jobs:
           echo "branch=${{ env.BRANCH_NAME }}" >> $GITHUB_OUTPUT
 
   typos:
+    name: 📝 Check typos
     if: always()
     uses: ./.github/workflows/ci-typos.yml
 
