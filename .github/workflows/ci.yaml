@@ -69,6 +69,8 @@ jobs:
         run: |
           echo "branch=${{ env.BRANCH_NAME }}" >> $GITHUB_OUTPUT
   lint:
+    needs: changes
+    if: needs.changes.outputs.tauri == 'true'
     uses: ./.github/workflows/ci-lint.yml
 
   tests:
