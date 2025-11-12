@@ -66,8 +66,6 @@ jobs:
 
       - name: 🛠️🚀
         uses: ./.github/actions/setup-sccache
-        with:
-          enabled: true
 
       - name: 📎 Run clippy and fail if any warnings
         shell: bash

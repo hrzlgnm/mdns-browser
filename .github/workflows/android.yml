@@ -63,9 +63,8 @@ jobs:
         uses: ./.github/actions/setup-tauri
 
       - name: 🛠️🚀
+        if: ${{ !inputs.publish }}
         uses: ./.github/actions/setup-sccache
-        with:
-          enabled: ${{ !inputs.publish }}
 
       - name: 🔨 Build app bundle
         run: |
