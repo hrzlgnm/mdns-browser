@@ -66,9 +66,8 @@ jobs:
         uses: ./.github/actions/setup-tauri
 
       - name: 🛠️🚀
+        if: ${{ inputs.tagName == '' }}
         uses: ./.github/actions/setup-sccache
-        with:
-          enabled: ${{ inputs.tagName == '' }}
 
       - name: 🔑 Import windows signing certificate (windows only)
         if: contains(matrix.os, 'windows')
