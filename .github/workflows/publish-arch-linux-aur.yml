@@ -27,7 +27,7 @@ jobs:
       matrix:
         package:
           - name: mdns-browser-bin
-            checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ inputs.semver }}/mdns-browser_${{ inputs.semver }}_amd64_linux.deb.sha256"
+            checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ inputs.semver }}/mdns-browser_${{ inputs.semver }}_amd64.deb.sha256"
             generate_script: "./aur-template/generate-mdns-browser-bin.sh"
           - name: mdns-browser
             checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ inputs.semver }}/mdns-browser-v${{ inputs.semver }}.tar.gz.sha256"

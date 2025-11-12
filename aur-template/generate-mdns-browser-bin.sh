@@ -19,7 +19,7 @@ license=('MIT')
 depends=('cairo' 'desktop-file-utils' 'gdk-pixbuf2' 'glib2' 'gtk3' 'hicolor-icon-theme' 'libsoup' 'pango' 'webkit2gtk-4.1')
 options=('!strip' '!emptydirs')
 conflicts=('mdns-browser')
-source_x86_64=("https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v\$pkgver/mdns-browser_\${pkgver}_amd64_linux.deb")
+source_x86_64=("https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v\$pkgver/mdns-browser_\${pkgver}_amd64.deb")
 sha256sums_x86_64=('$sha256sum')
 package() {
     tar -xz -f data.tar.gz -C "\${pkgdir}"
