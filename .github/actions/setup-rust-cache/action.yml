@@ -12,11 +12,18 @@ inputs:
   save-cache:
     description: "Whether to save the cache"
     required: false
+    type: boolean
     default: "false"
 
 runs:
   using: "composite"
   steps:
+    - shell: bash
+      run: |
+        echo "🔍Components: ${{ inputs.components }}"
+        echo "🔍Targets: ${{ inputs.targets }}"
+        echo "🔍Save-Cache: ${{ inputs.save-cache }}"
+
     - uses: dtolnay/rust-toolchain@stable
       with:
         components: ${{ inputs.components }}

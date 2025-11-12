@@ -60,7 +60,7 @@ jobs:
         uses: ./.github/actions/setup-rust-cache
         with:
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
-          save-cache: inputs.branch == 'main'
+          save-cache: ${{ inputs.branch == 'main' }}
 
       - name: 🛠️🐂
         uses: ./.github/actions/setup-tauri
@@ -68,7 +68,7 @@ jobs:
       - name: 🛠️🚀
         uses: ./.github/actions/setup-sccache
         with:
-          enabled: inputs.tagName == ''
+          enabled: ${{ inputs.tagName == '' }}
 
       - name: 🔑 Import windows signing certificate (windows only)
         if: contains(matrix.os, 'windows')
