@@ -32,8 +32,6 @@ jobs:
 
       - name: 🛠️🚀
         uses: ./.github/actions/setup-sccache
-        with:
-          enabled: true
 
       - name: ✅ Run tests
         shell: bash

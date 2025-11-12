@@ -1,22 +1,12 @@
 name: Setup sccache
 description: Sets up sccache
-inputs:
-  enabled:
-    description: Enable sccache usage
-    required: true
-    type: boolean
+
 runs:
   using: "composite"
   steps:
+    - uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
+
     - shell: bash
-      run: |
-        echo "🔍Setting up sccache is enabled: ${{ inputs.enabled }}"
-
-    - if: inputs.enabled == 'true'
-      uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
-
-    - if: inputs.enabled == 'true'
-      shell: bash
       run: |
         echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
         echo "RUSTC_WRAPPER=${SCCACHE_PATH}" >> $GITHUB_ENV
