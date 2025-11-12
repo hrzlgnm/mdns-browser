@@ -44,10 +44,14 @@ jobs:
         with:
           filters: |
             tauri:
-              - '.github/workflows/**'
+              - '.github/workflows/android.yml'
+              - '.github/workflows/ci-lint.yml'
+              - '.github/workflows/ci-test.yml'
+              - '.github/workflows/ci-typos.yml'
+              - '.github/workflows/ci.yml'
+              - '.github/workflows/desktop.yml'
               - '.github/actions/**'
-              - '.github/*.yml'
-              - '.github/*.json5'
+              - '.github/pr-labeler.yml'
               - 'models/**'
               - 'public/**'
               - 'shared_constants/**'
@@ -92,6 +96,8 @@ jobs:
       contents: write
     uses: ./.github/workflows/android.yml
     secrets: inherit
+    with:
+      branch: ${{ needs.changes.outputs.branch }}
 
   desktop:
     name: "🖥️"
@@ -99,8 +105,10 @@ jobs:
     if: needs.changes.outputs.tauri == 'true'
     permissions:
       contents: write
-    uses: ./.github/workflows/desktop-tauri.yml
+    uses: ./.github/workflows/desktop.yml
     secrets: inherit
+    with:
+      branch: ${{ needs.changes.outputs.branch }}
 
   docker:
     name: "🐳"
