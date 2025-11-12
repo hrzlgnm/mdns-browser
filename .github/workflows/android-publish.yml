@@ -1,4 +1,4 @@
-name: "📱"
+name: "Publish android APK"
 
 on:
   release:
