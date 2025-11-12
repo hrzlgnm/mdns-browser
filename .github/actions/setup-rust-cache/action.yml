@@ -21,7 +21,7 @@ runs:
     - shell: bash
       run: |
         echo "🔍Components: ${{ inputs.components }}"
-        echo "🔍Targets: ${{ inputs.components }}"
+        echo "🔍Targets: ${{ inputs.targets }}"
         echo "🔍Save-Cache: ${{ inputs.save-cache }}"
 
     - uses: dtolnay/rust-toolchain@stable
