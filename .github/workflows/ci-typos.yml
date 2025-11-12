@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  types:
+  typos:
     name: 📝
     runs-on: ubuntu-latest
     steps:
