@@ -3,9 +3,14 @@ name: "Reusable android workflow"
 on:
   workflow_call:
     inputs:
+      branch:
+        required: false
+        type: string
+        default: ""
       publish:
         required: false
         type: boolean
+        default: false
     secrets:
       ANDROID_RELEASE_KEYSTORE:
         required: false
@@ -52,14 +57,14 @@ jobs:
         uses: ./.github/actions/setup-rust-cache
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
-          save-cache: ${{ github.ref == 'refs/heads/main' }}
+          save-cache: inputs.branch == 'main'
       - name: 🛠️🐂
         uses: ./.github/actions/setup-tauri
 
       - name: 🛠️🚀
         uses: ./.github/actions/setup-sccache
         with:
-          enabled: ${{ !inputs.publish }}
+          enabled: inputs.publish != 'true'
 
       - name: 🔨 Build app bundle
         run: |
