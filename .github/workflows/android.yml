@@ -57,14 +57,15 @@ jobs:
         uses: ./.github/actions/setup-rust-cache
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
-          save-cache: inputs.branch == 'main'
+          save-cache: ${{ inputs.branch == 'main' }}
+
       - name: 🛠️🐂
         uses: ./.github/actions/setup-tauri
 
       - name: 🛠️🚀
         uses: ./.github/actions/setup-sccache
         with:
-          enabled: inputs.publish == 'false'
+          enabled: ${{ !inputs.publish }}
 
       - name: 🔨 Build app bundle
         run: |
