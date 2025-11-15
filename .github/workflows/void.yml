@@ -68,6 +68,7 @@ jobs:
           ./xbps-src pkg mdns-browser
 
       - name: 🔑 Sign repository and package
+        if: inputs.tagName
         run: |
           cd ~/void-packages
           echo "${{ secrets.XBPS_REPOSITORY_SIGNING_KEY }}" > private.pem
@@ -81,6 +82,7 @@ jobs:
             ~/void-packages/hostdir/binpkgs/*
 
       - name: 🚀 Publish
+        if: inputs.tagName
         uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
