@@ -1,0 +1,139 @@
+name: Arch linux AUR
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  latest_release:
+    permissions:
+      packages: read
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.short_version.outputs.version }}
+    steps:
+      - name: 🏷️ Get latest release tag
+        id: latest_release_tag
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const [owner, repo] = '${{ github.repository }}'.split('/');
+            try {
+              const { data } = await github.rest.repos.getLatestRelease({ owner, repo });
+              const tagName = data.tag_name;
+              return tagName;
+            } catch (error) {
+              core.setFailed(`Failed to get latest release for repo: ${owner}/${repo}: ${error}`);
+              process.exit(1);
+            }
+      - name: Short Version
+        id: short_version
+        shell: bash
+        run: |
+          VERSION=${{ steps.latest_release_tag.outputs.result }}
+          SHORT_VERSION=${VERSION#*-v}
+          echo "Short Version: ${SHORT_VERSION}"
+          echo "version=$SHORT_VERSION" >> $GITHUB_OUTPUT
+
+  update-aur:
+    needs:
+      - latest_release
+    permissions:
+      packages: read
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:c1882701977b4f4b11344bc70cbec03d70cd047734712899861bc701b21ecaa8
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: mdns-browser-bin
+            checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ needs.latest_release.outputs.version }}/mdns-browser_${{ needs.latest_release.outputs.version }}_amd64.deb.sha256"
+            generate_script: "./aur-template/generate-mdns-browser-bin.sh"
+          - name: mdns-browser
+            checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ needs.latest_release.outputs.version }}/mdns-browser-v${{ needs.latest_release.outputs.version }}.tar.gz.sha256"
+            generate_script: "./aur-template/generate-mdns-browser.sh"
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: 🔢 Get sha256sums
+        id: sha256sums
+        shell: bash
+        run: |
+          URL="${{ matrix.package.checksum_url }}"
+          echo "getting $URL"
+          SUM=$(curl -LfsS "$URL" | cut -f1 -d ' ')
+          echo "sha256=$SUM" >> $GITHUB_OUTPUT
+
+      - name: 🔨 Build latest release package on pull_request
+        if: github.event_name == 'pull_request'
+        run: |
+          su runner -c '
+            set -o errexit
+            mkdir -p ~/aur
+            ${{ matrix.package.generate_script }} "${{ needs.latest_release.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/aur/PKGBUILD
+            cd ~/aur
+            makepkg
+          '
+      - name: 🛠️ Setup Deployment keys
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          chown -R runner:runner .
+          su runner -c '
+            set -o errexit
+            mkdir -p ~/.ssh
+            echo "${{ secrets.AUR_DEPLOY_KEY }}" > ~/.ssh/aur
+            chmod 600 ~/.ssh/aur
+            echo "Host aur.archlinux.org" >> ~/.ssh/config
+            echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
+            echo "  User aur" >> ~/.ssh/config
+            ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+          '
+
+      - name: 🔄 Clone AUR Repo
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          su runner -c '
+            set -o errexit
+            git clone --depth=1 "ssh://aur@aur.archlinux.org/${{ matrix.package.name }}.git" ~/aur
+          '
+
+      - name: 🔍 Check version
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          su runner -c '
+            set -o errexit
+            cd ~/aur
+            if [[ -f PKGBUILD ]]; then
+              CURRENT_VERSION=$(source PKGBUILD && echo $pkgver)
+              if [[ "$(printf "%s\n%s" "$CURRENT_VERSION" "${{ needs.latest_release.outputs.version }}" | sort -V | head -n1)" != "$CURRENT_VERSION" ]] || [[ "$CURRENT_VERSION" == "${{ needs.latest_release.outputs.version }}" ]]; then
+                echo "New version (${{ needs.latest_release.outputs.version }}) is not higher than the current version ($CURRENT_VERSION). Exiting."
+                exit 1
+              fi
+            fi
+          '
+
+      - name: 🌀 Generate PKGBUILD update and publish
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          su runner -c '
+            set -o errexit
+            ${{ matrix.package.generate_script }} "${{ needs.latest_release.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/aur/PKGBUILD
+            cd ~/aur
+            if [[ -z $(git status --porcelain) ]]; then
+              echo "No changes"
+              exit 0
+            fi
+            makepkg --printsrcinfo > .SRCINFO
+            makepkg
+            makepkg --install --noconfirm
+            git config user.name "hrzlgnm"
+            git config user.email "hrzlgnm@users.noreply.github.com"
+            git add PKGBUILD .SRCINFO
+            git commit -m "New upstream release ${{ needs.latest_release.outputs.version }}"
+            git push origin master
+          '
