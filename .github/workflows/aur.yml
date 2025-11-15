@@ -79,7 +79,7 @@ jobs:
             makepkg
           '
       - name: 🛠️ Setup Deployment keys
-        if: github.event_name != 'pull_request'
+        if: github.event.release.tag_name
         shell: bash
         run: |
           chown -R runner:runner .
@@ -95,7 +95,7 @@ jobs:
           '
 
       - name: 🔄 Clone AUR Repo
-        if: github.event_name != 'pull_request'
+        if: github.event.release.tag_name
         shell: bash
         run: |
           su runner -c '
@@ -104,7 +104,7 @@ jobs:
           '
 
       - name: 🔍 Check version
-        if: github.event_name != 'pull_request'
+        if: github.event.release.tag_name
         shell: bash
         run: |
           su runner -c '
@@ -120,7 +120,7 @@ jobs:
           '
 
       - name: 🌀 Generate PKGBUILD update and publish
-        if: github.event_name != 'pull_request'
+        if: github.event.release.tag_name
         run: |
           su runner -c '
             set -o errexit

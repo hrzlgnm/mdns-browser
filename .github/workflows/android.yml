@@ -29,7 +29,7 @@ jobs:
         name: 🔄 Checkout
 
       - name: 🛡️ Verify tag matches version in tauri config (publish only)
-        if: inputs.tagName != ''
+        if: inputs.tagName
         shell: bash
         run: |
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)

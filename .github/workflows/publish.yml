@@ -6,11 +6,11 @@ on:
       - published
 
 jobs:
-  source-checksum:
+  source-checksums:
     permissions:
       contents: write
       actions: read
-    uses: ./.github/workflows/source-checksum.yml
+    uses: ./.github/workflows/source-checksums.yml
     secrets: inherit
 
   android:
@@ -37,7 +37,7 @@ jobs:
 
   void:
     needs:
-      - source-checksum
+      - source-checksums
     permissions:
       id-token: write
       attestations: write
@@ -58,5 +58,3 @@ jobs:
       actions: read
     uses: ./.github/workflows/release-checksums.yml
     secrets: inherit
-    with:
-      tagName: ${{ github.event.release.tag_name }}
