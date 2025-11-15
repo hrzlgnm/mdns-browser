@@ -15,10 +15,6 @@ env:
 
 jobs:
   build:
-    permissions:
-      id-token: write
-      attestations: write
-      contents: write
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:6752f843b7df8f5458225761a054afa6509d5429feb406e065a11b7b6b4f569f
