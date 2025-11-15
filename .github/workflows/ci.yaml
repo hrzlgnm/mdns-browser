@@ -31,6 +31,7 @@ jobs:
     name: "🔍 Detect Changes"
     runs-on: ubuntu-latest
     outputs:
+      aur: ${{ steps.filter.outputs.aur }}
       tauri: ${{ steps.filter.outputs.tauri }}
       docker: ${{ steps.filter.outputs.docker }}
       branch: ${{ steps.branch.outputs.branch }}
@@ -43,6 +44,8 @@ jobs:
         id: filter
         with:
           filters: |
+            aur:
+              - aur-template/**
             tauri:
               - '.github/workflows/android.yml'
               - '.github/workflows/ci-lint.yml'
@@ -77,6 +80,12 @@ jobs:
     name: 📝 Check typos
     if: always()
     uses: ./.github/workflows/ci-typos.yml
+
+  aur:
+    name: AUR
+    needs: changes
+    if: needs.changes.outputs.aur == 'true'
+    uses: ./.github/workflows/aur.yml
 
   lint:
     needs: changes
@@ -126,7 +135,7 @@ jobs:
     # used in branch protection rulesets as the only relevant step needing to pass
     name: CI Status
     runs-on: ubuntu-latest
-    needs: [typos, lint, tests, android, desktop, docker]
+    needs: [typos, aur, lint, tests, android, desktop, docker]
     if: always()
     steps:
       - name: Create JSON summary
