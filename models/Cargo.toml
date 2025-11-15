@@ -1,6 +1,6 @@
 [package]
 name = "models"
-version = "0.25.8"
+version = "0.26.0"
 edition = "2021"
 
 [dependencies]
