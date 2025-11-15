@@ -1,6 +1,6 @@
 # Privacy Statement for mDNS-Browser
 
-Effective Date: 2024-10-24
+Effective Date: 2025-11-15
 
 As the developer of mDNS-Browser, I am committed to respecting your privacy. This privacy statement outlines how the application handles user data. In short: I do not collect, store, or share any personal data. Please read this statement to understand how your information is managed. This Privacy Statement outlines how the application handles data and clarifies the role of the operating system’s WebView component. In brief: mDNS-Browser does not collect, store, or share any personal data, though the underlying WebView component may perform background connections.
 
@@ -10,7 +10,7 @@ mDNS-Browser does not collect any personal or non-personal information. The appl
 
 2. User-Initiated Updates
 
-The application includes a feature that allows you to manually trigger updates. When you choose to check for updates, the application securely connects to the update server to verify the availability of new versions. No personal data is transmitted, and only minimal technical information (such as the current app version) is used to determine compatibility with the new version.
+The application includes a feature that allows you to manually trigger updates. When you choose to check for updates, the application securely connects to the update server (GitHub Release) to verify the availability of new versions. No personal data is transmitted, and only minimal technical information (such as the current app version) is used to determine compatibility with the new version.
 
 3. Opening the GitHub Repository
 

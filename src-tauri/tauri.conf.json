@@ -46,8 +46,7 @@
                 "installMode": "passive"
             },
             "endpoints": [
-                "https://mdns-browser-updates.knulp.home64.de/updates.json",
-                "https://mdns-browser-updates.knulp.v6.rocks/updates.json"
+                "https://github.com/hrzlgnm/mdns-browser/releases/latest/download/latest.json"
             ],
             "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIwQzYxQzI2MkI3NUI1RDgKUldUWXRYVXJKaHpHSUEvVmhlVGtNZW5HNXRNZ2xEREF3UkNtbXAxTW0zR0JJUVcveEhMZHFNMjgK"
         }
