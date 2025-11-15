@@ -43,12 +43,21 @@ jobs:
           tag: ${{ needs.release_info.outputs.tag }}
           fileName: "mdns?browser*"
       - name: Generate checksum files
+        shell: bash
+        env:
+          TAG_NAME: ${{ needs.release_info.outputs.tag }}
         run: |
           for file in *; do
-             if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
-               ${{ matrix.algorithm }}sum "$file" > "$file.${{ matrix.algorithm }}"
-             fi
-           done
+            # skip and delete files matching the tag name (sources)
+            if [[ "$file" == *"$TAG_NAME"* ]]; then
+              rm "$file"
+              continue
+            fi
+            if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
+              ${{ matrix.algorithm }}sum "$file" > "$file.${{ matrix.algorithm }}"
+            fi
+          done
+          ls
       - name: Upload checksum files
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:

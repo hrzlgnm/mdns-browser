@@ -56,5 +56,5 @@ jobs:
     permissions:
       contents: write
       actions: read
-    uses: ./.github/workflows/release-checksums.yml
+    uses: ./.github/workflows/asset-checksums.yml
     secrets: inherit
