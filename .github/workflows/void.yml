@@ -15,10 +15,6 @@ env:
 
 jobs:
   build:
-    permissions:
-      id-token: write
-      attestations: write
-      contents: write
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:6752f843b7df8f5458225761a054afa6509d5429feb406e065a11b7b6b4f569f
@@ -46,7 +42,7 @@ jobs:
       - name: 🔢 Get Source Tarball Checksum
         id: get-checksum
         run: |
-          URL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/mdns-browser-v${{ steps.get-version.outputs.current-version }}.tar.gz.sha256"
+          URL="https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ steps.get-version.outputs.current-version }}/mdns-browser-v${{ steps.get-version.outputs.current-version }}.tar.gz.sha256"
           SHA256SUM=$(curl -LfsS "$URL" | cut -d ' ' -f1)
           echo "checksum=$SHA256SUM" >> $GITHUB_OUTPUT
 
@@ -68,6 +64,7 @@ jobs:
           ./xbps-src pkg mdns-browser
 
       - name: 🔑 Sign repository and package
+        if: inputs.tagName
         run: |
           cd ~/void-packages
           echo "${{ secrets.XBPS_REPOSITORY_SIGNING_KEY }}" > private.pem
@@ -81,6 +78,7 @@ jobs:
             ~/void-packages/hostdir/binpkgs/*
 
       - name: 🚀 Publish
+        if: inputs.tagName
         uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
