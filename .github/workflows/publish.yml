@@ -1,0 +1,60 @@
+name: Publish release artifacts
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  source-checksums:
+    permissions:
+      contents: write
+      actions: read
+    uses: ./.github/workflows/source-checksums.yml
+    secrets: inherit
+
+  android:
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
+      actions: read
+    uses: ./.github/workflows/android.yml
+    secrets: inherit
+    with:
+      tagName: ${{ github.event.release.tag_name }}
+
+  desktop:
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
+      actions: read
+    uses: ./.github/workflows/desktop.yml
+    secrets: inherit
+    with:
+      tagName: ${{ github.event.release.tag_name }}
+
+  void:
+    needs:
+      - source-checksums
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
+      actions: read
+    uses: ./.github/workflows/void.yml
+    secrets: inherit
+    with:
+      tagName: ${{ github.event.release.tag_name }}
+
+  asset-checksums:
+    needs:
+      - android
+      - desktop
+      - void
+    permissions:
+      contents: write
+      actions: read
+    uses: ./.github/workflows/release-checksums.yml
+    secrets: inherit

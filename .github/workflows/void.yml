@@ -1,9 +1,12 @@
-name: Publish Void Linux XBPS Package
+name: Void Linux XBPS Package
 
 on:
-  release:
-    types:
-      - published
+  workflow_call:
+    inputs:
+      tagName:
+        description: "The tag name of the release to publish to"
+        required: false
+        type: string
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   XBPS_ALLOW_RESTRICTED: yes
@@ -43,8 +46,8 @@ jobs:
       - name: 🔢 Get Source Tarball Checksum
         id: get-checksum
         run: |
-          URL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/mdns-browser-v${{ steps.get-version.outputs.current-version }}.tar.gz"
-          SHA256SUM=$(curl -LfsS "$URL" | sha256sum | cut -d ' ' -f1)
+          URL="https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/mdns-browser-v${{ steps.get-version.outputs.current-version }}.tar.gz.sha256"
+          SHA256SUM=$(curl -LfsS "$URL" | cut -d ' ' -f1)
           echo "checksum=$SHA256SUM" >> $GITHUB_OUTPUT
 
       - name: 💉 Inject Version and checksum into template
