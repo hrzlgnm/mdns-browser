@@ -1,7 +1,18 @@
 FROM ghcr.io/void-linux/void-glibc@sha256:59ee62518de285ae3561e59f13eefbb065cb60be03051b17046c08b4e9b4f8e2
 RUN xbps-install -Syu || xbps-install -yu xbps \
     && xbps-install -yu \
-    && xbps-install -y bash git rustup base-devel curl jq util-linux coreutils binutils bsdtar findutils \
+    && xbps-install -y \
+    base-devel \
+    bash \
+    binutils \
+    bsdtar \
+    coreutils \
+    curl \
+    findutils \
+    git \
+    jq \
+    rustup \
+    util-linux \
     && xbps-remove -Ooy
 RUN rustup-init -y -q \
     && . $HOME/.cargo/env \
