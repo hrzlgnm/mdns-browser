@@ -1,4 +1,4 @@
-name: Create and publish checksums of release assets
+name: Create and publish source checksum
 on:
   workflow_call:
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
           fi
 
   generate_checksums:
-    name: Generate checksums
+    name: Generate source archive checksums
     runs-on: ubuntu-latest
     needs:
       - release_info
@@ -36,19 +36,16 @@ jobs:
       matrix:
         algorithm: [sha256]
     steps:
-      - name: Download release assets
-        uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1.12
-        with:
-          repository: ${{ github.repository }}
-          tag: ${{ needs.release_info.outputs.tag }}
-          fileName: "mdns?browser*"
-      - name: Generate checksum files
+      - name: Download latest tarball and zip and generate checksum files
         run: |
+          set -o errexit
+          curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.release_info.outputs.tag }}.tar.gz
+          curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.release_info.outputs.tag }}.zip
           for file in *; do
-             if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
-               ${{ matrix.algorithm }}sum "$file" > "$file.${{ matrix.algorithm }}"
-             fi
-           done
+            if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
+              ${{ matrix.algorithm }}sum "$file" > "$file.${{ matrix.algorithm }}"
+            fi
+          done
       - name: Upload checksum files
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:

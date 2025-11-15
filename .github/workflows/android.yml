@@ -7,10 +7,9 @@ on:
         required: false
         type: string
         default: ""
-      publish:
+      tagName:
         required: false
-        type: boolean
-        default: false
+        type: string
     secrets:
       ANDROID_RELEASE_KEYSTORE:
         required: false
@@ -30,7 +29,7 @@ jobs:
         name: 🔄 Checkout
 
       - name: 🛡️ Verify tag matches version in tauri config (publish only)
-        if: inputs.publish
+        if: inputs.tagName != ''
         shell: bash
         run: |
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
@@ -51,7 +50,7 @@ jobs:
         uses: ./.github/actions/setup-tauri
 
       - name: 🛠️🚀
-        if: ${{ !inputs.publish }}
+        if: (!inputs.tagName)
         uses: ./.github/actions/setup-sccache
 
       - name: ☕ Setup Java
@@ -90,7 +89,7 @@ jobs:
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
 
       - name: 📤 Upload build artifacts (push or pr builds only)
-        if: (!inputs.publish)
+        if: (!inputs.tagName)
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: "signed-apk"
@@ -98,19 +97,19 @@ jobs:
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk
 
       - name: 📝 Extract version from tauri.android.conf.json (publish only)
-        if: inputs.publish
+        if: inputs.tagName
         id: get-version
         run: |
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
           echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: ✏️ Rename APK file (publish only)
-        if: inputs.publish
+        if: inputs.tagName
         run: |
           mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
 
       - name: 🚀 Publish (publish only)
-        if: inputs.publish
+        if: inputs.tagName
         uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2
         with:
           name: mDNS-Browser Release v${{ steps.get-version.outputs.current-version }}
@@ -121,7 +120,7 @@ jobs:
             src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
 
       - name: 🛡️ Attest build provenance (publish only)
-        if: inputs.publish
+        if: inputs.tagName
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
         with:
           subject-path: |

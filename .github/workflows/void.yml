@@ -1,9 +1,12 @@
-name: Publish Void Linux XBPS Package
+name: Void Linux XBPS Package
 
 on:
-  release:
-    types:
-      - published
+  workflow_call:
+    inputs:
+      tagName:
+        description: "The tag name of the release to publish to"
+        required: false
+        type: string
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   XBPS_ALLOW_RESTRICTED: yes

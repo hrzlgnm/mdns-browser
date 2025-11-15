@@ -10,9 +10,6 @@ on:
       tagName:
         required: false
         type: string
-      releaseName:
-        required: false
-        type: string
     secrets:
       TAURI_PRIVATE_KEY:
         required: true
@@ -91,7 +88,6 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           tagName: ${{ inputs.tagName }}
-          releaseName: ${{ inputs.releaseName }}
           releaseDraft: false
           prerelease: false
           tauriScript: cargo --locked auditable tauri
@@ -108,7 +104,6 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           tagName: ${{ inputs.tagName }}
-          releaseName: ${{ inputs.releaseName }}
           releaseDraft: false
           prerelease: false
           tauriScript: cargo --locked auditable tauri
