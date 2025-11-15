@@ -1,4 +1,4 @@
-name: "Publish release artifacts"
+name: Publish release artifacts
 
 on:
   release:
@@ -48,7 +48,7 @@ jobs:
     with:
       tagName: ${{ github.event.release.tag_name }}
 
-  checksums:
+  asset-checksums:
     needs:
       - android
       - desktop
