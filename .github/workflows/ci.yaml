@@ -50,27 +50,38 @@ jobs:
           filters: |
             android:
               - '.github/workflows/android.yml'
+              - 'src-tauri/capabilities/mobile.json'
+              - 'src-tauri/icons/android/**'
+              - 'src-tauri/tauri.android.conf.json'
             aur:
               - aur-template/**
               - '.github/workflows/aur.yml'
               - '.github/actions/lateste-release-info/action.yml'
             desktop:
               - '.github/workflows/desktop.yml'
+              - 'src-tauri/capabilities/migrated.json'
+              - 'src-tauri/icons/*.icns'
+              - 'src-tauri/icons/*.ico'
+              - 'src-tauri/icons/*.png'
+              - 'src-tauri/icons/*.svg'
+              - 'src-tauri/tauri.conf.json'
             docker:
               - '.github/docker/**'
               - '.github/workflows/docker-build.yml'
             tauri:
-              - '.github/workflows/ci-lint.yml'
-              - '.github/workflows/ci-test.yml'
-              - '.github/workflows/ci-typos.yml'
               - '.github/workflows/ci.yml'
+              - '.github/workflows/lint.yml'
+              - '.github/workflows/test.yml'
+              - '.github/workflows/typos.yml'
               - '.github/actions/setup-*/**'
               - '.github/pr-labeler.yml'
               - 'models/**'
               - 'public/**'
               - 'shared_constants/**'
               - 'src/**'
-              - 'src-tauri/**'
+              - 'src-tauri/Cargo.toml'
+              - 'src-tauri/src/**'
+              - 'src-tauri/build.rs'
               - 'index.html'
               - 'index.js'
               - 'Cargo.toml'
@@ -93,7 +104,7 @@ jobs:
   typos:
     name: 📝 Check typos
     if: always()
-    uses: ./.github/workflows/ci-typos.yml
+    uses: ./.github/workflows/typos.yml
 
   aur:
     name: AUR
@@ -117,12 +128,12 @@ jobs:
   lint:
     needs: changes
     if: needs.changes.outputs.tauri == 'true'
-    uses: ./.github/workflows/ci-lint.yml
+    uses: ./.github/workflows/lint.yml
 
   tests:
     needs: changes
     if: needs.changes.outputs.tauri == 'true'
-    uses: ./.github/workflows/ci-test.yml
+    uses: ./.github/workflows/test.yml
 
   android:
     name: "📱"
