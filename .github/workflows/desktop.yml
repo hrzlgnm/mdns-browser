@@ -41,11 +41,18 @@ jobs:
       - name: 🔄 Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
+      - name: 📝 Extract version from tauri.conf.json
+        id: get-version
+        shell: bash
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+
       - name: 🛡️ Verify tag matches version in tauri config (publish only)
         if: inputs.tagName != ''
         shell: bash
         run: |
-          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          CURRENT_VERSION=${{ steps.get-version.outputs.current-version }}
           TAG=${GITHUB_REF#refs/tags/}
           if [[ "$TAG" != *"$CURRENT_VERSION" ]]
           then
@@ -58,6 +65,16 @@ jobs:
         with:
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
           save-cache: ${{ inputs.branch == 'main' }}
+
+      - name: 📜 Create SBOM
+        uses: anchore/sbom-action@8e94d75ddd33f69f691467e42275782e4bfefe84 # v0
+        env:
+          SYFT_SOURCE_NAME: ${{ github.event.repository.name }}
+          SYFT_SOURCE_VERSION: ${{ steps.get-version.outputs.current-version }}
+        with:
+          format: "spdx-json"
+          output-file: "sbom.spdx.json"
+          artifact-name: "sbom.${{ matrix.platform }}.spdx.json"
 
       - name: 🛠️🐂
         uses: ./.github/actions/setup-tauri
@@ -164,23 +181,6 @@ jobs:
             target/release/mdns-browser.exe
             target/release/mdns_browser.pdb
             target/release/mdns_browser.pdb.zip
-
-      - name: 📝 Extract version from tauri.conf.json
-        id: get-version
-        shell: bash
-        run: |
-          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
-          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: 📜 Create SBOM
-        uses: anchore/sbom-action@8e94d75ddd33f69f691467e42275782e4bfefe84 # v0
-        env:
-          SYFT_SOURCE_NAME: ${{ github.event.repository.name }}
-          SYFT_SOURCE_VERSION: ${{ steps.get-version.outputs.current-version }}
-        with:
-          format: "spdx-json"
-          output-file: "sbom.spdx.json"
-          artifact-name: "sbom.${{ matrix.platform }}.spdx.json"
 
       - name: 🔍 Scan SBOM
         id: scan

@@ -27,12 +27,17 @@ jobs:
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: 📝 Extract version from tauri.android.conf.json
+        id: get-version
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
+          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 🛡️ Verify tag matches version in tauri config (publish only)
         if: inputs.tagName
         shell: bash
         run: |
-          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
+          CURRENT_VERSION=${{ steps.get-version.outputs.current-version }}
           TAG=${GITHUB_REF#refs/tags/}
           if [[ "$TAG" != *"$CURRENT_VERSION" ]]
           then
@@ -45,6 +50,16 @@ jobs:
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
           save-cache: ${{ inputs.branch == 'main' }}
+
+      - name: 📜 Create SBOM
+        uses: anchore/sbom-action@8e94d75ddd33f69f691467e42275782e4bfefe84 # v0
+        env:
+          SYFT_SOURCE_NAME: ${{ github.event.repository.name }}
+          SYFT_SOURCE_VERSION: ${{ steps.get-version.outputs.current-version }}
+        with:
+          format: "spdx-json"
+          output-file: "sbom.spdx.json"
+          artifact-name: "sbom.android.spdx.json"
 
       - name: 🛠️🐂
         uses: ./.github/actions/setup-tauri
@@ -96,12 +111,6 @@ jobs:
           path: |
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk
 
-      - name: 📝 Extract version from tauri.android.conf.json
-        id: get-version
-        run: |
-          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
-          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
-
       - name: ✏️ Rename APK file
         run: |
           mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
@@ -123,16 +132,6 @@ jobs:
         with:
           subject-path: |
             src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
-
-      - name: 📜 Create SBOM
-        uses: anchore/sbom-action@8e94d75ddd33f69f691467e42275782e4bfefe84 # v0
-        env:
-          SYFT_SOURCE_NAME: ${{ github.event.repository.name }}
-          SYFT_SOURCE_VERSION: ${{ steps.get-version.outputs.current-version }}
-        with:
-          format: "spdx-json"
-          output-file: "sbom.spdx.json"
-          artifact-name: "sbom.android.spdx.json"
 
       - name: 🔍 Scan SBOM
         id: scan
