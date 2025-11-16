@@ -130,14 +130,19 @@ jobs:
           SYFT_SOURCE_NAME: ${{ github.event.repository.name }}
           SYFT_SOURCE_VERSION: ${{ steps.get-version.outputs.current-version }}
         with:
-          format: "spdx-json"
-          output-file: "sbom.spdx.json"
-          artifact-name: "sbom.android.spdx.json"
+          format: "cyclonedx-json"
+          output-file: "sbom.cyclonedx.json"
+          artifact-name: "sbom.android.cyclonedx.json"
+
+      - name: 🔍 Scan SBOM with Grype
+        uses: anchore/grype-action@v1
+        with:
+          sbom: sbom.cyclonedx.json
+          fail-on-severity: high
 
       - name: 🛡️ Attest SBOM (publish only)
         if: inputs.tagName
         uses: actions/attest-sbom@4651f806c01d8637787e274ac3bdf724ef169f34 # v3
         with:
           subject-path: src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
-
-          sbom-path: "sbom.spdx.json"
+          sbom-path: "sbom.cyclonedx.json"
