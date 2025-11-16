@@ -1,0 +1,38 @@
+name: Get latest release info
+description: Gets the semantic version and tag name of the latest release
+
+outputs:
+  version:
+    description: The semantic version of the latest release
+    value: ${{ steps.semantic_version.outputs.version }}
+  tagName:
+    description: The tag name of the latest release
+    value: ${{ steps.semantic_version.outputs.tagName }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: 🏷️ Get latest release tag
+      id: latest_release_tag
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+      with:
+        script: |
+          const [owner, repo] = '${{ github.repository }}'.split('/');
+          try {
+            const { data } = await github.rest.repos.getLatestRelease({ owner, repo });
+            const tagName = data.tag_name;
+            return tagName;
+          } catch (error) {
+            core.setFailed(`Failed to get latest release for repo: ${owner}/${repo}: ${error}`);
+            process.exit(1);
+          }
+    - name: Semantic Version
+      id: semantic_version
+      shell: bash
+      run: |
+        TAG_NAME=${{ steps.latest_release_tag.outputs.result }}
+        SEMANTIC_VERSION=${TAG_NAME#*-v}
+        echo "Tag name: ${TAG_NAME}"
+        echo "Semantic version: ${SEMANTIC_TAG_NAME}"
+        echo "tagName=$TAG_NAME" >> $GITHUB_OUTPUT
+        echo "version=$SEMANTIC_VERSION" >> $GITHUB_OUTPUT
