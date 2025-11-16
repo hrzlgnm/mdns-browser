@@ -127,7 +127,6 @@ jobs:
       - name: 📜 Create SBOM
         uses: anchore/sbom-action@8e94d75ddd33f69f691467e42275782e4bfefe84 # v0
         with:
-          file: src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
           format: "spdx-json"
           output-file: "sbom.spdx.json"
           artifact-name: "sbom.android.spdx.json"
