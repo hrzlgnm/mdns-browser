@@ -155,7 +155,7 @@ jobs:
     # used in branch protection rulesets as the only relevant step needing to pass
     name: CI Status
     runs-on: ubuntu-latest
-    needs: [typos, aur, void, lint, tests, android, desktop, docker]
+    needs: [typos, aur, void, winget, lint, tests, android, desktop, docker]
     if: always()
     steps:
       - name: Create JSON summary

@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: 🏷️
         id: release-info
-        uses: ./github/actions/latest-release-info
+        uses: ./.github/actions/latest-release-info
       - name: 🛠️🔗
         shell: bash
         run: |
