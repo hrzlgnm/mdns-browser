@@ -31,8 +31,10 @@ jobs:
     name: "🔍 Detect Changes"
     runs-on: ubuntu-latest
     outputs:
+      android: ${{ steps.filter.outputs.android }}
       aur: ${{ steps.filter.outputs.aur }}
       branch: ${{ steps.branch.outputs.branch }}
+      desktop: ${{ steps.filter.outputs.desktop }}
       docker: ${{ steps.filter.outputs.docker }}
       tauri: ${{ steps.filter.outputs.tauri }}
       void: ${{ steps.filter.outputs.void }}
@@ -46,20 +48,22 @@ jobs:
         id: filter
         with:
           filters: |
+            android:
+              - '.github/workflows/android.yml'
             aur:
               - aur-template/**
               - '.github/workflows/aur.yml'
               - '.github/actions/lateste-release-info/action.yml'
+            desktop:
+              - '.github/workflows/desktop.yml'
             docker:
               - '.github/docker/**'
               - '.github/workflows/docker-build.yml'
             tauri:
-              - '.github/workflows/android.yml'
               - '.github/workflows/ci-lint.yml'
               - '.github/workflows/ci-test.yml'
               - '.github/workflows/ci-typos.yml'
               - '.github/workflows/ci.yml'
-              - '.github/workflows/desktop.yml'
               - '.github/actions/setup-*/**'
               - '.github/pr-labeler.yml'
               - 'models/**'
@@ -123,7 +127,7 @@ jobs:
   android:
     name: "📱"
     needs: changes
-    if: needs.changes.outputs.tauri == 'true'
+    if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.android == 'true'
     permissions:
       contents: write
     uses: ./.github/workflows/android.yml
@@ -134,7 +138,7 @@ jobs:
   desktop:
     name: "🖥️"
     needs: changes
-    if: needs.changes.outputs.tauri == 'true'
+    if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.desktop == 'true'
     permissions:
       contents: write
     uses: ./.github/workflows/desktop.yml
