@@ -190,7 +190,6 @@ jobs:
           severity-cutoff: high
 
       - name: 🔍 Inspect action SARIF report
-        shell: bash
         run: cat ${{ steps.scan.outputs.sarif }}
 
       - name: 🛡️ Attest SBOM
