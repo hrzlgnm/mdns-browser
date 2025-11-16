@@ -37,7 +37,7 @@ jobs:
 
   void:
     needs:
-      - source-checksums
+      - source
     permissions:
       id-token: write
       attestations: write
