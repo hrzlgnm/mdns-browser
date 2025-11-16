@@ -182,6 +182,16 @@ jobs:
           output-file: "sbom.spdx.json"
           artifact-name: "sbom.${{ matrix.platform }}.spdx.json"
 
+      - name: 🔍 Scan SBOM
+        id: scan
+        uses: anchore/scan-action@v7.1.0
+        with:
+          sbom: "sbom.spdx.json"
+          severity-cutoff: high
+
+      - name: 🔍 Inspect action SARIF report
+        run: cat ${{ steps.scan.outputs.sarif }}
+
       - name: 🛡️ Attest SBOM
         if: inputs.tagName != ''
         uses: actions/attest-sbom@4651f806c01d8637787e274ac3bdf724ef169f34 # v3

@@ -134,10 +134,20 @@ jobs:
           output-file: "sbom.spdx.json"
           artifact-name: "sbom.android.spdx.json"
 
+      - name: 🔍 Scan SBOM
+        id: scan
+        uses: anchore/scan-action@v7.1.0
+        with:
+          sbom: sbom.spdx.json
+          severity-cutoff: high
+
+      - name: 🔍 Inspect action SARIF report
+        shell: bash
+        run: cat ${{ steps.scan.outputs.sarif }}
+
       - name: 🛡️ Attest SBOM (publish only)
         if: inputs.tagName
         uses: actions/attest-sbom@4651f806c01d8637787e274ac3bdf724ef169f34 # v3
         with:
           subject-path: src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
-
           sbom-path: "sbom.spdx.json"
