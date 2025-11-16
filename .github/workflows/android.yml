@@ -133,16 +133,6 @@ jobs:
           subject-path: |
             src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
 
-      - name: 📜 Create SBOM
-        uses: anchore/sbom-action@8e94d75ddd33f69f691467e42275782e4bfefe84 # v0
-        env:
-          SYFT_SOURCE_NAME: ${{ github.event.repository.name }}
-          SYFT_SOURCE_VERSION: ${{ steps.get-version.outputs.current-version }}
-        with:
-          format: "spdx-json"
-          output-file: "sbom.spdx.json"
-          artifact-name: "sbom.android.spdx.json"
-
       - name: 🔍 Scan SBOM
         id: scan
         uses: anchore/scan-action@568b89d27fc18c60e56937bff480c91c772cd993 # v7.1.0
