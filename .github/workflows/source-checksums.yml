@@ -12,14 +12,14 @@ permissions:
   contents: write
 
 jobs:
-  release_info:
-    name: Get release tag
+  tag:
+    name: Tag
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ steps.release_info.outputs.tag }}
+      tag: ${{ steps.tag.outputs.tag }}
     steps:
-      - name: determine release info
-        id: release_info
+      - name: 🏷️
+        id: tag
         run: |
           if [ -n "${{ github.event.release.name }}" ]; then
             echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
@@ -28,46 +28,46 @@ jobs:
           fi
 
   generate_checksums:
-    name: Generate source archive checksums
+    name: 🔢☑️
     runs-on: ubuntu-latest
     needs:
-      - release_info
+      - tag
     strategy:
       matrix:
         algorithm: [sha256]
     steps:
-      - name: Download latest tarball and zip and generate checksum files
+      - name: 📥🔢☑️
         run: |
           set -o errexit
-          curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.release_info.outputs.tag }}.tar.gz
-          curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.release_info.outputs.tag }}.zip
+          curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.tag.outputs.tag }}.tar.gz
+          curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.tag.outputs.tag }}.zip
           for file in *; do
             if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
               ${{ matrix.algorithm }}sum "$file" > "$file.${{ matrix.algorithm }}"
             fi
           done
-      - name: Upload checksum files
+      - name: 📤
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: ${{ matrix.algorithm }}-source-checksums
           path: "*.${{ matrix.algorithm }}"
 
   publish:
-    name: Publish checksum assets
+    name: 📰🔢☑️
     runs-on: ubuntu-latest
     needs:
-      - release_info
+      - tag
       - generate_checksums
     steps:
-      - name: Download all produced artifacts
+      - name: 📥 artifacts
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
 
-      - name: Publish checksum assets
+      - name: 📰🔢☑️
         uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ needs.release_info.outputs.tag }}
+          tag_name: ${{ needs.tag.outputs.tag }}
           append_body: true
           make_latest: false
           generate_release_notes: false

@@ -6,7 +6,7 @@ on:
       - published
 
 jobs:
-  source-checksums:
+  source:
     permissions:
       contents: write
       actions: read
@@ -48,7 +48,7 @@ jobs:
     with:
       tagName: ${{ github.event.release.tag_name }}
 
-  asset-checksums:
+  asset:
     needs:
       - android
       - desktop
