@@ -49,6 +49,7 @@ jobs:
             aur:
               - aur-template/**
               - '.github/workflows/aur.yml'
+              - '.github/actions/lateste-release-info/action.yml'
             docker:
               - '.github/docker/**'
               - '.github/workflows/docker-build.yml'
@@ -59,7 +60,7 @@ jobs:
               - '.github/workflows/ci-typos.yml'
               - '.github/workflows/ci.yml'
               - '.github/workflows/desktop.yml'
-              - '.github/actions/**'
+              - '.github/actions/setup-*/**'
               - '.github/pr-labeler.yml'
               - 'models/**'
               - 'public/**'
@@ -78,6 +79,7 @@ jobs:
               - '.github/workflows/void.yml'
             winget:
               - '.github/workflows/winget.yml'
+              - '.github/actions/lateste-release-info/action.yml'
 
       - name: Output branch name
         id: branch
