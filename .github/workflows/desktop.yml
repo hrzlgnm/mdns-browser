@@ -165,6 +165,12 @@ jobs:
             target/release/mdns_browser.pdb
             target/release/mdns_browser.pdb.zip
 
+      - name: 📝 Extract version from tauri.conf.json
+        id: get-version
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+
       - name: 📜 Create SBOM
         uses: anchore/sbom-action@8e94d75ddd33f69f691467e42275782e4bfefe84 # v0
         env:
