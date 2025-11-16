@@ -106,6 +106,7 @@ jobs:
     needs: changes
     if: needs.changes.outputs.winget == 'true'
     uses: ./.github/workflows/winget.yml
+    secrets: inherit
 
   lint:
     needs: changes
