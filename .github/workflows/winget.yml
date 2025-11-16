@@ -32,7 +32,7 @@ jobs:
       - name: 🆙 winget package
         uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
         with:
-          komac-version: "2.8.0"
+          komac-version: "2.13.0"
           args: "update hrzlgnm.mdns-browser --version $VERSION --urls $URL --submit --token=${{ secrets.WINGET_TOKEN }}"
 
   cleanup:
@@ -43,5 +43,5 @@ jobs:
       - name: 🧹
         uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
         with:
-          komac-version: "2.8.0"
+          komac-version: "2.13.0"
           args: "cleanup --only-merged --token=${{ secrets.WINGET_TOKEN }}"
