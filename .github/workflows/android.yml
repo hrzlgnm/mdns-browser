@@ -96,15 +96,13 @@ jobs:
           path: |
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk
 
-      - name: 📝 Extract version from tauri.android.conf.json (publish only)
-        if: inputs.tagName
+      - name: 📝 Extract version from tauri.android.conf.json
         id: get-version
         run: |
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
           echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: ✏️ Rename APK file (publish only)
-        if: inputs.tagName
+      - name: ✏️ Rename APK file
         run: |
           mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
 
