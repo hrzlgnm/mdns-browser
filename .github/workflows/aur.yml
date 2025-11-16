@@ -7,39 +7,24 @@ on:
     types: [released]
 
 jobs:
-  latest_release:
+  release-info:
     permissions:
       packages: read
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.short_version.outputs.version }}
+      version: ${{ steps.version.outputs.version }}
+      tagName: ${{ steps.version.outputs.tagName }}
     steps:
-      - name: 🏷️ Get latest release tag
-        id: latest_release_tag
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
-        with:
-          script: |
-            const [owner, repo] = '${{ github.repository }}'.split('/');
-            try {
-              const { data } = await github.rest.repos.getLatestRelease({ owner, repo });
-              const tagName = data.tag_name;
-              return tagName;
-            } catch (error) {
-              core.setFailed(`Failed to get latest release for repo: ${owner}/${repo}: ${error}`);
-              process.exit(1);
-            }
-      - name: Short Version
-        id: short_version
-        shell: bash
-        run: |
-          VERSION=${{ steps.latest_release_tag.outputs.result }}
-          SHORT_VERSION=${VERSION#*-v}
-          echo "Short Version: ${SHORT_VERSION}"
-          echo "version=$SHORT_VERSION" >> $GITHUB_OUTPUT
+      - name: 🔄 Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: 🏷️
+        id: version
+        uses: ./.github/actions/latest-release-info
 
   update-aur:
     needs:
-      - latest_release
+      - release-info
     permissions:
       packages: read
     runs-on: ubuntu-latest
@@ -50,10 +35,10 @@ jobs:
       matrix:
         package:
           - name: mdns-browser-bin
-            checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ needs.latest_release.outputs.version }}/mdns-browser_${{ needs.latest_release.outputs.version }}_amd64.deb.sha256"
+            checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/${{ needs.release-info.outputs.tagName }}/mdns-browser_${{ needs.release-info.outputs.version }}_amd64.deb.sha256"
             generate_script: "./aur-template/generate-mdns-browser-bin.sh"
           - name: mdns-browser
-            checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ needs.latest_release.outputs.version }}/mdns-browser-v${{ needs.latest_release.outputs.version }}.tar.gz.sha256"
+            checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/${{ needs.release-info.outputs.tagName }}/mdns-browser-v${{ needs.release-info.outputs.version }}.tar.gz.sha256"
             generate_script: "./aur-template/generate-mdns-browser.sh"
     steps:
       - name: 🔄 Checkout
@@ -74,7 +59,7 @@ jobs:
           su runner -c '
             set -o errexit
             mkdir -p ~/aur
-            ${{ matrix.package.generate_script }} "${{ needs.latest_release.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/aur/PKGBUILD
+            ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/aur/PKGBUILD
             cd ~/aur
             makepkg
           '
@@ -112,8 +97,8 @@ jobs:
             cd ~/aur
             if [[ -f PKGBUILD ]]; then
               CURRENT_VERSION=$(source PKGBUILD && echo $pkgver)
-              if [[ "$(printf "%s\n%s" "$CURRENT_VERSION" "${{ needs.latest_release.outputs.version }}" | sort -V | head -n1)" != "$CURRENT_VERSION" ]] || [[ "$CURRENT_VERSION" == "${{ needs.latest_release.outputs.version }}" ]]; then
-                echo "New version (${{ needs.latest_release.outputs.version }}) is not higher than the current version ($CURRENT_VERSION). Exiting."
+              if [[ "$(printf "%s\n%s" "$CURRENT_VERSION" "${{ needs.release-info.outputs.version }}" | sort -V | head -n1)" != "$CURRENT_VERSION" ]] || [[ "$CURRENT_VERSION" == "${{ needs.release-info.outputs.version }}" ]]; then
+                echo "New version (${{ needs.release-info.outputs.version }}) is not higher than the current version ($CURRENT_VERSION). Exiting."
                 exit 1
               fi
             fi
@@ -124,7 +109,7 @@ jobs:
         run: |
           su runner -c '
             set -o errexit
-            ${{ matrix.package.generate_script }} "${{ needs.latest_release.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/aur/PKGBUILD
+            ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/aur/PKGBUILD
             cd ~/aur
             if [[ -z $(git status --porcelain) ]]; then
               echo "No changes"
@@ -136,6 +121,6 @@ jobs:
             git config user.name "hrzlgnm"
             git config user.email "hrzlgnm@users.noreply.github.com"
             git add PKGBUILD .SRCINFO
-            git commit -m "New upstream release ${{ needs.latest_release.outputs.version }}"
+            git commit -m "New upstream release ${{ needs.release-info.outputs.version }}"
             git push origin master
           '

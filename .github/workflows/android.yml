@@ -25,8 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     name: 📦🔨
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-        name: 🔄 Checkout
+      - name: 🔄 Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: 🛡️ Verify tag matches version in tauri config (publish only)
         if: inputs.tagName

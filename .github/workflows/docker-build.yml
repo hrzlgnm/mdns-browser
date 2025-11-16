@@ -19,15 +19,15 @@ jobs:
       packages: write # Needed to push to GHCR
 
     steps:
-      - name: Checkout Repository
+      - name: 🔄 Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           fetch-depth: 2 # Fetch at least the last 2 commits for git diff to work
 
-      - name: Log in to GitHub Container Registry
+      - name: 🔑 Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
-      - name: Detect Changed Dockerfiles
+      - name: 🔍 Detect Changed Dockerfiles
         if: github.event_name == 'push' || github.event_name == 'pull_request'
         id: changes
         run: |
@@ -39,13 +39,13 @@ jobs:
 
           echo "PACKAGES=$(echo "$CHANGED_FILES" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
 
-      - name: Force build all if triggered by workflow_dispatch or schedule
+      - name: 💪 Force build all if triggered by workflow_dispatch or schedule
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
           DIRS=$(git ls-tree --name-only HEAD .github/docker/* | cut -d '/' -f3 | uniq)
           echo "PACKAGES=$(echo "$DIRS" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
 
-      - name: Build Docker Images
+      - name: 🛠️ Build Docker Images
         if: env.PACKAGES != '[]'
         run: |
           for PACKAGE in $(echo $PACKAGES | jq -r '.[]'); do
@@ -55,7 +55,7 @@ jobs:
             docker build -t "$IMAGE_NAME_V1" -t "$IMAGE_NAME_LATEST" ".github/docker/$PACKAGE"
           done
 
-      - name: Push Docker Images
+      - name: 🌀 Push Docker Images
         if: env.PACKAGES != '[]' && inputs.branch == 'main'
         run: |
           for PACKAGE in $(echo $PACKAGES | jq -r '.[]'); do

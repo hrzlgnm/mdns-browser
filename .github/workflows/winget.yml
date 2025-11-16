@@ -1,6 +1,7 @@
 name: Publish Desktop Release to WinGet
 
 on:
+  workflow_call:
   workflow_dispatch:
   release:
     types: [released]
@@ -9,46 +10,37 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Detect Latest Release
-        id: latest_release
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
-        with:
-          script: |
-            const [owner, repo] = 'hrzlgnm/mdns-browser'.split('/');
-            try {
-              const { data } = await github.rest.repos.getLatestRelease({ owner, repo });
-              const tagName = data.tag_name;
-              return tagName;
-            } catch (error) {
-              core.setFailed(`Failed to get latest release for repo: ${owner}/${repo}`);
-              process.exit(1);
-            }
+      - name: 🔄 Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: Compose URL
+      - name: 🏷️
+        id: release-info
+        uses: ./.github/actions/latest-release-info
+
+      - name: 🛠️🔗
         shell: bash
         run: |
-          VERSION=${{ steps.latest_release.outputs.result }}
-          SHORT_VERSION=${VERSION#*-v}
-          URL=https://github.com/hrzlgnm/mdns-browser/releases/download/{VERSION}/mdns-browser_{SHORT_VERSION}_x64-setup.exe
-          FINAL_URL=$(echo $URL | sed "s/{VERSION}/$VERSION/g" | sed "s/{SHORT_VERSION}/${SHORT_VERSION}/g")
-          echo "FINAL_URL=$FINAL_URL" >> $GITHUB_ENV
-          echo "SHORT_VERSION=$SHORT_VERSION" >> $GITHUB_ENV
-          echo "Detected latest Version: ${{ steps.latest_release.outputs.result }}"
-          echo "Final URL: $FINAL_URL"
-          echo "Short Version: $SHORT_VERSION"
+          TAG_NAME=${{ steps.release-info.outputs.tagName }}
+          VERSION=${{ steps.release-info.outputs.version }}
+          URL=https://github.com/hrzlgnm/mdns-browser/releases/download/${TAG_NAME}/mdns-browser_${VERSION}_x64-setup.exe
+          echo "URL=$URL" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Detected latest tag name: $TAG_NAME"
+          echo "URL: $URL"
+          echo "Version: $VERSION"
 
-      - name: Update Package
+      - name: 🆙 winget package
         uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
         with:
           komac-version: "2.8.0"
-          args: "update hrzlgnm.mdns-browser --version $SHORT_VERSION --urls $FINAL_URL --submit --token=${{ secrets.WINGET_TOKEN }}"
+          args: "update hrzlgnm.mdns-browser --version $VERSION --urls $URL --submit --token=${{ secrets.WINGET_TOKEN }}"
 
   cleanup:
-    name: Cleanup branches
+    name: 🧹 branches
     needs: publish
     runs-on: ubuntu-latest
     steps:
-      - name: Run Komac
+      - name: 🧹
         uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
         with:
           komac-version: "2.8.0"

@@ -36,17 +36,20 @@ jobs:
       docker: ${{ steps.filter.outputs.docker }}
       tauri: ${{ steps.filter.outputs.tauri }}
       void: ${{ steps.filter.outputs.void }}
+      winget: ${{ steps.filter.outputs.winget }}
     steps:
-      - name: Checkout
+      - name: 🔄 Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - name: Check for changes
+      - name: 🔍 Check for changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
         with:
           filters: |
             aur:
               - aur-template/**
+              - '.github/workflows/aur.yml'
+              - '.github/actions/lateste-release-info/action.yml'
             docker:
               - '.github/docker/**'
               - '.github/workflows/docker-build.yml'
@@ -57,7 +60,7 @@ jobs:
               - '.github/workflows/ci-typos.yml'
               - '.github/workflows/ci.yml'
               - '.github/workflows/desktop.yml'
-              - '.github/actions/**'
+              - '.github/actions/setup-*/**'
               - '.github/pr-labeler.yml'
               - 'models/**'
               - 'public/**'
@@ -73,6 +76,10 @@ jobs:
               - '.taurignore'
             void:
               - 'xbps-template/**'
+              - '.github/workflows/void.yml'
+            winget:
+              - '.github/workflows/winget.yml'
+              - '.github/actions/lateste-release-info/action.yml'
 
       - name: Output branch name
         id: branch
@@ -95,6 +102,13 @@ jobs:
     needs: changes
     if: needs.changes.outputs.void == 'true'
     uses: ./.github/workflows/void.yml
+
+  winget:
+    name: winget
+    needs: changes
+    if: needs.changes.outputs.winget == 'true'
+    uses: ./.github/workflows/winget.yml
+    secrets: inherit
 
   lint:
     needs: changes
@@ -144,7 +158,7 @@ jobs:
     # used in branch protection rulesets as the only relevant step needing to pass
     name: CI Status
     runs-on: ubuntu-latest
-    needs: [typos, aur, void, lint, tests, android, desktop, docker]
+    needs: [typos, aur, void, winget, lint, tests, android, desktop, docker]
     if: always()
     steps:
       - name: Create JSON summary

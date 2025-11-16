@@ -16,17 +16,17 @@ jobs:
     runs-on: ubuntu-latest
     name: Release Drafter
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: 🔄 Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           fetch-depth: 0
 
-      - name: Delete drafts
+      - name: 🧹 Old drafts
         uses: hugo19941994/delete-draft-releases@d375ad67d25fed7520a8020c3a6561fff5260c1e # v2.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Release Drafter
+      - name: 🗒️ Draft a new release
         uses: release-drafter/release-drafter@b1476f6e6eb133afa41ed8589daba6dc69b4d3f5 # v6.1.0
         with:
           prerelease: true
