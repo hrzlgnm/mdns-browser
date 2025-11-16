@@ -186,7 +186,7 @@ jobs:
         uses: anchore/scan-action@v7.1.0
         with:
           sbom: "sbom.spdx.json"
-          fail-on-severity: high
+          severity-cutoff: high
 
       - name: 🛡️ Attest SBOM
         if: inputs.tagName != ''
