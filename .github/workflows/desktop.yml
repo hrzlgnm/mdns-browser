@@ -167,6 +167,7 @@ jobs:
 
       - name: 📝 Extract version from tauri.conf.json
         id: get-version
+        shell: bash
         run: |
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
           echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
