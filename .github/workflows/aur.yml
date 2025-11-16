@@ -15,6 +15,9 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       tagName: ${{ steps.version.outputs.tagName }}
     steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
       - name: 🏷️
         id: version
         uses: ./.github/actions/latest-release-info
