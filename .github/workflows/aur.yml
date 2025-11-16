@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: 🏷️
         id: version
-        uses: ./github/actions/latest-release-info
+        uses: ./.github/actions/latest-release-info
 
   update-aur:
     needs:
