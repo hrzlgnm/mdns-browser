@@ -13,6 +13,7 @@ RUN xbps-install -Syu xbps \
     jq \
     rustup \
     util-linux \
+    xtools \
     && xbps-remove -Ooy
 RUN rustup-init -y -q \
     && . $HOME/.cargo/env \
