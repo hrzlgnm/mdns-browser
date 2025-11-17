@@ -58,7 +58,7 @@ jobs:
           cp -r $GITHUB_WORKSPACE/xbps-template/common/build-style/tauri.sh common/build-style/
           cp -r $GITHUB_WORKSPACE/xbps-template/srcpkgs/template srcpkgs/mdns-browser/
 
-      - name: 📐 Lint generated template in pull_request
+      - name: 📐 Lint generated template
         run: |
           cd ~/void-packages
           xlint srcpkgs/mdns-browser/template
