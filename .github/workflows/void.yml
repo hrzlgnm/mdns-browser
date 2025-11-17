@@ -17,7 +17,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:bff59e76fd78ce31942c794a7f3c292ca59669fcaedad7af58979cf13bc2c56e
+      image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:67cfaa7b3d689b146b45d359b5495e9f1b706aca8016b4b9db86a98a2c3cc76a
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
@@ -58,7 +58,15 @@ jobs:
           cp -r $GITHUB_WORKSPACE/xbps-template/common/build-style/tauri.sh common/build-style/
           cp -r $GITHUB_WORKSPACE/xbps-template/srcpkgs/template srcpkgs/mdns-browser/
 
+      - name: 📐 Lint generated template in pull_request
+        if: github.event_name == 'pull_request'
+        run: |
+          cd ~/void-packages
+          xlint srcpkgs/mdns-browser/template
+          ./xbps-src -I fetch mdns-browser
+
       - name: 🔨 Build Package
+        if: inputs.tagName
         run: |
           cd ~/void-packages
           ./xbps-src pkg mdns-browser

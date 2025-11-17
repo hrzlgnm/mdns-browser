@@ -7,7 +7,7 @@ build_style=tauri
 hostmakedepends="desktop-file-utils"
 makedepends="libwebkit2gtk41-devel wget file gtk+3-devel librsvg-devel"
 depends="libwebkit2gtk41"
-short_desc="A cross platform mDNS-Browser app written in rust using tauri and leptos"
+short_desc="Cross platform mDNS browsing app written in rust using tauri and leptos"
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="MIT"
 homepage="https://github.com/hrzlgnm/mdns-browser"
@@ -15,15 +15,15 @@ distfiles="https://github.com/hrzlgnm/mdns-browser/archive/${pkgname}-v${version
 checksum=placeholder
 
 do_build() {
-    ln -s /host/.cargo /tmp
-    ln -s /host/.rustup /tmp
-    . /tmp/.cargo/env
-    cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
-    cargo fetch --locked --target wasm32-unknown-unknown
-    cargo --locked auditable tauri build -b deb || true
+	ln -s /host/.cargo /tmp
+	ln -s /host/.rustup /tmp
+	. /tmp/.cargo/env
+	cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+	cargo fetch --locked --target wasm32-unknown-unknown
+	cargo --locked auditable tauri build -b deb || true
 }
 
 do_install() {
-    vcopy target/release/bundle/deb/mdns-browser_${version}_amd64/data/usr /
+	vcopy target/release/bundle/deb/mdns-browser_${version}_amd64/data/usr /
+	vlicense LICENSE
 }
-
