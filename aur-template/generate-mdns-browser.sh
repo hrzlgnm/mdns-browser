@@ -10,16 +10,17 @@ fi
 
 cat <<EOF
 # Maintainer: Valentin Batz <valentin.batz+archlinux@posteo.de>
+
 pkgname=mdns-browser
 pkgver=$version
 pkgrel=1
-pkgdesc="A cross platform mDNS-Browser app written in Rust using tauri and leptos"
+pkgdesc="A cross platform mDNS browsing app written in Rust using tauri and leptos"
 arch=('x86_64')
 url="https://github.com/hrzlgnm/mdns-browser"
 license=('MIT')
 depends=('cairo' 'desktop-file-utils' 'gdk-pixbuf2' 'glib2' 'gtk3' 'hicolor-icon-theme' 'libsoup' 'pango' 'webkit2gtk-4.1' 'openssl')
 conflicts=('mdns-browser-bin')
-makedepends=('cargo' 'cargo-auditable' 'git' 'file' 'appmenu-gtk-module' 'libappindicator-gtk3' 'librsvg' 'base-devel' 'curl' 'wget' 'rust' 'rust-wasm' 'trunk' 'webkit2gtk-4.1')
+makedepends=('cargo' 'cargo-auditable' 'git' 'file' 'appmenu-gtk-module' 'libappindicator-gtk3' 'librsvg' 'base-devel' 'curl' 'wget' 'rust' 'rust-wasm' 'trunk')
 options=('!strip' '!emptydirs')
 source=("\$pkgname-v\$pkgver.tar.gz::https://github.com/hrzlgnm/\$pkgname/archive/refs/tags/\$pkgname-v\$pkgver.tar.gz")
 sha256sums=('$sha256sum')

@@ -29,7 +29,7 @@ jobs:
       packages: read
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:c1882701977b4f4b11344bc70cbec03d70cd047734712899861bc701b21ecaa8
+      image: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:43fb9f628113fb300c330072c85da943111207a25f2c27ddcc5827423422e0f0
     strategy:
       fail-fast: false
       matrix:
@@ -53,15 +53,17 @@ jobs:
           SUM=$(curl -LfsS "$URL" | cut -f1 -d ' ')
           echo "sha256=$SUM" >> $GITHUB_OUTPUT
 
-      - name: 🔨 Build latest release package on pull_request
+      - name: 📐 Lint generated PKGBUILD on pull_request
         if: github.event_name == 'pull_request'
+        shell: bash
         run: |
           su runner -c '
             set -o errexit
             mkdir -p ~/aur
+            o=$(pwd)
             ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/aur/PKGBUILD
             cd ~/aur
-            makepkg
+            "$o/aur-template/makepkg-lint.sh"
           '
       - name: 🛠️ Setup Deployment keys
         if: github.event.release.tag_name
