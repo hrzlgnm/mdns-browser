@@ -30,10 +30,27 @@ jobs:
         with:
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
 
+      - name: 🛠️ nextest
+        uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
+        with:
+          crate: cargo-nextest
+          version: 0.9.113
+          locked: true
+
       - name: 🛠️🚀
         uses: ./.github/actions/setup-sccache
 
-      - name: ✅ Run tests
+      - name: ✅ Run tests with nextest
         shell: bash
         run: |
-          cargo --locked test --package=models --package=mdns-browser
+          cargo --locked nextest run -p mdns-browser -p models --profile ci
+
+      - name: 📋 JUnit Report
+        if: always()
+        uses: mikepenz/action-junit-report@e08919a3b1fb83a78393dfb775a9c37f17d8eea6 # v6
+        with:
+          report_paths: "**/junit.xml"
+          fail_on_parse_error: true
+          require_tests: true
+          include_passed: true
+          check_name: "${{ matrix.symbol }} JUnit Report"
