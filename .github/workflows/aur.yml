@@ -53,8 +53,7 @@ jobs:
           SUM=$(curl -LfsS "$URL" | cut -f1 -d ' ')
           echo "sha256=$SUM" >> $GITHUB_OUTPUT
 
-      - name: 📐 Lint generated PKGBUILD on pull_request
-        if: github.event_name == 'pull_request'
+      - name: 📐 Lint generated PKGBUILD
         shell: bash
         run: |
           su runner -c '
