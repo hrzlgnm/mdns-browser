@@ -37,6 +37,7 @@ jobs:
       desktop: ${{ steps.filter.outputs.desktop }}
       docker: ${{ steps.filter.outputs.docker }}
       tauri: ${{ steps.filter.outputs.tauri }}
+      tests: ${{ steps.filter.outputs.tests }}
       void: ${{ steps.filter.outputs.void }}
       winget: ${{ steps.filter.outputs.winget }}
     steps:
@@ -71,7 +72,6 @@ jobs:
             tauri:
               - '.github/workflows/ci.yml'
               - '.github/workflows/lint.yml'
-              - '.github/workflows/test.yml'
               - '.github/workflows/typos.yml'
               - '.github/actions/setup-*/**'
               - '.github/pr-labeler.yml'
@@ -89,6 +89,9 @@ jobs:
               - 'typos.toml'
               - 'style.css'
               - '.taurignore'
+            tests:
+              - '.github/workflows/test.yml'
+              - '.config/nextest.toml'
             void:
               - 'xbps-template/**'
               - '.github/workflows/void.yml'
@@ -131,8 +134,10 @@ jobs:
     uses: ./.github/workflows/lint.yml
 
   tests:
+    permissions:
+      checks: write # required for action-junit-report annotation
     needs: changes
-    if: needs.changes.outputs.tauri == 'true'
+    if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.tests == 'true'
     uses: ./.github/workflows/test.yml
 
   android:
