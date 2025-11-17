@@ -13,7 +13,7 @@ if [[ $namcap_status -ne 0 ]]; then
     exit $namcap_status
 fi
 
-if echo "$namcap_output" | grep -E -q "^(W|E): "; then
+if echo "$namcap_output" | grep -E -q " W: | E: "; then
     echo ">>> Namcap warnings/errors detected. Aborting."
     exit 1
 fi
