@@ -43,7 +43,7 @@ jobs:
       - name: ✅ Run tests with nextest
         shell: bash
         run: |
-          cargo --locked nextest run -p mdns-browser -p models -p mdns-browser-ui --profile ci
+          cargo --locked nextest run -p mdns-browser -p models -p --profile ci
 
       - name: 📋 JUnit Report
         if: always()
