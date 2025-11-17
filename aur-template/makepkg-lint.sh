@@ -20,5 +20,5 @@ fi
 
 echo ">>> Namcap clean."
 
-echo ">>> Verifiying sources with makepkg  ..."
+echo ">>> Verifying sources with makepkg  ..."
 makepkg --verifysource -o
