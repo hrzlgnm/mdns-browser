@@ -60,7 +60,7 @@ jobs:
           su runner -c '
             set -o errexit
             mkdir -p ~/aur
-            o=$pwd
+            o=$(pwd)
             ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/aur/PKGBUILD
             cd ~/aur
             "$o/aur-template/makepkg-lint.sh"
