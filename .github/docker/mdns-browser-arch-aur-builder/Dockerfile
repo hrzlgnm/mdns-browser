@@ -13,6 +13,7 @@ RUN pacman -Syu --noconfirm \
     jq \
     libappindicator-gtk3 \
     librsvg \
+    namcap \
     openssh \
     rust \
     rust-wasm \
