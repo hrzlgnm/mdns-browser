@@ -6,6 +6,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+  # measure against bitrot
+  # also rotates docker images monthly, by pushing new docker images
+  # the rotation will happen by renovate
+  schedule:
+    - cron: "0 0 1 * *"
 
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
