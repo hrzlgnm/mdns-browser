@@ -37,7 +37,7 @@ jobs:
           echo "PACKAGES=$(echo "$CHANGED_FILES" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
 
       - name: 💪 Force build all if triggered by workflow_dispatch or schedule
-        # schedule mybe set by the workflow caller
+        # schedule may be set by the workflow caller
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
           DIRS=$(git ls-tree --name-only HEAD .github/docker/* | cut -d '/' -f3 | uniq)
