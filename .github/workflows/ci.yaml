@@ -41,6 +41,7 @@ jobs:
       branch: ${{ steps.branch.outputs.branch }}
       desktop: ${{ steps.filter.outputs.desktop }}
       docker: ${{ steps.filter.outputs.docker }}
+      lint: ${{ steps.filter.outputs.lint }}
       tauri: ${{ steps.filter.outputs.tauri }}
       tests: ${{ steps.filter.outputs.tests }}
       void: ${{ steps.filter.outputs.void }}
@@ -75,9 +76,6 @@ jobs:
               - '.github/docker/**'
               - '.github/workflows/docker-build.yml'
             tauri:
-              - '.github/workflows/ci.yml'
-              - '.github/workflows/lint.yml'
-              - '.github/workflows/typos.yml'
               - '.github/actions/setup-*/**'
               - '.github/pr-labeler.yml'
               - 'models/**'
@@ -94,6 +92,8 @@ jobs:
               - 'typos.toml'
               - 'style.css'
               - '.taurignore'
+            lint:
+              - '.github/workflows/lint.yml'
             tests:
               - '.github/workflows/test.yml'
               - '.config/nextest.toml'
@@ -135,7 +135,7 @@ jobs:
 
   lint:
     needs: changes
-    if: needs.changes.outputs.tauri == 'true'
+    if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.lint == 'true'
     uses: ./.github/workflows/lint.yml
 
   tests:
