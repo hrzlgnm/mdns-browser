@@ -7,7 +7,8 @@ on:
       - main
   workflow_dispatch:
   # measure against bitrot
-  # also rotates docker images monthly
+  # also rotates docker images monthly, by pushing new docker images
+  # the rotation will happen by renovate
   schedule:
     - cron: "0 0 1 * *"
 
