@@ -58,10 +58,10 @@ jobs:
         run: |
           su runner -c '
             set -o errexit
-            mkdir -p ~/aur
+            mkdir -p ~/lint
             o=$(pwd)
-            ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/aur/PKGBUILD
-            cd ~/aur
+            ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/lint/PKGBUILD
+            cd ~/lint
             "$o/aur-template/makepkg-lint.sh"
           '
       - name: 🛠️ Setup Deployment keys
