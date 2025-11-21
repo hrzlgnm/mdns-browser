@@ -1,5 +1,5 @@
 ignore:
-  # RUSTSEC-2024-0429: cannot be updated until tauri upgrades to glib >= 0.20.0
+  # GHSA-wrw7-89jp-8q8g-glib cannot be updated until tauri upgrades to glib >= 0.20.0
   # tauri pins to ^0.18.0, an update project is tracked here:  https://github.com/orgs/tauri-apps/projects/34
   # which plans to update to gtk4-rs
   - vulnerability: GHSA-wrw7-89jp-8q8g-glib
