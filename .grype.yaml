@@ -1,0 +1,6 @@
+ignore:
+  - package:
+    # cannot be updated by ourself, needs to be updated by upstream
+    name: "glib"
+    version: "0.18.5"
+    namespace: "cargo"
