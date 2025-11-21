@@ -51,14 +51,9 @@ jobs:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
           save-cache: ${{ inputs.branch == 'main' }}
 
-      - name: 📜 Create SBOM
-        uses: anchore/sbom-action@fbfd9c6c189226748411491745178e0c2017392d # v0
-        env:
-          SYFT_SOURCE_NAME: ${{ github.event.repository.name }}
-          SYFT_SOURCE_VERSION: ${{ steps.get-version.outputs.current-version }}
+      - name: 📜 Create and 🔍 scan SBOM for vulnerabilities
+        uses: ./.github/actions/sbom
         with:
-          format: "spdx-json"
-          output-file: "sbom.spdx.json"
           artifact-name: "sbom.android.spdx.json"
 
       - name: 🛠️🐂

@@ -66,14 +66,9 @@ jobs:
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
           save-cache: ${{ inputs.branch == 'main' }}
 
-      - name: 📜 Create SBOM
-        uses: anchore/sbom-action@fbfd9c6c189226748411491745178e0c2017392d # v0
-        env:
-          SYFT_SOURCE_NAME: ${{ github.event.repository.name }}
-          SYFT_SOURCE_VERSION: ${{ steps.get-version.outputs.current-version }}
+      - name: 📜 Create and 🔍 scan SBOM
+        uses: ./.github/actions/sbom
         with:
-          format: "spdx-json"
-          output-file: "sbom.spdx.json"
           artifact-name: "sbom.${{ matrix.platform }}.spdx.json"
 
       - name: 🛠️🐂
@@ -181,17 +176,6 @@ jobs:
             target/release/mdns-browser.exe
             target/release/mdns_browser.pdb
             target/release/mdns_browser.pdb.zip
-
-      - name: 🔍 Scan SBOM
-        id: scan
-        uses: anchore/scan-action@3aaf50d765cfcceafa51d322ccb790e40f6cd8c5 # v7.2.0
-        with:
-          sbom: "sbom.spdx.json"
-          severity-cutoff: high
-          cache-db: true
-
-      - name: 🔍 Inspect action SARIF report
-        run: cat ${{ steps.scan.outputs.sarif }}
 
       - name: 🛡️ Attest SBOM
         if: inputs.tagName != ''
