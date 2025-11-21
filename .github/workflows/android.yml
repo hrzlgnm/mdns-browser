@@ -139,6 +139,7 @@ jobs:
         with:
           sbom: sbom.spdx.json
           severity-cutoff: high
+          cache-db: true
 
       - name: 🔍 Inspect action SARIF report
         shell: bash
