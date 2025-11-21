@@ -1,7 +1,5 @@
 ignore:
-  - package:
-    # cannot be updated by ourself, needs to be updated by tauri
-    # as tauri depends on that specific version
-    name: "glib"
-    version: "0.18.5"
-    namespace: "cargo"
+  # RUSTSEC-2024-0429: cannot be updated until tauri upgrades to glib >= 0.20.0
+  # tauri pins to ^0.18.0, an update project is tracked here:  https://github.com/orgs/tauri-apps/projects/34
+  # which plans to update do gtk4-rs
+  - vulnerability: RUSTSEC-2024-0429
