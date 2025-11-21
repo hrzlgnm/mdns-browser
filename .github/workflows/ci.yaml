@@ -57,6 +57,7 @@ jobs:
           filters: |
             android:
               - '.github/workflows/android.yml'
+              - '.grype.yaml'
               - 'src-tauri/capabilities/mobile.json'
               - 'src-tauri/icons/android/**'
               - 'src-tauri/tauri.android.conf.json'
@@ -66,6 +67,7 @@ jobs:
               - '.github/actions/lateste-release-info/action.yml'
             desktop:
               - '.github/workflows/desktop.yml'
+              - '.grype.yaml'
               - 'src-tauri/capabilities/migrated.json'
               - 'src-tauri/icons/*.icns'
               - 'src-tauri/icons/*.ico'
