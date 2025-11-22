@@ -105,7 +105,7 @@ version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40c48f72fd53cd289104fc64099abca73db4166ad86ea0b4341abe65af83dadc"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -116,7 +116,7 @@ checksum = "291e6a250ff86cd4a820112fb8898808a366d8f9f58ce16d1f538353ad55747d"
 dependencies = [
  "anstyle",
  "once_cell_polyfill",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1182,7 +1182,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -1386,7 +1386,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2860,9 +2860,9 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "leptos"
-version = "0.8.12"
+version = "0.8.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b78b04cc52d6f6372e546afcd8ed98ee29ea1a9221b19befb8f9961e47b8307c"
+checksum = "d0cb08bc6a391886f683e931a7c1424d4e3fbef13683eb932289c03da8c672a7"
 dependencies = [
  "any_spawner",
  "cfg-if",
@@ -2900,9 +2900,9 @@ dependencies = [
 
 [[package]]
 name = "leptos_config"
-version = "0.8.7"
+version = "0.8.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "240b4cb96284256a44872563cf029f24d6fe14bc341dcf0f4164e077cb5a1471"
+checksum = "071fc40aeb9fcab885965bad1887990477253ad51f926cd19068f45a44c59e89"
 dependencies = [
  "config",
  "regex",
@@ -2969,9 +2969,9 @@ dependencies = [
 
 [[package]]
 name = "leptos_server"
-version = "0.8.5"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38acbf32649a4b127c8d4ccaed8fb388e19a746430a0ea8f8160e51e28c36e2d"
+checksum = "dbf1045af93050bf3388d1c138426393fc131f6d9e46a65519da884c033ed730"
 dependencies = [
  "any_spawner",
  "base64 0.22.1",
@@ -3782,7 +3782,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d8fae84b431384b68627d0f9b3b1245fcf9f46f6c0e3dc902e9dce64edd1967"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.45.0",
 ]
 
 [[package]]
@@ -4662,9 +4662,9 @@ checksum = "20675572f6f24e9e76ef639bc5552774ed45f1c30e2951e1e99c59888861c539"
 
 [[package]]
 name = "reactive_graph"
-version = "0.2.9"
+version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77cbe7c61b939523104883fd00d431f6c681c7005fd350f01a9ff2fc96509399"
+checksum = "243417a1395a60c8bfa1134822ff5ba0e99be4ad65c0b3389bdd3e5b35907487"
 dependencies = [
  "any_spawner",
  "async-lock",
@@ -4961,7 +4961,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.11.0",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -5662,9 +5662,9 @@ dependencies = [
 
 [[package]]
 name = "tachys"
-version = "0.2.10"
+version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f88be37609c1891b748ed1feb9b08b0e772156a80d586b38726253f80859134d"
+checksum = "f2b2db11e455f7e84e2cc3e76f8a3f3843f7956096265d5ecff781eabe235077"
 dependencies = [
  "any_spawner",
  "async-trait",
@@ -6118,7 +6118,7 @@ dependencies = [
  "getrandom 0.3.4",
  "once_cell",
  "rustix 1.1.2",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -7115,7 +7115,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
