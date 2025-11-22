@@ -8,6 +8,7 @@ on:
         description: The branch name we are building, eg 'main'
         required: true
   workflow_dispatch:
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -21,17 +22,24 @@ jobs:
         with:
           fetch-depth: 2 # Fetch at least the last 2 commits for git diff to work
 
-      - name: 🔑 Log in to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-
       - name: 🔍 Detect Changed Dockerfiles
         if: github.event_name == 'push' || github.event_name == 'pull_request'
         id: changes
         run: |
           if git rev-parse HEAD^ >/dev/null 2>&1; then
-            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep '^.github/docker/.*/Dockerfile' | cut -d '/' -f3 | uniq)
+            CHANGED_FILES=$(
+              git diff --name-status HEAD^ HEAD \
+              | awk '$1=="A" || $1=="M" {print $2}' \
+              | grep '^.github/docker/.*/Dockerfile' \
+              | cut -d '/' -f3 \
+              | uniq
+            )
           else
-            CHANGED_FILES=$(git ls-tree --name-only HEAD .github/docker/* | cut -d '/' -f3 | uniq)
+            CHANGED_FILES=$(
+              git ls-tree --name-only HEAD .github/docker/* \
+              | cut -d '/' -f3 \
+              | uniq
+            )
           fi
 
           echo "PACKAGES=$(echo "$CHANGED_FILES" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
@@ -52,6 +60,10 @@ jobs:
             echo "Building $IMAGE_NAME_V1 and $IMAGE_NAME_LATEST"
             docker build -t "$IMAGE_NAME_V1" -t "$IMAGE_NAME_LATEST" ".github/docker/$PACKAGE"
           done
+
+      - name: 🔑 Log in to GitHub Container Registry
+        if: env.PACKAGES != '[]' && inputs.branch == 'main'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
       - name: 🌀 Push Docker Images
         if: env.PACKAGES != '[]' && inputs.branch == 'main'
