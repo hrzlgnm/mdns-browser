@@ -31,10 +31,10 @@ runs:
       if: ${{ runner.os != 'Windows' }}
       shell: bash
       run: |
-        jq ${{ steps.scan.outputs.sarif }}
+        jq . ${{ steps.scan.outputs.sarif }}
 
     - name: 🔍 Inspect SARIF report
       if: ${{ runner.os == 'Windows' }}
       shell: pwsh
       run: |
-        jq ${{ steps.scan.outputs.sarif }}
+        jq . ${{ steps.scan.outputs.sarif }}
