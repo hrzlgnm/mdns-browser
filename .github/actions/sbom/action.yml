@@ -13,7 +13,7 @@ runs:
       uses: anchore/sbom-action@fbfd9c6c189226748411491745178e0c2017392d # v0
       env:
         SYFT_SOURCE_NAME: ${{ github.event.repository.name }}
-        SYFT_SOURCE_VERSION: ${{ steps.get-version.outputs.current-version }}
+        SYFT_SOURCE_VERSION: ${{ inputs.current-version }}
       with:
         format: "spdx-json"
         output-file: "sbom.spdx.json"
