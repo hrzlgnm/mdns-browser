@@ -70,6 +70,7 @@ jobs:
         uses: ./.github/actions/sbom
         with:
           artifact-name: "sbom.${{ matrix.platform }}.spdx.json"
+          current-version: ${{ steps.get-version.outputs.current-version }}
 
       - name: 🛠️🐂
         uses: ./.github/actions/setup-tauri
