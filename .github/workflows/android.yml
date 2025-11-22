@@ -129,18 +129,6 @@ jobs:
           subject-path: |
             src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
 
-      - name: 🔍 Scan SBOM
-        id: scan
-        uses: anchore/scan-action@3aaf50d765cfcceafa51d322ccb790e40f6cd8c5 # v7.2.0
-        with:
-          sbom: sbom.spdx.json
-          severity-cutoff: high
-          cache-db: true
-
-      - name: 🔍 Inspect action SARIF report
-        shell: bash
-        run: cat ${{ steps.scan.outputs.sarif }}
-
       - name: 🛡️ Attest SBOM (publish only)
         if: inputs.tagName
         uses: actions/attest-sbom@4651f806c01d8637787e274ac3bdf724ef169f34 # v3
