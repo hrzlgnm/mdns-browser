@@ -5,6 +5,9 @@ inputs:
   artifact-name:
     description: "The name of the sbom upload artifact"
     required: true
+  current-version:
+    description: "The version to generate the report for"
+    required: true
 
 runs:
   using: "composite"
