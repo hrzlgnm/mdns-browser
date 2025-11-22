@@ -4,7 +4,7 @@ description: Creates and scans the sbom for security vulnerabilities
 inputs:
   artifact-name:
     description: "The name of the sbom upload artifact"
-    required: false
+    required: true
 
 runs:
   using: "composite"
