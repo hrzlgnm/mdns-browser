@@ -210,4 +210,4 @@ jobs:
             android,
             desktop,
             docker
-          jobs: ${{ toJSON(needs }}
+          jobs: ${{ toJSON(needs) }}
