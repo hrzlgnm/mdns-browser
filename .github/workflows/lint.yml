@@ -9,7 +9,7 @@ jobs:
     name: 🐧📐
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:86a96fed7be109a25b056afae0958d7925b3da4d4a9f58c224abe130bccceade
+      image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:f8637567c6ea6d91c54dc1be8c053f0623d33bef3b53bf480d839c2439fb61a8
 
     steps:
       - name: 🔄 Checkout
@@ -46,7 +46,7 @@ jobs:
           - os: "ubuntu-latest"
             symbol: 🐧
             platform: Linux
-            container_image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:86a96fed7be109a25b056afae0958d7925b3da4d4a9f58c224abe130bccceade
+            container_image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:f8637567c6ea6d91c54dc1be8c053f0623d33bef3b53bf480d839c2439fb61a8
           - os: "macos-latest"
             symbol: 🍏
           - os: "windows-latest"
