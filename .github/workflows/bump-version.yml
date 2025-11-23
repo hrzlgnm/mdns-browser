@@ -20,7 +20,7 @@ jobs:
   update_version:
     permissions:
       contents: write
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     outputs:
       version: ${{ steps.semver.outputs.semantic-version }}
     env:

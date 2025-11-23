@@ -36,7 +36,6 @@ jobs:
 
   cleanup:
     name: 🧹 branches
-    needs: publish
     runs-on: ubuntu-latest
     steps:
       - name: 🧹

@@ -10,7 +10,7 @@ jobs:
   release-info:
     permissions:
       packages: read
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     outputs:
       version: ${{ steps.version.outputs.version }}
       tagName: ${{ steps.version.outputs.tagName }}

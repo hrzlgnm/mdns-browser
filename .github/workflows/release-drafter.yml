@@ -13,7 +13,7 @@ jobs:
       # write permission is required for autolabeler
       # otherwise, read permission is required at least
       pull-requests: write
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     name: Release Drafter
     steps:
       - name: 🔄 Checkout

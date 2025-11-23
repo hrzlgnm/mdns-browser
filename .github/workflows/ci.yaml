@@ -27,14 +27,14 @@ jobs:
     permissions:
       contents: read # for TimonVS/pr-labeler-action to read config file
       pull-requests: write # for TimonVS/pr-labeler-action to add labels in PR
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: TimonVS/pr-labeler-action@f9c084306ce8b3f488a8f3ee1ccedc6da131d1af # v5
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
   changes:
     name: "🔍 Detect Changes"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     outputs:
       android: ${{ steps.filter.outputs.android }}
       aur: ${{ steps.filter.outputs.aur }}
@@ -186,7 +186,7 @@ jobs:
   always-run:
     # used in branch protection rulesets as the only relevant step needing to pass
     name: CI Status
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     needs: [typos, aur, void, winget, lint, tests, android, desktop, docker]
     if: always()
     steps:

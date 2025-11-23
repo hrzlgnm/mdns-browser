@@ -7,7 +7,7 @@ on:
 jobs:
   typos:
     name: 📝
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
