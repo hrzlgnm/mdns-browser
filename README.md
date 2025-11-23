@@ -2,6 +2,8 @@
 ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/hrzlgnm/mdns-browser/latest/total)
 ![GitHub Release](https://img.shields.io/github/v/release/hrzlgnm/mdns-browser)
 ![GitHub Release Date](https://img.shields.io/github/release-date/hrzlgnm/mdns-browser)
+[![License: MIT](https://img.shields.io/github/license/hrzlgnm/mdns-browser)](https://github.com/hrzlgnm/mdns-browser/blob/main/LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/hrzlgnm/mdns-browser/ci.yml)](https://github.com/hrzlgnm/mdns-browser/actions)
 
 # mDNS-Browser
 
