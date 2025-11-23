@@ -22,7 +22,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     name: 📦🔨
     steps:
       - name: 🔄 Checkout
