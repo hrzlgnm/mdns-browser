@@ -183,26 +183,31 @@ jobs:
     with:
       branch: ${{ needs.changes.outputs.branch }}
 
-  always-run:
-    # used in branch protection rulesets as the only relevant step needing to pass
+  all-required-green: # This job does nothing and is only used for the branch protection
     name: CI Status
     runs-on: ubuntu-slim
-    needs: [typos, aur, void, winget, lint, tests, android, desktop, docker]
+    needs:
+      - typos
+      - aur
+      - void
+      - winget
+      - lint
+      - tests
+      - android
+      - desktop
+      - docker
     if: always()
     steps:
-      - name: Create JSON summary
-        id: summary
-        run: |
-          echo '${{ toJSON(needs) }}' > needs.json
-          cat needs.json | jq
-
-      - name: Aggregate results dynamically
-        run: |
-          jq -r 'to_entries[] | "\(.key) \(.value.result)"' needs.json | while read job result; do
-            echo "$job → $result"
-            if [[ "$result" == "failure" || "$result" == "cancelled" ]]; then
-              echo "❌ $job failed or was cancelled"
-              exit 1
-            fi
-          done
-          echo "✅ None of the required jobs failed."
+      - name: Check whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe
+        with:
+          allowed-skips: >-
+            aur,
+            void,
+            winget,
+            lint,
+            tests,
+            android,
+            desktop,
+            docker
+          jobs: ${{ toJSON(needs }}
