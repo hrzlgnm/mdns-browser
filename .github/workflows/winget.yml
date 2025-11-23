@@ -8,7 +8,7 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
@@ -37,7 +37,7 @@ jobs:
   cleanup:
     name: 🧹 branches
     needs: publish
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: 🧹
         uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0

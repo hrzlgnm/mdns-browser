@@ -12,7 +12,7 @@ on:
 jobs:
   changed-dockerfiles:
     name: 🔍 Dockerfiles
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     outputs:
       packages: ${{ steps.packages.outputs.packages }}
     steps:
