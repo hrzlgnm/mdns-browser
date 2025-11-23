@@ -1,4 +1,4 @@
-name: Build and Push Docker Images
+name: Build Changed Dockerfiles
 
 on:
   workflow_call:
@@ -8,58 +8,69 @@ on:
         description: The branch name we are building, eg 'main'
         required: true
   workflow_dispatch:
+
 jobs:
-  build-and-push:
+  changed-dockerfiles:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.packages.outputs.packages }}
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+
+      - name: 🔍 Filter changed Dockerfiles
+        id: filter
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          list-files: json
+          filters: |
+            dockerfiles:
+              - '.github/docker/*/Dockerfile'
+
+      - name: 🧩 Extract package names
+        id: packages
+        run: |
+          paths='${{ steps.filter.outputs.dockerfiles_files }}'
+
+          names=$(echo "$paths" \
+            | jq -r '.[] | split("/") | .[2]' \
+            | jq -R -s -c 'split("\n")[:-1]')
+
+          echo "packages=$names" >> $GITHUB_OUTPUT
+
+  build:
+    needs: changed-dockerfiles
+    if: ${{ needs.changed-dockerfiles.outputs.packages != '[]' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write # Needed to push to GHCR
 
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.changed-dockerfiles.outputs.packages) }}
+
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+
+      - name: 🔐 Login to GHCR (main only)
+        if: inputs.branch == 'main'
+        uses: docker/login-action@v3.6.0
         with:
-          fetch-depth: 2 # Fetch at least the last 2 commits for git diff to work
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🔑 Log in to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+      - name: 🔧 Build image (and 🚀 push on main)
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .github/docker/${{ matrix.package }}
+          file: .github/docker/${{ matrix.package }}/Dockerfile
 
-      - name: 🔍 Detect Changed Dockerfiles
-        if: github.event_name == 'push' || github.event_name == 'pull_request'
-        id: changes
-        run: |
-          if git rev-parse HEAD^ >/dev/null 2>&1; then
-            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep '^.github/docker/.*/Dockerfile' | cut -d '/' -f3 | uniq)
-          else
-            CHANGED_FILES=$(git ls-tree --name-only HEAD .github/docker/* | cut -d '/' -f3 | uniq)
-          fi
+          push: ${{ inputs.branch == 'main' }}
 
-          echo "PACKAGES=$(echo "$CHANGED_FILES" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
-
-      - name: 💪 Force build all if triggered by workflow_dispatch or schedule
-        # schedule may be set by the workflow caller
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        run: |
-          DIRS=$(git ls-tree --name-only HEAD .github/docker/* | cut -d '/' -f3 | uniq)
-          echo "PACKAGES=$(echo "$DIRS" | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
-
-      - name: 🛠️ Build Docker Images
-        if: env.PACKAGES != '[]'
-        run: |
-          for PACKAGE in $(echo $PACKAGES | jq -r '.[]'); do
-            IMAGE_NAME_V1="ghcr.io/${{ github.repository_owner }}/$PACKAGE:v1"
-            IMAGE_NAME_LATEST="ghcr.io/${{ github.repository_owner }}/$PACKAGE:latest"
-            echo "Building $IMAGE_NAME_V1 and $IMAGE_NAME_LATEST"
-            docker build -t "$IMAGE_NAME_V1" -t "$IMAGE_NAME_LATEST" ".github/docker/$PACKAGE"
-          done
-
-      - name: 🌀 Push Docker Images
-        if: env.PACKAGES != '[]' && inputs.branch == 'main'
-        run: |
-          for PACKAGE in $(echo $PACKAGES | jq -r '.[]'); do
-            IMAGE_NAME_V1="ghcr.io/${{ github.repository_owner }}/$PACKAGE:v1"
-            IMAGE_NAME_LATEST="ghcr.io/${{ github.repository_owner }}/$PACKAGE:latest"
-            echo "Pushing $IMAGE_NAME_V1 and $IMAGE_NAME_LATEST"
-            docker push "$IMAGE_NAME_V1"
-            docker push "$IMAGE_NAME_LATEST"
-          done
+          tags: |
+            ghcr.io/${{ github.repository }}/${{ matrix.package }}:v1
+            ghcr.io/${{ github.repository }}/${{ matrix.package }}:latest
