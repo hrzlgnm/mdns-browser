@@ -29,6 +29,11 @@ jobs:
           echo "URL: $URL"
           echo "Version: $VERSION"
 
+      - name: 🆙 sync our fork of winget-pkgs
+        uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
+        with:
+          args: "sync-fork --token=${{ secrets.WINGET_TOKEN }}"
+
       - name: 🆙 winget package
         uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
         with:
