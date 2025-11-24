@@ -2,8 +2,8 @@ change-template: "- $TITLE @$AUTHOR #$NUMBER"
 sort-direction: ascending
 
 name-template: "mDNS-Browser Release v$RESOLVED_VERSION"
-tag-template: "v$RESOLVED_VERSION"
-tag-prefix: mdns-browser-
+tag-template: "mdns-browser-v$RESOLVED_VERSION"
+tag-prefix: mdns-browser-v
 
 version-resolver:
   major:
@@ -63,4 +63,4 @@ template: |
 footer: |
 
   ### Full Changelog
-  [$PREVIOUS_TAG...$RESOLVED_VERSION](https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$RESOLVED_VERSION)
+  [$PREVIOUS_TAG...mdns-browser-v$RESOLVED_VERSION](https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...mdns-browser-v$RESOLVED_VERSION)
