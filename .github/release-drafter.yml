@@ -1,5 +1,21 @@
-change-template: "- #$NUMBER $TITLE @$AUTHOR"
+change-template: "- $TITLE @$AUTHOR #$NUMBER"
 sort-direction: ascending
+
+name-template: "mDNS-Browser Release v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+tag-prefix: mdns-browser-
+
+version-resolver:
+  major:
+    labels:
+      - "major"
+  minor:
+    labels:
+      - "minor"
+  patch:
+    labels:
+      - "patch"
+  default: patch
 
 category-template: "### $TITLE"
 categories:
@@ -31,7 +47,7 @@ categories:
 
   - title: ":arrow_up: Dependency Updates"
     label: "dependencies"
-    collapse-after: 1
+    collapse-after: 5
 
 exclude-labels:
   - ignore
@@ -43,3 +59,8 @@ header: |
 template: |
 
   $CHANGES
+
+footer: |
+
+  ## Full Changelog
+  [$PREVIOUS_TAG...$RESOLVED_VERSION](https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$RESOLVED_VERSION)

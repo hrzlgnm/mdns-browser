@@ -81,7 +81,6 @@ jobs:
               - '.github/workflows/docker-build.yml'
             tauri:
               - '.github/actions/setup-*/**'
-              - '.github/pr-labeler.yml'
               - 'models/**'
               - 'public/**'
               - 'shared_constants/**'
