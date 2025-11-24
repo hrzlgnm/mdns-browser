@@ -33,5 +33,6 @@ runs:
       with:
         save-if: ${{ inputs.save-cache }}
         cache-bin: false
+        cache-targets: false
         prefix-key: "v1-rust"
         shared-key: "shared"
