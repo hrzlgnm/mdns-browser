@@ -57,18 +57,18 @@ jobs:
           filters: |
             android:
               - '.github/actions/sbom/**'
-              - '.github/workflows/android.yml'
+              - '.github/workflows/android-reusable.yml'
               - '.grype.yaml'
               - 'src-tauri/capabilities/mobile.json'
               - 'src-tauri/icons/android/**'
               - 'src-tauri/tauri.android.conf.json'
             aur:
               - aur-template/**
-              - '.github/workflows/aur.yml'
+              - '.github/workflows/aur-reusable.yml'
               - '.github/actions/lateste-release-info/action.yml'
             desktop:
               - '.github/actions/sbom/**'
-              - '.github/workflows/desktop.yml'
+              - '.github/workflows/desktop-reusable.yml'
               - '.grype.yaml'
               - 'src-tauri/capabilities/migrated.json'
               - 'src-tauri/icons/*.icns'
@@ -78,7 +78,7 @@ jobs:
               - 'src-tauri/tauri.conf.json'
             docker:
               - '.github/docker/**'
-              - '.github/workflows/docker-build.yml'
+              - '.github/workflows/docker-reusable.yml'
             tauri:
               - '.github/actions/setup-*/**'
               - 'models/**'
@@ -96,15 +96,15 @@ jobs:
               - 'style.css'
               - '.taurignore'
             lint:
-              - '.github/workflows/lint.yml'
+              - '.github/workflows/lint-reusable.yml'
             tests:
-              - '.github/workflows/test.yml'
+              - '.github/workflows/test-reusable.yml'
               - '.config/nextest.toml'
             void:
               - 'xbps-template/**'
-              - '.github/workflows/void.yml'
+              - '.github/workflows/void-reusable.yml'
             winget:
-              - '.github/workflows/winget.yml'
+              - '.github/workflows/winget-reusable.yml'
               - '.github/actions/lateste-release-info/action.yml'
 
       - name: Output branch name
@@ -115,38 +115,38 @@ jobs:
   typos:
     name: 📝 Check typos
     if: always()
-    uses: ./.github/workflows/typos.yml
+    uses: ./.github/workflows/typos-reusable.yml
 
   aur:
     name: AUR
     needs: changes
     if: needs.changes.outputs.aur == 'true'
-    uses: ./.github/workflows/aur.yml
+    uses: ./.github/workflows/aur-reusable.yml
 
   void:
     name: Void
     needs: changes
     if: needs.changes.outputs.void == 'true'
-    uses: ./.github/workflows/void.yml
+    uses: ./.github/workflows/void-reusable.yml
 
   winget:
     name: winget
     needs: changes
     if: needs.changes.outputs.winget == 'true'
-    uses: ./.github/workflows/winget.yml
+    uses: ./.github/workflows/winget-reusable.yml
     secrets: inherit
 
   lint:
     needs: changes
     if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.lint == 'true'
-    uses: ./.github/workflows/lint.yml
+    uses: ./.github/workflows/lint-reusable.yml
 
   tests:
     permissions:
       checks: write # required for action-junit-report annotation
     needs: changes
     if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.tests == 'true'
-    uses: ./.github/workflows/test.yml
+    uses: ./.github/workflows/test-reusable.yml
 
   android:
     name: "📱"
@@ -154,7 +154,7 @@ jobs:
     if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.android == 'true'
     permissions:
       contents: write
-    uses: ./.github/workflows/android.yml
+    uses: ./.github/workflows/android-reusable.yml
     secrets: inherit
     with:
       branch: ${{ needs.changes.outputs.branch }}
@@ -165,7 +165,7 @@ jobs:
     if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.desktop == 'true'
     permissions:
       contents: write
-    uses: ./.github/workflows/desktop.yml
+    uses: ./.github/workflows/desktop-reusable.yml
     secrets: inherit
     with:
       branch: ${{ needs.changes.outputs.branch }}
@@ -178,7 +178,7 @@ jobs:
       contents: read
       packages: write # Needed to push to GHCR
 
-    uses: ./.github/workflows/docker-build.yml
+    uses: ./.github/workflows/docker-reusable.yml
     with:
       branch: ${{ needs.changes.outputs.branch }}
 
