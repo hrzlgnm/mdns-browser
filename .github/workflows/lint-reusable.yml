@@ -5,12 +5,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
-    name: 🐧📐
+  rustfmt:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:f8637567c6ea6d91c54dc1be8c053f0623d33bef3b53bf480d839c2439fb61a8
-
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
@@ -21,12 +17,17 @@ jobs:
           components: rustfmt
 
       - name: 📐 Run rustfmt and fail if any warnings
-        if: always()
         shell: bash
         run: |
           cargo fmt -- --check
           cd src-tauri
           cargo fmt -- --check
+
+  leptosfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
 
       - name: 📥 Cached install leptosfmt
         if: always()
