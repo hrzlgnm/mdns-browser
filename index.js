@@ -1,4 +1,9 @@
 /**
+ * Copyright 2024-2025 hrzlgnm
+ * SPDX-License-Identifier: MIT-0
+ */
+
+/**
  * Workarounds for thaw inputs wrapped by components `AutoComplete` or `Input`
  * providing no possibility to set attributes or to add onkeydown event listeners.
  * We want no spell checking no autocorrection or capitalization in our inputs

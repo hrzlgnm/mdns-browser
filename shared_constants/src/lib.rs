@@ -1,3 +1,6 @@
+// Copyright 2024-2025 hrzlgnm
+// SPDX-License-Identifier: MIT-0
+
 use std::time::Duration;
 pub const MDNS_SD_META_SERVICE: &str = "_services._dns-sd._udp.local.";
 pub const METRICS_CHECK_INTERVAL: Duration = Duration::from_secs(1);
