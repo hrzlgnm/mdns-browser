@@ -38,8 +38,7 @@ build() {
     export CFLAGS="\${CFLAGS//-flto=auto//}"
     # build the normal binary without bundling first
     cargo --locked --frozen auditable tauri build --no-bundle
-    # to get the artifacts for packaging, but ignore errors due to missing signing keys
-    cargo --locked --frozen auditable tauri build -b deb || true
+    cargo --locked --frozen auditable tauri build -b deb --no-sign
 }
 check() {
     cd "\$srcdir/\$_builddir" || exit 1
