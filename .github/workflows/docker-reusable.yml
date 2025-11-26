@@ -34,7 +34,13 @@ jobs:
           paths='${{ steps.filter.outputs.dockerfiles_files }}'
 
           names=$(echo "$paths" \
-            | jq -r '.[] | split("/") | .[2]' \
+            | jq -r '.[]' \
+            | while read path; do
+                # Only keep if the Dockerfile exists, so removed ones are not built
+                if [ -f "$path" ]; then
+                  echo "$path" | awk -F'/' '{print $3}'
+                fi
+              done \
             | jq -R -s -c 'split("\n")[:-1]')
 
           echo "packages=$names" >> $GITHUB_OUTPUT
