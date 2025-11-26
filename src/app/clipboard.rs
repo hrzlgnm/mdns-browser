@@ -1,3 +1,6 @@
+// Copyright 2024-2025 hrzlgnm
+// SPDX-License-Identifier: MIT-0
+
 use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
 use tauri_sys::core::invoke;

@@ -1,3 +1,6 @@
+// Copyright 2024-2025 hrzlgnm
+// SPDX-License-Identifier: MIT-0
+
 use chrono::{DateTime, Local};
 use leptos::prelude::*;
 use leptos::task::spawn_local;

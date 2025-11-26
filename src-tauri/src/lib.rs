@@ -1,3 +1,6 @@
+// Copyright 2024-2025 hrzlgnm
+// SPDX-License-Identifier: MIT-0
+
 #[cfg(desktop)]
 use clap::builder::TypedValueParser as _;
 #[cfg(desktop)]

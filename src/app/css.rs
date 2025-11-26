@@ -1,3 +1,6 @@
+// Copyright 2024-2025 hrzlgnm
+// SPDX-License-Identifier: MIT-0
+
 use leptos::prelude::{Get, ReadSignal, Signal};
 
 pub fn get_class(is_desktop: &ReadSignal<bool>, base_class: &str) -> Signal<String> {

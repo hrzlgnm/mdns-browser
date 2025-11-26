@@ -1,3 +1,6 @@
+// Copyright 2024-2025 hrzlgnm
+// SPDX-License-Identifier: MIT-0
+
 use reactive_stores::Store;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Display, net::IpAddr, time::SystemTime};

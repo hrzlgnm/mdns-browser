@@ -1,3 +1,6 @@
+// Copyright 2024-2025 hrzlgnm
+// SPDX-License-Identifier: MIT-0
+
 use super::invoke::invoke_no_args;
 use futures::{select, StreamExt};
 use serde::de::DeserializeOwned;
