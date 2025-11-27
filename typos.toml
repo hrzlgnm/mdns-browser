@@ -2,7 +2,6 @@
 ignore-files = true
 ignore-hidden = false
 extend-exclude = [
-    "target/",
     ".git/"
 ]
 
