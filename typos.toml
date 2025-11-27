@@ -1,2 +1,9 @@
 [files]
-extend-exclude = ["target"]
+ignore-files = true
+ignore-hidden = false
+extend-exclude = [
+    ".git/"
+]
+
+[default]
+check-filename = true

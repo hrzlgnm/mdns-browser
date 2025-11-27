@@ -91,7 +91,6 @@ jobs:
               - 'index.js'
               - 'Cargo.toml'
               - 'Cargo.lock'
-              - 'typos.toml'
               - 'style.css'
               - '.taurignore'
             lint:
