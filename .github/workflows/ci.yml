@@ -78,7 +78,6 @@ jobs:
               - 'src-tauri/tauri.conf.json'
             docker:
               - '.github/docker/**'
-              - '.github/workflows/docker-reusable.yml'
             tauri:
               - '.github/actions/setup-*/**'
               - 'models/**'
@@ -178,7 +177,7 @@ jobs:
       contents: read
       packages: write # Needed to push to GHCR
 
-    uses: ./.github/workflows/docker-reusable.yml
+    uses: hrzlgnm/actions/.github/workflows/docker-reusable.yml@9065ba784b27a475dded42393ffbf7a79199b076 # v1.0.0
     with:
       branch: ${{ needs.changes.outputs.branch }}
 
