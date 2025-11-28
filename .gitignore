@@ -1,3 +1,6 @@
+# Hack to make ripgrep and other tools not to ignore .github directory
+!.github/
+
 /dist/
 /target/
 /.idea
