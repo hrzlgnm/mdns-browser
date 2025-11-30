@@ -27,11 +27,11 @@ serde = { workspace = true }
 serde-wasm-bindgen = "0.6"
 strsim = "0.11"
 web-sys = { version = "0.3.77", features = [
-  "Window",
-  "EventTarget",
-  "AddEventListenerOptions",
-  "ScrollToOptions",
-  "ScrollBehavior",
+    "Window",
+    "EventTarget",
+    "AddEventListenerOptions",
+    "ScrollToOptions",
+    "ScrollBehavior",
 ] }
 
 # git
@@ -45,11 +45,11 @@ tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", branch = "v
 ] }
 
 # local
-shared_constants = { path = "./shared_constants" }
-models = { path = "./models" }
+shared_constants = { path = "./crates/shared_constants" }
+models = { path = "./crates/models" }
 
 [workspace]
-members = ["models", "shared_constants", "src-tauri"]
+members = ["crates/models", "crates/shared_constants", "src-tauri"]
 resolver = "2"
 
 [workspace.dependencies]
