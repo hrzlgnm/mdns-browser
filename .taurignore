@@ -1,6 +1,7 @@
 /src
-/shared_constants
-/models
+/aur-template
+/crates
 /public
+/xbsp-template
 /Cargo.toml
 

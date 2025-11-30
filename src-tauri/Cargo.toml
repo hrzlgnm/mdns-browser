@@ -27,8 +27,8 @@ tauri-plugin-opener = "2.2"
 tokio = { workspace = true }
 
 # local
-models = { path = "../models" }
-shared_constants = { path = "../shared_constants" }
+models = { path = "../crates/models" }
+shared_constants = { path = "../crates/shared_constants" }
 
 # platform-specific dependencies
 [target.'cfg(not(windows))'.dependencies]
