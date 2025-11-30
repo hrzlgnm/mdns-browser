@@ -30,7 +30,7 @@ sha256sums=('$sha256sum')
 _builddir="\$pkgname-\$pkgname-v\$pkgver"
 prepare() {
     cd "\$srcdir/\$_builddir" || exit 1
-    cargo --locked install tauri-cli@2.9.4
+    cargo --locked install tauri-cli@2.9.5
     cargo fetch --locked --target "\$(rustc -vV | sed -n 's/host: //p')"
     cargo fetch --locked --target wasm32-unknown-unknown
 }
