@@ -13,27 +13,27 @@ Screenshots from [v0.11.28](https://github.com/hrzlgnm/mdns-browser/releases/tag
 
 ### Startup
 
-![intro](./screenshots/intro.png)
+![intro](./docs/assets/screenshots/intro.png)
 
 ### Browsing for \_ssh.\_tcp
 
-![browsing-ssh](./screenshots/browsing-_ssh._tcp.png)
+![browsing-ssh](./docs/assets/screenshots/browsing-_ssh._tcp.png)
 
 ### Details of a resolved service having many IPs
 
-![ssh-details](./screenshots/_ssh._tcp.details.png)
+![ssh-details](./docs/assets/screenshots/_ssh._tcp.details.png)
 
 ### Details of a resolved service having a subtype and TXT records
 
-![amzn-details](./screenshots/_amzn-wplay._tcp-details.png)
+![amzn-details](./docs/assets/screenshots/_amzn-wplay._tcp-details.png)
 
 ### Checking for updates on Windows
 
-![check-update](./screenshots/check-update.png)
+![check-update](./docs/assets/screenshots/check-update.png)
 
 ### Response if no update is available
 
-![no-update](./screenshots/no-update.png)
+![no-update](./docs/assets/screenshots/no-update.png)
 
 <!--toc:start-->
 
