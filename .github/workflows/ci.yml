@@ -61,7 +61,6 @@ jobs:
             android:
               - '.github/actions/sbom/**'
               - '.github/workflows/android-reusable.yml'
-              - '.grype.yaml'
               - 'src-tauri/capabilities/mobile.json'
               - 'src-tauri/icons/android/**'
               - 'src-tauri/tauri.android.conf.json'
@@ -72,7 +71,6 @@ jobs:
             desktop:
               - '.github/actions/sbom/**'
               - '.github/workflows/desktop-reusable.yml'
-              - '.grype.yaml'
               - 'src-tauri/capabilities/migrated.json'
               - 'src-tauri/icons/*.icns'
               - 'src-tauri/icons/*.ico'
