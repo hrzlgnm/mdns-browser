@@ -52,7 +52,7 @@ jobs:
           echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 🛡️ Verify tag matches version in tauri config (publish only)
-        if: inputs.tagName != ''
+        if: inputs.tagName
         shell: bash
         run: |
           CURRENT_VERSION=${{ steps.get-version.outputs.current-version }}
@@ -70,7 +70,7 @@ jobs:
           save-cache: ${{ inputs.branch == 'main' }}
 
       - name: 📜 Create and 🔍 scan SBOM for vulnerabilities
-        if: ${{ inputs.tagName != '' }}
+        if: inputs.tagName
         uses: ./.github/actions/sbom
         with:
           artifact-name: "sbom.${{ matrix.platform }}.spdx.json"
@@ -80,7 +80,7 @@ jobs:
         uses: ./.github/actions/setup-tauri
 
       - name: 🛠️🚀
-        if: ${{ inputs.tagName == '' }}
+        if: (!inputs.tagName)
         uses: ./.github/actions/setup-sccache
 
       - name: 🔑 Import windows signing certificate (windows only)
@@ -129,7 +129,7 @@ jobs:
           retryAttempts: 1
 
       - name: 📤 Upload build artifacts (push or pr builds only)
-        if: inputs.tagName == ''
+        if: (!inputs.tagName)
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: "bundles-${{matrix.os}}${{matrix.args}}"
@@ -160,7 +160,7 @@ jobs:
             target/release/mdns_browser.pdb.zip
 
       - name: 📤 Publish debug symbols to release (windows only)
-        if: contains(matrix.os, 'windows') && (inputs.tagName != '')
+        if: contains(matrix.os, 'windows') && inputs.tagName
         uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2
         with:
           files: target/release/mdns_browser.pdb.zip
@@ -168,7 +168,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🛡️ Attest build provenance (publish release only)
-        if: inputs.tagName != ''
+        if: inputs.tagName
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
         with:
           subject-path: |
@@ -183,7 +183,7 @@ jobs:
             target/release/mdns_browser.pdb.zip
 
       - name: 🛡️ Attest SBOM
-        if: inputs.tagName != ''
+        if: inputs.tagName
         uses: actions/attest-sbom@4651f806c01d8637787e274ac3bdf724ef169f34 # v3
         with:
           subject-path: ${{
