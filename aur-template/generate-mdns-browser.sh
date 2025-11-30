@@ -2,6 +2,7 @@
 # Copyright 2024-2025 hrzlgnm
 # SPDX-License-Identifier: MIT-0
 
+
 version=$1
 sha256sum=$2
 
@@ -40,9 +41,7 @@ build() {
     export CFLAGS="\${CFLAGS//-flto=auto//}"
     # build the normal binary without bundling first
     cargo --locked --frozen auditable tauri build --no-bundle
-    # The --no-sign option does not seem to work, therefore we need to swallow any errors here
-    # See https://github.com/tauri-apps/tauri/issues/14581 for more information
-    cargo --locked --frozen auditable tauri build -b deb --no-sign || true
+    cargo --locked --frozen auditable tauri build -b deb --no-sign
 }
 check() {
     cd "\$srcdir/\$_builddir" || exit 1
