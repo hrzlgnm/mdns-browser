@@ -2,7 +2,6 @@
 # Copyright 2024-2025 hrzlgnm
 # SPDX-License-Identifier: MIT-0
 
-
 version=$1
 sha256sum=$2
 
