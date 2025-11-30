@@ -9,9 +9,14 @@ reviews:
   poem: true
   review_status: false
   collapse_walkthrough: true
+  auto_assign_reviewers: true
   auto_review:
-    enabled: true
+    enabled: false
+    auto_incremental_review: false
     drafts: false
+  finishing_touches:
+    docstrings:
+      enabled: false
   pre_merge_checks:
     docstrings:
       mode: "off"
