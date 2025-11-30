@@ -39,10 +39,10 @@ jobs:
         package:
           - name: mdns-browser-bin
             checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/${{ needs.release-info.outputs.tagName }}/mdns-browser_${{ needs.release-info.outputs.version }}_amd64.deb.sha256"
-            generate_script: "./aur-template/generate-mdns-browser-bin.sh"
+            generate_script: "./packaging/aur/generate-mdns-browser-bin.sh"
           - name: mdns-browser
             checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/${{ needs.release-info.outputs.tagName }}/mdns-browser-v${{ needs.release-info.outputs.version }}.tar.gz.sha256"
-            generate_script: "./aur-template/generate-mdns-browser.sh"
+            generate_script: "./packaging/aur/generate-mdns-browser.sh"
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
@@ -65,7 +65,7 @@ jobs:
             o=$(pwd)
             ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/lint/PKGBUILD
             cd ~/lint
-            "$o/aur-template/makepkg-lint.sh"
+            "$o/packaging/aur/makepkg-lint.sh"
           '
       - name: 🛠️ Setup Deployment keys
         if: github.event.release.tag_name

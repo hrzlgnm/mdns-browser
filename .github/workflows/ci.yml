@@ -66,9 +66,9 @@ jobs:
               - 'src-tauri/icons/android/**'
               - 'src-tauri/tauri.android.conf.json'
             aur:
-              - aur-template/**
               - '.github/workflows/aur-reusable.yml'
               - '.github/actions/lateste-release-info/action.yml'
+              - 'packaging/aur/**'
             desktop:
               - '.github/actions/sbom/**'
               - '.github/workflows/desktop-reusable.yml'
@@ -101,8 +101,8 @@ jobs:
               - '.github/workflows/test-reusable.yml'
               - '.config/nextest.toml'
             void:
-              - 'xbps-template/**'
               - '.github/workflows/void-reusable.yml'
+              - 'packaging/void/**'
             winget:
               - '.github/workflows/winget-reusable.yml'
               - '.github/actions/lateste-release-info/action.yml'

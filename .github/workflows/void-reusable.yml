@@ -51,15 +51,15 @@ jobs:
 
       - name: 💉 Inject Version and checksum into template
         run: |
-          sed -i "s/^version=.*/version=${{ steps.get-version.outputs.current-version }}/" xbps-template/srcpkgs/template
-          sed -i "s/^checksum=.*/checksum=${{ steps.get-checksum.outputs.checksum }}/" xbps-template/srcpkgs/template
+          sed -i "s/^version=.*/version=${{ steps.get-version.outputs.current-version }}/" packaging/void/srcpkgs/template
+          sed -i "s/^checksum=.*/checksum=${{ steps.get-checksum.outputs.checksum }}/" packaging/void/srcpkgs/template
 
       - name: ➕ Add Custom Template to Void Packages
         run: |
           cd ~/void-packages
           mkdir -p srcpkgs/mdns-browser
-          cp -r $GITHUB_WORKSPACE/xbps-template/common/build-style/tauri.sh common/build-style/
-          cp -r $GITHUB_WORKSPACE/xbps-template/srcpkgs/template srcpkgs/mdns-browser/
+          cp -r $GITHUB_WORKSPACE/packaging/void/common/build-style/tauri.sh common/build-style/
+          cp -r $GITHUB_WORKSPACE/packaging/void/srcpkgs/template srcpkgs/mdns-browser/
 
       - name: 📐 Lint generated template
         run: |
