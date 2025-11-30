@@ -55,6 +55,7 @@ jobs:
           save-cache: ${{ inputs.branch == 'main' }}
 
       - name: 📜 Create and 🔍 scan SBOM for vulnerabilities
+        if: ${{ inputs.tagName == '' }}
         uses: ./.github/actions/sbom
         with:
           artifact-name: "sbom.android.spdx.json"
