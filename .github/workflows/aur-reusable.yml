@@ -19,7 +19,7 @@ jobs:
       tagName: ${{ steps.version.outputs.tagName }}
     steps:
       - name: 🔄 Checkout
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: 🏷️
         id: version
@@ -45,7 +45,7 @@ jobs:
             generate_script: "./packaging/aur/generate-mdns-browser.sh"
     steps:
       - name: 🔄 Checkout
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: 🔢 Get sha256sums
         id: sha256sums
