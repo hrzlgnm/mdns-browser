@@ -3,6 +3,7 @@
 ![GitHub Release](https://img.shields.io/github/v/release/hrzlgnm/mdns-browser)
 ![GitHub Release Date](https://img.shields.io/github/release-date/hrzlgnm/mdns-browser)
 ![WinGet Package Version](https://img.shields.io/winget/v/hrzlgnm.mdns-browser)
+![AUR Version](https://img.shields.io/aur/version/mdns-browser-bin)
 [![License: MIT](https://img.shields.io/github/license/hrzlgnm/mdns-browser)](https://github.com/hrzlgnm/mdns-browser/blob/main/LICENSE)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/hrzlgnm/mdns-browser/ci.yml)](https://github.com/hrzlgnm/mdns-browser/actions)
 
