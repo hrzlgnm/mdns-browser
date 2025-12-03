@@ -116,7 +116,7 @@ jobs:
   typos:
     name: 📝 Check typos
     if: always()
-    uses: hrzlgnm/actions/.github/workflows/typos-reusable.yml@42dcf7ab01ad7f6a044c905bd947e1d3db4f959e # v1.5.2
+    uses: hrzlgnm/actions/.github/workflows/typos-reusable.yml@05541fcd8920d5f9164f5b7f0b5467689d280142 # v1.5.3
 
   aur:
     name: AUR
@@ -179,7 +179,7 @@ jobs:
       contents: read
       packages: write # Needed to push to GHCR
 
-    uses: hrzlgnm/actions/.github/workflows/docker-reusable.yml@42dcf7ab01ad7f6a044c905bd947e1d3db4f959e # v1.5.2
+    uses: hrzlgnm/actions/.github/workflows/docker-reusable.yml@05541fcd8920d5f9164f5b7f0b5467689d280142 # v1.5.3
     with:
       branch: ${{ needs.changes.outputs.branch }}
 
