@@ -12,8 +12,8 @@ on:
   # measure against bitrot
   # also rotates docker images monthly, by pushing new docker images
   # the rotation will happen by renovate
-  # rotate the images in the middle of the month, 
-  # to avoid duplicate rotations at the beginning of the month, 
+  # rotate the images in the middle of the month,
+  # to avoid duplicate rotations at the beginning of the month,
   # as the source docker images are also mostly rotated once a month
   schedule:
     - cron: "0 0 15 * *"
@@ -31,13 +31,16 @@ jobs:
     if: github.event_name == 'pull_request'
     name: "🏷️ Label PR"
     permissions:
-      contents: read # for TimonVS/pr-labeler-action to read config file
-      pull-requests: write # for TimonVS/pr-labeler-action to add labels in PR
+      contents: read # Needed to read repository contents
+      pull-requests: write # Needed to apply labels
+      issues: write # Needed to create non existing labels
     runs-on: ubuntu-slim
+
     steps:
-      - uses: TimonVS/pr-labeler-action@f9c084306ce8b3f488a8f3ee1ccedc6da131d1af # v5
+      - uses: actions/labeler@v6.0.1
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.yml
+
   changes:
     name: "🔍 Detect Changes"
     runs-on: ubuntu-slim

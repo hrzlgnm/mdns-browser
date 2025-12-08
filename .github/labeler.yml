@@ -1,0 +1,32 @@
+enhancement:
+  - head-branch:
+      - "^feat"
+      - "feature"
+
+chore:
+  - head-branch:
+      - "^chore"
+
+performance:
+  - head-branch:
+      - "^perf"
+      - "blazingly-fast"
+
+refactor:
+  - head-branch:
+      - "refactor"
+
+documentation:
+  - head-branch:
+      - "docs"
+
+dependencies:
+  - head-branch:
+      - "^renovate"
+      - "^deps"
+
+bug:
+  - head-branch:
+      - "^fix"
+      - "^bugfix"
+      - "bug"
