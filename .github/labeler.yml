@@ -1,25 +1,31 @@
 enhancement:
-  - "feature/**"
-  - "feat/**"
+  - branch:
+      - pattern: "feature/**"
+      - pattern: "feat/**"
 
 chore:
-  - "chore/**"
+  - branch:
+      - pattern: "chore/**"
 
 performance:
-  - "performance/**"
-  - "*blazingly-fast*"
+  - branch:
+      - pattern: "performance/**"
+      - pattern: "*blazingly-fast*"
 
 refactor:
-  - "refactor/**"
+  - branch:
+      - pattern: "refactor/**"
 
 documentation:
-  - "docs/**"
+  - branch:
+      - pattern: "docs/**"
 
 dependencies:
-  - "renovate/**"
-  - "deps/**"
+  - branch:
+      - pattern: "renovate/**"
+      - pattern: "deps/**"
 
 bug:
-  - "bug/**"
-  - "fix/**"
-  - "bugfix/**"
+  - branch:
+      - pattern: "fix/**"
+      - pattern: "bugfix/**"
