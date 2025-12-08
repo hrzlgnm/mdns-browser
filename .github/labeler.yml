@@ -1,0 +1,25 @@
+enhancement:
+  - "feature/**"
+  - "feat/**"
+
+chore:
+  - "chore/**"
+
+performance:
+  - "performance/**"
+  - "*blazingly-fast*"
+
+refactor:
+  - "refactor/**"
+
+documentation:
+  - "docs/**"
+
+dependencies:
+  - "renovate/**"
+  - "deps/**"
+
+bug:
+  - "bug/**"
+  - "fix/**"
+  - "bugfix/**"
