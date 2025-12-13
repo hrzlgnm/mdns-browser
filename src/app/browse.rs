@@ -491,13 +491,7 @@ fn ResolvedServiceItem(
 
     let title = Signal::derive(move || resolved_service.get().get_instance_name());
     let show_details = RwSignal::new(false);
-    let first_address = Memo::new(move |_| {
-        addrs
-            .get()
-            .first()
-            .map(|a| a.to_string())
-            .unwrap()
-    });
+    let first_address = Memo::new(move |_| addrs.get().first().map(|a| a.to_string()).unwrap());
 
     let first_address_display = Memo::new(move |_| {
         let additional_addrs = resolved_service.addresses().get().len() - 1;
