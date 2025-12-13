@@ -491,12 +491,15 @@ fn ResolvedServiceItem(
 
     let title = Signal::derive(move || resolved_service.get().get_instance_name());
     let show_details = RwSignal::new(false);
-    let first_address = Memo::new(move |_| {
-        addrs
-            .get()
-            .first()
-            .map(|a| a.to_string())
-            .unwrap_or_default()
+    let first_address = Memo::new(move |_| addrs.get().first().map(|a| a.to_string()).unwrap());
+
+    let first_address_display = Memo::new(move |_| {
+        let additional_addrs = resolved_service.addresses().get().len() - 1;
+        if additional_addrs > 0 {
+            format!("{} (+{})", first_address.get(), additional_addrs)
+        } else {
+            first_address.get()
+        }
     });
 
     let is_desktop = IsDesktopInjection::expect_context();
@@ -551,7 +554,11 @@ fn ResolvedServiceItem(
                                 text=service_type
                                 button_text=service_type_display
                             />
-                            <ResolvedRow label="IP" text=first_address button_text=first_address />
+                            <ResolvedRow
+                                label="IP"
+                                text=first_address
+                                button_text=first_address_display
+                            />
                             <ResolvedRow
                                 label="Updated at"
                                 text=updated_at
