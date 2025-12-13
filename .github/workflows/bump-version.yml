@@ -100,4 +100,4 @@ jobs:
       - name: Trigger Release Drafter on main
         if: always()
         run: |
-          gh workflow run 123382686 -r main
+          gh workflow run release-drafter.yml -r main
