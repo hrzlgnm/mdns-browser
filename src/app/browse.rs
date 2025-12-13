@@ -496,7 +496,7 @@ fn ResolvedServiceItem(
             .get()
             .first()
             .map(|a| a.to_string())
-            .unwrap_or_default()
+            .unwrap()
     });
 
     let first_address_display = Memo::new(move |_| {
