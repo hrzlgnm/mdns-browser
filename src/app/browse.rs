@@ -499,9 +499,8 @@ fn ResolvedServiceItem(
             .unwrap_or_default()
     });
 
-    let additional_addrs = resolved_service.addresses().get().len() - 1;
-
     let first_address_display = Memo::new(move |_| {
+        let additional_addrs = resolved_service.addresses().get().len() - 1;
         if additional_addrs > 0 {
             format!("{} (+{})", first_address.get(), additional_addrs)
         } else {
