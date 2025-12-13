@@ -560,7 +560,11 @@ fn ResolvedServiceItem(
                                 text=service_type
                                 button_text=service_type_display
                             />
-                            <ResolvedRow label="IP" text=first_address button_text=first_address_display />
+                            <ResolvedRow
+                                label="IP"
+                                text=first_address
+                                button_text=first_address_display
+                            />
                             <ResolvedRow
                                 label="Updated at"
                                 text=updated_at
