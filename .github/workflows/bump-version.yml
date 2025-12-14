@@ -22,7 +22,7 @@ on:
 jobs:
   update_version:
     permissions:
-      actions: write # to tigger other actions
+      actions: write # to trigger other actions
       contents: write # to update version and create tag
     runs-on: ubuntu-slim
     outputs:
