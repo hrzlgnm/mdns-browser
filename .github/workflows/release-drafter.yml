@@ -12,10 +12,7 @@ on:
 jobs:
   update_release_draft:
     permissions:
-      contents: write
-      # write permission is required for autolabeler
-      # otherwise, read permission is required at least
-      pull-requests: write
+      contents: write # to draft releases
     runs-on: ubuntu-slim
     name: Release Drafter
     steps:
@@ -29,10 +26,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 📝 Extract latest version from tauri.conf.json
+        id: get-version
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+
       - name: 🗒️ Draft a new release
         uses: release-drafter/release-drafter@b1476f6e6eb133afa41ed8589daba6dc69b4d3f5 # v6.1.0
         with:
           prerelease: true
           latest: false
+          version: ${{ steps.get-version.outputs.current-version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
