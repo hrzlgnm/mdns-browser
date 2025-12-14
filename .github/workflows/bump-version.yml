@@ -22,7 +22,8 @@ on:
 jobs:
   update_version:
     permissions:
-      contents: write
+      actions: write # to tigger other actions
+      contents: write # to update version and create tag
     runs-on: ubuntu-slim
     outputs:
       version: ${{ steps.semver.outputs.semantic-version }}
