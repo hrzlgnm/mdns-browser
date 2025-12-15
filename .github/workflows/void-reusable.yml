@@ -25,7 +25,7 @@ jobs:
       - name: 🔄 Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: 🔄 Clone Void Packages and Bootstrap
+      - name: 🔄 Clone Void Packages and binary bootstrap
         shell: bash
         run: |
           git clone --depth=1 https://github.com/void-linux/void-packages.git ~/void-packages
@@ -36,36 +36,48 @@ jobs:
           mv /root/.cargo hostdir/
           mv /root/.rustup hostdir/
 
-      - name: 📝 Extract version from tauri.conf.json
-        id: get-version
+      - name: 📝 Extract version from latest release
+        if: (!inputs.tagName)
+        id: get-version-release
+        uses: ./.github/actions/latest-release-info
+
+      - name: 📝 Extract version from tauri config
+        if: inputs.tagName
+        id: get-version-config
         run: |
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
-          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: 📝 Normalize version output
+        id: get-version
+        run: |
+          VERSION="${{ steps.get-version-config.outputs.version || steps.get-version-release.outputs.version }}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 🔢 Get Source Tarball Checksum
         id: get-checksum
         run: |
-          URL="https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ steps.get-version.outputs.current-version }}/mdns-browser-v${{ steps.get-version.outputs.current-version }}.tar.gz.sha256"
+          URL="https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ steps.get-version.outputs.version }}/mdns-browser-v${{ steps.get-version.outputs.version }}.tar.gz.sha256"
           SHA256SUM=$(curl -LfsS "$URL" | cut -d ' ' -f1)
-          echo "checksum=$SHA256SUM" >> $GITHUB_OUTPUT
+          echo "checksum=$SHA256SUM" >> "$GITHUB_OUTPUT"
 
-      - name: 💉 Inject Version and checksum into template
+      - name: 🌀  Generate template
         run: |
-          sed -i "s/^version=.*/version=${{ steps.get-version.outputs.current-version }}/" packaging/void/srcpkgs/template
-          sed -i "s/^checksum=.*/checksum=${{ steps.get-checksum.outputs.checksum }}/" packaging/void/srcpkgs/template
-
-      - name: ➕ Add Custom Template to Void Packages
-        run: |
-          cd ~/void-packages
-          mkdir -p srcpkgs/mdns-browser
-          cp -r $GITHUB_WORKSPACE/packaging/void/common/build-style/tauri.sh common/build-style/
-          cp -r $GITHUB_WORKSPACE/packaging/void/srcpkgs/template srcpkgs/mdns-browser/
+          mkdir -p ~/void-packages/srcpkgs/mdns-browser
+          packaging/void/generate-template.sh \
+            "${{ steps.get-version.outputs.version }}" \
+            "${{ steps.get-checksum.outputs.checksum }}" \
+            > ~/void-packages/srcpkgs/mdns-browser/template
 
       - name: 📐 Lint generated template
         run: |
           cd ~/void-packages
           xlint srcpkgs/mdns-browser/template
           ./xbps-src -I fetch mdns-browser
+
+      - name: ➕ Add Custom build-style to void packages
+        run: |
+          cp "$GITHUB_WORKSPACE/packaging/void/tauri.sh" ~/void-packages/common/build-style/
 
       - name: 🔨 Build Package
         if: inputs.tagName
