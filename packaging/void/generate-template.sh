@@ -1,6 +1,19 @@
+#!/usr/bin/env bash
+# Copyright 2025 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+version=$1
+sha256sum=$2
+
+if [[ -z "$version" || -z "$sha256sum" ]]; then
+    echo "Usage: $0 <version> <sha256sum>" >&2
+    exit 1
+fi
+
+cat <<EOF
 # Template file for 'mdns-browser'
 pkgname=mdns-browser
-version=placeholder
+version=$version
 revision=1
 archs="x86_64"
 build_style=tauri
@@ -11,19 +24,20 @@ short_desc="Cross platform mDNS browsing app written in rust using tauri and lep
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="MIT"
 homepage="https://github.com/hrzlgnm/mdns-browser"
-distfiles="https://github.com/hrzlgnm/mdns-browser/archive/${pkgname}-v${version}.tar.gz"
-checksum=placeholder
+distfiles="https://github.com/hrzlgnm/mdns-browser/archive/\${pkgname}-v\${version}.tar.gz"
+checksum=$sha256sum
 
 do_build() {
 	ln -s /host/.cargo /tmp
 	ln -s /host/.rustup /tmp
 	. /tmp/.cargo/env
-	cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+	cargo fetch --locked --target "\$(rustc -vV | sed -n 's/host: //p')"
 	cargo fetch --locked --target wasm32-unknown-unknown
 	cargo --locked auditable tauri build -b deb --no-sign
 }
 
 do_install() {
-	vcopy target/release/bundle/deb/mdns-browser_${version}_amd64/data/usr /
+	vcopy target/release/bundle/deb/mdns-browser_\${version}_amd64/data/usr /
 	vlicense LICENSE
 }
+EOF
