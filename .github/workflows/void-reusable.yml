@@ -59,7 +59,7 @@ jobs:
         run: |
           URL="https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v${{ steps.get-version.outputs.version }}/mdns-browser-v${{ steps.get-version.outputs.version }}.tar.gz.sha256"
           SHA256SUM=$(curl -LfsS "$URL" | cut -d ' ' -f1)
-          echo "checksum=$SHA256SUM" >> $GITHUB_OUTPUT
+          echo "checksum=$SHA256SUM" >> "$GITHUB_OUTPUT"
 
       - name: 🌀  Generate template
         run: |
