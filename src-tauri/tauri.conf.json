@@ -39,7 +39,7 @@
         }
     },
     "productName": "mdns-browser",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "identifier": "com.github.hrzlgnm.mdns-browser",
     "plugins": {
         "updater": {
