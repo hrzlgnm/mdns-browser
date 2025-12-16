@@ -1,4 +1,4 @@
-# Copyright 2025 hrzlgnm
+i# Copyright 2025 hrzlgnm
 # SPDX-License-Identifier: MIT-0
 
 name: Void Linux XBPS Package
@@ -106,11 +106,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: mDNS-Browser Release v${{ steps.get-version.outputs.current-version }}
+          name: mDNS-Browser Release v${{ steps.get-version.outputs.version }}
           append_body: true
           make_latest: false
           generate_release_notes: false
           files: |
-            /github/home/void-packages/hostdir/binpkgs/mdns-browser-${{ steps.get-version.outputs.current-version }}_1.x86_64.xbps
-            /github/home/void-packages/hostdir/binpkgs/mdns-browser-${{ steps.get-version.outputs.current-version }}_1.x86_64.xbps.sig2
+            /github/home/void-packages/hostdir/binpkgs/mdns-browser-${{ steps.get-version.outputs.version }}_1.x86_64.xbps
+            /github/home/void-packages/hostdir/binpkgs/mdns-browser-${{ steps.get-version.outputs.version }}_1.x86_64.xbps.sig2
             /github/home/void-packages/hostdir/binpkgs/x86_64-repodata
