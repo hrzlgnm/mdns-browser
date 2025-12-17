@@ -1,5 +1,5 @@
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/hrzlgnm/mdns-browser/total)
-![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/hrzlgnm/mdns-browser/latest/total)
+![[GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/hrzlgnm/mdns-browser/latest/total)](https://github.com/hrzlgnm/mdns-browser/releases/latest)
 ![GitHub Release](https://img.shields.io/github/v/release/hrzlgnm/mdns-browser)
 ![GitHub Release Date](https://img.shields.io/github/release-date/hrzlgnm/mdns-browser)
 [![WinGet Package Version](https://img.shields.io/winget/v/hrzlgnm.mdns-browser)](https://winstall.app/apps/hrzlgnm.mdns-browser)
