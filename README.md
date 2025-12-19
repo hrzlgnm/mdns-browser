@@ -171,4 +171,4 @@ For a privacy statement checkout the document [PRIVACY](PRIVACY.md).
 
 ## Acknowledgments
 
-This app uses the fantastic [mdns-sd library](https://github.com/keepsimple1/mdns-sd)to handle all mDNS functionality. If you find this app helpful, consider giving the library a star on GitHub!
+This app uses the fantastic [mdns-sd library](https://github.com/keepsimple1/mdns-sd) to handle all mDNS functionality. If you find this app helpful, consider giving the library a star on GitHub!
