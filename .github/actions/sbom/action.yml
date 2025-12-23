@@ -16,7 +16,7 @@ runs:
   using: "composite"
   steps:
     - name: 📜 Create SBOM
-      uses: anchore/sbom-action@43a17d6e7add2b5535efe4dcae9952337c479a93 # v0
+      uses: anchore/sbom-action@a930d0ac434e3182448fe678398ba5713717112a # v0
       env:
         SYFT_SOURCE_NAME: ${{ github.event.repository.name }}
         SYFT_SOURCE_VERSION: ${{ inputs.current-version }}
