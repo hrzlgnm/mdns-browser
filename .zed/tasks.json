@@ -87,7 +87,7 @@
     {
         "label": "Cargo clippy",
         "command": "cargo",
-        "args": ["clippy", "--", "-D warnings"],
+        "args": ["clippy", "--", "-D", "warnings"],
         "show_summary": true,
         "hide": "on_success",
         "show_command": true
