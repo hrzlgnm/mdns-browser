@@ -59,5 +59,37 @@
         "shell": "system",
         "show_summary": true,
         "show_command": true
+    },
+    {
+        "label": "Check leptos format",
+        "command": "leptosfmt",
+        "args": ["--check", "src"],
+        "hide": "on_success",
+        "show_summary": true,
+        "show_command": true
+    },
+    {
+        "label": "Format leptos",
+        "command": "leptosfmt",
+        "args": ["src"],
+        "hide": "on_success",
+        "show_summary": true,
+        "show_command": true
+    },
+    {
+        "label": "Cargo fmt",
+        "command": "cargo",
+        "args": ["fmt"],
+        "hide": "on_success",
+        "show_summary": true,
+        "show_command": true
+    },
+    {
+        "label": "Cargo clippy",
+        "command": "cargo",
+        "args": ["clippy", "--", "-D warnings"],
+        "show_summary": true,
+        "hide": "on_success",
+        "show_command": true
     }
 ]
