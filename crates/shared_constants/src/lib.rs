@@ -9,7 +9,7 @@ pub const INTERFACES_CAN_BROWSE_CHECK_INTERVAL: Duration = Duration::from_millis
 #[cfg(debug_assertions)]
 pub const SPLASH_SCREEN_DURATION: Duration = Duration::from_secs(0);
 #[cfg(not(debug_assertions))]
-pub const SPLASH_SCREEN_DURATION: Duration = Duration::from_secs(2);
+pub const SPLASH_SCREEN_DURATION: Duration = Duration::from_secs(1);
 
 pub const AUTO_COMPLETE_AUTO_FOCUS_DELAY: Duration = Duration::from_secs(5);
 pub const SHOW_NO_UPDATE_DURATION: Duration = Duration::from_secs(3);
