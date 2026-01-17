@@ -11,13 +11,16 @@
         ":combinePatchMinorReleases",
         ":docker",
         ":enableVulnerabilityAlerts",
-        ":maintainLockFilesMonthly",
         ":prConcurrentLimitNone",
         ":prImmediately",
         ":rebaseStalePrs",
         ":semanticCommits",
         ":separateMajorReleases",
     ],
+    lockFileMaintenance: {
+        enabled: true,
+        schedule: ["at any time"],
+    },
     customManagers: [
         {
             matchStringsStrategy: 'any',
