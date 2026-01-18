@@ -78,7 +78,7 @@ body {
 .mobile-resolved-service-card {
     width: 480px;
 }
-.mobile-resolved-service-grid {
+.thaw-grid.resolved-service-grid.mobile-resolved-service-grid {
     grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)) !important;
     grid-gap: 8px !important;
 }
@@ -113,7 +113,7 @@ body {
 .desktop-resolved-service-card {
     width: 520px;
 }
-.desktop-resolved-service-grid {
+.thaw-grid.resolved-service-grid.desktop-resolved-service-grid {
     grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)) !important;
     grid-gap: 10px !important;
 }
