@@ -2298,7 +2298,7 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "412c95f764f89aad1a8505aa4273d931b66d5a26d1e6609a37243784a9128ad9"
 dependencies = [
- "icondata_ai 0.1.0",
+ "icondata_ai",
  "icondata_bi",
  "icondata_bs",
  "icondata_cg",
@@ -2318,15 +2318,6 @@ dependencies = [
  "icondata_ti",
  "icondata_vs",
  "icondata_wi",
-]
-
-[[package]]
-name = "icondata_ai"
-version = "0.0.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bf3a9c196a6a169f790639ecc8fdd4396660b1d53b905230bf0b364776a56fc"
-dependencies = [
- "icondata_core",
 ]
 
 [[package]]
@@ -3190,7 +3181,7 @@ dependencies = [
  "leptos",
  "log",
  "models",
- "reactive_stores 0.2.5",
+ "reactive_stores",
  "serde",
  "serde-wasm-bindgen",
  "shared_constants",
@@ -3269,7 +3260,7 @@ dependencies = [
 name = "models"
 version = "1.1.1"
 dependencies = [
- "reactive_stores 0.2.5",
+ "reactive_stores",
  "serde",
  "serde_with",
  "thiserror 2.0.17",
@@ -4607,23 +4598,6 @@ dependencies = [
 
 [[package]]
 name = "reactive_stores"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "79983e88dfd1a2925e29a4853ab9161b234ea78dd0d44ed33a706c9cd5e35762"
-dependencies = [
- "dashmap",
- "guardian",
- "itertools",
- "or_poisoned",
- "paste",
- "reactive_graph",
- "reactive_stores_macro",
- "rustc-hash",
- "send_wrapper",
-]
-
-[[package]]
-name = "reactive_stores"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "35372f05664a62a3dd389503371a15b8feb3396f99f6ec000de651fddb030942"
@@ -5597,7 +5571,7 @@ dependencies = [
  "parking_lot",
  "paste",
  "reactive_graph",
- "reactive_stores 0.3.1",
+ "reactive_stores",
  "rustc-hash",
  "rustc_version",
  "send_wrapper",
@@ -6049,12 +6023,12 @@ dependencies = [
 [[package]]
 name = "thaw"
 version = "0.5.0-beta"
-source = "git+https://github.com/thaw-ui/thaw?branch=thaw%2Fv0.5#ddc14f0201113a73d5bf8baa32e162e999eef15a"
+source = "git+https://github.com/hrzlgnm/thaw?branch=thaw%2Fv0.5#9222743779d8c5357698978d031a36336baa3fe2"
 dependencies = [
  "cfg-if",
  "chrono",
  "getset",
- "icondata_ai 0.0.10",
+ "icondata_ai",
  "icondata_core",
  "leptos",
  "leptos_transition_group",
@@ -6074,7 +6048,7 @@ dependencies = [
 [[package]]
 name = "thaw_components"
 version = "0.4.0-beta"
-source = "git+https://github.com/thaw-ui/thaw?branch=thaw%2Fv0.5#ddc14f0201113a73d5bf8baa32e162e999eef15a"
+source = "git+https://github.com/hrzlgnm/thaw?branch=thaw%2Fv0.5#9222743779d8c5357698978d031a36336baa3fe2"
 dependencies = [
  "cfg-if",
  "leptos",
@@ -6087,7 +6061,7 @@ dependencies = [
 [[package]]
 name = "thaw_macro"
 version = "0.1.0"
-source = "git+https://github.com/thaw-ui/thaw?branch=thaw%2Fv0.5#ddc14f0201113a73d5bf8baa32e162e999eef15a"
+source = "git+https://github.com/hrzlgnm/thaw?branch=thaw%2Fv0.5#9222743779d8c5357698978d031a36336baa3fe2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -6097,12 +6071,12 @@ dependencies = [
 [[package]]
 name = "thaw_utils"
 version = "0.2.0-beta"
-source = "git+https://github.com/thaw-ui/thaw?branch=thaw%2Fv0.5#ddc14f0201113a73d5bf8baa32e162e999eef15a"
+source = "git+https://github.com/hrzlgnm/thaw?branch=thaw%2Fv0.5#9222743779d8c5357698978d031a36336baa3fe2"
 dependencies = [
  "cfg-if",
  "chrono",
  "leptos",
- "reactive_stores 0.2.5",
+ "reactive_stores",
  "send_wrapper",
  "wasm-bindgen",
  "web-sys",
@@ -7889,9 +7863,9 @@ dependencies = [
 
 [[package]]
 name = "zmij"
-version = "1.0.14"
+version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd8f3f50b848df28f887acb68e41201b5aea6bc8a8dacc00fb40635ff9a72fea"
+checksum = "94f63c051f4fe3c1509da62131a678643c5b6fbdc9273b2b79d4378ebda003d2"
 
 [[package]]
 name = "zune-core"
