@@ -80,7 +80,7 @@ body {
 }
 .thaw-grid.resolved-service-grid.mobile-resolved-service-grid {
     grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)) !important;
-    grid-gap: 8px !important;
+    gap: 8px !important;
 }
 .mobile-resolved-service-value-cell {
     width: 350px;
@@ -115,7 +115,7 @@ body {
 }
 .thaw-grid.resolved-service-grid.desktop-resolved-service-grid {
     grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)) !important;
-    grid-gap: 10px !important;
+    gap: 10px !important;
 }
 .desktop-resolved-service-value-cell {
     width: 400px;
