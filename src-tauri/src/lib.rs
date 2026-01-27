@@ -146,13 +146,18 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
             match event {
                 ServiceEvent::ServiceFound(_service_type, full_name) => {
                     match check_service_type_fully_qualified(full_name.as_str()) {
-                        Ok(_) => {
+                        Ok(MdnsType::ServiceType) => {
                             emit_event(
                                 &window,
                                 "service-type-found",
                                 &ServiceTypeFoundEvent {
                                     service_type: full_name,
                                 },
+                            );
+                        }
+                        Ok(MdnsType::Subtype) => {
+                            log::debug!(
+                                "Ignoring subtype `{full_name}` found during service type browsing"
                             );
                         }
                         Err(e) => {
