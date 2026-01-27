@@ -155,7 +155,7 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
                                 },
                             );
                         }
-                        Ok(MdnsLabelType::Subtype) => {
+                        Ok(MdnsLabelType::SubType) => {
                             log::debug!(
                                 "Ignoring subtype `{full_name}` found during service type browsing"
                             );
