@@ -236,7 +236,13 @@ pub enum MdnsError {
     IncorrectFormat,
 }
 
-fn check_mdns_label(label: &str, is_subtype: bool) -> Result<MdnsType, MdnsError> {
+#[derive(PartialEq, Eq, Debug)]
+pub enum MdnsLabelType {
+    ServiceType,
+    Subtype,
+}
+
+fn check_mdns_label(label: &str, is_subtype: bool) -> Result<MdnsLabelType, MdnsError> {
     let valid_dns_chars = |c: char| c.is_ascii_alphanumeric() || c == '-' || c == '_';
     let error = if is_subtype {
         MdnsError::InvalidSubtype
@@ -275,19 +281,13 @@ fn check_mdns_label(label: &str, is_subtype: bool) -> Result<MdnsType, MdnsError
     }
 
     if is_subtype {
-        Ok(MdnsType::Subtype)
+        Ok(MdnsLabelType::Subtype)
     } else {
-        Ok(MdnsType::ServiceType)
+        Ok(MdnsLabelType::ServiceType)
     }
 }
 
-#[derive(PartialEq, Eq, Debug)]
-pub enum MdnsType {
-    ServiceType,
-    Subtype,
-}
-
-pub fn check_service_type_fully_qualified(service_type: &str) -> Result<MdnsType, MdnsError> {
+pub fn check_service_type_fully_qualified(service_type: &str) -> Result<MdnsLabelType, MdnsError> {
     // The service type must end with a trailing dot
     if !service_type.ends_with('.') {
         return Err(MdnsError::MissingTrailingDot);
@@ -336,7 +336,7 @@ pub fn check_service_type_fully_qualified(service_type: &str) -> Result<MdnsType
         return check_mdns_label(sub_type, true);
     }
 
-    Ok(MdnsType::ServiceType)
+    Ok(MdnsLabelType::ServiceType)
 }
 
 #[cfg(test)]
@@ -680,16 +680,17 @@ mod tests {
 
     #[test]
     fn test_valid_service_types() {
-        assert!(check_service_type_fully_qualified("_http._tcp.local.").is_ok());
         assert_eq!(
             check_service_type_fully_qualified("_http._tcp.local."),
-            Ok(MdnsType::ServiceType)
+            Ok(MdnsLabelType::ServiceType)
         );
-        assert!(check_service_type_fully_qualified("_printer._udp.local.").is_ok());
-        assert!(check_service_type_fully_qualified("_myprinter._sub._http._tcp.local.").is_ok());
+        assert_eq!(
+            check_service_type_fully_qualified("_printer._udp.local."),
+            Ok(MdnsLabelType::ServiceType)
+        );
         assert_eq!(
             check_service_type_fully_qualified("_myprinter._sub._http._tcp.local."),
-            Ok(MdnsType::Subtype)
+            Ok(MdnsLabelType::Subtype)
         );
     }
 
