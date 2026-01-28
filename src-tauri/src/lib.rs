@@ -161,23 +161,7 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
                             );
                         }
                         Err(e) => {
-                            log::warn!("Ignoring invalid service type `{full_name}`: {e}")
-                        }
-                    }
-                }
-                ServiceEvent::ServiceRemoved(_service_type, full_name) => {
-                    match check_service_type_fully_qualified(full_name.as_str()) {
-                        Ok(_) => {
-                            emit_event(
-                                &window,
-                                "service-type-removed",
-                                &ServiceTypeRemovedEvent {
-                                    service_type: full_name.clone(),
-                                },
-                            );
-                        }
-                        Err(e) => {
-                            log::warn!("Ignoring invalid service type `{full_name}`: {e}")
+                            log::debug!("Ignoring invalid service type `{full_name}`: {e}")
                         }
                     }
                 }
