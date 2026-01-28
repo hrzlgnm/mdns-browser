@@ -19,8 +19,6 @@ use thaw::{
     Scrollbar, Select, Table, TableBody, TableCell, TableRow, Text, TextTag,
 };
 
-use crate::app::listen::listen_events;
-
 use super::{
     about::open_url,
     backtop::BackTop,
@@ -28,7 +26,7 @@ use super::{
     css::get_class,
     invoke::invoke_no_args,
     is_desktop::IsDesktopInjection,
-    listen::{listen_add_remove, listen_to_named_event},
+    listen::{listen_add_remove, listen_events, listen_to_named_event},
     protocol_flags::ProtocolFlags,
     values_table::ValuesTable,
 };
