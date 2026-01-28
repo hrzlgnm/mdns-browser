@@ -46,12 +46,10 @@ pub(crate) async fn browse_types() {
     invoke_no_args("browse_types").await;
 }
 
-/// Listens for service type addition and removal events and updates the provided signal accordingly.
+/// Listens for service type discovery events and updates the provided signal accordingly.
 ///
-/// This function reacts to `"service-type-found"` and `"service-type-removed"` events,
-/// ensuring the signal contains a unique, sorted list of service types currently
-/// available on the network. Service types are added when discovered and removed
-/// when no longer available.
+/// This function reacts to `"service-type-found"` events, ensuring the signal
+/// contains a unique, sorted list of service types discovered on the network.
 async fn listen_to_service_type_events(writer: WriteSignal<ServiceTypes>) {
     listen_events(
         browse_types,
