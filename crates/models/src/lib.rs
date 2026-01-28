@@ -177,8 +177,6 @@ pub struct ServiceTypeFoundEvent {
     pub service_type: String,
 }
 
-pub type ServiceTypeRemovedEvent = ServiceTypeFoundEvent;
-
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct ServiceRemovedEvent {
     pub instance_name: String,

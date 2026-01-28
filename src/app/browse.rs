@@ -19,6 +19,8 @@ use thaw::{
     Scrollbar, Select, Table, TableBody, TableCell, TableRow, Text, TextTag,
 };
 
+use crate::app::listen::listen_events;
+
 use super::{
     about::open_url,
     backtop::BackTop,
@@ -53,7 +55,7 @@ pub(crate) async fn browse_types() {
 /// available on the network. Service types are added when discovered and removed
 /// when no longer available.
 async fn listen_to_service_type_events(writer: WriteSignal<ServiceTypes>) {
-    listen_add_remove(
+    listen_events(
         browse_types,
         "service-type-found",
         move |event: ServiceTypeFoundEvent| {
@@ -62,12 +64,6 @@ async fn listen_to_service_type_events(writer: WriteSignal<ServiceTypes>) {
                 sts.push(event.service_type);
                 sts.retain(|st| set.insert(st.clone()));
                 sts.sort();
-            });
-        },
-        "service-type-removed",
-        move |event: ServiceTypeRemovedEvent| {
-            writer.update(|evts| {
-                evts.retain(|st| st != &event.service_type);
             });
         },
     )
