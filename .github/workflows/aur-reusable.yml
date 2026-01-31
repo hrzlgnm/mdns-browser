@@ -54,7 +54,7 @@ jobs:
           URL="${{ matrix.package.checksum_url }}"
           echo "getting $URL"
           SUM=$(curl -LfsS "$URL" | cut -f1 -d ' ')
-          echo "sha256=$SUM" >> $GITHUB_OUTPUT
+          echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
 
       - name: 📐 Lint generated PKGBUILD
         shell: bash
