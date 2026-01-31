@@ -109,7 +109,7 @@ jobs:
               - 'packaging/void/**'
             winget:
               - '.github/workflows/winget-reusable.yml'
-              - '.github/actions/lateste-release-info/action.yml'
+              - '.github/actions/latest-release-info/action.yml'
 
       - name: Output branch name
         id: branch
