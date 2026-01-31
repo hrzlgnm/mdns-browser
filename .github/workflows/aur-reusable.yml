@@ -21,7 +21,7 @@ jobs:
       - name: 🔄 Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: 🏷️
+      - name: 🏷️ Get version info
         id: version
         uses: ./.github/actions/latest-release-info
 
@@ -75,7 +75,7 @@ jobs:
           su runner -c '
             set -o errexit
             mkdir -p ~/.ssh
-            echo "${{ secrets.AUR_DEPLOY_KEY }}" > ~/.ssh/aur
+            printf '%s' "${{ secrets.AUR_DEPLOY_KEY }}" > ~/.ssh/aur
             chmod 600 ~/.ssh/aur
             echo "Host aur.archlinux.org" >> ~/.ssh/config
             echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
