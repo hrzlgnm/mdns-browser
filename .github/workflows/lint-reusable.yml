@@ -75,6 +75,4 @@ jobs:
       - name: 📎 Run clippy and fail if any warnings
         shell: bash
         run: |
-          cargo clippy -- -D warnings
-          cd src-tauri
-          cargo clippy -- -D warnings
+          cargo clippy --workspace --tests -- -D warnings
