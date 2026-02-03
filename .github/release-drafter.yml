@@ -8,6 +8,24 @@ name-template: "mDNS-Browser Release v$RESOLVED_VERSION"
 tag-template: "mdns-browser-v$RESOLVED_VERSION"
 tag-prefix: mdns-browser-v
 
+version-resolver:
+  major:
+    labels:
+      - "major"
+      - "breaking-change"
+  minor:
+    labels:
+      - "feature"
+
+  patch:
+    labels:
+      - "patch"
+      - "bug"
+      - "bugfix"
+      - "dependencies"
+
+  default: patch
+
 category-template: "### $TITLE"
 categories:
   - title: ":boom: Breaking Changes"
