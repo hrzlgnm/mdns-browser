@@ -139,7 +139,7 @@ All source files must include:
 
 ## Project Structure
 
-```
+```text
 ├── src/                    # Leptos frontend
 │   ├── app/               # Feature modules
 │   └── main.rs            # Frontend entry point
