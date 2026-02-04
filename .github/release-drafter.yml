@@ -16,6 +16,7 @@ version-resolver:
   minor:
     labels:
       - "feature"
+      - "enhancement"
 
   patch:
     labels:
