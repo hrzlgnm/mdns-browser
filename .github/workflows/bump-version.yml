@@ -97,10 +97,3 @@ jobs:
           -H "Accept: application/vnd.github+json" \
           ${RULESET} \
           --input -
-
-      - name: Trigger Release Drafter on main
-        if: always()
-        run: |
-          gh workflow run release-drafter.yml -r main
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
