@@ -10,7 +10,7 @@ opt-level = "z"
 panic = "abort"
 debug = true
 split-debuginfo = "packed"
-strip = "debuginfo"
+strip = true
 
 [dependencies]
 # crates
