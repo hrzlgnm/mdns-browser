@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
 
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
@@ -31,6 +33,8 @@ jobs:
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
 
       - name: 📥 Cached install leptosfmt
         uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
@@ -62,6 +66,8 @@ jobs:
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
 
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache

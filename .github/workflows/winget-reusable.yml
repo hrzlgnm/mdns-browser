@@ -15,12 +15,14 @@ jobs:
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
 
-      - name: 🏷️
+      - name: 🏷️ Get latest release info
         id: release-info
         uses: ./.github/actions/latest-release-info
 
-      - name: 🛠️🔗
+      - name: 🛠️ Get latest installer url 🔗
         shell: bash
         run: |
           TAG_NAME=${{ steps.release-info.outputs.tagName }}
@@ -46,7 +48,7 @@ jobs:
     name: 🧹 branches
     runs-on: ubuntu-latest
     steps:
-      - name: 🧹
+      - name: 🧹 Cleanup merged branches
         uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
         with:
           args: "cleanup --only-merged --token=${{ secrets.WINGET_TOKEN }}"
