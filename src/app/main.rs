@@ -5,13 +5,13 @@ use super::{
     about::About,
     browse::Browse,
     css::get_class,
-    is_desktop::{get_is_desktop, IsDesktopInjection},
+    is_desktop::{IsDesktopInjection, get_is_desktop},
     metrics::Metrics,
     theme_switcher::ThemeSwitcher,
 };
 use js_sys::{
-    wasm_bindgen::{prelude::Closure, JsCast},
     Function, Reflect,
+    wasm_bindgen::{JsCast, prelude::Closure},
 };
 use leptos::{
     ev::{DragEvent, Event},
@@ -27,11 +27,12 @@ pub fn Main() -> impl IntoView {
     let theme = RwSignal::new(Theme::dark());
     let set_body_background_color = move |color: &String| {
         if let Some(document) = window().document()
-            && let Some(body) = document.body() {
-                let _ = body
-                    .style()
-                    .set_property("background-color", color.as_str());
-            }
+            && let Some(body) = document.body()
+        {
+            let _ = body
+                .style()
+                .set_property("background-color", color.as_str());
+        }
     };
     Effect::new(move |_| {
         set_body_background_color(theme.get().color.color_neutral_background_1());
