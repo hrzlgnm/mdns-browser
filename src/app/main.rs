@@ -26,13 +26,12 @@ use thaw::{
 pub fn Main() -> impl IntoView {
     let theme = RwSignal::new(Theme::dark());
     let set_body_background_color = move |color: &String| {
-        if let Some(document) = window().document() {
-            if let Some(body) = document.body() {
+        if let Some(document) = window().document()
+            && let Some(body) = document.body() {
                 let _ = body
                     .style()
                     .set_property("background-color", color.as_str());
             }
-        }
     };
     Effect::new(move |_| {
         set_body_background_color(theme.get().color.color_neutral_background_1());

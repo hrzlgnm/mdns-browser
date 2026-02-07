@@ -29,10 +29,7 @@ fn CopyableTableCell(
         let text = text_to_copy.get_untracked();
         copy_to_clipboard_action.dispatch(text.clone());
         if is_desktop.get_untracked() {
-            toaster.dispatch_toast(
-                move || create_clipboard_toast(text.as_str()),
-                Default::default(),
-            );
+            toaster.dispatch_toast(move || create_clipboard_toast(text), Default::default());
         }
     };
     view! {

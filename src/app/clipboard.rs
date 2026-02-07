@@ -34,8 +34,7 @@ pub async fn copy_to_clipboard(contents: String) {
 /// let toast = create_clipboard_toast("example text");
 /// // Renders a toast with the message: "Copied `example text` to clipboard"
 /// ```
-pub fn create_clipboard_toast(text: &str) -> impl IntoView {
-    let text = text.to_string();
+pub fn create_clipboard_toast(text: String) -> impl IntoView {
     view! {
         <Toast>
             <ToastTitle>"Clipboard"</ToastTitle>
@@ -66,10 +65,8 @@ pub fn CopyToClipBoardButton(
         let text = text.get_untracked();
         copy_to_clipboard_action.dispatch(text.clone());
         if is_desktop.get_untracked() {
-            toaster.dispatch_toast(
-                move || create_clipboard_toast(text.as_str()),
-                Default::default(),
-            );
+            let text = text.clone();
+            toaster.dispatch_toast(move || create_clipboard_toast(text), Default::default());
         }
     };
     let appearance = ButtonAppearance::Subtle;
