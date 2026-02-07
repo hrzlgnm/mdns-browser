@@ -65,7 +65,6 @@ pub fn CopyToClipBoardButton(
         let text = text.get_untracked();
         copy_to_clipboard_action.dispatch(text.clone());
         if is_desktop.get_untracked() {
-            let text = text.clone();
             toaster.dispatch_toast(move || create_clipboard_toast(text), Default::default());
         }
     };
