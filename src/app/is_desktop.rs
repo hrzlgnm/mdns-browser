@@ -1,7 +1,7 @@
 // Copyright 2024-2025 hrzlgnm
 // SPDX-License-Identifier: MIT-0
 
-use leptos::prelude::{expect_context, ReadSignal, Update, WriteSignal};
+use leptos::prelude::{ReadSignal, Update, WriteSignal, expect_context};
 use tauri_sys::core::invoke;
 
 #[derive(Clone, Debug)]

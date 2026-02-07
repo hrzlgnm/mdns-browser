@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT-0
 
 use super::invoke::invoke_no_args;
-use futures::{select, StreamExt};
+use futures::{StreamExt, select};
 use serde::de::DeserializeOwned;
 use std::future::Future;
 use tauri_sys::event::listen;

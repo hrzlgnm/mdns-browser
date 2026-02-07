@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT-0
 
 use js_sys::{
-    wasm_bindgen::{prelude::Closure, JsCast},
     Function,
+    wasm_bindgen::{JsCast, prelude::Closure},
 };
 use leptos::{ev::Event, prelude::*};
 use thaw::Icon;
