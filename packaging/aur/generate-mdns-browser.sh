@@ -48,6 +48,7 @@ check() {
 }
 package() {
     install -Dm755 "\${srcdir}/\${_builddir}/target/release/mdns-browser" "\$pkgdir"/usr/bin/mdns-browser
+    install -Dm644 "\${srcdir}/\${_builddir}/mdns-browser.1" "\$pkgdir"/usr/share/man/man1/mdns-browser.1
     # Explicitly strip only the binary; !strip in options prevents makepkg's auto-strip phase which also generates 
     # a debug package, which is useless here, as the debug information only contains symbols and no debug info
     strip "\$pkgdir"/usr/bin/mdns-browser

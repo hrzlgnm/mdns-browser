@@ -1,0 +1,38 @@
+.TH mdns-browser 1 "2026-02-07" "mdns-browser" "User Commands"
+.SH NAME
+mdns-browser \- Browse mDNS services
+.SH SYNOPSIS
+.B mdns-browser
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+Browse services using mDNS.
+.SH OPTIONS
+.TP
+.BI \-l , \-\-log\-level\ LOG_LEVEL
+Set log level [default: info] [possible values: trace, debug, info, warn, error]
+.TP
+.BI \-D , \-\-enable\-devtools
+Enable devtools at startup
+.TP
+.BI \-f , \-\-log\-to\-file
+Enable logging to file
+.TP
+.BI \-d , \-\-disable\-dmabuf\-renderer
+Disable dmabuf renderer (Linux only), useful when having rendering issues
+.TP
+.BI \-h , \-\-help
+Print help
+.TP
+.BI \-V , \-\-version
+Print version
+.SH LOGGING
+If enabled, a log file will be created in a platform-specific location:
+.nf
+Linux: $XDG_DATA_HOME/com.github.hrzlgnm.mdns-browser/logs or $HOME/.local/share/com.github.hrzlgnm.mdns-browser/logs
+macOS: ~/Library/Logs/com.github.hrzlgnm.mdns-browser
+.fi
+The log file will be named mdns-browser.log and will contain log messages with a log-level having at least a level specified by the log-level option.
+.SH VERSION
+This option has been added with release v0.19.0
+.SH REPORTING ISSUES
+Report bugs or issues at https://github.com/hrzlgnm/mdns-browser/issues
