@@ -15,7 +15,6 @@ inputs:
   save-cache:
     description: "Whether to save the cache"
     required: false
-    type: boolean
     default: "false"
 
 runs:

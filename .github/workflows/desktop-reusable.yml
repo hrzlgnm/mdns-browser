@@ -18,6 +18,10 @@ on:
         required: true
       TAURI_KEY_PASSWORD:
         required: true
+      WINDOWS_CERTIFICATE:
+        required: false
+      WINDOWS_CERTIFICATE_PASSWORD:
+        required: false
 
 jobs:
   build:

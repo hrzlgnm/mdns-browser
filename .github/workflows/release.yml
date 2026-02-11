@@ -159,7 +159,7 @@ jobs:
     with:
       tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
 
-  build_artifacts:
+  build_android:
     needs: [version_management, create_prerelease, source_checksums]
     if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (!inputs.dry_run && inputs.create_release == 'true') || needs.create_prerelease.result == 'skipped'))
     permissions:
@@ -167,23 +167,42 @@ jobs:
       attestations: write
       contents: write
       actions: read
-    name: 🔨 Build Release Artifacts
-    strategy:
-      matrix:
-        include:
-          - job: android
-            workflow: android-reusable.yml
-          - job: desktop
-            workflow: desktop-reusable.yml
-          - job: void
-            workflow: void-reusable.yml
-    uses: ./.github/workflows/${{ matrix.workflow }}
+    name: 🔨 Build Android
+    uses: ./.github/workflows/android-reusable.yml
+    secrets: inherit
+    with:
+      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+
+  build_desktop:
+    needs: [version_management, create_prerelease, source_checksums]
+    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (!inputs.dry_run && inputs.create_release == 'true') || needs.create_prerelease.result == 'skipped'))
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
+      actions: read
+    name: 🔨 Build Desktop
+    uses: ./.github/workflows/desktop-reusable.yml
+    secrets: inherit
+    with:
+      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+
+  build_void:
+    needs: [version_management, create_prerelease, source_checksums]
+    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (!inputs.dry_run && inputs.create_release == 'true') || needs.create_prerelease.result == 'skipped'))
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
+      actions: read
+    name: 🔨 Build Void
+    uses: ./.github/workflows/void-reusable.yml
     secrets: inherit
     with:
       tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
 
   asset_checksums:
-    needs: [version_management, build_artifacts, create_prerelease]
+    needs: [version_management, build_android, build_desktop, build_void, create_prerelease]
     if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run && inputs.create_release == 'true'))
     permissions:
       contents: write # to update release with checksums and artifacts
