@@ -27,13 +27,12 @@ on:
 
 jobs:
   version_management:
-    if: github.event_name == 'workflow_dispatch'
     permissions:
       actions: write # to trigger other workflows and read workflow run status
       contents: write # to update version files, create commits, and push tags
     runs-on: ubuntu-slim
     outputs:
-      version: ${{ steps.semver.outputs.semantic-version }}
+      version: ${{ steps.version-calc.outputs.version || steps.release-version.outputs.version }}
     env:
       GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
       RULESET: repos/${{github.repository}}/rulesets/4895698
@@ -55,29 +54,63 @@ jobs:
           version: 0.13.8
           locked: true
 
-      - id: semver
+      - id: version-calc
         name: 🔢 Calculate semantic version
-        uses: SOLIDSoftworks/semver-tags@fa8963220fb4913aea2b20cc190004de1b79f395 # v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
-          tag-prefix: "mdns-browser-v"
-          incremented-value: ${{ inputs.version }}
-          create-release: false
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          # Get current version from tauri.conf.json
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          
+          # Use cargo-edit to bump version
+          case "${{ inputs.version }}" in
+            "patch")
+              NEW_VERSION=$(cargo bump patch --dry-run | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
+              ;;
+            "minor")
+              NEW_VERSION=$(cargo bump minor --dry-run | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
+              ;;
+            "major")
+              NEW_VERSION=$(cargo bump major --dry-run | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
+              ;;
+            *)
+              echo "Unknown version bump type: ${{ inputs.version }}. Must be one of: patch, minor, major"
+              exit 1
+              ;;
+          esac
+          
+          if [ -z "$NEW_VERSION" ]; then
+            echo "Failed to calculate new version"
+            exit 1
+          fi
+          
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - id: release-version
+        name: 🏷️ Extract version from release
+        if: github.event_name == 'release'
+        run: |
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          # Remove mdns-browser-v prefix to get just the version
+          VERSION="${TAG_NAME#mdns-browser-v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: 🔄 Update cargo and tauri versions
+        if: github.event_name == 'workflow_dispatch'
         run: |
-          # Update workspace and crate versions using cargo-edit with version from semver-tags
-          cargo set-version --workspace ${{ steps.semver.outputs.semantic-version }}
+          # Update workspace and crate versions using cargo-edit with version from version calculation
+          cargo set-version --workspace ${{ steps.version-calc.outputs.version }}
 
           # Update Cargo.lock to reflect new versions
           cargo update --workspace
 
           # Update Tauri config files
-          jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
-          jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
+          jq --indent 4 '.version="${{ steps.version-calc.outputs.version }}"' src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
+          jq --indent 4 '.version="${{ steps.version-calc.outputs.version }}"' src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
 
       - name: 🔑 Set up SSH signing key
-        if: (!inputs.dry_run)
+        if: (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/id_ed25519_signing
@@ -88,7 +121,7 @@ jobs:
           git config --global user.email "hrzlgnm@users.noreply.github.com"
 
       - name: ⏳ Temporary disable ruleset enforcement
-        if: (!inputs.dry_run)
+        if: (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
         run: |
           gh api \
           -H "Accept: application/vnd.github+json" \
@@ -100,15 +133,15 @@ jobs:
           --input -
 
       - name: 💾🏷️⬆️ Commit, tag and push
-        if: (!inputs.dry_run)
+        if: (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
         run: |
           git add -A
-          git commit -S -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
-          git tag -s -a mdns-browser-v${{ steps.semver.outputs.semantic-version }} -m "mDNS-Browser Release v${{ steps.semver.outputs.semantic-version }}"
+          git commit -S -m "Bump version to ${{ steps.version-calc.outputs.version }}"
+          git tag -s -a mdns-browser-v${{ steps.version-calc.outputs.version }} -m "mDNS-Browser Release v${{ steps.version-calc.outputs.version }}"
           git push --follow-tags
 
       - name: 👮 Re-enable enforcement of rules
-        if: (always() && !inputs.dry_run)
+        if: (always() && github.event_name == 'workflow_dispatch' && !inputs.dry_run)
         run: |
           gh api \
           -H "Accept: application/vnd.github+json" \
@@ -123,7 +156,7 @@ jobs:
     needs: [version_management]
     if: (inputs.create_release == 'true' && !inputs.dry_run)
     outputs:
-      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
+      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
     permissions:
       contents: write # to create, update, and manage releases and drafts
     runs-on: ubuntu-slim
@@ -142,13 +175,13 @@ jobs:
           name: "mDNS-Browser Release v${{ needs.version_management.outputs.version }}"
           prerelease: true
           publish: true
-          tag: "mdns-browser-v${{ needs.version_management.outputs.version }}"
+          tag: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   source_checksums:
     needs: [version_management]
-    if: (inputs.create_release == 'true' && !inputs.dry_run)
+    if: (inputs.create_release == 'true' && !inputs.dry_run) || github.event_name == 'release'
     permissions:
       contents: write # to upload source checksums to release
       actions: read # to access workflow run information and secrets
@@ -156,11 +189,11 @@ jobs:
     uses: ./.github/workflows/source-checksums-reusable.yml
     secrets: inherit
     with:
-      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
+      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
 
   build_android:
     needs: [version_management]
-    if: (inputs.create_release == 'true' && !inputs.dry_run)
+    if: (inputs.create_release == 'true' && !inputs.dry_run) || github.event_name == 'release'
     permissions:
       id-token: write
       attestations: write
@@ -170,11 +203,11 @@ jobs:
     uses: ./.github/workflows/android-reusable.yml
     secrets: inherit
     with:
-      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
+      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
 
   build_desktop:
     needs: [version_management]
-    if: (inputs.create_release == 'true' && !inputs.dry_run)
+    if: (inputs.create_release == 'true' && !inputs.dry_run) || github.event_name == 'release'
     permissions:
       id-token: write
       attestations: write
@@ -184,7 +217,7 @@ jobs:
     uses: ./.github/workflows/desktop-reusable.yml
     secrets: inherit
     with:
-      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
+      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
 
   build_void:
     needs: [version_management, source_checksums]
