@@ -9,7 +9,7 @@
 
 # mDNS-Browser
 
-This application allows you to browse services using mDNS.
+This application allows you to browse services using mDNS. For an alternative running in a terminal, check out [mDNS-TUI-Browser](https://github.com/hrzlgnm/mdns-tui-browser)
 
 Screenshots from [v0.11.28](https://github.com/hrzlgnm/mdns-browser/releases/tag/mdns-browser-v0.11.28)
 
