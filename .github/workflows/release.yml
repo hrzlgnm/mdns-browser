@@ -64,16 +64,6 @@ jobs:
           create-release: false
           dry-run: true
 
-      - name: 🔑 Set up SSH signing key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/id_ed25519_signing
-          chmod 600 ~/.ssh/id_ed25519_signing
-          git config --global gpg.format ssh
-          git config --global user.signingKey ~/.ssh/id_ed25519_signing
-          git config --global user.name "hrzlgnm"
-          git config --global user.email "hrzlgnm@users.noreply.github.com"
-
       - name: 🔄 Update cargo and tauri versions
         run: |
           # Update workspace and crate versions using cargo-edit with version from semver-tags
@@ -86,8 +76,19 @@ jobs:
           jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
           jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
 
+      - name: 🔑 Set up SSH signing key
+        if: (!inputs.dry_run)
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/id_ed25519_signing
+          chmod 600 ~/.ssh/id_ed25519_signing
+          git config --global gpg.format ssh
+          git config --global user.signingKey ~/.ssh/id_ed25519_signing
+          git config --global user.name "hrzlgnm"
+          git config --global user.email "hrzlgnm@users.noreply.github.com"
+
       - name: ⏳ Temporary disable ruleset enforcement
-        if: ${{ !inputs.dry_run }}
+        if: (!inputs.dry_run)
         run: |
           gh api \
           -H "Accept: application/vnd.github+json" \
@@ -99,14 +100,14 @@ jobs:
           --input -
 
       - name: 💾🏷️⬆️ Commit, tag and push
-        if: ${{ !inputs.dry_run }}
+        if: (!inputs.dry_run)
         run: |
           git add -A
           git commit -S -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
           git push --follow-tags
 
       - name: 👮 Re-enable enforcement of rules
-        if: ${{ always() && !inputs.dry_run }}
+        if: (always() && !inputs.dry_run)
         run: |
           gh api \
           -H "Accept: application/vnd.github+json" \
