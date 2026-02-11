@@ -160,7 +160,7 @@ jobs:
       tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
 
   build_android:
-    needs: [version_management, create_prerelease, source_checksums]
+    needs: [version_management, create_prerelease]
     if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (!inputs.dry_run && inputs.create_release == 'true') || needs.create_prerelease.result == 'skipped'))
     permissions:
       id-token: write
@@ -174,7 +174,7 @@ jobs:
       tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
 
   build_desktop:
-    needs: [version_management, create_prerelease, source_checksums]
+    needs: [version_management, create_prerelease]
     if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (!inputs.dry_run && inputs.create_release == 'true') || needs.create_prerelease.result == 'skipped'))
     permissions:
       id-token: write
