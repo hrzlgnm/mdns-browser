@@ -4,12 +4,15 @@
 name: Create and publish checksums of release assets
 on:
   workflow_call:
-  workflow_dispatch:
     inputs:
-      semver:
-        description: The semver of the release to publish for
+      tagName:
+        description: The tag name of release to publish for
         type: string
-        required: true
+        required: false
+      semver:
+        description: The semver of release to publish for
+        type: string
+        required: false
 
 permissions:
   contents: write
@@ -24,10 +27,14 @@ jobs:
       - name: 🏷️
         id: tag
         run: |
-          if [ -n "${{ github.event.release.name }}" ]; then
+          if [ -n "${{ inputs.tagName }}" ]; then
+            echo "tag=${{ inputs.tagName }}" >> $GITHUB_OUTPUT
+          elif [ -n "${{ github.event.release.name }}" ]; then
             echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          else
+          elif [ -n "${{ github.event.inputs.semver }}" ]; then
             echo "tag=mdns-browser-v${{ github.event.inputs.semver }}" >> $GITHUB_OUTPUT
+          else
+            echo "No tag provided" && exit 1
           fi
 
   generate_checksums:

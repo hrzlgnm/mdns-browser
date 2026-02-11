@@ -18,6 +18,10 @@ on:
         required: true
       TAURI_KEY_PASSWORD:
         required: true
+      WINDOWS_CERTIFICATE:
+        required: false
+      WINDOWS_CERTIFICATE_PASSWORD:
+        required: false
 
 jobs:
   build:
@@ -43,6 +47,9 @@ jobs:
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ inputs.tagName || github.ref }}
+          fetch-depth: ${{ inputs.tagName && '0' || '1' }}
 
       - name: 📝 Extract version from tauri.conf.json
         id: get-version
@@ -56,7 +63,7 @@ jobs:
         shell: bash
         run: |
           CURRENT_VERSION=${{ steps.get-version.outputs.current-version }}
-          TAG=${GITHUB_REF#refs/tags/}
+          TAG=${{ inputs.tagName }}
           if [[ "$TAG" != *"$CURRENT_VERSION" ]]
           then
             echo "The tag name ${TAG} does not match the version ${CURRENT_VERSION} from tauri config"

@@ -4,12 +4,15 @@
 name: Create and publish source checksum
 on:
   workflow_call:
-  workflow_dispatch:
     inputs:
-      semver:
-        description: The semver of the release to publish for
+      tagName:
+        description: The tag name of release to publish for
         type: string
-        required: true
+        required: false
+      semver:
+        description: The semver of release to publish for
+        type: string
+        required: false
 
 permissions:
   contents: write
@@ -24,10 +27,14 @@ jobs:
       - name: 🏷️
         id: tag
         run: |
-          if [ -n "${{ github.event.release.name }}" ]; then
+          if [ -n "${{ inputs.tagName }}" ]; then
+            echo "tag=${{ inputs.tagName }}" >> $GITHUB_OUTPUT
+          elif [ -n "${{ github.event.release.name }}" ]; then
             echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          else
+          elif [ -n "${{ github.event.inputs.semver }}" ]; then
             echo "tag=mdns-browser-v${{ github.event.inputs.semver }}" >> $GITHUB_OUTPUT
+          else
+            echo "No tag provided" && exit 1
           fi
 
   generate_checksums:
@@ -42,6 +49,7 @@ jobs:
       - name: 📥🔢☑️
         run: |
           set -o errexit
+          mkdir -p downloads && cd downloads
           curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.tag.outputs.tag }}.tar.gz
           curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.tag.outputs.tag }}.zip
           for file in *; do
@@ -53,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: ${{ matrix.algorithm }}-source-checksums
-          path: "*.${{ matrix.algorithm }}"
+          path: "downloads/*.${{ matrix.algorithm }}"
 
   publish:
     name: 📰🔢☑️
