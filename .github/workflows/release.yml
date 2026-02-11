@@ -1,0 +1,195 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+name: Release Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to bump
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      dry_run:
+        description: Dry run (no commits/tags/releases)
+        required: true
+        type: boolean
+        default: false
+      create_release:
+        description: Create pre-release after version bump
+        required: true
+        type: boolean
+        default: true
+  release:
+    types:
+      - published
+
+jobs:
+  version_management:
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      actions: write # to trigger other workflows and read workflow run status
+      contents: write # to update version files, create commits, and push tags
+    runs-on: ubuntu-slim
+    outputs:
+      version: ${{ steps.semver.outputs.semantic-version }}
+      tag_name: ${{ steps.semver.outputs.semantic-version }}
+    env:
+      GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+      RULESET: repos/${{github.repository}}/rulesets/4895698
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+
+      - name: ⚙️ Setup cargo tools
+        uses: ./.github/actions/setup-tauri
+
+      - name: 🔧 Install cargo-edit
+        uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
+        with:
+          crate: cargo-edit
+          version: 0.12.3
+          locked: true
+
+      - id: semver
+        name: 🔢 Calculate semantic version
+        uses: SOLIDSoftworks/semver-tags@fa8963220fb4913aea2b20cc190004de1b79f395 # v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          tag-prefix: "mdns-browser-v"
+          incremented-value: ${{ inputs.version }}
+          create-release: false
+          dry-run: true
+
+      - name: 🔑 Set up SSH signing key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/id_ed25519_signing
+          chmod 600 ~/.ssh/id_ed25519_signing
+          git config --global gpg.format ssh
+          git config --global user.signingKey ~/.ssh/id_ed25519_signing
+          git config --global user.name "hrzlgnm"
+          git config --global user.email "hrzlgnm@users.noreply.github.com"
+
+      - name: 🔄 Update cargo and tauri versions
+        run: |
+          # Update workspace and crate versions using cargo-edit with version from semver-tags
+          cargo set-version --workspace ${{ steps.semver.outputs.semantic-version }}
+          
+          # Update Cargo.lock to reflect new versions
+          cargo update --workspace
+          
+          # Update Tauri config files
+          jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
+          jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
+
+      - name: ⏳ Temporary disable ruleset enforcement
+        if: ${{ !inputs.dry_run }}
+        run: |
+          gh api \
+          -H "Accept: application/vnd.github+json" \
+          ${RULESET} | jq '.enforcement = "disabled"' | \
+          gh api \
+          --method PUT \
+          -H "Accept: application/vnd.github+json" \
+          ${RULESET} \
+          --input -
+
+      - name: 💾🏷️⬆️ Commit, tag and push
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git add -A
+          git commit -S -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
+          git push
+          git tag -s -a mdns-browser-v${{ steps.semver.outputs.semantic-version }}           -m "mDNS-Browser Release v${{ steps.semver.outputs.semantic-version }}"
+          git push --tags
+
+      - name: 👮 Re-enable enforcement of rules
+        if: ${{ always() && !inputs.dry_run }}
+        run: |
+          gh api \
+          -H "Accept: application/vnd.github+json" \
+          ${RULESET} | jq '.enforcement = "active"' | \
+          gh api \
+          --method PUT \
+          -H "Accept: application/vnd.github+json" \
+          ${RULESET} \
+          --input -
+
+  create_prerelease:
+    needs: version_management
+    if: github.event_name == 'workflow_dispatch' && inputs.create_release == 'true' && !inputs.dry_run
+    permissions:
+      contents: write # to create, update, and manage releases and drafts
+    runs-on: ubuntu-slim
+    name: 🚀 Create Pre-release
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: 🗒️ Create pre-release
+        uses: release-drafter/release-drafter@6db134d15f3909ccc9eefd369f02bd1e9cffdf97 # v6.2.0
+        with:
+          prerelease: true
+          latest: false
+          publish: true
+          name: "v${{ needs.version_management.outputs.version }}"
+          tag: "mdns-browser-v${{ needs.version_management.outputs.version }}"
+          version: "mdns-browser-v${{ needs.version_management.outputs.version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  source_checksums:
+    needs: [version_management, create_prerelease]
+    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (!inputs.dry_run && inputs.create_release == 'true') || needs.create_prerelease.result == 'skipped'))
+    permissions:
+      contents: write # to upload source checksums to release
+      actions: read # to access workflow run information and secrets
+    name: 🔢 Generate Source Checksums
+    uses: ./.github/workflows/source-checksums-reusable.yml
+    secrets: inherit
+    with:
+      semver: ${{ github.event_name == 'release' && github.event.release.tag_name || needs.version_management.outputs.version }}
+
+  build_artifacts:
+    needs: [version_management, create_prerelease, source_checksums]
+    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (!inputs.dry_run && inputs.create_release == 'true') || needs.create_prerelease.result == 'skipped'))
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
+      actions: read
+    name: 🔨 Build Release Artifacts
+    strategy:
+      matrix:
+        include:
+          - job: android
+            workflow: android-reusable.yml
+          - job: desktop
+            workflow: desktop-reusable.yml
+          - job: void
+            workflow: void-reusable.yml
+    uses: ./.github/workflows/${{ matrix.workflow }}
+    secrets: inherit
+    with:
+      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+
+  asset_checksums:
+    needs: [version_management, build_artifacts, create_prerelease]
+    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run && inputs.create_release == 'true'))
+    permissions:
+      contents: write # to update release with checksums and artifacts
+      actions: read # to access workflow run information and secrets
+    name: 🔢 Generate Asset Checksums
+    uses: ./.github/workflows/asset-checksums-reusable.yml
+    secrets: inherit
+    with:
+      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
