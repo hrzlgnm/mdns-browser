@@ -136,7 +136,7 @@ jobs:
 
   create_prerelease:
     needs: [bump_version]
-    if: (inputs.create-release == 'true' && !inputs.dry-run)
+    if: (inputs.create-release && !inputs.dry-run)
     permissions:
       contents: write # to create, update, and manage releases and drafts
     runs-on: ubuntu-slim
@@ -160,7 +160,7 @@ jobs:
 
   source_checksums:
     needs: [bump_version, create_prerelease]
-    if: (inputs.create-release == 'true' && !inputs.dry-run)
+    if: (inputs.create-release && !inputs.dry-run)
     permissions:
       contents: write # to upload source checksums to release
       actions: read # to access workflow run information and secrets
@@ -172,7 +172,7 @@ jobs:
 
   build_android:
     needs: [bump_version, create_prerelease]
-    if: (inputs.create-release == 'true' && !inputs.dry-run)
+    if: (inputs.create-release && !inputs.dry-run)
     permissions:
       id-token: write
       attestations: write
@@ -186,7 +186,7 @@ jobs:
 
   build_desktop:
     needs: [bump_version, create_prerelease]
-    if: (inputs.create-release == 'true' && !inputs.dry-run)
+    if: (inputs.create-release && !inputs.dry-run)
     permissions:
       id-token: write
       attestations: write
@@ -200,7 +200,7 @@ jobs:
 
   build_void:
     needs: [bump_version, create_prerelease, source_checksums]
-    if: (inputs.create-release == 'true' && !inputs.dry-run)
+    if: (inputs.create-release && !inputs.dry-run)
     permissions:
       id-token: write
       attestations: write
@@ -222,7 +222,7 @@ jobs:
         build_desktop,
         build_void,
       ]
-    if: (inputs.create-release == 'true' && !inputs.dry-run)
+    if: (inputs.create-release && !inputs.dry-run)
     permissions:
       contents: write # to update release with checksums and artifacts
       actions: read # to access workflow run information and secrets
