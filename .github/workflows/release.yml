@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-slim
     name: ⬆️ Bump version
     outputs:
-      version: ${{ steps.version.outputs.version}}
+      version: ${{ steps.version.outputs.version }}
       tagName: mdns-browser-v${{ steps.version.outputs.version}}
     env:
       GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
