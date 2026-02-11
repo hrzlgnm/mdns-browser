@@ -31,6 +31,7 @@ jobs:
       actions: write # to trigger other workflows and read workflow run status
       contents: write # to update version files, create commits, and push tags
     runs-on: ubuntu-slim
+    name: ⬆️ Bump version
     outputs:
       version: ${{ steps.version.outputs.version}}
       tagName: mdns-browser-v${{ steps.version.outputs.version}}
