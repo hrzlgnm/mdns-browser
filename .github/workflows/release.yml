@@ -85,7 +85,7 @@ jobs:
 
             # Update Tauri config files
             jq --indent 4 ".version=${NEW_VERSION}" src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
-            jq --indent 4 ".version="${NEW_VERSION}" src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
+            jq --indent 4 ".version=${NEW_VERSION}" src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
             echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
             echo "Bumped version from $CURRENT_VERSION to $NEW_VERSION"
           fi
