@@ -54,10 +54,14 @@ cargo fmt -- --check
 # Run clippy lints
 cargo clippy --workspace --tests -- -D warnings
 
+# Lint GitHub Actions workflows and actions
+actionlint .github/workflows/*.yml
+
 # Full lint check (as run in CI)
 cargo fmt -- --check && \
 leptosfmt --check src && \
-cargo clippy --workspace --tests -- -D warnings
+cargo clippy --workspace --tests -- -D warnings && \
+actionlint .github/workflows/*.yml
 ```
 
 ### Development Workflow
@@ -179,4 +183,21 @@ cd .. && \
 cargo nextest run --profile ci
 ```
 
-This ensures your changes follow all project conventions and pass all checks.
+## Before Modifying Workflows or Actions
+
+When changing any GitHub Actions workflows (.github/workflows/*.yml) or actions (.github/actions/*/action.yml):
+
+1. **Run actionlint validation**:
+   ```bash
+   actionlint .github/workflows/*.yml
+   ```
+
+2. **Fix any actionlint issues** before committing:
+   - Remove invalid syntax or context usage
+   - Ensure proper secret definitions  
+   - Follow GitHub Actions best practices
+   - Validate workflow structure
+
+3. **Re-run actionlint** to ensure all issues are resolved
+
+This ensures your workflow changes follow GitHub Actions best practices and will execute correctly.
