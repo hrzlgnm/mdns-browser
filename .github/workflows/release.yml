@@ -32,7 +32,7 @@ jobs:
       contents: write # to update version files, create commits, and push tags
     runs-on: ubuntu-slim
     outputs:
-      version: ${{ steps.version-calc.outputs.version || steps.release-version.outputs.version }}
+      version: ${{ steps.version.outputs.version || steps.release-version.outputs.version }}
     env:
       GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
       RULESET: repos/${{github.repository}}/rulesets/4895698
@@ -54,13 +54,12 @@ jobs:
           version: 0.13.8
           locked: true
 
-      - id: version-calc
+      - id: version
         name: 🔢 Calculate semantic version
-        if: github.event_name == 'workflow_dispatch'
         run: |
           # Get current version from tauri.conf.json
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
-          
+
           # Use cargo-edit to bump version
           case "${{ inputs.version }}" in
             "patch")
@@ -77,12 +76,12 @@ jobs:
               exit 1
               ;;
           esac
-          
+
           if [ -z "$NEW_VERSION" ]; then
             echo "Failed to calculate new version"
             exit 1
           fi
-          
+
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
         shell: bash
 
@@ -100,14 +99,14 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: |
           # Update workspace and crate versions using cargo-edit with version from version calculation
-          cargo set-version --workspace ${{ steps.version-calc.outputs.version }}
+          cargo set-version --workspace ${{ steps.version.outputs.version }}
 
           # Update Cargo.lock to reflect new versions
           cargo update --workspace
 
           # Update Tauri config files
-          jq --indent 4 '.version="${{ steps.version-calc.outputs.version }}"' src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
-          jq --indent 4 '.version="${{ steps.version-calc.outputs.version }}"' src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
+          jq --indent 4 '.version="${{ steps.version.outputs.version }}"' src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
+          jq --indent 4 '.version="${{ steps.version.outputs.version }}"' src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
 
       - name: 🔑 Set up SSH signing key
         if: (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
@@ -133,11 +132,11 @@ jobs:
           --input -
 
       - name: 💾🏷️⬆️ Commit, tag and push
-        if: (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
+        if: (!inputs.dry_run)
         run: |
           git add -A
-          git commit -S -m "Bump version to ${{ steps.version-calc.outputs.version }}"
-          git tag -s -a mdns-browser-v${{ steps.version-calc.outputs.version }} -m "mDNS-Browser Release v${{ steps.version-calc.outputs.version }}"
+          git commit -S -m "Bump version to ${{ steps.version.outputs.version }}"
+          git tag -s -a mdns-browser-v${{ steps.version.outputs.version }} -m "mDNS-Browser Release v${{ steps.version.outputs.version }}"
           git push --follow-tags
 
       - name: 👮 Re-enable enforcement of rules
@@ -156,7 +155,7 @@ jobs:
     needs: [version_management]
     if: (inputs.create_release == 'true' && !inputs.dry_run)
     outputs:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
     permissions:
       contents: write # to create, update, and manage releases and drafts
     runs-on: ubuntu-slim
@@ -175,13 +174,13 @@ jobs:
           name: "mDNS-Browser Release v${{ needs.version_management.outputs.version }}"
           prerelease: true
           publish: true
-          tag: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+          tag: mdns-browser-v${{ needs.version_management.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   source_checksums:
     needs: [version_management]
-    if: (inputs.create_release == 'true' && !inputs.dry_run) || github.event_name == 'release'
+    if: (inputs.create_release == 'true' && !inputs.dry_run)
     permissions:
       contents: write # to upload source checksums to release
       actions: read # to access workflow run information and secrets
@@ -189,11 +188,11 @@ jobs:
     uses: ./.github/workflows/source-checksums-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
 
   build_android:
     needs: [version_management]
-    if: (inputs.create_release == 'true' && !inputs.dry_run) || github.event_name == 'release'
+    if: (inputs.create_release == 'true' && !inputs.dry_run)
     permissions:
       id-token: write
       attestations: write
@@ -203,11 +202,11 @@ jobs:
     uses: ./.github/workflows/android-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
 
   build_desktop:
     needs: [version_management]
-    if: (inputs.create_release == 'true' && !inputs.dry_run) || github.event_name == 'release'
+    if: (inputs.create_release == 'true' && !inputs.dry_run)
     permissions:
       id-token: write
       attestations: write
@@ -217,7 +216,7 @@ jobs:
     uses: ./.github/workflows/desktop-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
 
   build_void:
     needs: [version_management, source_checksums]
@@ -234,7 +233,14 @@ jobs:
       tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
 
   asset_checksums:
-    needs: [create_prerelease, build_android, build_desktop, build_void]
+    needs:
+      [
+        version_management,
+        create_prerelease,
+        build_android,
+        build_desktop,
+        build_void,
+      ]
     if: (inputs.create_release == 'true' && !inputs.dry_run)
     permissions:
       contents: write # to update release with checksums and artifacts
@@ -243,4 +249,4 @@ jobs:
     uses: ./.github/workflows/asset-checksums-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ needs.create_prerelease.outputs.tagName }}
+      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
