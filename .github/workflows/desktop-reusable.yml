@@ -170,6 +170,7 @@ jobs:
         if: contains(matrix.os, 'windows') && inputs.tagName
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
+          tag_name: ${{ inputs.tagName }}
           files: target/release/mdns_browser.pdb.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
