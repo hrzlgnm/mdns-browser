@@ -157,7 +157,7 @@ jobs:
     uses: ./.github/workflows/source-checksums-reusable.yml
     secrets: inherit
     with:
-      semver: ${{ github.event_name == 'release' && github.event.release.tag_name || needs.version_management.outputs.version }}
+      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
 
   build_artifacts:
     needs: [version_management, create_prerelease, source_checksums]
