@@ -24,13 +24,9 @@ on:
         required: true
         type: boolean
         default: true
-  release:
-    types:
-      - published
 
 jobs:
   version_management:
-    if: github.event_name == 'workflow_dispatch'
     permissions:
       actions: write # to trigger other workflows and read workflow run status
       contents: write # to update version files, create commits, and push tags
@@ -82,10 +78,10 @@ jobs:
         run: |
           # Update workspace and crate versions using cargo-edit with version from semver-tags
           cargo set-version --workspace ${{ steps.semver.outputs.semantic-version }}
-          
+
           # Update Cargo.lock to reflect new versions
           cargo update --workspace
-          
+
           # Update Tauri config files
           jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
           jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
@@ -123,7 +119,7 @@ jobs:
 
   create_prerelease:
     needs: version_management
-    if: github.event_name == 'workflow_dispatch' && inputs.create_release == 'true' && !inputs.dry_run
+    if: (inputs.create_release == 'true' && !inputs.dry_run)
     permissions:
       contents: write # to create, update, and manage releases and drafts
     runs-on: ubuntu-slim
@@ -148,7 +144,6 @@ jobs:
 
   source_checksums:
     needs: [version_management, create_prerelease]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
     permissions:
       contents: write # to upload source checksums to release
       actions: read # to access workflow run information and secrets
@@ -160,7 +155,6 @@ jobs:
 
   build_android:
     needs: [version_management, create_prerelease]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
     permissions:
       id-token: write
       attestations: write
@@ -174,7 +168,6 @@ jobs:
 
   build_desktop:
     needs: [version_management, create_prerelease]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
     permissions:
       id-token: write
       attestations: write
@@ -188,7 +181,6 @@ jobs:
 
   build_void:
     needs: [version_management, create_prerelease, source_checksums]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
     permissions:
       id-token: write
       attestations: write
@@ -201,8 +193,7 @@ jobs:
       tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
 
   asset_checksums:
-    needs: [version_management, build_android, build_desktop, build_void, create_prerelease]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
+    needs: [build_android, build_desktop, build_void]
     permissions:
       contents: write # to update release with checksums and artifacts
       actions: read # to access workflow run information and secrets
