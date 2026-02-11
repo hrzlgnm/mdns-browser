@@ -104,6 +104,7 @@ jobs:
         run: |
           git add -A
           git commit -S -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
+          git tag -s -a mdns-browser-v${{ steps.version.outputs.semantic-version }} -m "mDNS-Browser Release v${{ steps.version.outputs.semantic-version }}"
           git push --follow-tags
 
       - name: 👮 Re-enable enforcement of rules
