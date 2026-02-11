@@ -110,6 +110,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           name: mDNS-Browser Release v${{ steps.get-version.outputs.version }}
+          tag_name: ${{ inputs.tagName }}
           append_body: true
           make_latest: false
           generate_release_notes: false

@@ -82,7 +82,6 @@ jobs:
           else
             cargo set-version --bump "${{ inputs.version }}"
             NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
-            cargo update -q
 
             # Update Tauri config files
             jq --indent 4 ".version=\"$NEW_VERSION\"" src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
