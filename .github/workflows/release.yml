@@ -19,7 +19,7 @@ on:
         required: true
         type: boolean
         default: false
-      create_release:
+      create-release:
         description: Create pre-release after version bump
         required: true
         type: boolean
@@ -33,6 +33,7 @@ jobs:
     runs-on: ubuntu-slim
     outputs:
       version: ${{ steps.version.outputs.version}}
+      tagName: mdns-browser-v${{ steps.version.outputs.version}}
     env:
       GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
       RULESET: repos/${{github.repository}}/rulesets/4895698
@@ -135,9 +136,7 @@ jobs:
 
   create_prerelease:
     needs: [bump_version]
-    if: (inputs.create_release == 'true' && !inputs.dry-run)
-    outputs:
-      tagName: mdns-browser-v${{ needs.bump_version.outputs.version }}
+    if: (inputs.create-release == 'true' && !inputs.dry-run)
     permissions:
       contents: write # to create, update, and manage releases and drafts
     runs-on: ubuntu-slim
@@ -149,7 +148,6 @@ jobs:
           fetch-depth: 0
 
       - name: 🗒️ Create pre-release
-        id: pre-release
         uses: release-drafter/release-drafter@6db134d15f3909ccc9eefd369f02bd1e9cffdf97 # v6.2.0
         with:
           latest: false
@@ -161,8 +159,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   source_checksums:
-    needs: [bump_version]
-    if: (inputs.create_release == 'true' && !inputs.dry-run)
+    needs: [bump_version, create_prerelease]
+    if: (inputs.create-release == 'true' && !inputs.dry-run)
     permissions:
       contents: write # to upload source checksums to release
       actions: read # to access workflow run information and secrets
@@ -170,11 +168,11 @@ jobs:
     uses: ./.github/workflows/source-checksums-reusable.yml
     secrets: inherit
     with:
-      tagName: mdns-browser-v${{ needs.bump_version.outputs.version }}
+      tagName: ${{ needs.bump_version.outputs.tagName }}
 
   build_android:
-    needs: [bump_version]
-    if: (inputs.create_release == 'true' && !inputs.dry-run)
+    needs: [bump_version, create_prerelease]
+    if: (inputs.create-release == 'true' && !inputs.dry-run)
     permissions:
       id-token: write
       attestations: write
@@ -184,11 +182,11 @@ jobs:
     uses: ./.github/workflows/android-reusable.yml
     secrets: inherit
     with:
-      tagName: mdns-browser-v${{ needs.bump_version.outputs.version }}
+      tagName: ${{ needs.bump_version.outputs.tagName }}
 
   build_desktop:
-    needs: [bump_version]
-    if: (inputs.create_release == 'true' && !inputs.dry-run)
+    needs: [bump_version, create_prerelease]
+    if: (inputs.create-release == 'true' && !inputs.dry-run)
     permissions:
       id-token: write
       attestations: write
@@ -198,11 +196,11 @@ jobs:
     uses: ./.github/workflows/desktop-reusable.yml
     secrets: inherit
     with:
-      tagName: mdns-browser-v${{ needs.bump_version.outputs.version }}
+      tagName: ${{ needs.bump_version.outputs.tagName }}
 
   build_void:
-    needs: [bump_version, source_checksums]
-    if: (inputs.create_release == 'true' && !inputs.dry-run)
+    needs: [bump_version, create_prerelease, source_checksums]
+    if: (inputs.create-release == 'true' && !inputs.dry-run)
     permissions:
       id-token: write
       attestations: write
@@ -212,18 +210,19 @@ jobs:
     uses: ./.github/workflows/void-reusable.yml
     secrets: inherit
     with:
-      tagName: mdns-browser-v${{ needs.bump_version.outputs.version }}
+      tagName: ${{ needs.bump_version.outputs.tagName }}
 
   asset_checksums:
     needs:
       [
         bump_version,
+        source_checksums,
         create_prerelease,
         build_android,
         build_desktop,
         build_void,
       ]
-    if: (inputs.create_release == 'true' && !inputs.dry-run)
+    if: (inputs.create-release == 'true' && !inputs.dry-run)
     permissions:
       contents: write # to update release with checksums and artifacts
       actions: read # to access workflow run information and secrets
@@ -231,4 +230,4 @@ jobs:
     uses: ./.github/workflows/asset-checksums-reusable.yml
     secrets: inherit
     with:
-      tagName: mdns-browser-v${{ needs.bump_version.outputs.version }}
+      tagName: ${{ needs.bump_version.outputs.tagName }}
