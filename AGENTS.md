@@ -55,12 +55,20 @@ cargo fmt -- --check
 cargo clippy --workspace --tests -- -D warnings
 
 # Lint GitHub Actions workflows and actions
+```bash
 actionlint .github/workflows/*.yml
+```
 
 # Full lint check (as run in CI)
+```bash
 cargo fmt -- --check && \
+cd src-tauri && cargo fmt -- --check && \
+cd .. && \
 leptosfmt --check src && \
 cargo clippy --workspace --tests -- -D warnings && \
+cd src-tauri && cargo clippy --tests -- -D warnings && \
+cd .. && \
+cargo nextest run --profile ci && \
 actionlint .github/workflows/*.yml
 ```
 
