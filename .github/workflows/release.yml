@@ -104,7 +104,7 @@ jobs:
         run: |
           git add -A
           git commit -S -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
-          git tag -s -a mdns-browser-v${{ steps.version.outputs.semantic-version }} -m "mDNS-Browser Release v${{ steps.version.outputs.semantic-version }}"
+          git tag -s -a mdns-browser-v${{ steps.semver.outputs.semantic-version }} -m "mDNS-Browser Release v${{ steps.semver.outputs.semantic-version }}"
           git push --follow-tags
 
       - name: 👮 Re-enable enforcement of rules
@@ -123,7 +123,7 @@ jobs:
     needs: [version_management]
     if: (inputs.create_release == 'true' && !inputs.dry_run)
     outputs:
-      tagName: ${{ steps.pre-release.tag_name }}
+      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
     permissions:
       contents: write # to create, update, and manage releases and drafts
     runs-on: ubuntu-slim
@@ -147,7 +147,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   source_checksums:
-    needs: [create_prerelease]
+    needs: [version_management]
+    if: (inputs.create_release == 'true' && !inputs.dry_run)
     permissions:
       contents: write # to upload source checksums to release
       actions: read # to access workflow run information and secrets
@@ -155,10 +156,11 @@ jobs:
     uses: ./.github/workflows/source-checksums-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ needs.create_prerelease.outputs.tagName }}
+      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
 
   build_android:
-    needs: [create_prerelease]
+    needs: [version_management]
+    if: (inputs.create_release == 'true' && !inputs.dry_run)
     permissions:
       id-token: write
       attestations: write
@@ -168,10 +170,11 @@ jobs:
     uses: ./.github/workflows/android-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ needs.create_prerelease.outputs.tagName }}
+      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
 
   build_desktop:
-    needs: [create_prerelease]
+    needs: [version_management]
+    if: (inputs.create_release == 'true' && !inputs.dry_run)
     permissions:
       id-token: write
       attestations: write
@@ -181,10 +184,11 @@ jobs:
     uses: ./.github/workflows/desktop-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ needs.create_prerelease.outputs.tagName }}
+      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
 
   build_void:
-    needs: [create_prerelease, source_checksums]
+    needs: [version_management, source_checksums]
+    if: (inputs.create_release == 'true' && !inputs.dry_run)
     permissions:
       id-token: write
       attestations: write
@@ -194,10 +198,11 @@ jobs:
     uses: ./.github/workflows/void-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ needs.create_prerelease.outputs.tagName }}
+      tagName: mdns-browser-v${{ needs.version_management.outputs.version }}
 
   asset_checksums:
     needs: [create_prerelease, build_android, build_desktop, build_void]
+    if: (inputs.create_release == 'true' && !inputs.dry_run)
     permissions:
       contents: write # to update release with checksums and artifacts
       actions: read # to access workflow run information and secrets
