@@ -146,7 +146,7 @@ jobs:
 
   source_checksums:
     needs: [version_management, create_prerelease]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && ((!inputs.dry_run && inputs.create_release == 'true') || needs.create_prerelease.result == 'skipped')))
+    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
     permissions:
       contents: write # to upload source checksums to release
       actions: read # to access workflow run information and secrets
@@ -158,7 +158,7 @@ jobs:
 
   build_android:
     needs: [version_management, create_prerelease]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && ((!inputs.dry_run && inputs.create_release == 'true') || needs.create_prerelease.result == 'skipped')))
+    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
     permissions:
       id-token: write
       attestations: write
@@ -172,7 +172,7 @@ jobs:
 
   build_desktop:
     needs: [version_management, create_prerelease]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && ((!inputs.dry_run && inputs.create_release == 'true') || needs.create_prerelease.result == 'skipped')))
+    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
     permissions:
       id-token: write
       attestations: write
@@ -186,7 +186,7 @@ jobs:
 
   build_void:
     needs: [version_management, create_prerelease, source_checksums]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && ((!inputs.dry_run && inputs.create_release == 'true') || needs.create_prerelease.result == 'skipped')))
+    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
     permissions:
       id-token: write
       attestations: write
@@ -200,7 +200,7 @@ jobs:
 
   asset_checksums:
     needs: [version_management, build_android, build_desktop, build_void, create_prerelease]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && ((!inputs.dry_run && inputs.create_release == 'true') || needs.create_prerelease.result == 'skipped')))
+    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
     permissions:
       contents: write # to update release with checksums and artifacts
       actions: read # to access workflow run information and secrets

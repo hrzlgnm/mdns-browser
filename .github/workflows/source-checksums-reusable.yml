@@ -46,15 +46,10 @@ jobs:
       matrix:
         algorithm: [sha256]
     steps:
-      - name: 🔄 Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          ref: ${{ needs.tag.outputs.tag }}
-          fetch-depth: 1
-
       - name: 📥🔢☑️
         run: |
           set -o errexit
+          mkdir -p downloads && cd downloads
           curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.tag.outputs.tag }}.tar.gz
           curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.tag.outputs.tag }}.zip
           for file in *; do
@@ -66,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: ${{ matrix.algorithm }}-source-checksums
-          path: "*.${{ matrix.algorithm }}"
+          path: "downloads/*.${{ matrix.algorithm }}"
 
   publish:
     name: 📰🔢☑️
