@@ -189,12 +189,8 @@ jobs:
       actions: read
     name: 🔨 Build Void
     uses: ./.github/workflows/void-reusable.yml
-    secrets: inherit
-    with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
-
   asset_checksums:
-    needs: [build_android, build_desktop, build_void]
+    needs: [version_management, build_android, build_desktop, build_void]
     permissions:
       contents: write # to update release with checksums and artifacts
       actions: read # to access workflow run information and secrets
