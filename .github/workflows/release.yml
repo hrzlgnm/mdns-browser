@@ -134,12 +134,11 @@ jobs:
       - name: 🗒️ Create pre-release
         uses: release-drafter/release-drafter@6db134d15f3909ccc9eefd369f02bd1e9cffdf97 # v6.2.0
         with:
-          prerelease: true
           latest: false
+          name: "mDNS-Browser Release v${{ needs.version_management.outputs.version }}"
+          prerelease: true
           publish: true
-          name: "v${{ needs.version_management.outputs.version }}"
           tag: "mdns-browser-v${{ needs.version_management.outputs.version }}"
-          version: "mdns-browser-v${{ needs.version_management.outputs.version }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -152,7 +151,7 @@ jobs:
     uses: ./.github/workflows/source-checksums-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: ${{ format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
 
   build_android:
     needs: [version_management, create_prerelease]
@@ -165,7 +164,7 @@ jobs:
     uses: ./.github/workflows/android-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: ${{ format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
 
   build_desktop:
     needs: [version_management, create_prerelease]
@@ -178,7 +177,7 @@ jobs:
     uses: ./.github/workflows/desktop-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: ${{ format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
 
   build_void:
     needs: [version_management, create_prerelease, source_checksums]
@@ -189,6 +188,9 @@ jobs:
       actions: read
     name: 🔨 Build Void
     uses: ./.github/workflows/void-reusable.yml
+    secrets: inherit
+    with:
+      tagName: ${{ format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
   asset_checksums:
     needs: [version_management, build_android, build_desktop, build_void]
     permissions:
@@ -198,4 +200,4 @@ jobs:
     uses: ./.github/workflows/asset-checksums-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: ${{ format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
