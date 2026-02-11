@@ -123,6 +123,7 @@ jobs:
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
           name: mDNS-Browser Release v${{ steps.get-version.outputs.current-version }}
+          tag_name: ${{ inputs.tagName }}
           append_body: true
           make_latest: false
           generate_release_notes: false

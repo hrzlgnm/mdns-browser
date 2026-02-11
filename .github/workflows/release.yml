@@ -14,29 +14,27 @@ on:
           - patch
           - minor
           - major
-      dry_run:
+      dry-run:
         description: Dry run (no commits/tags/releases)
         required: true
         type: boolean
         default: false
-      create_release:
+      create-release:
         description: Create pre-release after version bump
         required: true
         type: boolean
         default: true
-  release:
-    types:
-      - published
 
 jobs:
-  version_management:
-    if: github.event_name == 'workflow_dispatch'
+  bump_version:
     permissions:
       actions: write # to trigger other workflows and read workflow run status
       contents: write # to update version files, create commits, and push tags
     runs-on: ubuntu-slim
+    name: ⬆️ Bump version
     outputs:
-      version: ${{ steps.semver.outputs.semantic-version }}
+      version: ${{ steps.version.outputs.version }}
+      tagName: mdns-browser-v${{ steps.version.outputs.version}}
     env:
       GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
       RULESET: repos/${{github.repository}}/rulesets/4895698
@@ -46,8 +44,10 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: ⚙️ Setup cargo tools
-        uses: ./.github/actions/setup-tauri
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
+        with:
+          save-cache: false
 
       - name: 🔧 Install cargo-edit
         uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
@@ -56,17 +56,43 @@ jobs:
           version: 0.13.8
           locked: true
 
-      - id: semver
-        name: 🔢 Calculate semantic version
-        uses: SOLIDSoftworks/semver-tags@fa8963220fb4913aea2b20cc190004de1b79f395 # v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
-          tag-prefix: "mdns-browser-v"
-          incremented-value: ${{ inputs.version }}
-          create-release: false
-          dry-run: true
+      - name: 🔢 Bump semantic version
+        id: version
+        shell: bash
+        run: |
+          CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          if [ "${{ inputs.dry-run }}" = "true" ]; then
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+            case "${{ inputs.version }}" in
+              "patch")
+                NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+                ;;
+              "minor")
+                NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
+                ;;
+              "major")
+                NEW_VERSION="$((MAJOR + 1)).0.0"
+                ;;
+              *)
+                echo "Error: Invalid version bump type '${{ inputs.version }}'. Must be patch, minor, or major."
+                exit 1
+                ;;
+            esac
+            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "Dry run: would bump from $CURRENT_VERSION to $NEW_VERSION"
+          else
+            cargo set-version --bump "${{ inputs.version }}"
+            NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+
+            # Update Tauri config files
+            jq --indent 4 ".version=\"$NEW_VERSION\"" src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
+            jq --indent 4 ".version=\"$NEW_VERSION\"" src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
+            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "Bumped version from $CURRENT_VERSION to $NEW_VERSION"
+          fi
 
       - name: 🔑 Set up SSH signing key
+        if: (!inputs.dry-run)
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/id_ed25519_signing
@@ -76,20 +102,8 @@ jobs:
           git config --global user.name "hrzlgnm"
           git config --global user.email "hrzlgnm@users.noreply.github.com"
 
-      - name: 🔄 Update cargo and tauri versions
-        run: |
-          # Update workspace and crate versions using cargo-edit with version from semver-tags
-          cargo set-version --workspace ${{ steps.semver.outputs.semantic-version }}
-          
-          # Update Cargo.lock to reflect new versions
-          cargo update --workspace
-          
-          # Update Tauri config files
-          jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
-          jq --indent 4 '.version="${{ steps.semver.outputs.semantic-version }}"' src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
-
       - name: ⏳ Temporary disable ruleset enforcement
-        if: ${{ !inputs.dry_run }}
+        if: (!inputs.dry-run)
         run: |
           gh api \
           -H "Accept: application/vnd.github+json" \
@@ -101,14 +115,15 @@ jobs:
           --input -
 
       - name: 💾🏷️⬆️ Commit, tag and push
-        if: ${{ !inputs.dry_run }}
+        if: (!inputs.dry-run)
         run: |
           git add -A
-          git commit -S -m "Bump version to ${{ steps.semver.outputs.semantic-version }}"
+          git commit -S -m "Bump version to ${{ steps.version.outputs.version }}"
+          git tag -s -a mdns-browser-v${{ steps.version.outputs.version }} -m "mDNS-Browser Release v${{ steps.version.outputs.version }}"
           git push --follow-tags
 
       - name: 👮 Re-enable enforcement of rules
-        if: ${{ always() && !inputs.dry_run }}
+        if: (always() && !inputs.dry-run)
         run: |
           gh api \
           -H "Accept: application/vnd.github+json" \
@@ -120,8 +135,8 @@ jobs:
           --input -
 
   create_prerelease:
-    needs: version_management
-    if: github.event_name == 'workflow_dispatch' && inputs.create_release == 'true' && !inputs.dry_run
+    needs: [bump_version]
+    if: (inputs.create-release && !inputs.dry-run)
     permissions:
       contents: write # to create, update, and manage releases and drafts
     runs-on: ubuntu-slim
@@ -135,18 +150,17 @@ jobs:
       - name: 🗒️ Create pre-release
         uses: release-drafter/release-drafter@6db134d15f3909ccc9eefd369f02bd1e9cffdf97 # v6.2.0
         with:
-          prerelease: true
           latest: false
+          name: "mDNS-Browser Release v${{ needs.bump_version.outputs.version }}"
+          prerelease: true
           publish: true
-          name: "v${{ needs.version_management.outputs.version }}"
-          tag: "mdns-browser-v${{ needs.version_management.outputs.version }}"
-          version: "mdns-browser-v${{ needs.version_management.outputs.version }}"
+          tag: mdns-browser-v${{ needs.bump_version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   source_checksums:
-    needs: [version_management, create_prerelease]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
+    needs: [bump_version, create_prerelease]
+    if: (inputs.create-release && !inputs.dry-run)
     permissions:
       contents: write # to upload source checksums to release
       actions: read # to access workflow run information and secrets
@@ -154,11 +168,11 @@ jobs:
     uses: ./.github/workflows/source-checksums-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: ${{ needs.bump_version.outputs.tagName }}
 
   build_android:
-    needs: [version_management, create_prerelease]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
+    needs: [bump_version, create_prerelease]
+    if: (inputs.create-release && !inputs.dry-run)
     permissions:
       id-token: write
       attestations: write
@@ -168,11 +182,11 @@ jobs:
     uses: ./.github/workflows/android-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: ${{ needs.bump_version.outputs.tagName }}
 
   build_desktop:
-    needs: [version_management, create_prerelease]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
+    needs: [bump_version, create_prerelease]
+    if: (inputs.create-release && !inputs.dry-run)
     permissions:
       id-token: write
       attestations: write
@@ -182,11 +196,11 @@ jobs:
     uses: ./.github/workflows/desktop-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: ${{ needs.bump_version.outputs.tagName }}
 
   build_void:
-    needs: [version_management, create_prerelease, source_checksums]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
+    needs: [bump_version, create_prerelease, source_checksums]
+    if: (inputs.create-release && !inputs.dry-run)
     permissions:
       id-token: write
       attestations: write
@@ -196,11 +210,19 @@ jobs:
     uses: ./.github/workflows/void-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: ${{ needs.bump_version.outputs.tagName }}
 
   asset_checksums:
-    needs: [version_management, build_android, build_desktop, build_void, create_prerelease]
-    if: always() && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && (((!inputs.dry_run && inputs.create_release == 'true')) || needs.create_prerelease.result == 'skipped')))
+    needs:
+      [
+        bump_version,
+        source_checksums,
+        create_prerelease,
+        build_android,
+        build_desktop,
+        build_void,
+      ]
+    if: (inputs.create-release && !inputs.dry-run)
     permissions:
       contents: write # to update release with checksums and artifacts
       actions: read # to access workflow run information and secrets
@@ -208,4 +230,4 @@ jobs:
     uses: ./.github/workflows/asset-checksums-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.event_name == 'release' && github.event.release.tag_name || format('mdns-browser-v{0}', needs.version_management.outputs.version) }}
+      tagName: ${{ needs.bump_version.outputs.tagName }}
