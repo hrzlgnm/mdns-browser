@@ -32,7 +32,7 @@ jobs:
           - os: "ubuntu-latest"
             symbol: 🐧
             platform: Linux
-            container_image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:9c8532d61d5ceb37780b1aa5e79583a785077d2989f582c1612e10fc0b0c3f83
+            container_image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:8534b6a400016586b9fc1b1bccf73964856fedb23f980a47df280fc2396fb68f
           - os: "macos-latest"
             args: "--target universal-apple-darwin"
             symbol: 🍏
