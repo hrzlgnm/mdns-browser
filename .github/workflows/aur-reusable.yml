@@ -34,7 +34,7 @@ jobs:
       packages: read
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:ee97f5325a1ad18abb9e029a86f986c81ccefdf36ca372f306610bf96272c3ef
+      image: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:d5b1842b6019fa719e7d41e0040e65c991705153dfe8ea9908b30a704505a2aa
     strategy:
       fail-fast: false
       matrix:
