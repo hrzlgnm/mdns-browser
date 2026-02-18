@@ -855,14 +855,35 @@ mod autoupdate {
     pub struct PendingUpdate(pub Mutex<Option<Update>>);
 
     #[tauri::command]
-    #[cfg(target_os = "linux")]
     pub fn can_auto_update() -> bool {
-        false
-    }
+        #[cfg(target_os = "linux")]
+        {
+            use tauri::utils::{config::BundleType, platform::bundle_type};
+            let bundle_type = bundle_type();
+            if bundle_type.is_none() {
+                // Non bundled versions are built for void-linux and `mdns-browser` in AUR.
+                // disable auto-updates to avoid conflicts.
+                log::debug!("Running non-bundled version, auto-update is disabled");
+                return false;
+            }
+            if let Some(BundleType::Deb) = bundle_type {
+                log::debug!("Running Debian bundle, checking for arch like distribution");
+                // We are repackaging the .deb as `mdns-browser-bin` in AUR, check for arch like
+                // distribution to avoid conflicts with the AUR package manager and disable
+                // auto-updates in that case.
+                if let Ok(release) = os_release::OsRelease::new() {
+                    log::debug!(
+                        "Current os-release.id_like: {} os-release.id: {}",
+                        release.id_like,
+                        release.id
+                    );
+                    if release.id_like == "arch" || release.id == "arch" {
+                        return false;
+                    }
+                }
+            }
+        }
 
-    #[tauri::command]
-    #[cfg(not(target_os = "linux"))]
-    pub fn can_auto_update() -> bool {
         true
     }
 }
