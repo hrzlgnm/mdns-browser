@@ -26,8 +26,5 @@ source_x86_64=("https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-b
 sha256sums_x86_64=('$sha256sum')
 package() {
     tar -xz -f data.tar.gz -C "\${pkgdir}"
-    # Explicitly strip only the binary; !strip in options prevents makepkg's auto-strip phase which also generates 
-    # a debug package, which is useless here, as the debug information only contains symbols and no debug info
-    strip "\${pkgdir}/usr/bin/mdns-browser"
 }
 EOF

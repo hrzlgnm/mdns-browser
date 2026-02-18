@@ -52,7 +52,7 @@
             customType: "regex",
             managerFilePatterns: [
                 "/^\\.github/docker/.*/Dockerfile$/",
-                "/^aur-template/.*\\.sh$/",
+                "/^packaging/aur/.*\\.sh$/",
             ],
             matchStrings: [
                 "cargo.*install (?<depName>\\S+)@(?<currentValue>\\S+)",
