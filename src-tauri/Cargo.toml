@@ -38,7 +38,7 @@ pnet = "0.35"
 ipconfig = "0.3"
 
 [target.'cfg(target_os="linux")'.dependencies]
-os-release = "0.1.0"
+os-release.workspace = true
 
 [lib]
 name = "mdns_browser_lib"
