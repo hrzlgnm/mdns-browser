@@ -39,7 +39,7 @@ do_build() {
 do_install() {
 	vcopy target/release/bundle/deb/mdns-browser_\${version}_amd64/data/usr /
 	# install the plain binary without bundler type
-	vinstall target/release/mdns-browser 0755 /usr/bin/mdns-browser
+	vbin target/release/mdns-browser
 	vlicense LICENSE
 }
 EOF
