@@ -871,14 +871,23 @@ mod autoupdate {
                 // We are repackaging the .deb as `mdns-browser-bin` in AUR, check for arch like
                 // distribution to avoid conflicts with the AUR package manager and disable
                 // auto-updates in that case.
-                if let Ok(release) = os_release::OsRelease::new() {
-                    log::debug!(
-                        "Current os-release.id_like: {} os-release.id: {}",
-                        release.id_like,
-                        release.id
-                    );
-                    if release.id_like == "arch" || release.id == "arch" {
-                        return false;
+                match os_release::OsRelease::new() {
+                    Ok(release) => {
+                        log::debug!(
+                            "Current os-release.id_like: {} os-release.id: {}",
+                            release.id_like,
+                            release.id
+                        );
+                        let id_like_is_arch = release
+                            .id_like
+                            .split_whitespace()
+                            .any(|token| token == "arch");
+                        if id_like_is_arch || release.id == "arch" {
+                            return false;
+                        }
+                    }
+                    Err(e) => {
+                        log::error!("Failed to read os-release file: {}", e);
                     }
                 }
             }
