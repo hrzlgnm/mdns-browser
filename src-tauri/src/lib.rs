@@ -887,7 +887,11 @@ mod autoupdate {
                         }
                     }
                     Err(e) => {
-                        log::error!("Failed to read os-release file: {}", e);
+                        log::error!(
+                            "Failed to read os-release file, disabling auto-updates: {}",
+                            e
+                        );
+                        return false;
                     }
                 }
             }
