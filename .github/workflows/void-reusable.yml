@@ -79,6 +79,7 @@ jobs:
           ./xbps-src -I fetch mdns-browser
 
       - name: ➕ Add Custom build-style to void packages
+        if: inputs.tagName
         run: |
           cp "$GITHUB_WORKSPACE/packaging/void/tauri.sh" ~/void-packages/common/build-style/
 
