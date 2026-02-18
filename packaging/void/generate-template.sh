@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright 2025 hrzlgnm
+# Copyright 2025-2026 hrzlgnm
 # SPDX-License-Identifier: MIT-0
 
 version=$1
