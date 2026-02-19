@@ -55,7 +55,7 @@ cargo fmt -- --check
 cargo clippy --workspace --tests -- -D warnings
 ```
 
-# Lint GitHub Actions workflows and actions
+### Lint GitHub Actions workflows and actions
 ```bash
 actionlint .github/workflows/*.yml
 ```
