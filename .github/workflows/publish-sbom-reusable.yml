@@ -1,0 +1,58 @@
+# Copyright 2025 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+name: Publish SBOM to release
+on:
+  workflow_call:
+    inputs:
+      tagName:
+        description: The tag name of release to publish for
+        type: string
+        required: false
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  tag:
+    name: Tag
+    runs-on: ubuntu-slim
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: 🏷️
+        id: tag
+        run: |
+          if [ -n "${{ inputs.tagName }}" ]; then
+            echo "tag=${{ inputs.tagName }}" >> $GITHUB_OUTPUT
+          elif [ -n "${{ github.event.release.name }}" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "No tag provided" && exit 1
+          fi
+
+  publish:
+    name: 📰📜
+    runs-on: ubuntu-slim
+    needs:
+      - tag
+    steps:
+      - name: 📥 SBOM artifacts
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          path: sboms
+          pattern: sbom.*
+          merge-multiple: true
+
+      - name: 📰📜
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.tag.outputs.tag }}
+          append_body: true
+          make_latest: false
+          generate_release_notes: false
+          files: |
+            sboms/*

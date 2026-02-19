@@ -231,3 +231,23 @@ jobs:
     secrets: inherit
     with:
       tagName: ${{ needs.bump_version.outputs.tagName }}
+
+  publish_sbom:
+    needs:
+      [
+        bump_version,
+        source_checksums,
+        create_prerelease,
+        build_android,
+        build_desktop,
+        build_void,
+      ]
+    if: (inputs.create-release && !inputs.dry-run)
+    permissions:
+      contents: write # to update release with sboms
+      actions: read # to download workflow artifacts
+    name: 📰📜 Publish SBOM
+    uses: ./.github/workflows/publish-sbom-reusable.yml
+    secrets: inherit
+    with:
+      tagName: ${{ needs.bump_version.outputs.tagName }}
