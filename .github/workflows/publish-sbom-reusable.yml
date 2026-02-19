@@ -26,8 +26,6 @@ jobs:
         run: |
           if [ -n "${{ inputs.tagName }}" ]; then
             echo "tag=${{ inputs.tagName }}" >> $GITHUB_OUTPUT
-          elif [ -n "${{ github.event.release.name }}" ]; then
-            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
           else
             echo "No tag provided" && exit 1
           fi
