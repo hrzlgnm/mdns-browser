@@ -74,12 +74,14 @@ jobs:
       - name: 🛠️ Setup Deployment keys
         if: github.event.release.tag_name
         shell: bash
+        env:
+          AUR_DEPLOY_KEY: ${{ secrets.AUR_DEPLOY_KEY }}
         run: |
           chown -R runner:runner .
           su runner -c '
             set -o errexit
             mkdir -p ~/.ssh
-            printf '%s\n' "${{ secrets.AUR_DEPLOY_KEY }}" > ~/.ssh/aur
+            printf '"'"'%s\n'"'"' "$AUR_DEPLOY_KEY" > ~/.ssh/aur
             chmod 600 ~/.ssh/aur
             echo "Host aur.archlinux.org" >> ~/.ssh/config
             echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
