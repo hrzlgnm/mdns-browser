@@ -27,6 +27,7 @@ tauri = { workspace = true }
 tauri-plugin-clipboard-manager = { workspace = true }
 tauri-plugin-log = { workspace = true }
 tauri-plugin-opener = { workspace = true }
+tauri-plugin-http = { workspace = true }
 tokio = { workspace = true }
 
 # local

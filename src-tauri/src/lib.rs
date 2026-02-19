@@ -1055,8 +1055,14 @@ pub fn run_mobile() {
         )
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_android_updater::Builder::new().build())
         .manage(ManagedState::new())
+        .manage(android_autoupdate::PendingUpdateInfo(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
+            android_autoupdate::check_install_permission,
+            android_autoupdate::request_install_permission,
+            android_autoupdate::download_and_install_apk,
             browse_many,
             browse_types,
             close_splashscreen,
@@ -1073,4 +1079,134 @@ pub fn run_mobile() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+mod android_autoupdate {
+    use models::UpdateMetadata;
+    use serde::{Deserialize, Serialize};
+    use std::path::PathBuf;
+    use tauri::{AppHandle, Runtime, State};
+    use tauri_plugin_http::reqwest;
+
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct UpdateInfo {
+        pub version: String,
+        pub current_version: String,
+        pub download_url: String,
+    }
+
+    #[derive(Debug, thiserror::Error)]
+    pub enum Error {
+        #[error("Network error: {0}")]
+        Network(#[from] reqwest::Error),
+        #[error("IO error: {0}")]
+        Io(#[from] std::io::Error),
+        #[error("Permission denied: {0}")]
+        Permission(String),
+        #[error("Android error: {0}")]
+        Android(String),
+    }
+
+    impl Serialize for Error {
+        fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer,
+        {
+            serializer.serialize_str(self.to_string().as_str())
+        }
+    }
+
+    type Result<T> = std::result::Result<T, Error>;
+
+    pub struct PendingUpdateInfo(pub std::sync::Mutex<Option<UpdateInfo>>);
+
+    #[tauri::command]
+    pub async fn check_install_permission<R: Runtime>(app: AppHandle<R>) -> Result<bool> {
+        #[cfg(target_os = "android")]
+        {
+            let result: Result<bool> = app
+                .try_state::<tauri::PluginHandle<R>>()
+                .ok_or_else(|| Error::Android("Plugin not found".to_string()))?
+                .invoke("checkInstallPermission", ())
+                .await
+                .map_err(|e| Error::Android(e.to_string()));
+            return result;
+        }
+        #[cfg(not(target_os = "android"))]
+        {
+            let _ = app;
+            Ok(false)
+        }
+    }
+
+    #[tauri::command]
+    pub async fn request_install_permission<R: Runtime>(app: AppHandle<R>) -> Result<()> {
+        #[cfg(target_os = "android")]
+        {
+            app.try_state::<tauri::PluginHandle<R>>()
+                .ok_or_else(|| Error::Android("Plugin not found".to_string()))?
+                .invoke("requestInstallPermission", ())
+                .await
+                .map_err(|e| Error::Android(e.to_string()))?;
+            Ok(())
+        }
+        #[cfg(not(target_os = "android"))]
+        {
+            let _ = app;
+            Err(Error::Permission(
+                "Not on Android".to_string(),
+            ))
+        }
+    }
+
+    #[tauri::command]
+    pub async fn download_and_install_apk(
+        app: AppHandle,
+        url: String,
+        pending_update: State<'_, PendingUpdateInfo>,
+        version: String,
+    ) -> Result<UpdateMetadata> {
+        let current_version = app
+            .config()
+            .version
+            .clone()
+            .unwrap_or_else(|| "1.0.0".to_string());
+
+        let cache_dir = app
+            .path()
+            .app_cache_dir()
+            .map_err(|e| Error::Io(std::io::Error::new(std::io::ErrorKind::NotFound, e.to_string())))?;
+
+        std::fs::create_dir_all(&cache_dir)?;
+        let apk_path: PathBuf = cache_dir.join(format!("update_{}.apk", version));
+
+        log::info!("Downloading update from: {}", url);
+
+        let response = reqwest::get(&url).await?;
+        let bytes = response.bytes().await?;
+
+        std::fs::write(&apk_path, &bytes)?;
+        log::info!("Downloaded {} bytes to {:?}", bytes.len(), apk_path);
+
+        #[cfg(target_os = "android")]
+        {
+            app.try_state::<tauri::PluginHandle<tauri::Wry>>()
+                .ok_or_else(|| Error::Android("Plugin not found".to_string()))?
+                .invoke::<bool>("installApk", apk_path.to_string_lossy().to_string())
+                .await
+                .map_err(|e| Error::Android(e.to_string()))?;
+        }
+
+        *pending_update.0.lock().expect("To lock") = Some(UpdateInfo {
+            version: version.clone(),
+            current_version: current_version.clone(),
+            download_url: url,
+        });
+
+        Ok(UpdateMetadata {
+            version,
+            current_version,
+        })
+    }
 }
