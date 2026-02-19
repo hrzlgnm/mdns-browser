@@ -231,7 +231,8 @@ jobs:
     secrets: inherit
     with:
       tagName: ${{ needs.bump_version.outputs.tagName }}
-
+# anchore/sbom-action does not seem to upload to release if used manually like this
+# so we roll our own 
   publish_sbom:
     needs:
       [
