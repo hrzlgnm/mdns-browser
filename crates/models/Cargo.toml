@@ -6,5 +6,5 @@ edition = "2021"
 [dependencies]
 reactive_stores = { workspace = true }
 serde = { workspace = true }
-serde_with = "3"
+serde_with = { workspace = true }
 thiserror = { workspace = true }

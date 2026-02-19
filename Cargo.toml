@@ -58,7 +58,18 @@ resolver = "2"
 chrono = "0.4"
 reactive_stores = "0.3"
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_with = "3"
 log = "0.4"
 thiserror = "2.0"
 tokio = { version = "1.45", features = ["time"] }
 os-release = "0.1.0"
+mdns-sd = "0.18"
+tauri = { version = "2.0", features = ["devtools"] }
+tauri-plugin-clipboard-manager = "2.2"
+tauri-plugin-log = { version = "2.4", features = ["colored"] }
+tauri-plugin-opener = "2.2"
+tauri-plugin-updater = "2.0"
+pnet = "0.35"
+ipconfig = "0.3"
+clap = { version = "4.5", features = ["derive"] }
