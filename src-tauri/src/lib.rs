@@ -782,8 +782,8 @@ mod autoupdate {
     use models::UpdateMetadata;
     use serde::Serialize;
     use std::sync::Mutex;
-    use tauri::{AppHandle, State};
     use tauri::utils::platform::bundle_type;
+    use tauri::{AppHandle, State};
     use tauri_plugin_updater::{Update, UpdaterExt};
 
     #[derive(Debug, thiserror::Error)]
