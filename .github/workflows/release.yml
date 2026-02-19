@@ -245,6 +245,7 @@ jobs:
         build_android,
         build_desktop,
         build_void,
+        asset_checksums,
       ]
     if: (inputs.create-release && !inputs.dry-run)
     permissions:
