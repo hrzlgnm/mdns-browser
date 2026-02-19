@@ -783,6 +783,7 @@ mod autoupdate {
     use serde::Serialize;
     use std::sync::Mutex;
     use tauri::{AppHandle, State};
+    use tauri::utils::platform::bundle_type;
     use tauri_plugin_updater::{Update, UpdaterExt};
 
     #[derive(Debug, thiserror::Error)]
@@ -856,45 +857,16 @@ mod autoupdate {
 
     #[tauri::command]
     pub fn can_auto_update() -> bool {
-        #[cfg(target_os = "linux")]
-        {
-            use tauri::utils::{config::BundleType, platform::bundle_type};
-            let bundle_type = bundle_type();
-            if bundle_type.is_none() {
-                // Non bundled versions are built for void-linux and `mdns-browser` in AUR.
-                // disable auto-updates to avoid conflicts.
-                log::debug!("Running non-bundled version, auto-update is disabled");
-                return false;
-            }
-            if let Some(BundleType::Deb) = bundle_type {
-                log::debug!("Running Debian bundle, checking for arch like distribution");
-                // We are repackaging the .deb as `mdns-browser-bin` in AUR, check for arch like
-                // distribution to avoid conflicts with the AUR package manager and disable
-                // auto-updates in that case.
-                match os_release::OsRelease::new() {
-                    Ok(release) => {
-                        log::debug!(
-                            "Current os-release.id_like: {} os-release.id: {}",
-                            release.id_like,
-                            release.id
-                        );
-                        let id_like_is_arch = release
-                            .id_like
-                            .split_whitespace()
-                            .any(|token| token == "arch");
-                        if id_like_is_arch || release.id == "arch" {
-                            return false;
-                        }
-                    }
-                    Err(e) => {
-                        log::error!(
-                            "Failed to read os-release file, disabling auto-updates: {}",
-                            e
-                        );
-                        return false;
-                    }
-                }
-            }
+        let current_bundle_type = bundle_type();
+        if current_bundle_type.is_none() {
+            // Non bundled versions do not support auto updates.
+            // We provide plain executables as downloads for users who want to use the app without
+            // installation, but those do not have auto-update capabilities.
+            // There are also some packaged versions like AUR or XBPS which are handled by the
+            // respective package manager, so auto-update is not needed and can be confusing if it
+            // is advertised as available.
+            log::debug!("Running non-bundled version, auto-update is disabled");
+            return false;
         }
 
         true

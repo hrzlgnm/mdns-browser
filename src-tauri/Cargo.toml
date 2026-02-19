@@ -37,9 +37,6 @@ pnet = { workspace = true }
 [target.'cfg(windows)'.dependencies]
 ipconfig = { workspace = true }
 
-[target.'cfg(target_os="linux")'.dependencies]
-os-release.workspace = true
-
 [lib]
 name = "mdns_browser_lib"
 crate-type = ["staticlib", "cdylib", "lib"]
