@@ -93,9 +93,11 @@ jobs:
 
       - name: 🔑 Set up SSH signing key
         if: (!inputs.dry-run)
+        env:
+          SSH_SIGNING_KEY: ${{ secrets.SSH_SIGNING_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/id_ed25519_signing
+          echo "$SSH_SIGNING_KEY" > ~/.ssh/id_ed25519_signing
           chmod 600 ~/.ssh/id_ed25519_signing
           git config --global gpg.format ssh
           git config --global user.signingKey ~/.ssh/id_ed25519_signing

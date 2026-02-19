@@ -55,7 +55,7 @@ cargo fmt -- --check
 cargo clippy --workspace --tests -- -D warnings
 ```
 
-# Lint GitHub Actions workflows and actions
+### Lint GitHub Actions workflows and actions
 ```bash
 actionlint .github/workflows/*.yml
 ```
@@ -189,7 +189,8 @@ leptosfmt --check src && \
 cargo clippy --tests -- -D warnings && \
 cd src-tauri && cargo clippy --tests -- -D warnings && \
 cd .. && \
-cargo nextest run --profile ci
+cargo nextest run --profile ci && \
+actionlint .github/workflows/*.yml
 ```
 
 ## Before Modifying Workflows or Actions

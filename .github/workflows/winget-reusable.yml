@@ -35,20 +35,26 @@ jobs:
           echo "Version: $VERSION"
 
       - name: 🆙 sync our fork of winget-pkgs
+        env:
+          WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
         uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
         with:
-          args: "sync-fork --token=${{ secrets.WINGET_TOKEN }}"
+          args: "sync-fork --token=$WINGET_TOKEN"
 
       - name: 🆙 winget package
+        env:
+          WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
         uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
         with:
-          args: "update hrzlgnm.mdns-browser --version $VERSION --urls $URL --submit --token=${{ secrets.WINGET_TOKEN }}"
+          args: "update hrzlgnm.mdns-browser --version $VERSION --urls $URL --submit --token=$WINGET_TOKEN"
 
   cleanup:
     name: 🧹 branches
     runs-on: ubuntu-latest
     steps:
       - name: 🧹 Cleanup merged branches
+        env:
+          WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
         uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
         with:
-          args: "cleanup --only-merged --token=${{ secrets.WINGET_TOKEN }}"
+          args: "cleanup --only-merged --token=$WINGET_TOKEN"
