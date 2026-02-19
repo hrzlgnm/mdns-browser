@@ -41,9 +41,11 @@ jobs:
         package:
           - name: mdns-browser-bin
             checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/${{ needs.release-info.outputs.tagName }}/mdns-browser_${{ needs.release-info.outputs.version }}_amd64.deb.sha256"
+            checksum_url_exe: "https://github.com/hrzlgnm/mdns-browser/releases/download/${{ needs.release-info.outputs.tagName }}/mdns-browser_linux_x64.sha256"
             generate_script: "./packaging/aur/generate-mdns-browser-bin.sh"
           - name: mdns-browser
             checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/${{ needs.release-info.outputs.tagName }}/mdns-browser-v${{ needs.release-info.outputs.version }}.tar.gz.sha256"
+            checksum_url_exe: ""
             generate_script: "./packaging/aur/generate-mdns-browser.sh"
     steps:
       - name: 🔄 Checkout
@@ -59,6 +61,12 @@ jobs:
           echo "getting $URL"
           SUM=$(curl -LfsS "$URL" | cut -f1 -d ' ')
           echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
+          if [[ -n "${{ matrix.package.checksum_url_exe }}" ]]; then
+            URL_EXE="${{ matrix.package.checksum_url_exe }}"
+            echo "getting $URL_EXE"
+            SUM_EXE=$(curl -LfsS "$URL_EXE" | cut -f1 -d ' ')
+            echo "sha256_exe=$SUM_EXE" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: 📐 Lint generated PKGBUILD
         shell: bash
@@ -67,7 +75,8 @@ jobs:
             set -o errexit
             mkdir -p ~/lint
             o=$(pwd)
-            ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/lint/PKGBUILD
+            EXE_CHECKSUM="${{ steps.sha256sums.outputs.sha256_exe }}"
+            ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" "${EXE_CHECKSUM:-}" > ~/lint/PKGBUILD
             cd ~/lint
             "$o/packaging/aur/makepkg-lint.sh"
           '
@@ -120,7 +129,8 @@ jobs:
         run: |
           su runner -c '
             set -o errexit
-            ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" > ~/aur/PKGBUILD
+            EXE_CHECKSUM="${{ steps.sha256sums.outputs.sha256_exe }}"
+            ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" "${EXE_CHECKSUM:-}" > ~/aur/PKGBUILD
             cd ~/aur
             if [[ -z $(git status --porcelain) ]]; then
               echo "No changes"
