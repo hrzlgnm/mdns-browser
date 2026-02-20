@@ -280,10 +280,16 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
     interfaces
         .iter()
         .filter_map(|interface| {
-            // Skip loopback outright
-            if interface.is_loopback() {
+            // Skip loopback and point to point outright as those are disabled by
+            // default since mdns-sd 0.18.0
+            if interface.is_loopback() || interface.is_point_to_point() {
                 return None;
             }
+            // On android there are some `rmnet` = remote network virtual interfaces which are
+            // cellular modem data interfaces. Those do not have a broadcast capability like
+            // ethernet or wifi interface, so we disable those, too.
+            // Sometimes there is also a dummy0 interface without a multicast capability which
+            // we disable that as well
             let incapable = interface.ips.is_empty()
                 || !interface.is_running()
                 || !interface.is_multicast()
@@ -339,8 +345,13 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
         adapters
             .iter()
             .filter_map(|adapter| {
-                if adapter.if_type() == IfType::SoftwareLoopback {
-                    // Skip pseudo loopback interface
+                // Skip local loopback adapter which is disabled by default
+                // Skip Tunnel and Ppp interfaces which are also disabled by default since mdns-sd
+                // 0.18.0
+                if adapter.if_type() == IfType::SoftwareLoopback
+                    || adapter.if_type() == IfType::Tunnel
+                    || adapter.if_type() == IfType::Ppp
+                {
                     return None;
                 }
                 if adapter.ip_addresses().is_empty()
@@ -399,18 +410,11 @@ fn has_mdns_capable_interfaces() -> bool {
     use pnet::datalink;
     let interfaces = datalink::interfaces();
     interfaces.iter().any(|interface| {
-        let capable = !interface.ips.is_empty()
+        !interface.ips.is_empty()
             && !interface.is_loopback()
             && interface.is_multicast()
             && interface.is_broadcast()
-            && interface.is_running();
-        log::trace!(
-            "interface {} can be used for mDNS {}",
-            interface.name,
-            capable
-        );
-
-        capable
+            && interface.is_running()
     })
 }
 
@@ -420,22 +424,14 @@ fn has_mdns_capable_interfaces() -> bool {
 
     if let Ok(adapters) = ipconfig::get_adapters() {
         adapters.iter().any(|adapter| {
-            let capable = !adapter.ip_addresses().is_empty()
+            !adapter.ip_addresses().is_empty()
                 && adapter.oper_status() == OperStatus::IfOperStatusUp
                 && (adapter.if_type() == IfType::EthernetCsmacd
-                    || adapter.if_type() == IfType::Ieee80211);
-            log::trace!(
-                "adapter {} can be used for mDNS {}, type: {:?}",
-                adapter.friendly_name(),
-                capable,
-                adapter.if_type()
-            );
-
-            capable
+                    || adapter.if_type() == IfType::Ieee80211)
         })
     } else {
-        log::warn!("Unable to determine whether we have multicast capable adapter, assuming true");
-        true
+        log::warn!("Unable to determine whether we have mDNS capable network adapters assuming no network is present");
+        false
     }
 }
 
@@ -956,10 +952,12 @@ pub fn run() {
 #[cfg(mobile)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run_mobile() {
+    use tauri_plugin_log::{Target, TargetKind};
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(
             tauri_plugin_log::Builder::default()
+                .targets(vec![Target::new(TargetKind::Webview)])
                 .level(log::LevelFilter::Info)
                 .build(),
         )
