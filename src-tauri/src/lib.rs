@@ -281,7 +281,7 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
         .iter()
         .filter_map(|interface| {
             // Skip loopback and point to point outright as those are disabled by
-            // default since mdns-sd 0.18.0
+            // default.
             if interface.is_loopback() || interface.is_point_to_point() {
                 return None;
             }
@@ -345,13 +345,12 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
         adapters
             .iter()
             .filter_map(|adapter| {
-                // Skip local loopback adapter which is disabled by default
-                // Skip Tunnel and Ppp interfaces which are also disabled by default since mdns-sd
-                // 0.18.0
-                if adapter.if_type() == IfType::SoftwareLoopback
-                    || adapter.if_type() == IfType::Tunnel
-                    || adapter.if_type() == IfType::Ppp
-                {
+                // Skip SoftwareLoopback, Tunnel, and Ppp interfaces as these
+                // interface types are disabled by default.
+                if matches!(
+                    adapter.if_type(),
+                    IfType::SoftwareLoopback | IfType::Tunnel | IfType::Ppp
+                ) {
                     return None;
                 }
                 if adapter.ip_addresses().is_empty()
@@ -412,6 +411,7 @@ fn has_mdns_capable_interfaces() -> bool {
     interfaces.iter().any(|interface| {
         !interface.ips.is_empty()
             && !interface.is_loopback()
+            && !interface.is_point_to_point()
             && interface.is_multicast()
             && interface.is_broadcast()
             && interface.is_running()
@@ -430,7 +430,7 @@ fn has_mdns_capable_interfaces() -> bool {
                     || adapter.if_type() == IfType::Ieee80211)
         })
     } else {
-        log::warn!("Unable to determine whether we have mDNS capable network adapters assuming no network is present");
+        log::warn!("Unable to determine whether we have mDNS capable network adapters, assuming no network is present");
         false
     }
 }
