@@ -954,13 +954,13 @@ pub fn run() {
 pub fn run_mobile() {
     use tauri_plugin_log::{Target, TargetKind};
     tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
         .plugin(
             tauri_plugin_log::Builder::default()
                 .targets(vec![Target::new(TargetKind::Webview)])
                 .level(log::LevelFilter::Info)
                 .build(),
         )
+        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
         .invoke_handler(tauri::generate_handler![
