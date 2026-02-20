@@ -289,7 +289,7 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
             // cellular modem data interfaces. Those do not have a broadcast capability like
             // ethernet or wifi interface, so we disable those, too.
             // Sometimes there is also a dummy0 interface without a multicast capability which
-            // we disable that as well
+            // we disable as well
             let incapable = interface.ips.is_empty()
                 || !interface.is_running()
                 || !interface.is_multicast()
