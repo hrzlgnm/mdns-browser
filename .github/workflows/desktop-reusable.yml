@@ -144,34 +144,61 @@ jobs:
             target/**/release/bundle
             target/**/release/mdns-browser*
 
-      - name: 📦 Compress debug symbols (windows only)
+      - name: 📦 Compress debug symbols (Windows)
         if: contains(matrix.os, 'windows')
         shell: pwsh
         run: |
-          $pdb = 'target/release/mdns_browser.pdb'
-          $zip = 'target/release/mdns_browser.pdb.zip'
-          if (Test-Path $pdb) {
-            Compress-Archive -Path $pdb -DestinationPath $zip -Force
-            Write-Output "Compressed $pdb -> $zip"
-          } else {
-            Write-Error "PDB file not found: $pdb"
-            exit 1
-          }
+          Compress-Archive -Path "target/release/mdns_browser.pdb" -DestinationPath "target/release/mdns_browser.pdb.zip" -Force
+          Write-Output "Compressed target/release/mdns_browser.pdb -> target/release/mdns_browser.pdb.zip"
 
-      - name: 📤 Upload debug symbols (windows only)
-        if: contains(matrix.os, 'windows')
+      - name: 📦 Compress debug symbols (Linux)
+        if: contains(matrix.os, 'ubuntu')
+        shell: bash
+        run: |
+          tar -czf "target/release/mdns-browser.dwp.tar.gz" -C target/release mdns-browser.dwp
+          echo "Compressed target/release/mdns-browser.dwp -> target/release/mdns-browser.dwp.tar.gz"
+
+      - name: 📦 Compress debug symbols (macOS)
+        if: contains(matrix.os, 'macos')
+        shell: bash
+        run: |
+          for ARCH in x86_64-apple-darwin aarch64-apple-darwin; do
+            DSYM_LINK="target/$ARCH/release/mdns-browser.dSYM"
+            if [ ! -L "$DSYM_LINK" ]; then
+              echo "Error: dSYM symlink not found for $ARCH: $DSYM_LINK" >&2
+              exit 1
+            fi
+            REAL_DSYM=$(readlink -f "$DSYM_LINK")
+            if [ -z "$REAL_DSYM" ] || [ ! -e "$REAL_DSYM" ]; then
+              echo "Error: dSYM symlink does not resolve for $ARCH: $DSYM_LINK -> $REAL_DSYM" >&2
+              exit 1
+            fi
+            BASE=$(basename "$REAL_DSYM")
+            tar -czf "target/$ARCH/release/deps/$BASE.tar.gz" -C "target/$ARCH/release/deps" "$BASE"
+            echo "Compressed $REAL_DSYM -> target/$ARCH/release/deps/$BASE.tar.gz"
+          done
+
+      - name: 📤 Upload debug symbols
+        if: (!inputs.tagName)
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: "debug-symbols-${{matrix.os}}${{matrix.args}}"
           path: |
             target/release/mdns_browser.pdb.zip
+            target/release/mdns-browser.dwp.tar.gz
+            target/x86_64-apple-darwin/release/deps/mdns_browser-*.dSYM.tar.gz
+            target/aarch64-apple-darwin/release/deps/mdns_browser-*.dSYM.tar.gz
 
-      - name: 📤 Publish debug symbols to release (windows only)
-        if: contains(matrix.os, 'windows') && inputs.tagName
+      - name: 📤 Publish debug symbols to release
+        if: inputs.tagName
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
           tag_name: ${{ inputs.tagName }}
-          files: target/release/mdns_browser.pdb.zip
+          files: |
+            target/release/mdns_browser.pdb.zip
+            target/release/mdns-browser.dwp.tar.gz
+            target/x86_64-apple-darwin/release/deps/mdns_browser-*.dSYM.tar.gz
+            target/aarch64-apple-darwin/release/deps/mdns_browser-*.dSYM.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -189,6 +216,12 @@ jobs:
             target/release/mdns-browser.exe
             target/release/mdns_browser.pdb
             target/release/mdns_browser.pdb.zip
+            target/release/mdns-browser.dwp
+            target/release/mdns-browser.dwp.tar.gz
+            target/x86_64-apple-darwin/release/deps/mdns_browser-*.dSYM
+            target/x86_64-apple-darwin/release/deps/mdns_browser-*.dSYM.tar.gz
+            target/aarch64-apple-darwin/release/deps/mdns_browser-*.dSYM
+            target/aarch64-apple-darwin/release/deps/mdns_browser-*.dSYM.tar.gz
 
       - name: 🛡️ Attest SBOM
         if: inputs.tagName
