@@ -29,4 +29,8 @@ bug:
   - head-branch:
       - "^fix"
       - "^bugfix"
-      - "bug"
+      - "^bug$"
+      - "-bug-"
+      - "/bug/"
+      - "^bug-.*"
+      - "-bug$"

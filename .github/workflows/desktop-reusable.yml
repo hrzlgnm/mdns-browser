@@ -148,15 +148,16 @@ jobs:
         if: contains(matrix.os, 'windows')
         shell: pwsh
         run: |
-          Compress-Archive -Path "target/release/mdns_browser.pdb" -DestinationPath "target/release/mdns_browser.pdb.zip" -Force
-          Write-Output "Compressed target/release/mdns_browser.pdb -> target/release/mdns_browser.pdb.zip"
+          $version = "${{ steps.get-version.outputs.current-version }}"
+          Compress-Archive -Path "target/release/mdns_browser.pdb" -DestinationPath "target/release/mdns-browser-$version-debug-symbols-windows.zip" -Force
+          Write-Output "Compressed target/release/mdns_browser.pdb -> target/release/mdns-browser-$version-debug-symbols-windows.zip"
 
       - name: 📦 Compress debug symbols (Linux)
         if: contains(matrix.os, 'ubuntu')
         shell: bash
         run: |
-          tar -czf "target/release/mdns-browser.dwp.tar.gz" -C target/release mdns-browser.dwp
-          echo "Compressed target/release/mdns-browser.dwp -> target/release/mdns-browser.dwp.tar.gz"
+          tar -czf "target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-linux.tar.gz" -C target/release mdns-browser.dwp
+          echo "Compressed target/release/mdns-browser.dwp -> target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-linux.tar.gz"
 
       - name: 📦 Compress debug symbols (macOS)
         if: contains(matrix.os, 'macos')
@@ -174,8 +175,9 @@ jobs:
               exit 1
             fi
             BASE=$(basename "$REAL_DSYM")
-            tar -czf "target/$ARCH/release/deps/$BASE.tar.gz" -C "target/$ARCH/release/deps" "$BASE"
-            echo "Compressed $REAL_DSYM -> target/$ARCH/release/deps/$BASE.tar.gz"
+            INFIX=$(echo "$ARCH" | sed 's/-apple-darwin//')
+            tar -czf "target/$ARCH/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-$INFIX.tar.gz" -C "target/$ARCH/release/deps" "$BASE"
+            echo "Compressed $REAL_DSYM -> target/$ARCH/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-$INFIX.tar.gz"
           done
 
       - name: 📤 Upload debug symbols
@@ -183,11 +185,25 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: "debug-symbols-${{matrix.os}}${{matrix.args}}"
+          if-no-files-found: warn
           path: |
-            target/release/mdns_browser.pdb.zip
-            target/release/mdns-browser.dwp.tar.gz
-            target/x86_64-apple-darwin/release/deps/mdns_browser-*.dSYM.tar.gz
-            target/aarch64-apple-darwin/release/deps/mdns_browser-*.dSYM.tar.gz
+            target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-windows.zip
+            target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-linux.tar.gz
+            target/x86_64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-x86_64.tar.gz
+            target/aarch64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-aarch64.tar.gz
+
+      - name: 🛑 Prepare debug symbol paths
+        id: debug-symbols
+        if: inputs.tagName
+        shell: bash
+        run: |
+          VERSION="${{ steps.get-version.outputs.current-version }}"
+          echo "paths<<EOF" >> "$GITHUB_OUTPUT"
+          echo "target/release/mdns-browser-$VERSION-debug-symbols-windows.zip" >> "$GITHUB_OUTPUT"
+          echo "target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz" >> "$GITHUB_OUTPUT"
+          echo "target/x86_64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-x86_64.tar.gz" >> "$GITHUB_OUTPUT"
+          echo "target/aarch64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-aarch64.tar.gz" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: 📤 Publish debug symbols to release
         if: inputs.tagName
@@ -195,10 +211,7 @@ jobs:
         with:
           tag_name: ${{ inputs.tagName }}
           files: |
-            target/release/mdns_browser.pdb.zip
-            target/release/mdns-browser.dwp.tar.gz
-            target/x86_64-apple-darwin/release/deps/mdns_browser-*.dSYM.tar.gz
-            target/aarch64-apple-darwin/release/deps/mdns_browser-*.dSYM.tar.gz
+            ${{ steps.debug-symbols.outputs.paths }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -215,13 +228,13 @@ jobs:
             target/**/release/mdns-browser
             target/release/mdns-browser.exe
             target/release/mdns_browser.pdb
-            target/release/mdns_browser.pdb.zip
+            target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-windows.zip
             target/release/mdns-browser.dwp
-            target/release/mdns-browser.dwp.tar.gz
-            target/x86_64-apple-darwin/release/deps/mdns_browser-*.dSYM
-            target/x86_64-apple-darwin/release/deps/mdns_browser-*.dSYM.tar.gz
-            target/aarch64-apple-darwin/release/deps/mdns_browser-*.dSYM
-            target/aarch64-apple-darwin/release/deps/mdns_browser-*.dSYM.tar.gz
+            target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-linux.tar.gz
+            target/x86_64-apple-darwin/release/deps/mdns-browser-*.dSYM
+            target/x86_64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-x86_64.tar.gz
+            target/aarch64-apple-darwin/release/deps/mdns-browser-*.dSYM
+            target/aarch64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-aarch64.tar.gz
 
       - name: 🛡️ Attest SBOM
         if: inputs.tagName
