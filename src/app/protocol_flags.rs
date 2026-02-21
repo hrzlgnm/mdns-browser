@@ -24,7 +24,6 @@ use super::browse::browse_types;
 /// ```
 async fn get_protocol_flags(store: Store<ProtocolFlags>) {
     let flags = invoke::<ProtocolFlags>("get_protocol_flags", &()).await;
-    log::debug!("get_protocol_flags: {flags:?}");
     store.set(flags);
 }
 
