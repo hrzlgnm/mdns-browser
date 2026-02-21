@@ -54,7 +54,6 @@ pub(crate) async fn listen_events<T, F, S, Fut>(
     subscriber().await;
 
     while let Some(event) = events.next().await {
-        log::debug!("Received event {}: {:#?}", event_name, event.payload);
         process_event(event.payload);
     }
 }
@@ -156,13 +155,11 @@ pub(crate) async fn listen_add_remove<A, R, FA, FR, S, Fut>(
         select! {
             added = added_fused.next() => {
                 if let Some(added) = added {
-                    log::debug!("Received event '{}': {:#?}", added_event_name, added.payload);
                     process_added(added.payload);
                 }
             },
             removed = removed_fused.next() => {
                 if let Some(removed) = removed {
-                    log::debug!("Received event '{}': {:#?}", removed_event_name, removed.payload);
                     process_removed(removed.payload);
                 }
             },
