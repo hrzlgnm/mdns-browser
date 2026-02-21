@@ -167,14 +167,12 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
                 }
                 ServiceEvent::SearchStopped(service_type) => {
                     if service_type == MDNS_SD_META_SERVICE {
-                        log::debug!("Service type browsing stopped: {service_type}");
                         break;
                     }
                 }
                 _ => {}
             }
         }
-        log::debug!("Browse type task ending.");
     });
     Ok(())
 }
@@ -205,7 +203,6 @@ fn verify(instance_fullname: String, state: State<ManagedState>) -> Result<(), S
         .daemon
         .lock()
         .map_err(|e| format!("Failed to lock daemon: {e:?}"))?;
-    log::debug!("verifying {instance_fullname}");
     daemon
         .verify(instance_fullname.clone(), VERIFY_TIMEOUT)
         .map_err(|e| format!("Failed to verify {instance_fullname}: {e:?}"))?;
@@ -268,7 +265,6 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
                     _ => {}
                 }
             }
-            log::debug!("Browse task for {} ending.", &service_type);
         });
     }
 }
@@ -312,7 +308,6 @@ mod tests {
     #[test]
     fn test_loopback_not_included_in_mdns_incapable_interfaces() {
         let result = enumerate_mdns_incapable_interfaces();
-        log::debug!("Enumerated {result:?}");
         // Gather actual loopback interface names on this system.
         let loopback_names: std::collections::HashSet<String> = {
             datalink::interfaces()
@@ -378,7 +373,6 @@ mod tests {
     #[test]
     fn test_loopback_not_included_in_mdns_incapable_interfaces() {
         let result = enumerate_mdns_incapable_interfaces();
-        log::debug!("Enumerated {result:?}");
         let loopback_names: std::collections::HashSet<String> = ipconfig::get_adapters()
             .map(|adapters| {
                 adapters
@@ -519,7 +513,6 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
 
                     tokio::time::sleep(METRICS_CHECK_INTERVAL).await;
                 }
-                log::debug!("Metrics task is ending");
             });
         }
     }
@@ -544,7 +537,6 @@ fn version() -> String {
 fn get_protocol_flags(state: State<ManagedState>) -> ProtocolFlags {
     let ipv4_enabled = state.ipv4_enabled.load(Ordering::SeqCst);
     let ipv6_enabled = state.ipv6_enabled.load(Ordering::SeqCst);
-    log::debug!("get_protocol_flags: ipv4_enabled: {ipv4_enabled}, ipv6_enabled: {ipv6_enabled}");
     ProtocolFlags {
         ipv4: ipv4_enabled,
         ipv6: ipv6_enabled,
@@ -581,7 +573,6 @@ fn update_interface(
 
 #[tauri::command]
 fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Result<(), String> {
-    log::debug!("Setting protocol flags: {flags:?}");
     let daemon = state
         .daemon
         .lock()

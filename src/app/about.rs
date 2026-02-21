@@ -14,9 +14,7 @@ use thaw::{
 use super::invoke::invoke_no_args;
 
 async fn fetch_update() -> Option<UpdateMetadata> {
-    let update = invoke::<Option<UpdateMetadata>>("fetch_update", &()).await;
-    log::debug!("Got update: {update:?}");
-    update
+    invoke::<Option<UpdateMetadata>>("fetch_update", &()).await
 }
 
 async fn install_update() {
@@ -39,7 +37,6 @@ async fn get_version(writer: WriteSignal<String>) {
 
 async fn get_can_auto_update(writer: WriteSignal<bool>) {
     let can_auto_update = invoke::<bool>("can_auto_update", &()).await;
-    log::debug!("Got can_auto_update  {can_auto_update}");
     writer.update(|v| *v = can_auto_update);
 }
 
@@ -65,7 +62,6 @@ pub fn About() -> impl IntoView {
 
     let fetch_update_action = Action::new_local(move |_: &()| async move {
         let update = fetch_update().await;
-        log::debug!("Got update: {update:?}");
         if update.is_none() {
             show_no_update_with_timeout();
         }
