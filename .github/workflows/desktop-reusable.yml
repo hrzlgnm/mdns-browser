@@ -156,15 +156,13 @@ jobs:
         if: contains(matrix.os, 'ubuntu')
         shell: bash
         run: |
-          VERSION="${{ steps.get-version.outputs.current-version }}"
-          tar -czf "target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz" -C target/release mdns-browser.dwp
-          echo "Compressed target/release/mdns-browser.dwp -> target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz"
+          tar -czf "target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-linux.tar.gz" -C target/release mdns-browser.dwp
+          echo "Compressed target/release/mdns-browser.dwp -> target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-linux.tar.gz"
 
       - name: 📦 Compress debug symbols (macOS)
         if: contains(matrix.os, 'macos')
         shell: bash
         run: |
-          VERSION="${{ steps.get-version.outputs.current-version }}"
           for ARCH in x86_64-apple-darwin aarch64-apple-darwin; do
             DSYM_LINK="target/$ARCH/release/mdns-browser.dSYM"
             if [ ! -L "$DSYM_LINK" ]; then
@@ -178,8 +176,8 @@ jobs:
             fi
             BASE=$(basename "$REAL_DSYM")
             INFIX=$(echo "$ARCH" | sed 's/-apple-darwin//')
-            tar -czf "target/$ARCH/release/deps/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz" -C "target/$ARCH/release/deps" "$BASE"
-            echo "Compressed $REAL_DSYM -> target/$ARCH/release/deps/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz"
+            tar -czf "target/$ARCH/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-$INFIX.tar.gz" -C "target/$ARCH/release/deps" "$BASE"
+            echo "Compressed $REAL_DSYM -> target/$ARCH/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-$INFIX.tar.gz"
           done
 
       - name: 📤 Upload debug symbols
@@ -196,6 +194,8 @@ jobs:
 
       - name: 🛑 Prepare debug symbol paths
         id: debug-symbols
+        if: inputs.tagName
+        shell: bash
         run: |
           VERSION="${{ steps.get-version.outputs.current-version }}"
           echo "paths<<EOF" >> "$GITHUB_OUTPUT"
