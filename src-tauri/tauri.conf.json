@@ -29,12 +29,12 @@
             "deb": {
                 "files": {
                     "/usr/share/licenses/mdns-browser/LICENSE": "../LICENSE",
-                    "/usr/share/man/man1/mdns-browser.1": "../mdns-browser.1"
+                    "/usr/share/man/man1/mdns-browser.1": "../docs/mdns-browser.1"
                 }
             },
             "rpm": {
                 "files": {
-                    "/usr/share/man/man1/mdns-browser.1": "../mdns-browser.1"
+                    "/usr/share/man/man1/mdns-browser.1": "../docs/mdns-browser.1"
                 }
             }
         },
