@@ -7,7 +7,7 @@ description: Sets up tauri
 runs:
   using: "composite"
   steps:
-    - uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
+    - uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
       with:
         crate: trunk
         version: 0.21.14
@@ -15,13 +15,13 @@ runs:
         args: --no-default-features
         features: rustls
 
-    - uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
+    - uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
       with:
         crate: cargo-auditable
         version: 0.7.2
         locked: true
 
-    - uses: baptiste0928/cargo-install@b687c656bda5733207e629b50a22bf68974a0305 # v3
+    - uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
       with:
         crate: tauri-cli
         version: 2.10.0
