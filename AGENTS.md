@@ -180,7 +180,8 @@ All source files must include:
 
 ## Before Committing
 
-Always run the full CI check:
+1. **Create a branch** for your changes (never commit directly to main)
+2. **Run the full CI check**:
 ```bash
 cargo fmt -- --check && \
 cd src-tauri && cargo fmt -- --check && \
@@ -192,6 +193,7 @@ cd .. && \
 cargo nextest run --profile ci && \
 actionlint .github/workflows/*.yml
 ```
+3. **Use conventional commits**: Follow the conventional commits format (e.g., `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`)
 
 ## Before Modifying Workflows or Actions
 
