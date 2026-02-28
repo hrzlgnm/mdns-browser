@@ -217,7 +217,7 @@ jobs:
 
       - name: 🛡️ Attest build provenance (publish release only)
         if: inputs.tagName
-        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        uses: actions/attest@v4
         with:
           subject-path: |
             target/release/bundle/nsis/*
@@ -238,7 +238,7 @@ jobs:
 
       - name: 🛡️ Attest SBOM
         if: inputs.tagName
-        uses: actions/attest-sbom@07e74fc4e78d1aad915e867f9a094073a9f71527 # v4
+        uses: actions/attest@v4
         with:
           subject-path: ${{
             contains(matrix.os, 'ubuntu') && 'target/release/mdns-browser' ||
