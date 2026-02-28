@@ -67,8 +67,6 @@ cd src-tauri && cargo fmt -- --check && \
 cd .. && \
 leptosfmt --check src && \
 cargo clippy --workspace --tests -- -D warnings && \
-cd src-tauri && cargo clippy --tests -- -D warnings && \
-cd .. && \
 cargo nextest run --profile ci && \
 actionlint .github/workflows/*.yml
 ```
@@ -187,9 +185,7 @@ cargo fmt -- --check && \
 cd src-tauri && cargo fmt -- --check && \
 cd .. && \
 leptosfmt --check src && \
-cargo clippy --tests -- -D warnings && \
-cd src-tauri && cargo clippy --tests -- -D warnings && \
-cd .. && \
+cargo clippy --workspace --tests -- -D warnings && \
 cargo nextest run --profile ci && \
 actionlint .github/workflows/*.yml
 ```
