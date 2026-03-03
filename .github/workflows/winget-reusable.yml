@@ -48,11 +48,8 @@ jobs:
         with:
           args: "update hrzlgnm.mdns-browser --version $VERSION --urls $URL --submit --token=$WINGET_TOKEN"
 
-  cleanup:
-    name: 🧹 branches
-    runs-on: ubuntu-latest
-    steps:
       - name: 🧹 Cleanup merged branches
+        if: always()
         env:
           WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
         uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
