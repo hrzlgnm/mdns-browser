@@ -42,6 +42,9 @@
             "certificateThumbprint": "303ADAF17B81D64EA1D94C31861BCAEF60167E17",
             "digestAlgorithm": "sha256",
             "timestampUrl": "http://timestamp.digicert.com"
+        },
+        "macOS": {
+            "signingIdentity": "-"
         }
     },
     "productName": "mdns-browser",
