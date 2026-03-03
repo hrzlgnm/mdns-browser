@@ -18,7 +18,7 @@ runs:
     - uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
       with:
         crate: cargo-auditable
-        version: 0.7.2
+        version: 0.7.3
         locked: true
 
     - uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
