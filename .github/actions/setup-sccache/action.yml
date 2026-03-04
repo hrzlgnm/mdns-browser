@@ -11,5 +11,7 @@ runs:
 
     - shell: bash
       run: |
+        # Temporary disabled for investigations in #1964
+        exit 0
         echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
         echo "RUSTC_WRAPPER=${SCCACHE_PATH}" >> $GITHUB_ENV
