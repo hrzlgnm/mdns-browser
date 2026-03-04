@@ -220,5 +220,6 @@ jobs:
             tests,
             android,
             desktop,
-            docker
+            docker,
+            cache-cargo-edit
           jobs: ${{ toJSON(needs) }}
