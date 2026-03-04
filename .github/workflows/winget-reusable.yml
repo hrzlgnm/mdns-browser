@@ -34,24 +34,37 @@ jobs:
           echo "URL: $URL"
           echo "Version: $VERSION"
 
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
+        with:
+          save-cache: false
+
+      - name: 🔧 Install komac
+        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
+        with:
+          crate: komac
+          version: 2.15.0
+          locked: true
+
       - name: 🆙 sync our fork of winget-pkgs
         env:
           WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
-        uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
-        with:
-          args: "sync-fork --token=$WINGET_TOKEN"
+        run: |
+          komac sync-fork --token="$WINGET_TOKEN"
 
       - name: 🆙 winget package
         env:
           WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
-        uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
-        with:
-          args: "update hrzlgnm.mdns-browser --version $VERSION --urls $URL --submit --token=$WINGET_TOKEN"
+        run: |
+          komac update hrzlgnm.mdns-browser \
+            --version "$VERSION" \ 
+            --urls "$URL" \
+            --submit \
+            --token="$WINGET_TOKEN"
 
       - name: 🧹 Cleanup merged branches
         if: always()
         env:
           WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
-        uses: michidk/run-komac@9b27eadc6e9235c252444a437d246c139da2f57f # v2.1.0
-        with:
-          args: "cleanup --only-merged --token=$WINGET_TOKEN"
+        run: |
+          komac cleanup --only-merged --token="$WINGET_TOKEN"
