@@ -20,7 +20,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:f1c91f3dd30afc44d04574dfee39c32a827e525027dc09783aaf522ab43347e9
+      image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:bfdb24fb36484ac736e67ab568a962e564110fe0992b73f19f39974cf3e5aa74
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
