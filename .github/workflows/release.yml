@@ -30,7 +30,7 @@ jobs:
     permissions:
       actions: write # to trigger other workflows and read workflow run status
       contents: write # to update version files, create commits, and push tags
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     name: ⬆️ Bump version
     outputs:
       version: ${{ steps.version.outputs.version }}
