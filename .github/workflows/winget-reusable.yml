@@ -57,7 +57,7 @@ jobs:
           WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
         run: |
           komac update hrzlgnm.mdns-browser \
-            --version "$VERSION" \ 
+            --version "$VERSION" \
             --urls "$URL" \
             --submit \
             --token="$WINGET_TOKEN"
