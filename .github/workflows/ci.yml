@@ -176,6 +176,11 @@ jobs:
     with:
       branch: ${{ needs.changes.outputs.branch }}
 
+  cache-cargo-edit:
+    name: "📦 Cache cargo-edit"
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/cache-cargo-edit-reusable.yml
+
   docker:
     name: "🐳"
     needs: changes
@@ -201,6 +206,7 @@ jobs:
       - android
       - desktop
       - docker
+      - cache-cargo-edit
     if: always()
     steps:
       - name: Check whether the needed jobs succeeded or failed
@@ -214,5 +220,6 @@ jobs:
             tests,
             android,
             desktop,
-            docker
+            docker,
+            cache-cargo-edit
           jobs: ${{ toJSON(needs) }}
