@@ -130,7 +130,6 @@ jobs:
   actionlint:
     name: "🔍 Validate Workflows"
     needs: changes
-    if: needs.changes.outputs.actionlint == 'true'
     runs-on: ubuntu-latest
     container: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1
     steps:
@@ -139,7 +138,17 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: 📋 Determine actionlint result
+        id: actionlint_check
+        run: |
+          if [[ "${{ needs.changes.outputs.actionlint }}" == "true" ]]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: 🔍 Validate workflows
+        if: steps.actionlint_check.outputs.should_run == 'true'
         run: |
           actionlint .github/workflows/*.yml
 
