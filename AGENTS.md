@@ -78,9 +78,24 @@ cargo tauri dev
 
 # With custom arguments
 cargo tauri dev -- --log-level debug --enable-devtools
-```
 
-## Code Style Guidelines
+```
+1. REQUIRED: Create a branch for your changes 
+2. Make changes to source code
+3. Run `cargo fmt` to format code
+4. Run `cargo clippy --tests -- -D warnings` to check for issues
+5. Run `cargo nextest run --profile ci` to run tests
+6. Run `cargo --locked tauri build --no-bundle --no-sign` to build release version
+7. Run `cargo clippy --release -- -D warnings` to ensure no warnings in release
+8. Run `actionlint` to check GitHub Actions workflows if modified
+9. If README.md was updated, update the manpage (`docs/mdns-browser.1`)
+10. Commit only when all checks pass
+11. After committing, push to the repository and create a pull request if applicable
+12. After the pull request is created, add a comment `@coderabbitai review`
+13. After pushing changes to an existing pull request, add a comment `@coderabbitai review` to trigger a new review
+14. Use conventional commit format (e.g., `feat:`, `fix:`, `docs:`) for commit messages 
+
+# Code Style Guidelines
 
 ### File Headers
 All source files must include:
@@ -209,3 +224,16 @@ When changing any GitHub Actions workflows (.github/workflows/*.yml) or actions 
 3. **Re-run actionlint** to ensure all issues are resolved
 
 This ensures your workflow changes follow GitHub Actions best practices and will execute correctly.
+
+## Common Pitfalls to Avoid
+
+- **Never** use `unsafe` code - this will cause CI to fail
+- **Never** add `#[allow(warnings)]` attributes to suppress warnings - fix the underlying issues instead
+- **Never** amend commits - commits will be squashed in GitHub, just create a new commit instead
+- **Always** format code before committing
+- **Always** run clippy and fix warnings (both debug and release)
+- **Don't** add dependencies without updating Cargo.toml properly
+- **Don't** break the async patterns used throughout the codebase
+- **Don't** ignore test failures - all tests must pass
+- **Don't** have warnings in release builds - run `cargo clippy --release --workspace` before committing
+
