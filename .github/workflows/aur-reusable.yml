@@ -69,15 +69,15 @@ jobs:
       - name: 📐 Lint generated PKGBUILD
         shell: bash
         run: |
-          su runner -c '
+          su runner -c "
             set -o errexit
             mkdir -p ~/lint
-            o=$(pwd)
-            EXE_CHECKSUM="${{ steps.sha256sums.outputs.sha256_exe }}"
-            ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" "${EXE_CHECKSUM:-}" > ~/lint/PKGBUILD
+            o=\$(pwd)
+            EXE_CHECKSUM=\"${{ steps.sha256sums.outputs.sha256_exe }}\"
+            ${{ matrix.package.generate_script }} \"${{ needs.release-info.outputs.version }}\" \"${{ steps.sha256sums.outputs.sha256 }}\" \"\${EXE_CHECKSUM:-}\" > ~/lint/PKGBUILD
             cd ~/lint
-            "$o/packaging/aur/makepkg-lint.sh"
-          '
+            \"\$o/packaging/aur/makepkg-lint.sh\"
+          "
       - name: 🛠️ Setup Deployment keys
         if: github.event.release.tag_name
         shell: bash
@@ -85,60 +85,60 @@ jobs:
           AUR_DEPLOY_KEY: ${{ secrets.AUR_DEPLOY_KEY }}
         run: |
           chown -R runner:runner .
-          su runner -c '
+          su runner -c "
             set -o errexit
             mkdir -p ~/.ssh
-            printf '%s\n' "$AUR_DEPLOY_KEY" > ~/.ssh/aur
+            printf '%s\n' \"\$AUR_DEPLOY_KEY\" > ~/.ssh/aur
             chmod 600 ~/.ssh/aur
-            echo "Host aur.archlinux.org" >> ~/.ssh/config
-            echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
-            echo "  User aur" >> ~/.ssh/config
+            echo \"Host aur.archlinux.org\" >> ~/.ssh/config
+            echo \"  IdentityFile ~/.ssh/aur\" >> ~/.ssh/config
+            echo \"  User aur\" >> ~/.ssh/config
             ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
-          '
+          "
 
       - name: 🔄 Clone AUR Repo
         if: github.event.release.tag_name
         shell: bash
         run: |
-          su runner -c '
+          su runner -c "
             set -o errexit
-            git clone --depth=1 "ssh://aur@aur.archlinux.org/${{ matrix.package.name }}.git" ~/aur
-          '
+            git clone --depth=1 \"ssh://aur@aur.archlinux.org/${{ matrix.package.name }}.git\" ~/aur
+          "
 
       - name: 🔍 Check version
         if: github.event.release.tag_name
         shell: bash
         run: |
-          su runner -c '
+          su runner -c "
             set -o errexit
             cd ~/aur
             if [[ -f PKGBUILD ]]; then
-              CURRENT_VERSION=$(source PKGBUILD && echo $pkgver)
-              if [[ "$(printf "%s\n%s" "$CURRENT_VERSION" "${{ needs.release-info.outputs.version }}" | sort -V | head -n1)" != "$CURRENT_VERSION" ]] || [[ "$CURRENT_VERSION" == "${{ needs.release-info.outputs.version }}" ]]; then
-                echo "New version (${{ needs.release-info.outputs.version }}) is not higher than the current version ($CURRENT_VERSION). Exiting."
+              CURRENT_VERSION=\$(source PKGBUILD && echo \$pkgver)
+              if [[ \"\$(printf \"%s\n%s\" \"\$CURRENT_VERSION\" \"${{ needs.release-info.outputs.version }}\" | sort -V | head -n1)\" != \"\$CURRENT_VERSION\" ]] || [[ \"\$CURRENT_VERSION\" == \"${{ needs.release-info.outputs.version }}\" ]]; then
+                echo \"New version (${{ needs.release-info.outputs.version }}) is not higher than the current version (\$CURRENT_VERSION). Exiting.\"
                 exit 1
               fi
             fi
-          '
+          "
 
       - name: 🌀 Generate PKGBUILD update and publish
         if: github.event.release.tag_name
         run: |
-          su runner -c '
+          su runner -c "
             set -o errexit
-            EXE_CHECKSUM="${{ steps.sha256sums.outputs.sha256_exe }}"
-            ${{ matrix.package.generate_script }} "${{ needs.release-info.outputs.version }}" "${{ steps.sha256sums.outputs.sha256 }}" "${EXE_CHECKSUM:-}" > ~/aur/PKGBUILD
+            EXE_CHECKSUM=\"${{ steps.sha256sums.outputs.sha256_exe }}\"
+            ${{ matrix.package.generate_script }} \"${{ needs.release-info.outputs.version }}\" \"${{ steps.sha256sums.outputs.sha256 }}\" \"\${EXE_CHECKSUM:-}\" > ~/aur/PKGBUILD
             cd ~/aur
-            if [[ -z $(git status --porcelain) ]]; then
-              echo "No changes"
+            if [[ -z \$(git status --porcelain) ]]; then
+              echo \"No changes\"
               exit 0
             fi
             makepkg --printsrcinfo > .SRCINFO
             makepkg
             makepkg --install --noconfirm
-            git config user.name "hrzlgnm"
-            git config user.email "hrzlgnm@users.noreply.github.com"
+            git config user.name \"hrzlgnm\"
+            git config user.email \"hrzlgnm@users.noreply.github.com\"
             git add PKGBUILD .SRCINFO
-            git commit -m "New upstream release ${{ needs.release-info.outputs.version }}"
+            git commit -m \"New upstream release ${{ needs.release-info.outputs.version }}\"
             git push origin master
-          '
+          "
