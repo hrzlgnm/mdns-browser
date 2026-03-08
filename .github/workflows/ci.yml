@@ -45,6 +45,7 @@ jobs:
     name: "🔍 Detect Changes"
     runs-on: ubuntu-slim
     outputs:
+      actionlint: ${{ steps.filter.outputs.actionlint }}
       android: ${{ steps.filter.outputs.android }}
       aur: ${{ steps.filter.outputs.aur }}
       branch: ${{ steps.branch.outputs.branch }}
@@ -66,6 +67,9 @@ jobs:
         id: filter
         with:
           filters: |
+            actionlint:
+              - '.github/workflows/*.yml'
+              - '.github/actions/*/action.yml'
             android:
               - '.github/actions/sbom/**'
               - '.github/workflows/android-reusable.yml'
@@ -123,40 +127,77 @@ jobs:
     if: always()
     uses: hrzlgnm/actions/.github/workflows/typos-reusable.yml@292498dae084d4097c6dea750cf8b23f865a83eb # v2.0.4
 
+  actionlint:
+    name: "🔍 Validate Workflows"
+    needs: changes
+    runs-on: ubuntu-latest
+    container: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+
+      - name: 📋 Determine actionlint result
+        id: actionlint_check
+        run: |
+          if [[ "${{ needs.changes.outputs.actionlint }}" == "true" ]]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 🔍 Validate workflows
+        if: steps.actionlint_check.outputs.should_run == 'true'
+        run: |
+          actionlint .github/workflows/*.yml
+
   aur:
     name: AUR
-    needs: changes
+    needs:
+      - changes
+      - actionlint
     if: needs.changes.outputs.aur == 'true'
     uses: ./.github/workflows/aur-reusable.yml
 
   void:
     name: Void
-    needs: changes
+    needs:
+      - changes
+      - actionlint
     if: needs.changes.outputs.void == 'true'
     uses: ./.github/workflows/void-reusable.yml
 
   winget:
     name: winget
-    needs: changes
+    needs:
+      - changes
+      - actionlint
     if: needs.changes.outputs.winget == 'true'
     uses: ./.github/workflows/winget-reusable.yml
     secrets: inherit
 
   lint:
-    needs: changes
+    needs:
+      - changes
+      - actionlint
     if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.lint == 'true'
     uses: ./.github/workflows/lint-reusable.yml
 
   tests:
     permissions:
       checks: write # required for action-junit-report annotation
-    needs: changes
+    needs:
+      - changes
+      - actionlint
     if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.tests == 'true'
     uses: ./.github/workflows/test-reusable.yml
 
   android:
     name: "📱"
-    needs: changes
+    needs:
+      - changes
+      - actionlint
     if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.android == 'true'
     permissions:
       contents: write # needed to upload build artifacts
@@ -167,7 +208,9 @@ jobs:
 
   desktop:
     name: "🖥️"
-    needs: changes
+    needs:
+      - changes
+      - actionlint
     if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.desktop == 'true'
     permissions:
       contents: write # needed to upload build artifacts
@@ -177,7 +220,7 @@ jobs:
       branch: ${{ needs.changes.outputs.branch }}
 
   cache-tools:
-    needs: 
+    needs:
       - android
       - desktop
       - lint
@@ -188,7 +231,9 @@ jobs:
 
   docker:
     name: "🐳"
-    needs: changes
+    needs:
+      - changes
+      - actionlint
     if: needs.changes.outputs.docker == 'true'
     permissions:
       contents: read # needed to checkout code for docker build
@@ -203,6 +248,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - typos
+      - actionlint
       - aur
       - void
       - winget
@@ -218,6 +264,7 @@ jobs:
         uses: re-actors/alls-green@a638d6464689bbb24c325bb3fe9404d63a913030
         with:
           allowed-skips: >-
+            actionlint,
             aur,
             void,
             winget,
