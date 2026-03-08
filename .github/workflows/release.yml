@@ -37,7 +37,7 @@ jobs:
       tagName: mdns-browser-v${{ steps.version.outputs.version}}
     env:
       GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
-      RULESET: repos/${{github.repository}}/rulesets/4895698
+      RULESET: repos/${{github.repository}}/rulesets/${{ secrets.RULESET_ID }}
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
