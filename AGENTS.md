@@ -92,8 +92,7 @@ cargo tauri dev -- --log-level debug --enable-devtools
 10. Commit only when all checks pass
 11. After committing, push to the repository and create a pull request if applicable
 12. After the pull request is created, add a comment `@coderabbitai review`
-13. After pushing changes to an existing pull request, add a comment `@coderabbitai review` to trigger a new review
-14. Use conventional commit format (e.g., `feat:`, `fix:`, `docs:`) for commit messages 
+13. Use conventional commit format (e.g., `feat:`, `fix:`, `docs:`) for commit messages 
 
 # Code Style Guidelines
 
