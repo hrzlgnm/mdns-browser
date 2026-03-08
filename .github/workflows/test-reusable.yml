@@ -9,7 +9,6 @@ on:
 
 jobs:
   test:
-    # No special permissions needed - only runs cargo nextest
     strategy:
       fail-fast: false
       matrix:

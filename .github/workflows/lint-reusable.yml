@@ -9,7 +9,6 @@ on:
 
 jobs:
   rustfmt:
-    # No special permissions needed - only runs cargo fmt check
     runs-on: ubuntu-latest
     steps:
       - name: 🔄 Checkout
@@ -30,7 +29,6 @@ jobs:
           cargo fmt -- --check
 
   leptosfmt:
-    # No special permissions needed - only runs leptosfmt check
     runs-on: ubuntu-latest
     steps:
       - name: 🔄 Checkout
@@ -50,7 +48,6 @@ jobs:
           leptosfmt --check src
 
   clippy:
-    # No special permissions needed - only runs cargo clippy
     strategy:
       fail-fast: false
       matrix:
