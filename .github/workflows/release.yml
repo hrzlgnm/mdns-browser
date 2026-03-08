@@ -27,11 +27,9 @@ on:
 
 jobs:
   bump_version:
-    # actions: write - to trigger other workflows and read workflow run status
-    # contents: write - to update version files, create commits, and push tags
     permissions:
-      actions: write
-      contents: write
+      actions: write # to trigger other workflows and read workflow run status
+      contents: write # to update version files, create commits, and push tags
     runs-on: ubuntu-latest
     name: ⬆️ Bump version
     outputs:
@@ -141,9 +139,8 @@ jobs:
   create_prerelease:
     needs: [bump_version]
     if: (inputs.create-release && !inputs.dry-run)
-    # contents: write - to create, update, and manage releases and drafts
     permissions:
-      contents: write
+      contents: write # to create, update, and manage releases and drafts
     runs-on: ubuntu-slim
     name: 🚀 Create Pre-release
     steps:
@@ -166,11 +163,9 @@ jobs:
   source_checksums:
     needs: [bump_version, create_prerelease]
     if: (inputs.create-release && !inputs.dry-run)
-    # contents: write - to upload source checksums to release
-    # actions: read - to access workflow run information and secrets
     permissions:
-      contents: write
-      actions: read
+      contents: write # to upload source checksums to release
+      actions: read # to access workflow run information and secrets
     name: 🔢 Generate Source Checksums
     uses: ./.github/workflows/source-checksums-reusable.yml
     secrets: inherit
@@ -180,15 +175,11 @@ jobs:
   build_android:
     needs: [bump_version, create_prerelease]
     if: (inputs.create-release && !inputs.dry-run)
-    # id-token: write - needed for OIDC token for attestation
-    # attestations: write - needed to create build attestations
-    # contents: write - needed to upload build artifacts
-    # actions: read - needed to download workflow artifacts
     permissions:
-      id-token: write
-      attestations: write
-      contents: write
-      actions: read
+      id-token: write # needed for OIDC token for attestation
+      attestations: write # needed to create build attestations
+      contents: write # needed to upload build artifacts
+      actions: read # needed to download workflow artifacts
     name: 🔨 Build Android
     uses: ./.github/workflows/android-reusable.yml
     secrets: inherit
@@ -198,15 +189,11 @@ jobs:
   build_desktop:
     needs: [bump_version, create_prerelease]
     if: (inputs.create-release && !inputs.dry-run)
-    # id-token: write - needed for OIDC token for attestation
-    # attestations: write - needed to create build attestations
-    # contents: write - needed to upload build artifacts
-    # actions: read - needed to download workflow artifacts
     permissions:
-      id-token: write
-      attestations: write
-      contents: write
-      actions: read
+      id-token: write # needed for OIDC token for attestation
+      attestations: write # needed to create build attestations
+      contents: write # needed to upload build artifacts
+      actions: read # needed to download workflow artifacts
     name: 🔨 Build Desktop
     uses: ./.github/workflows/desktop-reusable.yml
     secrets: inherit
@@ -216,15 +203,11 @@ jobs:
   build_void:
     needs: [bump_version, create_prerelease, source_checksums]
     if: (inputs.create-release && !inputs.dry-run)
-    # id-token: write - needed for OIDC token for attestation
-    # attestations: write - needed to create build attestations
-    # contents: write - needed to upload build artifacts
-    # actions: read - needed to download workflow artifacts
     permissions:
-      id-token: write
-      attestations: write
-      contents: write
-      actions: read
+      id-token: write # needed for OIDC token for attestation
+      attestations: write # needed to create build attestations
+      contents: write # needed to upload build artifacts
+      actions: read # needed to download workflow artifacts
     name: 🔨 Build Void
     uses: ./.github/workflows/void-reusable.yml
     secrets: inherit
@@ -242,11 +225,9 @@ jobs:
         build_void,
       ]
     if: (inputs.create-release && !inputs.dry-run)
-    # contents: write - to update release with checksums and artifacts
-    # actions: read - to access workflow run information and secrets
     permissions:
-      contents: write
-      actions: read
+      contents: write # to update release with checksums and artifacts
+      actions: read # to access workflow run information and secrets
     name: 🔢 Generate Asset Checksums
     uses: ./.github/workflows/asset-checksums-reusable.yml
     secrets: inherit
@@ -269,11 +250,9 @@ jobs:
         asset_checksums,
       ]
     if: (inputs.create-release && !inputs.dry-run)
-    # contents: write - to update release with sboms
-    # actions: read - to download workflow artifacts
     permissions:
-      contents: write
-      actions: read
+      contents: write # to update release with sboms
+      actions: read # to download workflow artifacts
     name: 📰📜 Publish SBOM
     uses: ./.github/workflows/publish-sbom-reusable.yml
     secrets: inherit
