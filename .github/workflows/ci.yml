@@ -30,10 +30,13 @@ jobs:
   label-pr:
     if: github.event_name == 'pull_request'
     name: "🏷️ Label PR"
+    # contents: read - needed to read repository contents for labeler config
+    # pull-requests: write - needed to apply labels to PRs
+    # issues: write - needed to create non-existing labels
     permissions:
-      contents: read # Needed to read repository contents
-      pull-requests: write # Needed to apply labels
-      issues: write # Needed to create non existing labels
+      contents: read
+      pull-requests: write
+      issues: write
     runs-on: ubuntu-slim
 
     steps:
@@ -148,8 +151,9 @@ jobs:
     uses: ./.github/workflows/lint-reusable.yml
 
   tests:
+    # checks: write - required for action-junit-report annotation
     permissions:
-      checks: write # required for action-junit-report annotation
+      checks: write
     needs: changes
     if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.tests == 'true'
     uses: ./.github/workflows/test-reusable.yml
@@ -158,6 +162,7 @@ jobs:
     name: "📱"
     needs: changes
     if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.android == 'true'
+    # contents: write - needed to upload build artifacts
     permissions:
       contents: write
     uses: ./.github/workflows/android-reusable.yml
@@ -169,6 +174,7 @@ jobs:
     name: "🖥️"
     needs: changes
     if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.desktop == 'true'
+    # contents: write - needed to upload build artifacts
     permissions:
       contents: write
     uses: ./.github/workflows/desktop-reusable.yml
@@ -190,9 +196,11 @@ jobs:
     name: "🐳"
     needs: changes
     if: needs.changes.outputs.docker == 'true'
+    # contents: read - needed to checkout code for docker build
+    # packages: write - needed to push to GHCR
     permissions:
       contents: read
-      packages: write # Needed to push to GHCR
+      packages: write
 
     uses: hrzlgnm/actions/.github/workflows/docker-reusable.yml@292498dae084d4097c6dea750cf8b23f865a83eb # v2.0.4
     with:

@@ -10,10 +10,6 @@ on:
         type: string
         required: false
 
-permissions:
-  contents: write
-  actions: read
-
 jobs:
   tag:
     name: Tag

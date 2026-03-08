@@ -9,6 +9,7 @@ on:
 
 jobs:
   cache-tools:
+    # No special permissions needed - only uses cargo-install action
     runs-on: ubuntu-latest
     steps:
       - name: 🔄 Checkout

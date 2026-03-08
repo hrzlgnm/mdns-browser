@@ -11,6 +11,7 @@ on:
 
 jobs:
   release-info:
+    # packages: read - needed to read release info from GitHub Packages
     permissions:
       packages: read
     runs-on: ubuntu-slim
@@ -30,6 +31,7 @@ jobs:
   update-aur:
     needs:
       - release-info
+    # packages: read - needed to read release info from GitHub Packages
     permissions:
       packages: read
     runs-on: ubuntu-latest
