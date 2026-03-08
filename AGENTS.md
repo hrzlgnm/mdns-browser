@@ -234,5 +234,5 @@ This ensures your workflow changes follow GitHub Actions best practices and will
 - **Don't** add dependencies without updating Cargo.toml properly
 - **Don't** break the async patterns used throughout the codebase
 - **Don't** ignore test failures - all tests must pass
-- **Don't** have warnings in release builds - run `cargo clippy --release --workspace` before committing
+- **Don't** have warnings in release builds - run `cargo clippy --release --workspace --tests -- -D warnings` before committing
 
