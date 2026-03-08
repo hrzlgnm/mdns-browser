@@ -132,7 +132,7 @@ jobs:
     needs: changes
     if: needs.changes.outputs.actionlint == 'true'
     runs-on: ubuntu-latest
-    container: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:latest
+    container: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
