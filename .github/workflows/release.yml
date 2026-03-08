@@ -37,12 +37,21 @@ jobs:
       tagName: mdns-browser-v${{ steps.version.outputs.version}}
     env:
       GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
-      RULESET: repos/${{github.repository}}/rulesets/4895698
+      RULESET: repos/${{github.repository}}/rulesets/${{ secrets.RULESET_ID }}
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 1
+
+      - name: 🛡️ Verify RULESET_ID secret is configured
+        run: |
+          if [ -z "${{ secrets.RULESET_ID }}" ]; then
+            echo "Error: secrets.RULESET_ID is not set. Please configure the RULESET_ID secret in repository settings."
+            echo "This secret should contain the ID of the ruleset used to disable enforcement during version bump."
+            exit 1
+          fi
+          echo "RULESET_ID secret is configured"
 
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
