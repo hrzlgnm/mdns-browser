@@ -92,6 +92,7 @@ jobs:
 
       - name: 🔑 Import windows signing certificate (windows only)
         if: contains(matrix.os, 'windows')
+        shell: pwsh
         env:
           WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
           WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
@@ -175,7 +176,7 @@ jobs:
               exit 1
             fi
             BASE=$(basename "$REAL_DSYM")
-            INFIX=$(echo "$ARCH" | sed 's/-apple-darwin//')
+            INFIX="${ARCH//-apple-darwin/}"
             tar -czf "target/$ARCH/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-$INFIX.tar.gz" -C "target/$ARCH/release/deps" "$BASE"
             echo "Compressed $REAL_DSYM -> target/$ARCH/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-$INFIX.tar.gz"
           done
@@ -198,12 +199,14 @@ jobs:
         shell: bash
         run: |
           VERSION="${{ steps.get-version.outputs.current-version }}"
-          echo "paths<<EOF" >> "$GITHUB_OUTPUT"
-          echo "target/release/mdns-browser-$VERSION-debug-symbols-windows.zip" >> "$GITHUB_OUTPUT"
-          echo "target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz" >> "$GITHUB_OUTPUT"
-          echo "target/x86_64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-x86_64.tar.gz" >> "$GITHUB_OUTPUT"
-          echo "target/aarch64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-aarch64.tar.gz" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+          {
+            echo "paths<<EOF"
+            echo "target/release/mdns-browser-$VERSION-debug-symbols-windows.zip"
+            echo "target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz"
+            echo "target/x86_64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-x86_64.tar.gz"
+            echo "target/aarch64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-aarch64.tar.gz"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: 📤 Publish debug symbols to release
         if: inputs.tagName

@@ -23,7 +23,7 @@ jobs:
           TAG_NAME: ${{ inputs.tagName }}
         run: |
           if [ -n "$TAG_NAME" ]; then
-            echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+            echo "tag=$TAG_NAME" >> "$GITHUB_OUTPUT"
           else
             echo "No tag provided" && exit 1
           fi

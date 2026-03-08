@@ -25,11 +25,11 @@ jobs:
         id: tag
         run: |
           if [ -n "${{ inputs.tagName }}" ]; then
-            echo "tag=${{ inputs.tagName }}" >> $GITHUB_OUTPUT
+            echo "tag=${{ inputs.tagName }}" >> "$GITHUB_OUTPUT"
           elif [ -n "${{ github.event.release.name }}" ]; then
-            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
           elif [ -n "${{ github.event.inputs.semver }}" ]; then
-            echo "tag=mdns-browser-v${{ github.event.inputs.semver }}" >> $GITHUB_OUTPUT
+            echo "tag=mdns-browser-v${{ github.event.inputs.semver }}" >> "$GITHUB_OUTPUT"
           else
             echo "No tag provided" && exit 1
           fi

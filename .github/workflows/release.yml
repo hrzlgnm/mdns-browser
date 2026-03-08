@@ -87,7 +87,7 @@ jobs:
                 exit 1
                 ;;
             esac
-            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
             echo "Dry run: would bump from $CURRENT_VERSION to $NEW_VERSION"
           else
             cargo set-version --bump "${{ inputs.version }}"
@@ -96,7 +96,7 @@ jobs:
             # Update Tauri config files
             jq --indent 4 ".version=\"$NEW_VERSION\"" src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
             jq --indent 4 ".version=\"$NEW_VERSION\"" src-tauri/tauri.android.conf.json > tauri.android.config.json.new && mv tauri.android.config.json.new src-tauri/tauri.android.conf.json
-            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
             echo "Bumped version from $CURRENT_VERSION to $NEW_VERSION"
           fi
 
@@ -118,11 +118,11 @@ jobs:
         run: |
           gh api \
           -H "Accept: application/vnd.github+json" \
-          ${RULESET} | jq '.enforcement = "disabled"' | \
+          "${RULESET}" | jq '.enforcement = "disabled"' | \
           gh api \
           --method PUT \
           -H "Accept: application/vnd.github+json" \
-          ${RULESET} \
+          "${RULESET}" \
           --input -
 
       - name: 💾🏷️⬆️ Commit, tag and push
@@ -138,11 +138,11 @@ jobs:
         run: |
           gh api \
           -H "Accept: application/vnd.github+json" \
-          ${RULESET} | jq '.enforcement = "active"' | \
+          "${RULESET}" | jq '.enforcement = "active"' | \
           gh api \
           --method PUT \
           -H "Accept: application/vnd.github+json" \
-          ${RULESET} \
+          "${RULESET}" \
           --input -
 
   create_prerelease:

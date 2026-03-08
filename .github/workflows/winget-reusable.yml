@@ -27,11 +27,11 @@ jobs:
       - name: 🛠️ Get latest installer url 🔗
         shell: bash
         run: |
-          TAG_NAME=${{ steps.release-info.outputs.tagName }}
-          VERSION=${{ steps.release-info.outputs.version }}
-          URL=https://github.com/hrzlgnm/mdns-browser/releases/download/${TAG_NAME}/mdns-browser_${VERSION}_x64-setup.exe
-          echo "URL=$URL" >> $GITHUB_ENV
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          TAG_NAME="${{ steps.release-info.outputs.tagName }}"
+          VERSION="${{ steps.release-info.outputs.version }}"
+          URL="https://github.com/hrzlgnm/mdns-browser/releases/download/${TAG_NAME}/mdns-browser_${VERSION}_x64-setup.exe"
+          echo "URL=$URL" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "Detected latest tag name: $TAG_NAME"
           echo "URL: $URL"
           echo "Version: $VERSION"
