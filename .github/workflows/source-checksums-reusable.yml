@@ -14,9 +14,6 @@ on:
         type: string
         required: false
 
-permissions:
-  contents: write
-
 jobs:
   tag:
     name: Tag

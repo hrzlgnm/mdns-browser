@@ -11,6 +11,8 @@ on:
 
 jobs:
   publish:
+    permissions:
+      contents: read # needed to checkout repository for release info
     runs-on: ubuntu-latest
     steps:
       - name: 🔄 Checkout

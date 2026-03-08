@@ -176,10 +176,10 @@ jobs:
     needs: [bump_version, create_prerelease]
     if: (inputs.create-release && !inputs.dry-run)
     permissions:
-      id-token: write
-      attestations: write
-      contents: write
-      actions: read
+      id-token: write # needed for OIDC token for attestation
+      attestations: write # needed to create build attestations
+      contents: write # needed to upload build artifacts
+      actions: read # needed to download workflow artifacts
     name: 🔨 Build Android
     uses: ./.github/workflows/android-reusable.yml
     secrets: inherit
@@ -190,10 +190,10 @@ jobs:
     needs: [bump_version, create_prerelease]
     if: (inputs.create-release && !inputs.dry-run)
     permissions:
-      id-token: write
-      attestations: write
-      contents: write
-      actions: read
+      id-token: write # needed for OIDC token for attestation
+      attestations: write # needed to create build attestations
+      contents: write # needed to upload build artifacts
+      actions: read # needed to download workflow artifacts
     name: 🔨 Build Desktop
     uses: ./.github/workflows/desktop-reusable.yml
     secrets: inherit
@@ -204,10 +204,10 @@ jobs:
     needs: [bump_version, create_prerelease, source_checksums]
     if: (inputs.create-release && !inputs.dry-run)
     permissions:
-      id-token: write
-      attestations: write
-      contents: write
-      actions: read
+      id-token: write # needed for OIDC token for attestation
+      attestations: write # needed to create build attestations
+      contents: write # needed to upload build artifacts
+      actions: read # needed to download workflow artifacts
     name: 🔨 Build Void
     uses: ./.github/workflows/void-reusable.yml
     secrets: inherit
