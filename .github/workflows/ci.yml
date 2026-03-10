@@ -131,7 +131,7 @@ jobs:
     name: "🔍 Validate Workflows"
     needs: changes
     runs-on: ubuntu-latest
-    container: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:6bb7b3e2597aed1904e10c90c157f5bae67c2b251455cd81f6061cf0fba1d4da
+    container: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:0d1a4ba01fd4d82d86837a21074e1300928de6668678dbb65b6d10a92d9b2ad4
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
