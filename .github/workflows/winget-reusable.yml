@@ -9,6 +9,9 @@ on:
   release:
     types: [released]
 
+env:
+  PACKAGE_ID: hrzlgnm.mdns-browser
+
 jobs:
   publish:
     permissions:
@@ -58,10 +61,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
         run: |
-          komac update hrzlgnm.mdns-browser \
+          komac update "$PACKAGE_ID" \
             --version "$VERSION" \
             --urls "$URL" \
             --submit
+
+      - name: 🧹 Cleanup old versions (keep last 20)
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
+        run: |
+          komac list-versions "$PACKAGE_ID" | head -n -20 \
+            | xargs -r -I{} komac remove "$PACKAGE_ID" --version {}
 
       - name: 🧹 Cleanup merged branches
         if: always()
