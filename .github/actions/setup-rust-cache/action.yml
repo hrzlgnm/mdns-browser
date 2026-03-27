@@ -26,7 +26,7 @@ runs:
         echo "🔍Targets: ${{ inputs.targets }}"
         echo "🔍Save-Cache: ${{ inputs.save-cache }}"
 
-    - uses: dtolnay/rust-toolchain@stable
+    - uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7 # stable
       with:
         components: ${{ inputs.components }}
         targets: ${{ inputs.targets }}
