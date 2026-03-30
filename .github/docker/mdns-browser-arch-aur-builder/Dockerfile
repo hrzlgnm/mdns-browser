@@ -1,7 +1,7 @@
 # Copyright 2025 hrzlgnm
 # SPDX-License-Identifier: MIT-0
 
-FROM archlinux:base-devel@sha256:233f52197321141f63c1d389284c868101dc94ef8f46ac31b908e3e4b6ea7cb5
+FROM archlinux:base-devel@sha256:0cce2e42862208217cb44f67feb93630e45300619d293601202d34bb6cf77d98
 RUN pacman -Syu --noconfirm \
     && pacman -S --noconfirm --needed \
     actionlint \
