@@ -3,6 +3,7 @@
 
 use std::time::Duration;
 pub const MDNS_SD_META_SERVICE: &str = "_services._dns-sd._udp.local.";
+pub const MDNS_SD_IP_CHECK_INTERVAL_SECS: u32 = 1;
 pub const METRICS_CHECK_INTERVAL: Duration = Duration::from_secs(1);
 pub const INTERFACES_CAN_BROWSE_CHECK_INTERVAL: Duration = Duration::from_millis(500);
 

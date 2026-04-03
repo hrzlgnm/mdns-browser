@@ -11,8 +11,8 @@ use models::*;
 #[cfg(all(desktop, not(debug_assertions)))]
 use shared_constants::SPLASH_SCREEN_DURATION;
 use shared_constants::{
-    INTERFACES_CAN_BROWSE_CHECK_INTERVAL, MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL,
-    VERIFY_TIMEOUT,
+    INTERFACES_CAN_BROWSE_CHECK_INTERVAL, MDNS_SD_IP_CHECK_INTERVAL_SECS, MDNS_SD_META_SERVICE,
+    METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT,
 };
 use std::{
     collections::{HashMap, HashSet},
@@ -51,6 +51,9 @@ impl ManagedState {
 
 fn initialize_shared_daemon() -> SharedServiceDaemon {
     let daemon = ServiceDaemon::new().expect("Failed to create daemon");
+    if let Err(err) = daemon.set_ip_check_interval(MDNS_SD_IP_CHECK_INTERVAL_SECS) {
+        log::warn!("Failed to set ip check interval: {err:?}, continuing anyway");
+    }
     if let Err(err) = daemon.disable_interface(enumerate_mdns_incapable_interfaces()) {
         log::warn!("Failed to disable interface: {err:?}, continuing anyway");
     }
@@ -299,6 +302,38 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
         .collect()
 }
 
+#[cfg(windows)]
+fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
+    use ipconfig::{IfType, OperStatus};
+
+    if let Ok(adapters) = ipconfig::get_adapters() {
+        adapters
+            .iter()
+            .filter_map(|adapter| {
+                // Skip SoftwareLoopback, Tunnel, and Ppp interfaces as these
+                // interface types are disabled by default.
+                if matches!(
+                    adapter.if_type(),
+                    IfType::SoftwareLoopback | IfType::Tunnel | IfType::Ppp
+                ) {
+                    return None;
+                }
+                if adapter.ip_addresses().is_empty()
+                    || adapter.oper_status() != OperStatus::IfOperStatusUp
+                    || (adapter.if_type() != IfType::EthernetCsmacd
+                        && adapter.if_type() != IfType::Ieee80211)
+                {
+                    Some(IfKind::from(adapter.friendly_name()))
+                } else {
+                    None
+                }
+            })
+            .collect()
+    } else {
+        vec![]
+    }
+}
+
 #[cfg(not(windows))]
 #[cfg(test)]
 mod tests {
@@ -329,38 +364,6 @@ mod tests {
             "Loopback interfaces {:?} should not be included in mdns-incapable interfaces",
             loopback_names
         );
-    }
-}
-
-#[cfg(windows)]
-fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
-    use ipconfig::{IfType, OperStatus};
-
-    if let Ok(adapters) = ipconfig::get_adapters() {
-        adapters
-            .iter()
-            .filter_map(|adapter| {
-                // Skip SoftwareLoopback, Tunnel, and Ppp interfaces as these
-                // interface types are disabled by default.
-                if matches!(
-                    adapter.if_type(),
-                    IfType::SoftwareLoopback | IfType::Tunnel | IfType::Ppp
-                ) {
-                    return None;
-                }
-                if adapter.ip_addresses().is_empty()
-                    || adapter.oper_status() != OperStatus::IfOperStatusUp
-                    || (adapter.if_type() != IfType::EthernetCsmacd
-                        && adapter.if_type() != IfType::Ieee80211)
-                {
-                    Some(IfKind::from(adapter.friendly_name()))
-                } else {
-                    None
-                }
-            })
-            .collect()
-    } else {
-        vec![]
     }
 }
 
