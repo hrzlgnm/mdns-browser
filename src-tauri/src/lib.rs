@@ -924,16 +924,15 @@ pub fn run() {
             let url = main_window.url().expect("Main window url to exist");
             let scheme = url.scheme();
             if scheme == "http" {
-                let splashscreen_window = app
-                    .get_webview_window("splashscreen")
-                    .expect("Splashscreen window to exist");
-                tauri::async_runtime::spawn(async move {
-                    splashscreen_window.close().expect("To close");
-                    main_window.show().expect("To show");
-                    if args.enable_devtools {
-                        main_window.open_devtools();
-                    }
-                });
+                if let Some(splashscreen_window) = app.get_webview_window("splashscreen") {
+                    tauri::async_runtime::spawn(async move {
+                        let _ = splashscreen_window.close();
+                        let _ = main_window.show();
+                        if args.enable_devtools {
+                            main_window.open_devtools();
+                        }
+                    });
+                }
             }
             Ok(())
         })
