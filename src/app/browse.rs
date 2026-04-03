@@ -7,7 +7,7 @@ use leptos::task::spawn_local;
 use models::*;
 use reactive_stores::{Field, Store, StoreFieldIterator};
 use serde::{Deserialize, Serialize};
-use shared_constants::{AUTO_COMPLETE_AUTO_FOCUS_DELAY, SPLASH_SCREEN_DURATION, VERIFY_TIMEOUT};
+use shared_constants::{AUTO_COMPLETE_AUTO_FOCUS_DELAY, VERIFY_TIMEOUT};
 use std::collections::HashSet;
 use strsim::jaro_winkler;
 use tauri_sys::core::invoke;
@@ -865,7 +865,7 @@ pub fn Browse() -> impl IntoView {
             move |h| {
                 tutorial_timeout.set_value(h);
             },
-            SPLASH_SCREEN_DURATION + AUTO_COMPLETE_AUTO_FOCUS_DELAY,
+            AUTO_COMPLETE_AUTO_FOCUS_DELAY,
         );
     });
 
