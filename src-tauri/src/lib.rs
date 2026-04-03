@@ -32,10 +32,12 @@ struct ManagedState {
     can_browse_subscribed: AtomicBool,
     ipv4_enabled: AtomicBool,
     ipv6_enabled: AtomicBool,
+    #[cfg(desktop)]
     dev_tools_enabled: bool,
 }
 
 impl ManagedState {
+    #[cfg(desktop)]
     fn new(dev_tools_requested: bool) -> Self {
         Self {
             daemon: initialize_shared_daemon(),
@@ -45,6 +47,18 @@ impl ManagedState {
             ipv4_enabled: AtomicBool::new(true),
             ipv6_enabled: AtomicBool::new(true),
             dev_tools_enabled: dev_tools_requested,
+        }
+    }
+
+    #[cfg(mobile)]
+    fn new() -> Self {
+        Self {
+            daemon: initialize_shared_daemon(),
+            queriers: Arc::new(Mutex::new(HashSet::new())),
+            metrics_subscribed: AtomicBool::new(false),
+            can_browse_subscribed: AtomicBool::new(false),
+            ipv4_enabled: AtomicBool::new(true),
+            ipv6_enabled: AtomicBool::new(true),
         }
     }
 }
@@ -976,7 +990,7 @@ pub fn run_mobile() {
         )
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
-        .manage(ManagedState::new(false))
+        .manage(ManagedState::new())
         .invoke_handler(tauri::generate_handler![
             browse_many,
             browse_types,
