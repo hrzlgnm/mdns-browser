@@ -11,7 +11,7 @@ use models::*;
 #[cfg(all(desktop, not(debug_assertions)))]
 use shared_constants::SPLASH_SCREEN_DURATION;
 use shared_constants::{
-    INTERFACES_CAN_BROWSE_CHECK_INTERVAL, MDNS_SD_IP_CHECK_INTERVAL_SECS, MDNS_SD_META_SERVICE,
+    INTERFACES_CAN_BROWSE_CHECK_INTERVAL, MDNS_SD_IP_CHECK_INTERVAL, MDNS_SD_META_SERVICE,
     METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT,
 };
 use std::{
@@ -51,7 +51,7 @@ impl ManagedState {
 
 fn initialize_shared_daemon() -> SharedServiceDaemon {
     let daemon = ServiceDaemon::new().expect("Failed to create daemon");
-    if let Err(err) = daemon.set_ip_check_interval(MDNS_SD_IP_CHECK_INTERVAL_SECS) {
+    if let Err(err) = daemon.set_ip_check_interval(MDNS_SD_IP_CHECK_INTERVAL.as_secs() as u32) {
         log::warn!("Failed to set ip check interval: {err:?}, continuing anyway");
     }
     if let Err(err) = daemon.disable_interface(enumerate_mdns_incapable_interfaces()) {
