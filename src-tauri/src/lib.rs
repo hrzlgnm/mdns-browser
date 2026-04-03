@@ -8,8 +8,6 @@ use clap::Parser;
 use mdns_sd::{IfKind, ServiceDaemon, ServiceEvent};
 use models::check_service_type_fully_qualified;
 use models::*;
-#[cfg(all(desktop, not(debug_assertions)))]
-use shared_constants::SPLASH_SCREEN_DURATION;
 use shared_constants::{
     INTERFACES_CAN_BROWSE_CHECK_INTERVAL, MDNS_SD_IP_CHECK_INTERVAL, MDNS_SD_META_SERVICE,
     METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT,
@@ -34,9 +32,25 @@ struct ManagedState {
     can_browse_subscribed: AtomicBool,
     ipv4_enabled: AtomicBool,
     ipv6_enabled: AtomicBool,
+    #[cfg(desktop)]
+    dev_tools_enabled: bool,
 }
 
 impl ManagedState {
+    #[cfg(desktop)]
+    fn new(dev_tools_requested: bool) -> Self {
+        Self {
+            daemon: initialize_shared_daemon(),
+            queriers: Arc::new(Mutex::new(HashSet::new())),
+            metrics_subscribed: AtomicBool::new(false),
+            can_browse_subscribed: AtomicBool::new(false),
+            ipv4_enabled: AtomicBool::new(true),
+            ipv6_enabled: AtomicBool::new(true),
+            dev_tools_enabled: dev_tools_requested,
+        }
+    }
+
+    #[cfg(mobile)]
     fn new() -> Self {
         Self {
             daemon: initialize_shared_daemon(),
@@ -302,38 +316,6 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
         .collect()
 }
 
-#[cfg(windows)]
-fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
-    use ipconfig::{IfType, OperStatus};
-
-    if let Ok(adapters) = ipconfig::get_adapters() {
-        adapters
-            .iter()
-            .filter_map(|adapter| {
-                // Skip SoftwareLoopback, Tunnel, and Ppp interfaces as these
-                // interface types are disabled by default.
-                if matches!(
-                    adapter.if_type(),
-                    IfType::SoftwareLoopback | IfType::Tunnel | IfType::Ppp
-                ) {
-                    return None;
-                }
-                if adapter.ip_addresses().is_empty()
-                    || adapter.oper_status() != OperStatus::IfOperStatusUp
-                    || (adapter.if_type() != IfType::EthernetCsmacd
-                        && adapter.if_type() != IfType::Ieee80211)
-                {
-                    Some(IfKind::from(adapter.friendly_name()))
-                } else {
-                    None
-                }
-            })
-            .collect()
-    } else {
-        vec![]
-    }
-}
-
 #[cfg(not(windows))]
 #[cfg(test)]
 mod tests {
@@ -364,6 +346,38 @@ mod tests {
             "Loopback interfaces {:?} should not be included in mdns-incapable interfaces",
             loopback_names
         );
+    }
+}
+
+#[cfg(windows)]
+fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
+    use ipconfig::{IfType, OperStatus};
+
+    if let Ok(adapters) = ipconfig::get_adapters() {
+        adapters
+            .iter()
+            .filter_map(|adapter| {
+                // Skip SoftwareLoopback, Tunnel, and Ppp interfaces as these
+                // interface types are disabled by default.
+                if matches!(
+                    adapter.if_type(),
+                    IfType::SoftwareLoopback | IfType::Tunnel | IfType::Ppp
+                ) {
+                    return None;
+                }
+                if adapter.ip_addresses().is_empty()
+                    || adapter.oper_status() != OperStatus::IfOperStatusUp
+                    || (adapter.if_type() != IfType::EthernetCsmacd
+                        && adapter.if_type() != IfType::Ieee80211)
+                {
+                    Some(IfKind::from(adapter.friendly_name()))
+                } else {
+                    None
+                }
+            })
+            .collect()
+    } else {
+        vec![]
     }
 }
 
@@ -671,6 +685,21 @@ fn theme(window: Window) -> Theme {
     }
 }
 
+#[cfg(desktop)]
+#[tauri::command]
+fn close_splashscreen(app: AppHandle, state: State<ManagedState>) {
+    if let Some(w) = app.get_webview_window("main") {
+        let _ = w.show();
+        let _ = w.set_focus();
+        if state.dev_tools_enabled {
+            w.open_devtools();
+        }
+    }
+    if let Some(w) = app.get_webview_window("splashscreen") {
+        let _ = w.close();
+    }
+}
+
 #[cfg(mobile)]
 #[tauri::command]
 fn theme() -> Theme {
@@ -901,24 +930,27 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .manage(ManagedState::new())
+        .manage(ManagedState::new(args.enable_devtools))
         .manage(autoupdate::PendingUpdate(Mutex::new(None)))
         .setup(move |app| {
-            let splashscreen_window = app
-                .get_webview_window("splashscreen")
-                .expect("Splashscreen window to exist");
+            // Due to peculiarities of `tauri dev` mode,
+            // we need to do close the splashscreen manually
             let main_window = app
                 .get_webview_window("main")
                 .expect("Main window to exist");
-            tauri::async_runtime::spawn(async move {
-                #[cfg(not(debug_assertions))]
-                tokio::time::sleep(SPLASH_SCREEN_DURATION).await;
-                splashscreen_window.close().expect("To close");
-                main_window.show().expect("To show");
-                if args.enable_devtools {
-                    main_window.open_devtools();
+            let url = main_window.url().expect("Main window url to exist");
+            let scheme = url.scheme();
+            if scheme == "http" {
+                if let Some(splashscreen_window) = app.get_webview_window("splashscreen") {
+                    tauri::async_runtime::spawn(async move {
+                        let _ = splashscreen_window.close();
+                        let _ = main_window.show();
+                        if args.enable_devtools {
+                            main_window.open_devtools();
+                        }
+                    });
                 }
-            });
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -927,6 +959,7 @@ pub fn run() {
             autoupdate::can_auto_update,
             browse_many,
             browse_types,
+            close_splashscreen,
             copy_to_clipboard,
             get_protocol_flags,
             is_desktop,
@@ -942,6 +975,10 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+#[cfg(mobile)]
+#[tauri::command]
+fn close_splashscreen() {}
 
 #[cfg(mobile)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -960,6 +997,7 @@ pub fn run_mobile() {
         .invoke_handler(tauri::generate_handler![
             browse_many,
             browse_types,
+            close_splashscreen,
             copy_to_clipboard,
             get_protocol_flags,
             is_desktop,

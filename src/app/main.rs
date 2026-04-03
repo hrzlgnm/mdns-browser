@@ -5,6 +5,7 @@ use super::{
     about::About,
     browse::Browse,
     css::get_class,
+    invoke::invoke_no_args,
     is_desktop::{IsDesktopInjection, get_is_desktop},
     metrics::Metrics,
     theme_switcher::ThemeSwitcher,
@@ -20,6 +21,10 @@ use leptos::{
 use thaw::{
     ConfigProvider, Flex, FlexJustify, Grid, GridItem, Layout, Text, Theme, ToasterProvider,
 };
+
+async fn close_splashscreen() {
+    let _ = invoke_no_args("close_splashscreen").await;
+}
 
 /// The main app component
 #[component]
@@ -94,6 +99,7 @@ pub fn Main() -> impl IntoView {
     });
     let (is_desktop, set_is_desktop) = signal(false);
     LocalResource::new(move || get_is_desktop(set_is_desktop));
+    LocalResource::new(close_splashscreen);
     let layout_class = get_class(&is_desktop, "outer-layout");
     provide_context(IsDesktopInjection(is_desktop));
     view! {
