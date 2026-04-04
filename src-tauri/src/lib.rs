@@ -106,6 +106,41 @@ fn convert_to_scoped_addr(host_ip: &mdns_sd::ScopedIp) -> ScopedAddr {
     }
 }
 
+#[cfg(test)]
+mod convert_to_scoped_addr_tests {
+    use super::*;
+    use std::net::{Ipv4Addr, Ipv6Addr};
+
+    #[test]
+    fn test_convert_to_scoped_addr_ipv4() {
+        use mdns_sd::{InterfaceId, ScopedIp, ScopedIpV4};
+
+        let ipv4_addr = Ipv4Addr::new(192, 168, 1, 1);
+        let interface_id = InterfaceId {
+            name: "eth0".to_string(),
+            index: 2,
+        };
+        let scoped_ip = ScopedIp::V4(ScopedIpV4::new(ipv4_addr, interface_id));
+
+        let result = convert_to_scoped_addr(&scoped_ip);
+
+        assert_eq!(result.addr, IpAddr::V4(ipv4_addr));
+        assert!(!result.interfaces.is_empty());
+    }
+
+    #[test]
+    fn test_convert_to_scoped_addr_ipv6() {
+        use mdns_sd::ScopedIp;
+
+        let ipv6_addr = Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 1);
+        let scoped_ip = ScopedIp::from(IpAddr::V6(ipv6_addr));
+
+        let result = convert_to_scoped_addr(&scoped_ip);
+
+        assert_eq!(result.addr, IpAddr::V6(ipv6_addr));
+    }
+}
+
 fn from_resolved_service(resolved: &mdns_sd::ResolvedService) -> ResolvedService {
     let addresses: Vec<ScopedAddr> = resolved
         .addresses
@@ -125,7 +160,11 @@ fn from_resolved_service(resolved: &mdns_sd::ResolvedService) -> ResolvedService
             consolidated.push(addr);
         } else if let Some(existing) = consolidated.iter_mut().find(|a| a.addr == addr.addr) {
             for interface in addr.interfaces {
-                if !existing.interfaces.iter().any(|i| i.index == interface.index) {
+                if !existing
+                    .interfaces
+                    .iter()
+                    .any(|i| i.index == interface.index)
+                {
                     existing.interfaces.push(interface);
                 }
             }

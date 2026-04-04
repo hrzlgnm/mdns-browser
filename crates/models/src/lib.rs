@@ -74,18 +74,7 @@ impl Display for ScopedAddr {
         if self.interfaces.is_empty() {
             write!(f, "{}", self.addr)
         } else if self.is_ipv6_link_local() {
-            if let Some(iface) = self.interfaces.first() {
-                #[cfg(windows)]
-                {
-                    write!(f, "{}%{}", self.addr, iface.index)
-                }
-                #[cfg(not(windows))]
-                {
-                    write!(f, "{}%{}", self.addr, iface.name)
-                }
-            } else {
-                write!(f, "{}", self.addr)
-            }
+            self.format_ip_with_scope_to_formatter(f)
         } else if self.is_ipv6() {
             let mut interface_names: Vec<&str> =
                 self.interfaces.iter().map(|i| i.name.as_str()).collect();
@@ -103,20 +92,42 @@ impl Display for ScopedAddr {
 impl ScopedAddr {
     pub fn to_ip_string(&self) -> String {
         if self.is_ipv6_link_local() {
-            if let Some(iface) = self.interfaces.first() {
-                #[cfg(windows)]
-                {
-                    format!("{}%{}", self.addr, iface.index)
-                }
-                #[cfg(not(windows))]
-                {
-                    format!("{}%{}", self.addr, iface.name)
-                }
-            } else {
-                self.addr.to_string()
+            self.format_ip_with_scope()
+        } else {
+            self.addr.to_string()
+        }
+    }
+
+    fn format_ip_with_scope(&self) -> String {
+        if let Some(iface) = self.interfaces.first() {
+            #[cfg(windows)]
+            {
+                format!("{}%{}", self.addr, iface.index)
+            }
+            #[cfg(not(windows))]
+            {
+                format!("{}%{}", self.addr, iface.name)
             }
         } else {
             self.addr.to_string()
+        }
+    }
+
+    fn format_ip_with_scope_to_formatter(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+    ) -> std::fmt::Result {
+        if let Some(iface) = self.interfaces.first() {
+            #[cfg(windows)]
+            {
+                write!(f, "{}%{}", self.addr, iface.index)
+            }
+            #[cfg(not(windows))]
+            {
+                write!(f, "{}%{}", self.addr, iface.name)
+            }
+        } else {
+            write!(f, "{}", self.addr)
         }
     }
 

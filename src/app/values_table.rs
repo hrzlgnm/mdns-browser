@@ -20,17 +20,20 @@ fn CopyableTableCell(
     #[prop(optional, into)] copy_text: MaybeProp<String>,
 ) -> impl IntoView {
     let is_desktop = IsDesktopInjection::expect_context();
-    let text_to_copy = copy_text.get().unwrap_or_else(|| text.clone());
+    let text_clone = text.clone();
     let copy_to_clipboard_action = Action::new_local(|input: &String| {
         let input = input.clone();
         async move { copy_to_clipboard(input.clone()).await }
     });
     let toaster = ToasterInjection::expect_context();
     let on_copy_to_clipboard_click = move |_| {
-        let text = text_to_copy.clone();
-        copy_to_clipboard_action.dispatch(text.clone());
+        let local_text = copy_text.get().unwrap_or_else(|| text_clone.clone());
+        copy_to_clipboard_action.dispatch(local_text.clone());
         if is_desktop.get_untracked() {
-            toaster.dispatch_toast(move || create_clipboard_toast(text), Default::default());
+            toaster.dispatch_toast(
+                move || create_clipboard_toast(local_text.clone()),
+                Default::default(),
+            );
         }
     };
     view! {

@@ -493,7 +493,13 @@ fn ResolvedServiceItem(
 
     let title = Signal::derive(move || resolved_service.get().get_instance_name());
     let show_details = RwSignal::new(false);
-    let first_address = Memo::new(move |_| addrs.get().first().map(|a| a.to_string()).unwrap());
+    let first_address = Memo::new(move |_| {
+        addrs
+            .get()
+            .first()
+            .map(|a| a.to_string())
+            .unwrap_or_default()
+    });
     let first_address_for_copy = Memo::new(move |_| {
         resolved_service
             .addresses()
