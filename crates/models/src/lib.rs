@@ -105,19 +105,26 @@ impl Display for ScopedAddr {
             if let Some(name) = &self.display_name {
                 return write!(f, "{}%{}", self.addr, name);
             }
-        }
-        if self.interfaces.is_empty() {
-            write!(f, "{}", self.addr)
-        } else if self.is_ipv6_link_local() {
             if let Some(iface) = self.interfaces.first() {
-                write!(f, "{}%{}", self.addr, iface.name)
-            } else {
-                write!(f, "{}", self.addr)
+                return write!(f, "{}%{}", self.addr, iface.index);
             }
-        } else {
-            let interface_names: Vec<&str> =
-                self.interfaces.iter().map(|i| i.name.as_str()).collect();
-            write!(f, "{} via {}", self.addr, interface_names.join(", "))
+            return write!(f, "{}", self.addr);
+        }
+        #[cfg(not(windows))]
+        {
+            if self.interfaces.is_empty() {
+                write!(f, "{}", self.addr)
+            } else if self.is_ipv6_link_local() {
+                if let Some(iface) = self.interfaces.first() {
+                    write!(f, "{}%{}", self.addr, iface.name)
+                } else {
+                    write!(f, "{}", self.addr)
+                }
+            } else {
+                let interface_names: Vec<&str> =
+                    self.interfaces.iter().map(|i| i.name.as_str()).collect();
+                write!(f, "{} via {}", self.addr, interface_names.join(", "))
+            }
         }
     }
 }
@@ -129,18 +136,26 @@ impl ScopedAddr {
             if let Some(name) = &self.display_name {
                 return format!("{}%{}", self.addr, name);
             }
-        }
-        if self.is_ipv6_link_local() {
             if let Some(iface) = self.interfaces.first() {
-                format!("{}%{}", self.addr, iface.name)
+                return format!("{}%{}", self.addr, iface.index);
+            }
+            return self.addr.to_string();
+        }
+        #[cfg(not(windows))]
+        {
+            if self.is_ipv6_link_local() {
+                if let Some(iface) = self.interfaces.first() {
+                    format!("{}%{}", self.addr, iface.name)
+                } else {
+                    self.addr.to_string()
+                }
             } else {
                 self.addr.to_string()
             }
-        } else {
-            self.addr.to_string()
         }
     }
 
+    #[cfg(not(windows))]
     fn is_ipv6_link_local(&self) -> bool {
         matches!(self.addr, IpAddr::V6(addr) if addr.is_unicast_link_local())
     }
