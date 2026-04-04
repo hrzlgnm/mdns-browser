@@ -132,11 +132,7 @@ impl ScopedAddr {
     }
 
     fn is_ipv6_link_local(&self) -> bool {
-        if let IpAddr::V6(ipv6) = self.addr {
-            ipv6.is_unicast_link_local()
-        } else {
-            false
-        }
+        matches!(self.addr, IpAddr::V6(addr) if addr.is_unicast_link_local())
     }
 
     fn is_ipv6(&self) -> bool {
