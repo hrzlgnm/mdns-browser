@@ -68,11 +68,13 @@ actionlint .github/workflows/*.yml
 ### Full lint check (as run in CI)
 ```bash
 cargo fmt -- --check && \
-cd src-tauri && cargo fmt -- --check && \
-cd .. && \
+cd src-tauri && cargo fmt -- --check
+```
+
+```bash
 leptosfmt --check src && \
 cargo clippy --workspace --tests -- -D warnings && \
-cargo nextest run --profile ci && \
+cargo nextest run --profile ci -p models -p mdns-browser && \
 actionlint .github/workflows/*.yml
 ```
 
@@ -88,8 +90,8 @@ cargo tauri dev -- --log-level debug --enable-devtools
 1. REQUIRED: Create a branch for your changes with an appropriate prefix (e.g., `feat/`, `fix/`, `chore/`, `refactor/`, `docs/`)
 2. Make changes to source code
 3. Run `cargo fmt` to format code
-4. Run `cargo clippy --tests -- -D warnings` to check for issues
-5. Run `cargo nextest run --profile ci` to run tests
+4. Run `cargo clippy --workspace --tests -- -D warnings` to check for issues
+5. Run `cargo nextest run --profile ci -p models -p mdns-browser` to run tests
 6. Run `cargo --locked tauri build --no-bundle --no-sign` to build release version
 7. Run `cargo clippy --release -workspace --tests -- -D warnings` to ensure no warnings in release
 8. Run `actionlint` to check GitHub Actions workflows if modified
