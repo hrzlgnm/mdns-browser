@@ -85,8 +85,9 @@ impl Display for ScopedAddr {
                 write!(f, "{}", self.addr)
             }
         } else {
-            let interface_names: Vec<&str> =
+            let mut interface_names: Vec<&str> =
                 self.interfaces.iter().map(|i| i.name.as_str()).collect();
+            interface_names.sort_unstable();
             write!(f, "{} via {}", self.addr, interface_names.join(", "))
         }
     }
