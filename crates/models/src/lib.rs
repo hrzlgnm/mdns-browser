@@ -100,22 +100,17 @@ impl From<IpAddr> for ScopedAddr {
 
 impl Display for ScopedAddr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.interfaces.is_empty() {
+        #[cfg(windows)]
+        {
             if let Some(name) = &self.display_name {
-                write!(f, "{}%{}", self.addr, name)
-            } else {
-                write!(f, "{}", self.addr)
+                return write!(f, "{}%{}", self.addr, name);
             }
+        }
+        if self.interfaces.is_empty() {
+            write!(f, "{}", self.addr)
         } else if self.is_ipv6_link_local() {
             if let Some(iface) = self.interfaces.first() {
-                #[cfg(windows)]
-                {
-                    write!(f, "{}%{}", self.addr, iface.index)
-                }
-                #[cfg(not(windows))]
-                {
-                    write!(f, "{}%{}", self.addr, iface.name)
-                }
+                write!(f, "{}%{}", self.addr, iface.name)
             } else {
                 write!(f, "{}", self.addr)
             }
@@ -129,25 +124,18 @@ impl Display for ScopedAddr {
 
 impl ScopedAddr {
     pub fn to_ip_string(&self) -> String {
-        if self.is_ipv6_link_local() {
-            self.format_ip_with_scope()
-        } else {
-            self.addr.to_string()
+        #[cfg(windows)]
+        {
+            if let Some(name) = &self.display_name {
+                return format!("{}%{}", self.addr, name);
+            }
         }
-    }
-
-    fn format_ip_with_scope(&self) -> String {
-        if let Some(iface) = self.interfaces.first() {
-            #[cfg(windows)]
-            {
-                format!("{}%{}", self.addr, iface.index)
-            }
-            #[cfg(not(windows))]
-            {
+        if self.is_ipv6_link_local() {
+            if let Some(iface) = self.interfaces.first() {
                 format!("{}%{}", self.addr, iface.name)
+            } else {
+                self.addr.to_string()
             }
-        } else if let Some(name) = &self.display_name {
-            format!("{}%{}", self.addr, name)
         } else {
             self.addr.to_string()
         }
@@ -990,8 +978,8 @@ mod tests {
         }
         #[cfg(not(windows))]
         {
-            assert_eq!(scoped.to_string(), "fe80::1%7");
-            assert_eq!(scoped.to_ip_string(), "fe80::1%7");
+            assert_eq!(scoped.to_string(), "fe80::1");
+            assert_eq!(scoped.to_ip_string(), "fe80::1");
         }
     }
 
@@ -1005,7 +993,7 @@ mod tests {
                 name: "eth0".to_string(),
                 index: 2,
             }],
-            display_name: Some("Ethernet".to_string()),
+            display_name: Some("7".to_string()),
         };
         #[cfg(windows)]
         {

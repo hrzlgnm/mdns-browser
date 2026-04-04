@@ -99,8 +99,7 @@ fn convert_to_scoped_addr(host_ip: &mdns_sd::ScopedIp) -> ScopedAddr {
         mdns_sd::ScopedIp::V6(host_ip_v6) => {
             let interface = convert_interface_id(host_ip_v6.scope_id());
             let ip_addr = host_ip.to_ip_addr();
-            let is_link_local =
-                matches!(ip_addr, IpAddr::V6(v6) if v6.is_unicast_link_local());
+            let is_link_local = matches!(ip_addr, IpAddr::V6(v6) if v6.is_unicast_link_local());
             let display_name = if is_link_local {
                 #[cfg(windows)]
                 {
