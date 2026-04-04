@@ -171,15 +171,7 @@ fn from_resolved_service(resolved: &mdns_sd::ResolvedService) -> ResolvedService
         if is_ipv6_link_local {
             consolidated.push(addr);
         } else if let Some(existing) = consolidated.iter_mut().find(|a| a.addr == addr.addr) {
-            for interface in addr.interfaces {
-                if !existing
-                    .interfaces
-                    .iter()
-                    .any(|i| i.index == interface.index)
-                {
-                    existing.interfaces.insert(interface);
-                }
-            }
+            existing.interfaces.extend(addr.interfaces);
         } else {
             consolidated.push(addr);
         }

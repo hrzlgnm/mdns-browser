@@ -65,22 +65,24 @@ impl From<IpAddr> for ScopedAddr {
 impl Display for ScopedAddr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(name) = &self.scope_id {
-            return write!(f, "{}%{}", self.addr, name);
+            write!(f, "{}%{}", self.addr, name)
+        } else if self.interfaces.is_empty() {
+            write!(f, "{}", self.addr)
+        } else {
+            let interface_names: Vec<&str> =
+                self.interfaces.iter().map(|i| i.name.as_str()).collect();
+            write!(f, "{} via {}", self.addr, interface_names.join(", "))
         }
-        if self.interfaces.is_empty() {
-            return write!(f, "{}", self.addr);
-        }
-        let interface_names: Vec<&str> = self.interfaces.iter().map(|i| i.name.as_str()).collect();
-        write!(f, "{} via {}", self.addr, interface_names.join(", "))
     }
 }
 
 impl ScopedAddr {
     pub fn to_ip_string(&self) -> String {
         if let Some(name) = &self.scope_id {
-            return format!("{}%{}", self.addr, name);
+            format!("{}%{}", self.addr, name)
+        } else {
+            self.addr.to_string()
         }
-        self.addr.to_string()
     }
 }
 
