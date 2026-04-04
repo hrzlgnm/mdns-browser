@@ -3,7 +3,12 @@
 
 use reactive_stores::Store;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fmt::Display, net::IpAddr, time::SystemTime};
+use std::{
+    collections::{BTreeSet, HashMap},
+    fmt::Display,
+    net::IpAddr,
+    time::SystemTime,
+};
 
 pub type ServiceTypes = Vec<String>;
 
@@ -39,7 +44,7 @@ pub struct InterfaceScope {
     pub index: u32,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialOrd, Ord, Store)]
+#[derive(Deserialize, Serialize, Debug, Clone, Store)]
 pub struct ScopedAddr {
     pub addr: IpAddr,
     pub interfaces: Vec<InterfaceScope>,
@@ -60,6 +65,27 @@ impl PartialEq for ScopedAddr {
 
 impl Eq for ScopedAddr {}
 
+impl PartialOrd for ScopedAddr {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for ScopedAddr {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match self.addr.cmp(&other.addr) {
+            std::cmp::Ordering::Equal => {
+                let self_names: BTreeSet<&str> =
+                    self.interfaces.iter().map(|i| i.name.as_str()).collect();
+                let other_names: BTreeSet<&str> =
+                    other.interfaces.iter().map(|i| i.name.as_str()).collect();
+                self_names.cmp(&other_names)
+            }
+            ord => ord,
+        }
+    }
+}
+
 impl From<IpAddr> for ScopedAddr {
     fn from(addr: IpAddr) -> Self {
         ScopedAddr {
@@ -75,11 +101,6 @@ impl Display for ScopedAddr {
             write!(f, "{}", self.addr)
         } else if self.is_ipv6_link_local() {
             self.format_ip_with_scope_to_formatter(f)
-        } else if self.is_ipv6() {
-            let mut interface_names: Vec<&str> =
-                self.interfaces.iter().map(|i| i.name.as_str()).collect();
-            interface_names.sort_unstable();
-            write!(f, "{} via {}", self.addr, interface_names.join(", "))
         } else {
             let mut interface_names: Vec<&str> =
                 self.interfaces.iter().map(|i| i.name.as_str()).collect();
@@ -133,10 +154,6 @@ impl ScopedAddr {
 
     fn is_ipv6_link_local(&self) -> bool {
         matches!(self.addr, IpAddr::V6(addr) if addr.is_unicast_link_local())
-    }
-
-    fn is_ipv6(&self) -> bool {
-        matches!(self.addr, IpAddr::V6(_))
     }
 }
 
