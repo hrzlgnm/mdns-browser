@@ -56,11 +56,17 @@ jobs:
 
     name: ${{matrix.symbol}}🔨
     runs-on: ${{matrix.os}}
+    container: ${{ matrix.container_image || '' }}
     steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
         with:
-          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
+          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
           save-cache: ${{ github.ref == 'refs/heads/main' }}
 
       - name: 🛠️🐂
