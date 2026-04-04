@@ -104,10 +104,7 @@ fn convert_to_scoped_addr(host_ip: &mdns_sd::ScopedIp) -> ScopedAddr {
                 interfaces,
             }
         }
-        _ => ScopedAddr {
-            addr: host_ip.to_ip_addr(),
-            interfaces: Vec::new(),
-        },
+        _ => unreachable!(),
     }
 }
 
