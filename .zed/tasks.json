@@ -50,6 +50,8 @@
             "run",
             "--package=models",
             "--package=mdns-browser",
+            "--profile",
+            "ci",
         ],
         "env": {},
         "use_new_terminal": false,
