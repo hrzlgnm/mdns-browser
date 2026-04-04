@@ -47,7 +47,6 @@ jobs:
             platform: Linux
             container_image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:3d1f37dc82c523e80b700abdc7a6110c8542d5c02ce5f0d4e7198a6bfee13159
           - os: "macos-latest"
-            args: "--target universal-apple-darwin"
             symbol: 🍏
             platform: macOS
           - os: "windows-latest"
