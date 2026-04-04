@@ -11,8 +11,8 @@ reviews:
   collapse_walkthrough: true
   auto_assign_reviewers: true
   auto_review:
-    enabled: false
-    auto_incremental_review: false
+    enabled: true
+    auto_incremental_review: true
     drafts: false
   finishing_touches:
     docstrings:
