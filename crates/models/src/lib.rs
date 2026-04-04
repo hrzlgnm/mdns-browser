@@ -163,12 +163,6 @@ impl ScopedAddr {
         }
     }
 
-    #[cfg(not(windows))]
-    fn is_ipv6_link_local(&self) -> bool {
-        matches!(self.addr, IpAddr::V6(addr) if addr.is_unicast_link_local())
-    }
-
-    #[cfg(windows)]
     fn is_ipv6_link_local(&self) -> bool {
         matches!(self.addr, IpAddr::V6(addr) if addr.is_unicast_link_local())
     }
