@@ -39,11 +39,24 @@ pub struct InterfaceScope {
     pub index: u32,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Store)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialOrd, Ord, Store)]
 pub struct ScopedAddr {
     pub addr: IpAddr,
     pub interfaces: Vec<InterfaceScope>,
 }
+
+impl PartialEq for ScopedAddr {
+    fn eq(&self, other: &Self) -> bool {
+        if self.addr != other.addr {
+            return false;
+        }
+        let self_names: Vec<&str> = self.interfaces.iter().map(|i| i.name.as_str()).collect();
+        let other_names: Vec<&str> = other.interfaces.iter().map(|i| i.name.as_str()).collect();
+        self_names.len() == other_names.len() && self_names.iter().all(|n| other_names.contains(n))
+    }
+}
+
+impl Eq for ScopedAddr {}
 
 impl From<IpAddr> for ScopedAddr {
     fn from(addr: IpAddr) -> Self {
@@ -765,7 +778,7 @@ mod tests {
         ); // Invalid subtype without _sub keyword
         assert_eq!(
             check_service_type_fully_qualified("_myprinter.____._sub._tcp.local."),
-            Err(MdnsError::InvalidSubType)
+            Err(MdnsError::InvalidSublabel)
         ); // Invalid subtype format
     }
 
@@ -800,5 +813,49 @@ mod tests {
             index: 4,
         });
         assert_eq!(scoped.to_string(), "192.168.1.1 via eth0, wlan0");
+    }
+
+    #[test]
+    fn test_scoped_addr_eq_different_order_interfaces() {
+        let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
+        let mut scoped1 = ScopedAddr::from(addr);
+        scoped1.interfaces.push(InterfaceScope {
+            name: "eth0".to_string(),
+            index: 2,
+        });
+        scoped1.interfaces.push(InterfaceScope {
+            name: "wlan0".to_string(),
+            index: 4,
+        });
+
+        let mut scoped2 = ScopedAddr::from(addr);
+        scoped2.interfaces.push(InterfaceScope {
+            name: "wlan0".to_string(),
+            index: 4,
+        });
+        scoped2.interfaces.push(InterfaceScope {
+            name: "eth0".to_string(),
+            index: 2,
+        });
+
+        assert_eq!(scoped1, scoped2);
+    }
+
+    #[test]
+    fn test_scoped_addr_ne_different_interfaces() {
+        let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
+        let mut scoped1 = ScopedAddr::from(addr);
+        scoped1.interfaces.push(InterfaceScope {
+            name: "eth0".to_string(),
+            index: 2,
+        });
+
+        let mut scoped2 = ScopedAddr::from(addr);
+        scoped2.interfaces.push(InterfaceScope {
+            name: "wlan0".to_string(),
+            index: 4,
+        });
+
+        assert_ne!(scoped1, scoped2);
     }
 }
