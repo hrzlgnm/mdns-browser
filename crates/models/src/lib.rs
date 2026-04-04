@@ -48,6 +48,8 @@ pub struct InterfaceScope {
 pub struct ScopedAddr {
     pub addr: IpAddr,
     pub interfaces: Vec<InterfaceScope>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub display_name: Option<String>,
 }
 
 impl PartialEq for ScopedAddr {
@@ -91,6 +93,7 @@ impl From<IpAddr> for ScopedAddr {
         ScopedAddr {
             addr,
             interfaces: Vec::new(),
+            display_name: None,
         }
     }
 }
@@ -102,9 +105,11 @@ impl Display for ScopedAddr {
         } else if self.is_ipv6_link_local() {
             self.format_ip_with_scope_to_formatter(f)
         } else {
-            let mut interface_names: Vec<&str> =
-                self.interfaces.iter().map(|i| i.name.as_str()).collect();
-            interface_names.sort_unstable();
+            let interface_names: Vec<&str> = self
+                .display_name
+                .as_ref()
+                .map(|n| vec![n.as_str()])
+                .unwrap_or_else(|| self.interfaces.iter().map(|i| i.name.as_str()).collect());
             write!(f, "{} via {}", self.addr, interface_names.join(", "))
         }
     }

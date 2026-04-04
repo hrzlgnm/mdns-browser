@@ -90,16 +90,21 @@ fn convert_to_scoped_addr(host_ip: &mdns_sd::ScopedIp) -> ScopedAddr {
                 .iter()
                 .map(convert_interface_id)
                 .collect();
+            let display_name = interfaces.first().map(|i| i.name.clone());
             ScopedAddr {
                 addr: host_ip.to_ip_addr(),
                 interfaces,
+                display_name,
             }
         }
         mdns_sd::ScopedIp::V6(host_ip_v6) => {
-            let interfaces = vec![convert_interface_id(host_ip_v6.scope_id())];
+            let interface = convert_interface_id(host_ip_v6.scope_id());
+            let interfaces = vec![interface.clone()];
+            let display_name = Some(interface.name);
             ScopedAddr {
                 addr: host_ip.to_ip_addr(),
                 interfaces,
+                display_name,
             }
         }
         _ => unreachable!(),
