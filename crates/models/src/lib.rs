@@ -50,9 +50,9 @@ impl PartialEq for ScopedAddr {
         if self.addr != other.addr {
             return false;
         }
-        let self_names: Vec<&str> = self.interfaces.iter().map(|i| i.name.as_str()).collect();
-        let other_names: Vec<&str> = other.interfaces.iter().map(|i| i.name.as_str()).collect();
-        self_names.len() == other_names.len() && self_names.iter().all(|n| other_names.contains(n))
+        let self_names: std::collections::HashSet<&str> = self.interfaces.iter().map(|i| i.name.as_str()).collect();
+        let other_names: std::collections::HashSet<&str> = other.interfaces.iter().map(|i| i.name.as_str()).collect();
+        self_names == other_names
     }
 }
 
