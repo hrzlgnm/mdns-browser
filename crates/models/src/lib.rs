@@ -1,4 +1,4 @@
-// Copyright 2024-2025 hrzlgnm
+// Copyright 2026 hrzlgnm
 // SPDX-License-Identifier: MIT-0
 
 use reactive_stores::Store;
@@ -42,21 +42,29 @@ pub struct InterfaceScope {
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Store)]
 pub struct ScopedAddr {
     pub addr: IpAddr,
-    pub scope: Option<InterfaceScope>,
+    pub interfaces: Vec<InterfaceScope>,
 }
 
 impl From<IpAddr> for ScopedAddr {
     fn from(addr: IpAddr) -> Self {
-        ScopedAddr { addr, scope: None }
+        ScopedAddr {
+            addr,
+            interfaces: Vec::new(),
+        }
     }
 }
 
 impl Display for ScopedAddr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(scope) = &self.scope {
-            write!(f, "{}%{}", self.addr, scope.index)
-        } else {
+        if self.interfaces.is_empty() {
             write!(f, "{}", self.addr)
+        } else {
+            let interface_strs: Vec<String> = self
+                .interfaces
+                .iter()
+                .map(|i| format!("<{}>", i.name))
+                .collect();
+            write!(f, "{} {}", self.addr, interface_strs.join(", "))
         }
     }
 }

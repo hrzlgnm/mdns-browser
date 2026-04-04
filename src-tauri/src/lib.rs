@@ -74,23 +74,40 @@ fn initialize_shared_daemon() -> SharedServiceDaemon {
     Arc::new(Mutex::new(daemon))
 }
 
+fn convert_interface_id(id: &mdns_sd::InterfaceId) -> InterfaceScope {
+    InterfaceScope {
+        name: id.name.clone(),
+        index: id.index,
+    }
+}
+
 fn convert_to_scoped_addr(host_ip: &mdns_sd::ScopedIp) -> ScopedAddr {
     match host_ip {
-        mdns_sd::ScopedIp::V6(host_ip_v6) => {
-            if host_ip_v6.addr().is_unicast_link_local() {
-                let scope = host_ip_v6.scope_id();
-                ScopedAddr {
-                    addr: host_ip.to_ip_addr(),
-                    scope: Some(InterfaceScope {
-                        name: scope.name.clone(),
-                        index: scope.index,
-                    }),
-                }
-            } else {
-                host_ip.to_ip_addr().into()
+        mdns_sd::ScopedIp::V4(host_ip_v4) => {
+            let interfaces: Vec<InterfaceScope> = host_ip_v4
+                .interface_ids()
+                .iter()
+                .map(convert_interface_id)
+                .collect();
+            ScopedAddr {
+                addr: host_ip.to_ip_addr(),
+                interfaces,
             }
         }
-        _ => host_ip.to_ip_addr().into(),
+        mdns_sd::ScopedIp::V6(host_ip_v6) => {
+            let mut interfaces = Vec::new();
+            if host_ip_v6.addr().is_unicast_link_local() {
+                interfaces.push(convert_interface_id(host_ip_v6.scope_id()));
+            }
+            ScopedAddr {
+                addr: host_ip.to_ip_addr(),
+                interfaces,
+            }
+        }
+        _ => ScopedAddr {
+            addr: host_ip.to_ip_addr(),
+            interfaces: Vec::new(),
+        },
     }
 }
 
