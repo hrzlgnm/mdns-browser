@@ -107,7 +107,18 @@ impl Display for ScopedAddr {
                 write!(f, "{}", self.addr)
             }
         } else if self.is_ipv6_link_local() {
-            self.format_ip_with_scope_to_formatter(f)
+            if let Some(iface) = self.interfaces.first() {
+                #[cfg(windows)]
+                {
+                    write!(f, "{}%{}", self.addr, iface.index)
+                }
+                #[cfg(not(windows))]
+                {
+                    write!(f, "{}%{}", self.addr, iface.name)
+                }
+            } else {
+                write!(f, "{}", self.addr)
+            }
         } else {
             let interface_names: Vec<&str> =
                 self.interfaces.iter().map(|i| i.name.as_str()).collect();
@@ -139,26 +150,6 @@ impl ScopedAddr {
             format!("{}%{}", self.addr, name)
         } else {
             self.addr.to_string()
-        }
-    }
-
-    fn format_ip_with_scope_to_formatter(
-        &self,
-        f: &mut std::fmt::Formatter<'_>,
-    ) -> std::fmt::Result {
-        if let Some(iface) = self.interfaces.first() {
-            #[cfg(windows)]
-            {
-                write!(f, "{}%{}", self.addr, iface.index)
-            }
-            #[cfg(not(windows))]
-            {
-                write!(f, "{}%{}", self.addr, iface.name)
-            }
-        } else if let Some(name) = &self.display_name {
-            write!(f, "{}%{}", self.addr, name)
-        } else {
-            write!(f, "{}", self.addr)
         }
     }
 
