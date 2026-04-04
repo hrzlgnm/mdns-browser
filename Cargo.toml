@@ -63,7 +63,7 @@ serde_with = "3"
 log = "0.4"
 thiserror = "2.0"
 tokio = { version = "1.45", features = ["time"] }
-mdns-sd = { git = "https://github.com/keepsimple1/mdns-sd", rev = "468c5eef6cd8daaf52d835283d6ee1a9dafdb3ea" }
+mdns-sd = { git = "https://github.com/keepsimple1/mdns-sd", rev = "b6ddc18072dd617eb4d7414e533e485cc6920fbb" }
 tauri = { version = "2.0", features = ["devtools"] }
 tauri-plugin-clipboard-manager = "2.2"
 tauri-plugin-log = { version = "2.4", features = ["colored"] }
