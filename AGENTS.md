@@ -91,7 +91,7 @@ cargo tauri dev -- --log-level debug --enable-devtools
 9. If README.md was updated, update the manpage (`docs/mdns-browser.1`)
 10. Commit only when all checks pass
 11. After committing, push to the repository and create a pull request if applicable
-12. Use conventional commit format (e.g., `feat:`, `fix:`, `docs:`) for commit messages 
+12. Use conventional commit format (e.g., feat:, fix:, chore:, refactor:, docs:) for commit messages
 
 # Code Style Guidelines
 
