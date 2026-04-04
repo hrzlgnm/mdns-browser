@@ -50,8 +50,10 @@ impl PartialEq for ScopedAddr {
         if self.addr != other.addr {
             return false;
         }
-        let self_names: std::collections::HashSet<&str> = self.interfaces.iter().map(|i| i.name.as_str()).collect();
-        let other_names: std::collections::HashSet<&str> = other.interfaces.iter().map(|i| i.name.as_str()).collect();
+        let self_names: std::collections::HashSet<&str> =
+            self.interfaces.iter().map(|i| i.name.as_str()).collect();
+        let other_names: std::collections::HashSet<&str> =
+            other.interfaces.iter().map(|i| i.name.as_str()).collect();
         self_names == other_names
     }
 }
@@ -84,6 +86,11 @@ impl Display for ScopedAddr {
             } else {
                 write!(f, "{}", self.addr)
             }
+        } else if self.is_ipv6() {
+            let mut interface_names: Vec<&str> =
+                self.interfaces.iter().map(|i| i.name.as_str()).collect();
+            interface_names.sort_unstable();
+            write!(f, "{} via {}", self.addr, interface_names.join(", "))
         } else {
             let mut interface_names: Vec<&str> =
                 self.interfaces.iter().map(|i| i.name.as_str()).collect();
@@ -119,6 +126,10 @@ impl ScopedAddr {
         } else {
             false
         }
+    }
+
+    fn is_ipv6(&self) -> bool {
+        matches!(self.addr, IpAddr::V6(_))
     }
 }
 
@@ -915,5 +926,26 @@ mod tests {
         assert_eq!(scoped.to_string(), "fe80::1%2");
         #[cfg(not(windows))]
         assert_eq!(scoped.to_string(), "fe80::1%eth0");
+    }
+
+    #[test]
+    fn test_scoped_addr_display_ipv6_with_interfaces() {
+        use std::net::Ipv6Addr;
+        let addr = IpAddr::V6(Ipv6Addr::new(
+            0x2003, 0xe8, 0xbf0c, 0xea00, 0xca0e, 0x14ff, 0xfeff, 0x416,
+        ));
+        let mut scoped = ScopedAddr::from(addr);
+        scoped.interfaces.push(InterfaceScope {
+            name: "enp12s0".to_string(),
+            index: 2,
+        });
+        scoped.interfaces.push(InterfaceScope {
+            name: "wlan0".to_string(),
+            index: 4,
+        });
+        assert_eq!(
+            scoped.to_string(),
+            "2003:e8:bf0c:ea00:ca0e:14ff:feff:416 via enp12s0, wlan0"
+        );
     }
 }

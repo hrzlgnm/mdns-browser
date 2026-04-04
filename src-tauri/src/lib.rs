@@ -14,6 +14,7 @@ use shared_constants::{
 };
 use std::{
     collections::{HashMap, HashSet},
+    net::IpAddr,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc, Mutex,
@@ -95,10 +96,7 @@ fn convert_to_scoped_addr(host_ip: &mdns_sd::ScopedIp) -> ScopedAddr {
             }
         }
         mdns_sd::ScopedIp::V6(host_ip_v6) => {
-            let mut interfaces = Vec::new();
-            if host_ip_v6.addr().is_unicast_link_local() {
-                interfaces.push(convert_interface_id(host_ip_v6.scope_id()));
-            }
+            let interfaces = vec![convert_interface_id(host_ip_v6.scope_id())];
             ScopedAddr {
                 addr: host_ip.to_ip_addr(),
                 interfaces,
@@ -109,13 +107,38 @@ fn convert_to_scoped_addr(host_ip: &mdns_sd::ScopedIp) -> ScopedAddr {
 }
 
 fn from_resolved_service(resolved: &mdns_sd::ResolvedService) -> ResolvedService {
-    let mut sorted_addresses: Vec<ScopedAddr> = resolved
+    let addresses: Vec<ScopedAddr> = resolved
         .addresses
         .iter()
         .map(convert_to_scoped_addr)
         .collect();
-    sorted_addresses.sort();
-    sorted_addresses.dedup();
+
+    let mut consolidated: Vec<ScopedAddr> = Vec::new();
+    for addr in addresses {
+        let is_ipv6_link_local = if let IpAddr::V6(ipv6) = addr.addr {
+            ipv6.is_unicast_link_local()
+        } else {
+            false
+        };
+
+        if is_ipv6_link_local {
+            consolidated.push(addr);
+        } else if let Some(existing) = consolidated.iter_mut().find(|a| a.addr == addr.addr) {
+            for interface in addr.interfaces {
+                if !existing.interfaces.iter().any(|i| i.index == interface.index) {
+                    existing.interfaces.push(interface);
+                }
+            }
+        } else {
+            consolidated.push(addr);
+        }
+    }
+    consolidated.sort();
+    for addr in &mut consolidated {
+        addr.interfaces.sort_unstable_by_key(|i| i.index);
+        addr.interfaces.dedup_by_key(|i| i.index);
+    }
+
     let mut sorted_txt: Vec<TxtRecord> = resolved
         .txt_properties
         .iter()
@@ -130,7 +153,7 @@ fn from_resolved_service(resolved: &mdns_sd::ResolvedService) -> ResolvedService
         service_type: resolved.ty_domain.clone(),
         hostname: resolved.host.clone(),
         port: resolved.port,
-        addresses: sorted_addresses,
+        addresses: consolidated,
         subtype: resolved.sub_ty_domain.clone(),
         txt: sorted_txt,
         updated_at_micros: timestamp_micros(),
