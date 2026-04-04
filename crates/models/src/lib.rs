@@ -101,15 +101,16 @@ impl From<IpAddr> for ScopedAddr {
 impl Display for ScopedAddr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.interfaces.is_empty() {
-            write!(f, "{}", self.addr)
+            if let Some(name) = &self.display_name {
+                write!(f, "{}%{}", self.addr, name)
+            } else {
+                write!(f, "{}", self.addr)
+            }
         } else if self.is_ipv6_link_local() {
             self.format_ip_with_scope_to_formatter(f)
         } else {
-            let interface_names: Vec<&str> = self
-                .display_name
-                .as_ref()
-                .map(|n| vec![n.as_str()])
-                .unwrap_or_else(|| self.interfaces.iter().map(|i| i.name.as_str()).collect());
+            let interface_names: Vec<&str> =
+                self.interfaces.iter().map(|i| i.name.as_str()).collect();
             write!(f, "{} via {}", self.addr, interface_names.join(", "))
         }
     }
@@ -134,6 +135,8 @@ impl ScopedAddr {
             {
                 format!("{}%{}", self.addr, iface.name)
             }
+        } else if let Some(name) = &self.display_name {
+            format!("{}%{}", self.addr, name)
         } else {
             self.addr.to_string()
         }
@@ -152,6 +155,8 @@ impl ScopedAddr {
             {
                 write!(f, "{}%{}", self.addr, iface.name)
             }
+        } else if let Some(name) = &self.display_name {
+            write!(f, "{}%{}", self.addr, name)
         } else {
             write!(f, "{}", self.addr)
         }
@@ -976,5 +981,50 @@ mod tests {
             scoped.to_string(),
             "2003:e8:bf0c:ea00:ca0e:14ff:feff:416 via enp12s0, wlan0"
         );
+    }
+
+    #[test]
+    fn test_scoped_addr_display_name_handling() {
+        use std::net::Ipv6Addr;
+        let addr = IpAddr::V6(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 1));
+        let scoped = ScopedAddr {
+            addr,
+            interfaces: vec![],
+            display_name: Some("7".to_string()),
+        };
+        #[cfg(windows)]
+        {
+            assert_eq!(scoped.to_string(), "fe80::1%7");
+            assert_eq!(scoped.to_ip_string(), "fe80::1%7");
+        }
+        #[cfg(not(windows))]
+        {
+            assert_eq!(scoped.to_string(), "fe80::1%7");
+            assert_eq!(scoped.to_ip_string(), "fe80::1%7");
+        }
+    }
+
+    #[test]
+    fn test_scoped_addr_display_name_with_interfaces_prefers_interfaces() {
+        use std::net::Ipv6Addr;
+        let addr = IpAddr::V6(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 1));
+        let scoped = ScopedAddr {
+            addr,
+            interfaces: vec![InterfaceScope {
+                name: "eth0".to_string(),
+                index: 2,
+            }],
+            display_name: Some("Ethernet".to_string()),
+        };
+        #[cfg(windows)]
+        {
+            assert_eq!(scoped.to_string(), "fe80::1%2");
+            assert_eq!(scoped.to_ip_string(), "fe80::1%2");
+        }
+        #[cfg(not(windows))]
+        {
+            assert_eq!(scoped.to_string(), "fe80::1%eth0");
+            assert_eq!(scoped.to_ip_string(), "fe80::1%eth0");
+        }
     }
 }
