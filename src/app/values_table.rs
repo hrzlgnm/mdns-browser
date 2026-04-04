@@ -16,17 +16,18 @@ use super::{
 #[component]
 fn CopyableTableCell(
     #[prop(optional, into)] class: MaybeProp<String>,
-    text: Option<String>,
+    text: String,
+    #[prop(optional, into)] copy_text: MaybeProp<String>,
 ) -> impl IntoView {
     let is_desktop = IsDesktopInjection::expect_context();
-    let (text_to_copy, _) = signal(text.clone().unwrap_or_default());
+    let text_to_copy = copy_text.get().unwrap_or_else(|| text.clone());
     let copy_to_clipboard_action = Action::new_local(|input: &String| {
         let input = input.clone();
         async move { copy_to_clipboard(input.clone()).await }
     });
     let toaster = ToasterInjection::expect_context();
     let on_copy_to_clipboard_click = move |_| {
-        let text = text_to_copy.get_untracked();
+        let text = text_to_copy.clone();
         copy_to_clipboard_action.dispatch(text.clone());
         if is_desktop.get_untracked() {
             toaster.dispatch_toast(move || create_clipboard_toast(text), Default::default());
@@ -49,8 +50,10 @@ fn CopyableTableCell(
 pub fn ValuesTable(
     #[prop(into)] values: Signal<Vec<String>>,
     #[prop(into)] title: Model<String>,
+    #[prop(optional, into)] copy_values: Option<Signal<Vec<String>>>,
 ) -> impl IntoView {
     let has_values = Signal::derive(move || values.with(|v| !v.is_empty()));
+    let copy_values = copy_values.unwrap_or(values);
     view! {
         <Show
             when=move || has_values.get()
@@ -66,15 +69,20 @@ pub fn ValuesTable(
                 </TableHeader>
                 <TableBody>
                     {move || {
+                        let values = values.get();
+                        let copy_values = copy_values.get();
                         values
-                            .get()
                             .into_iter()
-                            .map(|n| {
+                            .zip(copy_values.into_iter())
+                            .map(|(n, copy_n)| {
                                 view! {
                                     <TableRow>
                                         <TableCell>
                                             <TableCellLayout truncate=true>
-                                                <CopyableTableCell text=Some(n.clone()) />
+                                                <CopyableTableCell
+                                                    text=n.clone()
+                                                    copy_text=copy_n.clone()
+                                                />
                                             </TableCellLayout>
                                         </TableCell>
                                     </TableRow>

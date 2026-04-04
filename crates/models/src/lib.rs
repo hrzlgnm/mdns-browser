@@ -71,10 +71,37 @@ impl Display for ScopedAddr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.interfaces.is_empty() {
             write!(f, "{}", self.addr)
+        } else if self.is_ipv6_link_local() {
+            if let Some(iface) = self.interfaces.first() {
+                #[cfg(windows)]
+                {
+                    write!(f, "{}%{}", self.addr, iface.index)
+                }
+                #[cfg(not(windows))]
+                {
+                    write!(f, "{}%{}", self.addr, iface.name)
+                }
+            } else {
+                write!(f, "{}", self.addr)
+            }
         } else {
             let interface_names: Vec<&str> =
                 self.interfaces.iter().map(|i| i.name.as_str()).collect();
             write!(f, "{} via {}", self.addr, interface_names.join(", "))
+        }
+    }
+}
+
+impl ScopedAddr {
+    pub fn to_ip_string(&self) -> String {
+        self.addr.to_string()
+    }
+
+    fn is_ipv6_link_local(&self) -> bool {
+        if let IpAddr::V6(ipv6) = self.addr {
+            ipv6.is_unicast_link_local()
+        } else {
+            false
         }
     }
 }
@@ -857,5 +884,20 @@ mod tests {
         });
 
         assert_ne!(scoped1, scoped2);
+    }
+
+    #[test]
+    fn test_scoped_addr_display_ipv6_link_local() {
+        use std::net::Ipv6Addr;
+        let addr = IpAddr::V6(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 1));
+        let mut scoped = ScopedAddr::from(addr);
+        scoped.interfaces.push(InterfaceScope {
+            name: "eth0".to_string(),
+            index: 2,
+        });
+        #[cfg(windows)]
+        assert_eq!(scoped.to_string(), "fe80::1%2");
+        #[cfg(not(windows))]
+        assert_eq!(scoped.to_string(), "fe80::1%eth0");
     }
 }
