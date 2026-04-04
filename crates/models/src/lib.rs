@@ -105,10 +105,15 @@ impl Display for ScopedAddr {
             if let Some(name) = &self.display_name {
                 return write!(f, "{}%{}", self.addr, name);
             }
-            if let Some(iface) = self.interfaces.first() {
-                return write!(f, "{}%{}", self.addr, iface.index);
+            if self.is_ipv6_link_local() {
+                if let Some(iface) = self.interfaces.first() {
+                    return write!(f, "{}%{}", self.addr, iface.index);
+                }
+                return write!(f, "{}", self.addr);
             }
-            return write!(f, "{}", self.addr);
+            let interface_names: Vec<&str> =
+                self.interfaces.iter().map(|i| i.name.as_str()).collect();
+            return write!(f, "{} via {}", self.addr, interface_names.join(", "));
         }
         #[cfg(not(windows))]
         {
@@ -136,8 +141,11 @@ impl ScopedAddr {
             if let Some(name) = &self.display_name {
                 return format!("{}%{}", self.addr, name);
             }
-            if let Some(iface) = self.interfaces.first() {
-                return format!("{}%{}", self.addr, iface.index);
+            if self.is_ipv6_link_local() {
+                if let Some(iface) = self.interfaces.first() {
+                    return format!("{}%{}", self.addr, iface.index);
+                }
+                return self.addr.to_string();
             }
             return self.addr.to_string();
         }
@@ -156,6 +164,11 @@ impl ScopedAddr {
     }
 
     #[cfg(not(windows))]
+    fn is_ipv6_link_local(&self) -> bool {
+        matches!(self.addr, IpAddr::V6(addr) if addr.is_unicast_link_local())
+    }
+
+    #[cfg(windows)]
     fn is_ipv6_link_local(&self) -> bool {
         matches!(self.addr, IpAddr::V6(addr) if addr.is_unicast_link_local())
     }
