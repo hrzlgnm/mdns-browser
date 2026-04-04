@@ -94,7 +94,22 @@ impl Display for ScopedAddr {
 
 impl ScopedAddr {
     pub fn to_ip_string(&self) -> String {
-        self.addr.to_string()
+        if self.is_ipv6_link_local() {
+            if let Some(iface) = self.interfaces.first() {
+                #[cfg(windows)]
+                {
+                    format!("{}%{}", self.addr, iface.index)
+                }
+                #[cfg(not(windows))]
+                {
+                    format!("{}%{}", self.addr, iface.name)
+                }
+            } else {
+                self.addr.to_string()
+            }
+        } else {
+            self.addr.to_string()
+        }
     }
 
     fn is_ipv6_link_local(&self) -> bool {
