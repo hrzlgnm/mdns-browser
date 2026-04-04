@@ -1,9 +1,14 @@
-// Copyright 2024-2025 hrzlgnm
+// Copyright 2026 hrzlgnm
 // SPDX-License-Identifier: MIT-0
 
 use reactive_stores::Store;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fmt::Display, net::IpAddr, time::SystemTime};
+use std::{
+    collections::{BTreeSet, HashMap},
+    fmt::Display,
+    net::IpAddr,
+    time::SystemTime,
+};
 
 pub type ServiceTypes = Vec<String>;
 
@@ -42,21 +47,41 @@ pub struct InterfaceScope {
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Store)]
 pub struct ScopedAddr {
     pub addr: IpAddr,
-    pub scope: Option<InterfaceScope>,
+    pub interfaces: BTreeSet<InterfaceScope>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scope_id: Option<String>,
 }
 
 impl From<IpAddr> for ScopedAddr {
     fn from(addr: IpAddr) -> Self {
-        ScopedAddr { addr, scope: None }
+        ScopedAddr {
+            addr,
+            interfaces: BTreeSet::new(),
+            scope_id: None,
+        }
     }
 }
 
 impl Display for ScopedAddr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(scope) = &self.scope {
-            write!(f, "{}%{}", self.addr, scope.index)
-        } else {
+        if let Some(name) = &self.scope_id {
+            write!(f, "{}%{}", self.addr, name)
+        } else if self.interfaces.is_empty() {
             write!(f, "{}", self.addr)
+        } else {
+            let interface_names: Vec<&str> =
+                self.interfaces.iter().map(|i| i.name.as_str()).collect();
+            write!(f, "{} via {}", self.addr, interface_names.join(", "))
+        }
+    }
+}
+
+impl ScopedAddr {
+    pub fn to_ip_string(&self) -> String {
+        if let Some(name) = &self.scope_id {
+            format!("{}%{}", self.addr, name)
+        } else {
+            self.addr.to_string()
         }
     }
 }
@@ -762,5 +787,116 @@ mod tests {
             check_service_type_fully_qualified("_myprinter.____._sub._tcp.local."),
             Err(MdnsError::InvalidSublabel)
         ); // Invalid subtype format
+    }
+
+    #[test]
+    fn test_scoped_addr_display_no_interfaces() {
+        let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
+        let scoped = ScopedAddr::from(addr);
+        assert_eq!(scoped.to_string(), "192.168.1.1");
+    }
+
+    #[test]
+    fn test_scoped_addr_display_single_interface() {
+        let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
+        let mut scoped = ScopedAddr::from(addr);
+        scoped.interfaces.insert(InterfaceScope {
+            name: "eth0".to_string(),
+            index: 2,
+        });
+        assert_eq!(scoped.to_string(), "192.168.1.1 via eth0");
+    }
+
+    #[test]
+    fn test_scoped_addr_display_multiple_interfaces() {
+        let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
+        let mut scoped = ScopedAddr::from(addr);
+        scoped.interfaces.insert(InterfaceScope {
+            name: "eth0".to_string(),
+            index: 2,
+        });
+        scoped.interfaces.insert(InterfaceScope {
+            name: "wlan0".to_string(),
+            index: 4,
+        });
+        assert_eq!(scoped.to_string(), "192.168.1.1 via eth0, wlan0");
+    }
+
+    #[test]
+    fn test_scoped_addr_eq_different_order_interfaces() {
+        let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
+        let mut scoped1 = ScopedAddr::from(addr);
+        scoped1.interfaces.insert(InterfaceScope {
+            name: "eth0".to_string(),
+            index: 2,
+        });
+        scoped1.interfaces.insert(InterfaceScope {
+            name: "wlan0".to_string(),
+            index: 4,
+        });
+
+        let mut scoped2 = ScopedAddr::from(addr);
+        scoped2.interfaces.insert(InterfaceScope {
+            name: "wlan0".to_string(),
+            index: 4,
+        });
+        scoped2.interfaces.insert(InterfaceScope {
+            name: "eth0".to_string(),
+            index: 2,
+        });
+
+        assert_eq!(scoped1, scoped2);
+    }
+
+    #[test]
+    fn test_scoped_addr_ne_different_interfaces() {
+        let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
+        let mut scoped1 = ScopedAddr::from(addr);
+        scoped1.interfaces.insert(InterfaceScope {
+            name: "eth0".to_string(),
+            index: 2,
+        });
+
+        let mut scoped2 = ScopedAddr::from(addr);
+        scoped2.interfaces.insert(InterfaceScope {
+            name: "wlan0".to_string(),
+            index: 4,
+        });
+
+        assert_ne!(scoped1, scoped2);
+    }
+
+    #[test]
+    fn test_scoped_addr_display_ipv6_with_interfaces() {
+        use std::net::Ipv6Addr;
+        let addr = IpAddr::V6(Ipv6Addr::new(
+            0x2003, 0xe8, 0xbf0c, 0xea00, 0xca0e, 0x14ff, 0xfeff, 0x416,
+        ));
+        let mut scoped = ScopedAddr::from(addr);
+        scoped.interfaces.insert(InterfaceScope {
+            name: "enp12s0".to_string(),
+            index: 2,
+        });
+        scoped.interfaces.insert(InterfaceScope {
+            name: "wlan0".to_string(),
+            index: 4,
+        });
+        assert_eq!(
+            scoped.to_string(),
+            "2003:e8:bf0c:ea00:ca0e:14ff:feff:416 via enp12s0, wlan0"
+        );
+    }
+
+    #[test]
+    fn test_scoped_addr_scope_id_handling() {
+        use std::net::Ipv6Addr;
+        let addr = IpAddr::V6(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 1));
+        let scoped = ScopedAddr {
+            addr,
+            interfaces: BTreeSet::new(),
+            scope_id: Some("7".to_string()),
+        };
+        assert_eq!(scoped.to_string(), "fe80::1%7");
+        assert_eq!(scoped.to_ip_string(), "fe80::1%7");
     }
 }

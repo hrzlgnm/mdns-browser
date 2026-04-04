@@ -13,7 +13,8 @@ use shared_constants::{
     METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT,
 };
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeSet, HashMap, HashSet},
+    net::IpAddr,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc, Mutex,
@@ -74,34 +75,109 @@ fn initialize_shared_daemon() -> SharedServiceDaemon {
     Arc::new(Mutex::new(daemon))
 }
 
+fn convert_interface_id(id: &mdns_sd::InterfaceId) -> InterfaceScope {
+    InterfaceScope {
+        name: id.name.clone(),
+        index: id.index,
+    }
+}
+
 fn convert_to_scoped_addr(host_ip: &mdns_sd::ScopedIp) -> ScopedAddr {
     match host_ip {
-        mdns_sd::ScopedIp::V6(host_ip_v6) => {
-            if host_ip_v6.addr().is_unicast_link_local() {
-                let scope = host_ip_v6.scope_id();
-                ScopedAddr {
-                    addr: host_ip.to_ip_addr(),
-                    scope: Some(InterfaceScope {
-                        name: scope.name.clone(),
-                        index: scope.index,
-                    }),
-                }
-            } else {
-                host_ip.to_ip_addr().into()
+        mdns_sd::ScopedIp::V4(host_ip_v4) => {
+            let interfaces: BTreeSet<InterfaceScope> = host_ip_v4
+                .interface_ids()
+                .iter()
+                .map(convert_interface_id)
+                .collect();
+            ScopedAddr {
+                addr: host_ip.to_ip_addr(),
+                interfaces,
+                scope_id: None,
             }
         }
-        _ => host_ip.to_ip_addr().into(),
+        mdns_sd::ScopedIp::V6(host_ip_v6) => {
+            let interface = convert_interface_id(host_ip_v6.scope_id());
+            let ip_addr = host_ip.to_ip_addr();
+            let is_link_local = matches!(ip_addr, IpAddr::V6(v6) if v6.is_unicast_link_local());
+            let scope_id = if is_link_local {
+                #[cfg(windows)]
+                {
+                    Some(interface.index.to_string())
+                }
+                #[cfg(not(windows))]
+                {
+                    Some(interface.name.clone())
+                }
+            } else {
+                None
+            };
+            let interfaces = BTreeSet::from([interface]);
+            ScopedAddr {
+                addr: ip_addr,
+                interfaces,
+                scope_id,
+            }
+        }
+        _ => unreachable!(),
+    }
+}
+
+#[cfg(test)]
+mod convert_to_scoped_addr_tests {
+    use super::*;
+    use std::net::{Ipv4Addr, Ipv6Addr};
+
+    #[test]
+    fn test_convert_to_scoped_addr_ipv4() {
+        use mdns_sd::{InterfaceId, ScopedIp, ScopedIpV4};
+
+        let ipv4_addr = Ipv4Addr::new(192, 168, 1, 1);
+        let interface_id = InterfaceId {
+            name: "eth0".to_string(),
+            index: 2,
+        };
+        let scoped_ip = ScopedIp::V4(ScopedIpV4::new(ipv4_addr, interface_id));
+
+        let result = convert_to_scoped_addr(&scoped_ip);
+
+        assert_eq!(result.addr, IpAddr::V4(ipv4_addr));
+        assert!(!result.interfaces.is_empty());
+    }
+
+    #[test]
+    fn test_convert_to_scoped_addr_ipv6() {
+        use mdns_sd::ScopedIp;
+
+        let ipv6_addr = Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 1);
+        let scoped_ip = ScopedIp::from(IpAddr::V6(ipv6_addr));
+
+        let result = convert_to_scoped_addr(&scoped_ip);
+
+        assert_eq!(result.addr, IpAddr::V6(ipv6_addr));
     }
 }
 
 fn from_resolved_service(resolved: &mdns_sd::ResolvedService) -> ResolvedService {
-    let mut sorted_addresses: Vec<ScopedAddr> = resolved
+    let addresses: Vec<ScopedAddr> = resolved
         .addresses
         .iter()
         .map(convert_to_scoped_addr)
         .collect();
-    sorted_addresses.sort();
-    sorted_addresses.dedup();
+
+    let mut consolidated: Vec<ScopedAddr> = Vec::new();
+    for addr in addresses {
+        let is_ipv6_link_local = matches!(addr.addr, IpAddr::V6(v6) if v6.is_unicast_link_local());
+        if is_ipv6_link_local {
+            consolidated.push(addr);
+        } else if let Some(existing) = consolidated.iter_mut().find(|a| a.addr == addr.addr) {
+            existing.interfaces.extend(addr.interfaces);
+        } else {
+            consolidated.push(addr);
+        }
+    }
+    consolidated.sort();
+
     let mut sorted_txt: Vec<TxtRecord> = resolved
         .txt_properties
         .iter()
@@ -116,7 +192,7 @@ fn from_resolved_service(resolved: &mdns_sd::ResolvedService) -> ResolvedService
         service_type: resolved.ty_domain.clone(),
         hostname: resolved.host.clone(),
         port: resolved.port,
-        addresses: sorted_addresses,
+        addresses: consolidated,
         subtype: resolved.sub_ty_domain.clone(),
         txt: sorted_txt,
         updated_at_micros: timestamp_micros(),

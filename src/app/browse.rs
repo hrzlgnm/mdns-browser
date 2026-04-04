@@ -405,6 +405,7 @@ fn ResolvedRow(
     #[prop(into)] label: String,
     #[prop(optional, into)] text: Signal<String>,
     #[prop(optional, into)] button_text: Signal<String>,
+    #[prop(optional, into)] copy_text: MaybeProp<String>,
 ) -> impl IntoView {
     let is_desktop = IsDesktopInjection::expect_context();
     let value_cell_class = get_class(&is_desktop, "resolved-service-value-cell");
@@ -414,7 +415,7 @@ fn ResolvedRow(
                 <Text tag=TextTag::Em>{label}</Text>
             </TableCell>
             <TableCell class=value_cell_class>
-                <CopyToClipBoardButton text button_text />
+                <CopyToClipBoardButton text button_text copy_text />
             </TableCell>
         </TableRow>
     }
@@ -467,6 +468,15 @@ fn ResolvedServiceItem(
             .collect::<Vec<_>>()
     });
 
+    let addrs_for_copy = Memo::new(move |_| {
+        resolved_service
+            .addresses()
+            .get()
+            .iter()
+            .map(|a| a.to_ip_string())
+            .collect::<Vec<_>>()
+    });
+
     let txts = Memo::new(move |_| {
         resolved_service
             .txt()
@@ -483,7 +493,21 @@ fn ResolvedServiceItem(
 
     let title = Signal::derive(move || resolved_service.get().get_instance_name());
     let show_details = RwSignal::new(false);
-    let first_address = Memo::new(move |_| addrs.get().first().map(|a| a.to_string()).unwrap());
+    let first_address = Memo::new(move |_| {
+        addrs
+            .get()
+            .first()
+            .map(|a| a.to_string())
+            .unwrap_or_default()
+    });
+    let first_address_for_copy = Memo::new(move |_| {
+        resolved_service
+            .addresses()
+            .get()
+            .first()
+            .map(|a| a.to_ip_string())
+            .unwrap_or_default()
+    });
 
     let first_address_display = Memo::new(move |_| {
         let additional_addrs = resolved_service.addresses().get().len() - 1;
@@ -550,6 +574,7 @@ fn ResolvedServiceItem(
                                 label="IP"
                                 text=first_address
                                 button_text=first_address_display
+                                copy_text=first_address_for_copy
                             />
                             <ResolvedRow
                                 label="Updated at"
@@ -592,7 +617,11 @@ fn ResolvedServiceItem(
                                                     <Scrollbar class="resolved-service-details-dialog-scrollarea">
                                                         <Flex vertical=true>
                                                             <ValuesTable values=subtype title="Subtype".to_string() />
-                                                            <ValuesTable values=addrs title="IPs".to_string() />
+                                                            <ValuesTable
+                                                                values=addrs
+                                                                title="IPs".to_string()
+                                                                copy_values=addrs_for_copy
+                                                            />
                                                             <ValuesTable values=txts title="TXT".to_string() />
                                                         </Flex>
                                                     </Scrollbar>

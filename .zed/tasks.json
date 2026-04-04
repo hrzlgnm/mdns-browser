@@ -11,7 +11,7 @@
         "hide": "on_success",
         "shell": "system",
         "show_summary": true,
-        "show_command": true
+        "show_command": true,
     },
     {
         "label": "Tauri android init",
@@ -25,7 +25,7 @@
         "hide": "on_success",
         "shell": "system",
         "show_summary": true,
-        "show_command": true
+        "show_command": true,
     },
     {
         "label": "Tauri android dev",
@@ -39,16 +39,19 @@
         "hide": "on_success",
         "shell": "system",
         "show_summary": true,
-        "show_command": true
+        "show_command": true,
     },
     {
         "label": "Run tests",
         "command": "cargo",
         "args": [
             "--locked",
-            "test",
+            "nextest",
+            "run",
             "--package=models",
-            "--package=mdns-browser"
+            "--package=mdns-browser",
+            "--profile",
+            "ci",
         ],
         "env": {},
         "use_new_terminal": false,
@@ -58,7 +61,7 @@
         "hide": "on_success",
         "shell": "system",
         "show_summary": true,
-        "show_command": true
+        "show_command": true,
     },
     {
         "label": "Check leptos format",
@@ -66,7 +69,7 @@
         "args": ["--check", "src"],
         "hide": "on_success",
         "show_summary": true,
-        "show_command": true
+        "show_command": true,
     },
     {
         "label": "Format leptos",
@@ -74,7 +77,7 @@
         "args": ["src"],
         "hide": "on_success",
         "show_summary": true,
-        "show_command": true
+        "show_command": true,
     },
     {
         "label": "Cargo fmt",
@@ -82,14 +85,14 @@
         "args": ["fmt"],
         "hide": "on_success",
         "show_summary": true,
-        "show_command": true
+        "show_command": true,
     },
     {
         "label": "Cargo clippy",
         "command": "cargo",
-        "args": ["clippy", "--", "-D", "warnings"],
+        "args": ["clippy", "--workspace", "--tests", "--", "-D", "warnings"],
         "show_summary": true,
         "hide": "on_success",
-        "show_command": true
-    }
+        "show_command": true,
+    },
 ]
