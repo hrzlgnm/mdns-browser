@@ -59,12 +59,9 @@ impl Display for ScopedAddr {
         if self.interfaces.is_empty() {
             write!(f, "{}", self.addr)
         } else {
-            let interface_strs: Vec<String> = self
-                .interfaces
-                .iter()
-                .map(|i| format!("<{}>", i.name))
-                .collect();
-            write!(f, "{} {}", self.addr, interface_strs.join(", "))
+            let interface_names: Vec<&str> =
+                self.interfaces.iter().map(|i| i.name.as_str()).collect();
+            write!(f, "{} via {}", self.addr, interface_names.join(", "))
         }
     }
 }
@@ -768,7 +765,40 @@ mod tests {
         ); // Invalid subtype without _sub keyword
         assert_eq!(
             check_service_type_fully_qualified("_myprinter.____._sub._tcp.local."),
-            Err(MdnsError::InvalidSublabel)
+            Err(MdnsError::InvalidSubType)
         ); // Invalid subtype format
+    }
+
+    #[test]
+    fn test_scoped_addr_display_no_interfaces() {
+        let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
+        let scoped = ScopedAddr::from(addr);
+        assert_eq!(scoped.to_string(), "192.168.1.1");
+    }
+
+    #[test]
+    fn test_scoped_addr_display_single_interface() {
+        let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
+        let mut scoped = ScopedAddr::from(addr);
+        scoped.interfaces.push(InterfaceScope {
+            name: "eth0".to_string(),
+            index: 2,
+        });
+        assert_eq!(scoped.to_string(), "192.168.1.1 via eth0");
+    }
+
+    #[test]
+    fn test_scoped_addr_display_multiple_interfaces() {
+        let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
+        let mut scoped = ScopedAddr::from(addr);
+        scoped.interfaces.push(InterfaceScope {
+            name: "eth0".to_string(),
+            index: 2,
+        });
+        scoped.interfaces.push(InterfaceScope {
+            name: "wlan0".to_string(),
+            index: 4,
+        });
+        assert_eq!(scoped.to_string(), "192.168.1.1 via eth0, wlan0");
     }
 }
