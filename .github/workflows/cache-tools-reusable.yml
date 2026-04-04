@@ -36,3 +36,32 @@ jobs:
           crate: komac
           version: 2.16.0
           locked: true
+
+  cache-platform-tools:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: "ubuntu-latest"
+            symbol: 🐧
+            platform: Linux
+            container_image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:3d1f37dc82c523e80b700abdc7a6110c8542d5c02ce5f0d4e7198a6bfee13159
+          - os: "macos-latest"
+            args: "--target universal-apple-darwin"
+            symbol: 🍏
+            platform: macOS
+          - os: "windows-latest"
+            symbol: 🪟
+            platform: Windows
+
+    name: ${{matrix.symbol}}🔨
+    runs-on: ${{matrix.os}}
+    steps:
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
+        with:
+          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
+          save-cache: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: 🛠️🐂
+        uses: ./.github/actions/setup-tauri
