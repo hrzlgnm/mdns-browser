@@ -473,7 +473,7 @@ fn ResolvedServiceItem(
             .addresses()
             .get()
             .iter()
-            .map(|a| a.addr.to_string())
+            .map(|a| a.to_ip_string())
             .collect::<Vec<_>>()
     });
 
