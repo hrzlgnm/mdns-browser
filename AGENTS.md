@@ -10,6 +10,11 @@ This is a Tauri desktop application for browsing mDNS services with:
 - Shared models and constants in crates/
 - Targets: Windows, macOS, Linux, Android, iOS
 
+## Architecture
+
+The frontend code in src/ which also includes the crate models in crates/models/src is platform agnostic.
+It is forbidden to add #[cfg(windows)] or any other platform flags to that code and tests in that code.
+
 ## Essential Commands
 
 ### Build Commands
@@ -234,4 +239,3 @@ This ensures your workflow changes follow GitHub Actions best practices and will
 - **Don't** break the async patterns used throughout the codebase
 - **Don't** ignore test failures - all tests must pass
 - **Don't** have warnings in release builds - run `cargo clippy --release --workspace --tests -- -D warnings` before committing
-

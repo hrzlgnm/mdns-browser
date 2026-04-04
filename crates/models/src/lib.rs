@@ -44,127 +44,43 @@ pub struct InterfaceScope {
     pub index: u32,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Store)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Store)]
 pub struct ScopedAddr {
     pub addr: IpAddr,
-    pub interfaces: Vec<InterfaceScope>,
+    pub interfaces: BTreeSet<InterfaceScope>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub display_name: Option<String>,
-}
-
-impl PartialEq for ScopedAddr {
-    fn eq(&self, other: &Self) -> bool {
-        if self.addr != other.addr {
-            return false;
-        }
-        let self_names: std::collections::HashSet<&str> =
-            self.interfaces.iter().map(|i| i.name.as_str()).collect();
-        let other_names: std::collections::HashSet<&str> =
-            other.interfaces.iter().map(|i| i.name.as_str()).collect();
-        self_names == other_names
-    }
-}
-
-impl Eq for ScopedAddr {}
-
-impl PartialOrd for ScopedAddr {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for ScopedAddr {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        match self.addr.cmp(&other.addr) {
-            std::cmp::Ordering::Equal => {
-                let self_names: BTreeSet<&str> =
-                    self.interfaces.iter().map(|i| i.name.as_str()).collect();
-                let other_names: BTreeSet<&str> =
-                    other.interfaces.iter().map(|i| i.name.as_str()).collect();
-                self_names.cmp(&other_names)
-            }
-            ord => ord,
-        }
-    }
+    pub scope_id: Option<String>,
 }
 
 impl From<IpAddr> for ScopedAddr {
     fn from(addr: IpAddr) -> Self {
         ScopedAddr {
             addr,
-            interfaces: Vec::new(),
-            display_name: None,
+            interfaces: BTreeSet::new(),
+            scope_id: None,
         }
     }
 }
 
 impl Display for ScopedAddr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        #[cfg(windows)]
-        {
-            if let Some(name) = &self.display_name {
-                return write!(f, "{}%{}", self.addr, name);
-            }
-            if self.is_ipv6_link_local() {
-                if let Some(iface) = self.interfaces.first() {
-                    return write!(f, "{}%{}", self.addr, iface.index);
-                }
-                return write!(f, "{}", self.addr);
-            }
-            let interface_names: Vec<&str> =
-                self.interfaces.iter().map(|i| i.name.as_str()).collect();
-            return write!(f, "{} via {}", self.addr, interface_names.join(", "));
+        if let Some(name) = &self.scope_id {
+            return write!(f, "{}%{}", self.addr, name);
         }
-        #[cfg(not(windows))]
-        {
-            if self.interfaces.is_empty() {
-                write!(f, "{}", self.addr)
-            } else if self.is_ipv6_link_local() {
-                if let Some(iface) = self.interfaces.first() {
-                    write!(f, "{}%{}", self.addr, iface.name)
-                } else {
-                    write!(f, "{}", self.addr)
-                }
-            } else {
-                let interface_names: Vec<&str> =
-                    self.interfaces.iter().map(|i| i.name.as_str()).collect();
-                write!(f, "{} via {}", self.addr, interface_names.join(", "))
-            }
+        if self.interfaces.is_empty() {
+            return write!(f, "{}", self.addr);
         }
+        let interface_names: Vec<&str> = self.interfaces.iter().map(|i| i.name.as_str()).collect();
+        write!(f, "{} via {}", self.addr, interface_names.join(", "))
     }
 }
 
 impl ScopedAddr {
     pub fn to_ip_string(&self) -> String {
-        #[cfg(windows)]
-        {
-            if let Some(name) = &self.display_name {
-                return format!("{}%{}", self.addr, name);
-            }
-            if self.is_ipv6_link_local() {
-                if let Some(iface) = self.interfaces.first() {
-                    return format!("{}%{}", self.addr, iface.index);
-                }
-                return self.addr.to_string();
-            }
-            return self.addr.to_string();
+        if let Some(name) = &self.scope_id {
+            return format!("{}%{}", self.addr, name);
         }
-        #[cfg(not(windows))]
-        {
-            if self.is_ipv6_link_local() {
-                if let Some(iface) = self.interfaces.first() {
-                    format!("{}%{}", self.addr, iface.name)
-                } else {
-                    self.addr.to_string()
-                }
-            } else {
-                self.addr.to_string()
-            }
-        }
-    }
-
-    fn is_ipv6_link_local(&self) -> bool {
-        matches!(self.addr, IpAddr::V6(addr) if addr.is_unicast_link_local())
+        self.addr.to_string()
     }
 }
 
@@ -882,7 +798,7 @@ mod tests {
     fn test_scoped_addr_display_single_interface() {
         let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
         let mut scoped = ScopedAddr::from(addr);
-        scoped.interfaces.push(InterfaceScope {
+        scoped.interfaces.insert(InterfaceScope {
             name: "eth0".to_string(),
             index: 2,
         });
@@ -893,11 +809,11 @@ mod tests {
     fn test_scoped_addr_display_multiple_interfaces() {
         let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
         let mut scoped = ScopedAddr::from(addr);
-        scoped.interfaces.push(InterfaceScope {
+        scoped.interfaces.insert(InterfaceScope {
             name: "eth0".to_string(),
             index: 2,
         });
-        scoped.interfaces.push(InterfaceScope {
+        scoped.interfaces.insert(InterfaceScope {
             name: "wlan0".to_string(),
             index: 4,
         });
@@ -908,21 +824,21 @@ mod tests {
     fn test_scoped_addr_eq_different_order_interfaces() {
         let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
         let mut scoped1 = ScopedAddr::from(addr);
-        scoped1.interfaces.push(InterfaceScope {
+        scoped1.interfaces.insert(InterfaceScope {
             name: "eth0".to_string(),
             index: 2,
         });
-        scoped1.interfaces.push(InterfaceScope {
+        scoped1.interfaces.insert(InterfaceScope {
             name: "wlan0".to_string(),
             index: 4,
         });
 
         let mut scoped2 = ScopedAddr::from(addr);
-        scoped2.interfaces.push(InterfaceScope {
+        scoped2.interfaces.insert(InterfaceScope {
             name: "wlan0".to_string(),
             index: 4,
         });
-        scoped2.interfaces.push(InterfaceScope {
+        scoped2.interfaces.insert(InterfaceScope {
             name: "eth0".to_string(),
             index: 2,
         });
@@ -934,33 +850,18 @@ mod tests {
     fn test_scoped_addr_ne_different_interfaces() {
         let addr = IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1));
         let mut scoped1 = ScopedAddr::from(addr);
-        scoped1.interfaces.push(InterfaceScope {
+        scoped1.interfaces.insert(InterfaceScope {
             name: "eth0".to_string(),
             index: 2,
         });
 
         let mut scoped2 = ScopedAddr::from(addr);
-        scoped2.interfaces.push(InterfaceScope {
+        scoped2.interfaces.insert(InterfaceScope {
             name: "wlan0".to_string(),
             index: 4,
         });
 
         assert_ne!(scoped1, scoped2);
-    }
-
-    #[test]
-    fn test_scoped_addr_display_ipv6_link_local() {
-        use std::net::Ipv6Addr;
-        let addr = IpAddr::V6(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 1));
-        let mut scoped = ScopedAddr::from(addr);
-        scoped.interfaces.push(InterfaceScope {
-            name: "eth0".to_string(),
-            index: 2,
-        });
-        #[cfg(windows)]
-        assert_eq!(scoped.to_string(), "fe80::1%2");
-        #[cfg(not(windows))]
-        assert_eq!(scoped.to_string(), "fe80::1%eth0");
     }
 
     #[test]
@@ -970,11 +871,11 @@ mod tests {
             0x2003, 0xe8, 0xbf0c, 0xea00, 0xca0e, 0x14ff, 0xfeff, 0x416,
         ));
         let mut scoped = ScopedAddr::from(addr);
-        scoped.interfaces.push(InterfaceScope {
+        scoped.interfaces.insert(InterfaceScope {
             name: "enp12s0".to_string(),
             index: 2,
         });
-        scoped.interfaces.push(InterfaceScope {
+        scoped.interfaces.insert(InterfaceScope {
             name: "wlan0".to_string(),
             index: 4,
         });
@@ -985,47 +886,15 @@ mod tests {
     }
 
     #[test]
-    fn test_scoped_addr_display_name_handling() {
+    fn test_scoped_addr_scope_id_handling() {
         use std::net::Ipv6Addr;
         let addr = IpAddr::V6(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 1));
         let scoped = ScopedAddr {
             addr,
-            interfaces: vec![],
-            display_name: Some("7".to_string()),
+            interfaces: BTreeSet::new(),
+            scope_id: Some("7".to_string()),
         };
-        #[cfg(windows)]
-        {
-            assert_eq!(scoped.to_string(), "fe80::1%7");
-            assert_eq!(scoped.to_ip_string(), "fe80::1%7");
-        }
-        #[cfg(not(windows))]
-        {
-            assert_eq!(scoped.to_string(), "fe80::1");
-            assert_eq!(scoped.to_ip_string(), "fe80::1");
-        }
-    }
-
-    #[test]
-    fn test_scoped_addr_display_name_with_interfaces_prefers_interfaces() {
-        use std::net::Ipv6Addr;
-        let addr = IpAddr::V6(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 1));
-        let scoped = ScopedAddr {
-            addr,
-            interfaces: vec![InterfaceScope {
-                name: "eth0".to_string(),
-                index: 2,
-            }],
-            display_name: Some("7".to_string()),
-        };
-        #[cfg(windows)]
-        {
-            assert_eq!(scoped.to_string(), "fe80::1%2");
-            assert_eq!(scoped.to_ip_string(), "fe80::1%2");
-        }
-        #[cfg(not(windows))]
-        {
-            assert_eq!(scoped.to_string(), "fe80::1%eth0");
-            assert_eq!(scoped.to_ip_string(), "fe80::1%eth0");
-        }
+        assert_eq!(scoped.to_string(), "fe80::1%7");
+        assert_eq!(scoped.to_ip_string(), "fe80::1%7");
     }
 }

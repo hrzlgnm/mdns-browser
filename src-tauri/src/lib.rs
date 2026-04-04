@@ -13,7 +13,7 @@ use shared_constants::{
     METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT,
 };
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeSet, HashMap, HashSet},
     net::IpAddr,
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -85,7 +85,7 @@ fn convert_interface_id(id: &mdns_sd::InterfaceId) -> InterfaceScope {
 fn convert_to_scoped_addr(host_ip: &mdns_sd::ScopedIp) -> ScopedAddr {
     match host_ip {
         mdns_sd::ScopedIp::V4(host_ip_v4) => {
-            let interfaces: Vec<InterfaceScope> = host_ip_v4
+            let interfaces: BTreeSet<InterfaceScope> = host_ip_v4
                 .interface_ids()
                 .iter()
                 .map(convert_interface_id)
@@ -93,30 +93,30 @@ fn convert_to_scoped_addr(host_ip: &mdns_sd::ScopedIp) -> ScopedAddr {
             ScopedAddr {
                 addr: host_ip.to_ip_addr(),
                 interfaces,
-                display_name: None,
+                scope_id: None,
             }
         }
         mdns_sd::ScopedIp::V6(host_ip_v6) => {
             let interface = convert_interface_id(host_ip_v6.scope_id());
             let ip_addr = host_ip.to_ip_addr();
             let is_link_local = matches!(ip_addr, IpAddr::V6(v6) if v6.is_unicast_link_local());
-            let display_name = if is_link_local {
+            let scope_id = if is_link_local {
                 #[cfg(windows)]
                 {
                     Some(interface.index.to_string())
                 }
                 #[cfg(not(windows))]
                 {
-                    None
+                    Some(interface.name)
                 }
             } else {
                 None
             };
-            let interfaces = vec![interface];
+            let interfaces = BTreeSet::from([interface]);
             ScopedAddr {
                 addr: ip_addr,
                 interfaces,
-                display_name,
+                scope_id,
             }
         }
         _ => unreachable!(),
@@ -167,12 +167,7 @@ fn from_resolved_service(resolved: &mdns_sd::ResolvedService) -> ResolvedService
 
     let mut consolidated: Vec<ScopedAddr> = Vec::new();
     for addr in addresses {
-        let is_ipv6_link_local = if let IpAddr::V6(ipv6) = addr.addr {
-            ipv6.is_unicast_link_local()
-        } else {
-            false
-        };
-
+        let is_ipv6_link_local = matches!(addr.addr, IpAddr::V6(v6) if v6.is_unicast_link_local());
         if is_ipv6_link_local {
             consolidated.push(addr);
         } else if let Some(existing) = consolidated.iter_mut().find(|a| a.addr == addr.addr) {
@@ -182,7 +177,7 @@ fn from_resolved_service(resolved: &mdns_sd::ResolvedService) -> ResolvedService
                     .iter()
                     .any(|i| i.index == interface.index)
                 {
-                    existing.interfaces.push(interface);
+                    existing.interfaces.insert(interface);
                 }
             }
         } else {
@@ -190,10 +185,6 @@ fn from_resolved_service(resolved: &mdns_sd::ResolvedService) -> ResolvedService
         }
     }
     consolidated.sort();
-    for addr in &mut consolidated {
-        addr.interfaces.sort_unstable_by_key(|i| i.index);
-        addr.interfaces.dedup_by_key(|i| i.index);
-    }
 
     let mut sorted_txt: Vec<TxtRecord> = resolved
         .txt_properties
