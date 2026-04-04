@@ -107,7 +107,7 @@ fn convert_to_scoped_addr(host_ip: &mdns_sd::ScopedIp) -> ScopedAddr {
                 }
                 #[cfg(not(windows))]
                 {
-                    Some(interface.name)
+                    Some(interface.name.clone())
                 }
             } else {
                 None
