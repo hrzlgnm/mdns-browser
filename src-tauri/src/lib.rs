@@ -692,7 +692,7 @@ fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Resul
 }
 
 #[cfg(all(target_os = "linux", desktop))]
-use webkit2gtk_nvidia_quirk::apply_workaround_if_needed;
+use webkit2gtk_nvidia_quirk::{apply_workaround_if_needed, set_webkit_disable_dmabuf_renderer};
 
 #[tauri::command]
 #[cfg(mobile)]
@@ -940,8 +940,13 @@ pub fn run() {
     use tauri_plugin_log::{Target, TargetKind};
     let args = Args::parse();
 
-    #[cfg(target_os = "linux")]
-    apply_workaround_if_needed(args.disable_dmabuf_renderer);
+    #[cfg(all(target_os = "linux", desktop))]
+    {
+        let should_disable = apply_workaround_if_needed(args.disable_dmabuf_renderer);
+        if should_disable {
+            set_webkit_disable_dmabuf_renderer();
+        }
+    }
 
     let mut log_targets = vec![
         Target::new(TargetKind::Stdout),

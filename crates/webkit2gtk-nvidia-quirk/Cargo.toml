@@ -1,3 +1,6 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
 [package]
 name = "webkit2gtk-nvidia-quirk"
 version = "1.0.0"
@@ -8,4 +11,4 @@ repository = "https://github.com/hrzlgnm/mdns-browser"
 authors = ["hrzlgnm"]
 
 [dependencies]
-log = "0.4"
+log = { workspace = true }

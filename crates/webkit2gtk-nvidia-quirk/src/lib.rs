@@ -25,20 +25,20 @@
 //! ## Usage
 //!
 //! ```rust,no_run
-//! use webkit2gtk_nvidia_quirk::apply_workaround_if_needed;
+//! use webkit2gtk_nvidia_quirk::{apply_workaround_if_needed, set_webkit_disable_dmabuf_renderer};
 //!
-//! // Call early in your application's startup
-//! // force_disable = true will always disable DMABUF regardless of driver
+//! // Call early in your application's startup (before spawning threads)
+//! // Check if NVIDIA/Mesa is detected
 //! let nvidia_detected = apply_workaround_if_needed(false);
 //!
+//! // If detected, explicitly set the environment variable
 //! if nvidia_detected {
-//!     println!("NVIDIA/Mesa detected - DMABUF renderer disabled");
+//!     set_webkit_disable_dmabuf_renderer();
 //! }
+//!
+//! // Or force-disable via command line argument
+//! // set_webkit_disable_dmabuf_renderer();  // Call this to set the env var
 //! ```
-//!
-//! ## Features
-//!
-//! - `tauri`: Enables Tauri-specific integration (optional)
 //!
 //! ## Platform Support
 //!
@@ -65,30 +65,29 @@ pub fn is_nvidia_detected() -> bool {
     })
 }
 
-/// Applies the DMABUF renderer workaround if needed.
+/// Checks if NVIDIA or Nouveau is detected or if forcing is requested.
 ///
-/// This function checks if NVIDIA or Nouveau is detected and sets the
-/// `WEBKIT_DISABLE_DMABUF_RENDERER` environment variable to disable the
-/// DMABUF renderer, which can cause performance issues with NVIDIA drivers.
+/// This function checks if NVIDIA or Nouveau kernel modules are loaded and
+/// returns whether the DMABUF renderer workaround should be applied.
 ///
 /// # Arguments
 ///
-/// * `force_disable` - If `true`, always disables the DMABUF renderer
+/// * `force_disable` - If `true`, indicates the workaround should be applied
 ///   regardless of whether NVIDIA is detected (useful for manual overrides)
 ///
 /// # Returns
 ///
-/// `true` if the workaround was applied (NVIDIA detected or force disabled),
+/// `true` if the workaround should be applied (NVIDIA detected or force requested),
 /// `false` otherwise.
 ///
 /// # Note
 ///
-/// This function prints informational messages to stderr when the
-/// workaround is applied.
+/// This function only performs detection. Use [`set_webkit_disable_dmabuf_renderer`]
+/// to actually set the environment variable. Call this first, then call the setter
+/// if needed - ideally before spawning any threads.
 pub fn apply_workaround_if_needed(force_disable: bool) -> bool {
     if force_disable {
         eprintln!("Note: dmabuf renderer disabled by command line arg. Expect degraded renderer performance");
-        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
         return true;
     }
 
@@ -96,9 +95,21 @@ pub fn apply_workaround_if_needed(force_disable: bool) -> bool {
     if detected {
         eprintln!("Note: NVIDIA or Nouveau detected, disabling dmabuf renderer. Expect degraded renderer performance.");
         eprintln!("See https://github.com/tauri-apps/tauri/issues/10702 and https://github.com/tauri-apps/tauri/issues/9304 for more details.");
-        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
     }
     detected
+}
+
+/// Sets the `WEBKIT_DISABLE_DMABUF_RENDERER` environment variable.
+///
+/// This function should be called explicitly from single-threaded startup
+/// (main) before spawning threads or when launching subprocesses.
+///
+/// # Note
+///
+/// This function modifies the process environment. Call it early in your
+/// application's startup, before any threading has begun.
+pub fn set_webkit_disable_dmabuf_renderer() {
+    std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
 }
 
 #[cfg(test)]

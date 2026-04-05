@@ -1,3 +1,6 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
 [package]
 name = "mdns-browser"
 version = "1.7.1"

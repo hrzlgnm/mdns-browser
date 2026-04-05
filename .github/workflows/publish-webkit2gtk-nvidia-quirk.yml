@@ -25,6 +25,10 @@ on:
         type: boolean
         default: true
 
+concurrency:
+  group: ruleset-modification
+  cancel-in-progress: false
+
 jobs:
   bump_version:
     permissions:
