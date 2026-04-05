@@ -130,7 +130,7 @@ jobs:
           --input -
 
       - name: 💾🏷️⬆️ Commit, tag and push
-        if: (!inputs.dry-run && inputs.bump_version != 'none')
+        if: (!inputs.dry-run)
         run: |
           git add -A
           git commit -S -m "Bump webkit2gtk-nvidia-quirk to ${{ steps.version.outputs.version }}"
