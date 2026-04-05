@@ -1,0 +1,14 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+[package]
+name = "webkit2gtk-nvidia-quirk"
+version = "1.0.0"
+edition = "2021"
+description = "WebKitGTK DMABUF renderer quirk for NVIDIA/Mesa drivers on Linux"
+license = "MIT"
+repository = "https://github.com/hrzlgnm/mdns-browser"
+authors = ["hrzlgnm"]
+
+[dependencies]
+log = { workspace = true }

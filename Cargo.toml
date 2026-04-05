@@ -1,3 +1,6 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
 [package]
 name = "mdns-browser-ui"
 version = "1.7.1"
@@ -51,7 +54,7 @@ shared_constants = { path = "./crates/shared_constants" }
 models = { path = "./crates/models" }
 
 [workspace]
-members = ["crates/models", "crates/shared_constants", "src-tauri"]
+members = ["crates/models", "crates/shared_constants", "crates/webkit2gtk-nvidia-quirk", "src-tauri"]
 resolver = "2"
 
 [workspace.dependencies]

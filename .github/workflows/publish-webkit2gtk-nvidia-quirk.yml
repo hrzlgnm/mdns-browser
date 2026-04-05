@@ -1,0 +1,173 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+name: Publish webkit2gtk-nvidia-quirk
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_version:
+        description: Version bump type
+        required: true
+        type: choice
+        options:
+          - none
+          - patch
+          - minor
+          - major
+        default: patch
+      dry-run:
+        description: Dry run (no commits/tags/releases)
+        required: true
+        type: boolean
+        default: false
+      publish:
+        description: Publish to crates.io after version bump
+        required: true
+        type: boolean
+        default: true
+
+concurrency:
+  group: ruleset-modification
+  cancel-in-progress: false
+
+jobs:
+  bump_version:
+    permissions:
+      actions: write
+      contents: write
+    runs-on: ubuntu-latest
+    name: ⬆️ Bump version
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tagName: webkit2gtk-nvidia-quirk-v${{ steps.version.outputs.version}}
+    env:
+      GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+      RULESET: repos/${{github.repository}}/rulesets/${{ secrets.RULESET_ID }}
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+
+      - name: 🛡️ Verify RULESET_ID secret is configured
+        run: |
+          if [ -z "${{ secrets.RULESET_ID }}" ]; then
+            echo "Error: secrets.RULESET_ID is not set. Please configure the RULESET_ID secret in repository settings."
+            echo "This secret should contain the ID of the ruleset used to disable enforcement during version bump."
+            exit 1
+          fi
+          echo "RULESET_ID secret is configured"
+
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
+        with:
+          save-cache: false
+
+      - name: 🔧 Install cargo-edit
+        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
+        with:
+          crate: cargo-edit
+          version: 0.13.9
+          locked: true
+
+      - name: 🔢 Bump semantic version
+        id: version
+        shell: bash
+        run: |
+          CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "webkit2gtk-nvidia-quirk") | .version')
+          if [ "${{ inputs.dry-run }}" = "true" ]; then
+            if [ "${{ inputs.bump_version }}" = "none" ]; then
+              NEW_VERSION="$CURRENT_VERSION"
+            else
+              IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+              case "${{ inputs.bump_version }}" in
+                "patch")
+                  NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+                  ;;
+                "minor")
+                  NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
+                  ;;
+                "major")
+                  NEW_VERSION="$((MAJOR + 1)).0.0"
+                  ;;
+              esac
+            fi
+            echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+            echo "Dry run: would bump from $CURRENT_VERSION to $NEW_VERSION"
+          else
+            if [ "${{ inputs.bump_version }}" != "none" ]; then
+              cargo set-version --package webkit2gtk-nvidia-quirk --bump "${{ inputs.bump_version }}"
+              CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "webkit2gtk-nvidia-quirk") | .version')
+            fi
+            echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+            echo "Version: $CURRENT_VERSION"
+          fi
+
+      - name: 🔑 Set up SSH signing key
+        if: (!inputs.dry-run)
+        env:
+          SSH_SIGNING_KEY: ${{ secrets.SSH_SIGNING_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_SIGNING_KEY" > ~/.ssh/id_ed25519_signing
+          chmod 600 ~/.ssh/id_ed25519_signing
+          git config --global gpg.format ssh
+          git config --global user.signingKey ~/.ssh/id_ed25519_signing
+          git config --global user.name "hrzlgnm"
+          git config --global user.email "hrzlgnm@users.noreply.github.com"
+
+      - name: ⏳ Temporary disable ruleset enforcement
+        if: (!inputs.dry-run)
+        run: |
+          gh api \
+          -H "Accept: application/vnd.github+json" \
+          "${RULESET}" | jq '.enforcement = "disabled"' | \
+          gh api \
+          --method PUT \
+          -H "Accept: application/vnd.github+json" \
+          "${RULESET}" \
+          --input -
+
+      - name: 💾🏷️⬆️ Commit, tag and push
+        if: (!inputs.dry-run)
+        run: |
+          git add -A
+          git commit -S -m "Bump webkit2gtk-nvidia-quirk to ${{ steps.version.outputs.version }}"
+          git tag -s -a webkit2gtk-nvidia-quirk-v${{ steps.version.outputs.version }} -m "webkit2gtk-nvidia-quirk Release v${{ steps.version.outputs.version }}"
+          git push --follow-tags
+
+      - name: 👮 Re-enable enforcement of rules
+        if: (always() && !inputs.dry-run)
+        run: |
+          gh api \
+          -H "Accept: application/vnd.github+json" \
+          "${RULESET}" | jq '.enforcement = "active"' | \
+          gh api \
+          --method PUT \
+          -H "Accept: application/vnd.github+json" \
+          "${RULESET}" \
+          --input -
+
+  publish_crate:
+    needs: [bump_version]
+    if: (inputs.publish && !inputs.dry-run)
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    name: 📦 Publish to crates.io
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.bump_version == 'none' && github.ref_name || format('webkit2gtk-nvidia-quirk-v{0}', needs.bump_version.outputs.version) }}
+
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
+
+      - name: 📦 Publish to crates.io
+        run: |
+          cargo publish --package webkit2gtk-nvidia-quirk
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

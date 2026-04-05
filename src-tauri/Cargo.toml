@@ -1,3 +1,6 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
 [package]
 name = "mdns-browser"
 version = "1.7.1"
@@ -29,8 +32,13 @@ tokio = { workspace = true }
 # local
 models = { path = "../crates/models" }
 shared_constants = { path = "../crates/shared_constants" }
+webkit2gtk-nvidia-quirk = { path = "../crates/webkit2gtk-nvidia-quirk" }
 
-# platform-specific dependencies
+[features]
+default = []
+custom-protocol = ["tauri/custom-protocol"]
+devtools = ["tauri/devtools"]
+
 [target.'cfg(not(windows))'.dependencies]
 pnet = { workspace = true }
 

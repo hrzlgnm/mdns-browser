@@ -3273,6 +3273,7 @@ dependencies = [
  "tauri-plugin-updater",
  "thiserror 2.0.18",
  "tokio",
+ "webkit2gtk-nvidia-quirk",
 ]
 
 [[package]]
@@ -7094,6 +7095,13 @@ dependencies = [
  "once_cell",
  "soup3",
  "webkit2gtk-sys",
+]
+
+[[package]]
+name = "webkit2gtk-nvidia-quirk"
+version = "1.0.0"
+dependencies = [
+ "log",
 ]
 
 [[package]]
