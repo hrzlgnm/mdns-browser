@@ -25,11 +25,11 @@
 //! ## Usage
 //!
 //! ```rust,no_run
-//! use webkit2gtk_nvidia_quirk::{apply_workaround_if_needed, set_webkit_disable_dmabuf_renderer};
+//! use webkit2gtk_nvidia_quirk::{should_apply_workaround, set_webkit_disable_dmabuf_renderer};
 //!
 //! // Call early in your application's startup (before spawning threads)
 //! // Check if NVIDIA/Mesa is detected
-//! let nvidia_detected = apply_workaround_if_needed(false);
+//! let nvidia_detected = should_apply_workaround(false);
 //!
 //! // If detected, explicitly set the environment variable
 //! if nvidia_detected {
@@ -65,7 +65,7 @@ pub fn is_nvidia_detected() -> bool {
     })
 }
 
-/// Checks if NVIDIA or Nouveau is detected or if forcing is requested.
+/// Checks if the DMABUF renderer workaround should be applied.
 ///
 /// This function checks if NVIDIA or Nouveau kernel modules are loaded and
 /// returns whether the DMABUF renderer workaround should be applied.
@@ -85,7 +85,7 @@ pub fn is_nvidia_detected() -> bool {
 /// This function only performs detection. Use [`set_webkit_disable_dmabuf_renderer`]
 /// to actually set the environment variable. Call this first, then call the setter
 /// if needed - ideally before spawning any threads.
-pub fn apply_workaround_if_needed(force_disable: bool) -> bool {
+pub fn should_apply_workaround(force_disable: bool) -> bool {
     if force_disable {
         eprintln!("Note: dmabuf renderer disabled by command line arg. Expect degraded renderer performance");
         return true;
