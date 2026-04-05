@@ -6,6 +6,7 @@
 [![AUR Version](https://img.shields.io/aur/version/mdns-browser-bin)](https://aur.archlinux.org/packages/mdns-browser-bin)
 [![License: MIT](https://img.shields.io/github/license/hrzlgnm/mdns-browser)](https://github.com/hrzlgnm/mdns-browser/blob/main/LICENSE)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/hrzlgnm/mdns-browser/ci.yml)](https://github.com/hrzlgnm/mdns-browser/actions)
+[![Cargo webkit2gtk-nvidia-quirk](https://img.shields.io/crates/v/webkit2gtk-nvidia-quirk.svg)](https://crates.io/crates/webkit2gtk-nvidia-quirk)
 
 # mDNS-Browser
 
