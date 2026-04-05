@@ -6,14 +6,16 @@ name: Publish webkit2gtk-nvidia-quirk
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: Version to bump
+      bump_version:
+        description: Version bump type
         required: true
         type: choice
         options:
+          - none
           - patch
           - minor
           - major
+        default: patch
       dry-run:
         description: Dry run (no commits/tags/releases)
         required: true
@@ -75,29 +77,31 @@ jobs:
         run: |
           CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "webkit2gtk-nvidia-quirk") | .version')
           if [ "${{ inputs.dry-run }}" = "true" ]; then
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-            case "${{ inputs.version }}" in
-              "patch")
-                NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
-                ;;
-              "minor")
-                NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
-                ;;
-              "major")
-                NEW_VERSION="$((MAJOR + 1)).0.0"
-                ;;
-              *)
-                echo "Error: Invalid version bump type '${{ inputs.version }}'. Must be patch, minor, or major."
-                exit 1
-                ;;
-            esac
+            if [ "${{ inputs.bump_version }}" = "none" ]; then
+              NEW_VERSION="$CURRENT_VERSION"
+            else
+              IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+              case "${{ inputs.bump_version }}" in
+                "patch")
+                  NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+                  ;;
+                "minor")
+                  NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
+                  ;;
+                "major")
+                  NEW_VERSION="$((MAJOR + 1)).0.0"
+                  ;;
+              esac
+            fi
             echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
             echo "Dry run: would bump from $CURRENT_VERSION to $NEW_VERSION"
           else
-            cargo set-version --package webkit2gtk-nvidia-quirk --bump "${{ inputs.version }}"
-            NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "webkit2gtk-nvidia-quirk") | .version')
-            echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
-            echo "Bumped version from $CURRENT_VERSION to $NEW_VERSION"
+            if [ "${{ inputs.bump_version }}" != "none" ]; then
+              cargo set-version --package webkit2gtk-nvidia-quirk --bump "${{ inputs.bump_version }}"
+              CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "webkit2gtk-nvidia-quirk") | .version')
+            fi
+            echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+            echo "Version: $CURRENT_VERSION"
           fi
 
       - name: 🔑 Set up SSH signing key
@@ -126,7 +130,7 @@ jobs:
           --input -
 
       - name: 💾🏷️⬆️ Commit, tag and push
-        if: (!inputs.dry-run)
+        if: (!inputs.dry-run && inputs.bump_version != 'none')
         run: |
           git add -A
           git commit -S -m "Bump webkit2gtk-nvidia-quirk to ${{ steps.version.outputs.version }}"
@@ -157,7 +161,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
-          ref: webkit2gtk-nvidia-quirk-v${{ needs.bump_version.outputs.version }}
+          ref: ${{ inputs.bump_version == 'none' && github.ref_name || format('webkit2gtk-nvidia-quirk-v{0}', needs.bump_version.outputs.version) }}
 
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
