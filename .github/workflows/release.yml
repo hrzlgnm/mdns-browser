@@ -69,7 +69,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "mdns-browser-ui") | .version')
           if [ "${{ inputs.dry-run }}" = "true" ]; then
             IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
             case "${{ inputs.version }}" in
@@ -90,8 +90,9 @@ jobs:
             echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
             echo "Dry run: would bump from $CURRENT_VERSION to $NEW_VERSION"
           else
-            cargo set-version --bump "${{ inputs.version }}"
-            NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+            # Only bump mdns-browser-ui, exclude webkit2gtk-nvidia-quirk from workspace version bump
+            cargo set-version --package mdns-browser-ui --bump "${{ inputs.version }}"
+            NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "mdns-browser-ui") | .version')
 
             # Update Tauri config files
             jq --indent 4 ".version=\"$NEW_VERSION\"" src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
