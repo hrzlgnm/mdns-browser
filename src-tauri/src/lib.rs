@@ -691,42 +691,8 @@ fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Resul
     Ok(())
 }
 
-#[cfg(desktop)]
-#[cfg(target_os = "linux")]
-mod linux {
-    fn check_nvidia_kernel_module_loaded() -> bool {
-        use std::path::Path;
-        let modules = ["nvidia", "nouveau"];
-        for module in &modules {
-            let path = format!("/sys/module/{}", module);
-            if Path::new(&path).exists() {
-                return true;
-            }
-        }
-        false
-    }
-    fn should_disable_dmabuf(force_disable: bool) -> Result<bool, ()> {
-        // Return true immediately if forced
-        if force_disable {
-            eprintln!("Note: dmabuf renderer disabled by command line arg. Expect degraded renderer performance");
-            return Ok(true);
-        }
-        let nvidia_detected = check_nvidia_kernel_module_loaded();
-        if nvidia_detected {
-            eprintln!("Note: NVIDIA or Nouveau detected, disabling dmabuf renderer. Expect degraded renderer performance.");
-            eprintln!("See https://github.com/hrzlgnm/mdns-browser/issues/947 for more details.");
-        }
-        Ok(nvidia_detected)
-    }
-
-    pub fn disable_webkit_dmabuf_rendering_if_needed(force_disable: bool) {
-        if let Ok(disable) = should_disable_dmabuf(force_disable) {
-            if disable {
-                std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
-            }
-        }
-    }
-}
+#[cfg(all(target_os = "linux", desktop, feature = "tauri-nvidia-quirk"))]
+use webkit2gtk_nvidia_quirk::apply_workaround_if_needed;
 
 #[tauri::command]
 #[cfg(mobile)]
@@ -974,8 +940,8 @@ pub fn run() {
     use tauri_plugin_log::{Target, TargetKind};
     let args = Args::parse();
 
-    #[cfg(target_os = "linux")]
-    linux::disable_webkit_dmabuf_rendering_if_needed(args.disable_dmabuf_renderer);
+    #[cfg(all(target_os = "linux", feature = "tauri-nvidia-quirk"))]
+    apply_workaround_if_needed(args.disable_dmabuf_renderer);
 
     let mut log_targets = vec![
         Target::new(TargetKind::Stdout),

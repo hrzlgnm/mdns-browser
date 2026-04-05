@@ -1,0 +1,25 @@
+[package]
+name = "webkit2gtk-nvidia-quirk"
+version = "1.0.0"
+edition = "2021"
+description = "WebKitGTK DMABUF renderer quirk for NVIDIA/Mesa drivers on Linux"
+license = "MIT"
+repository = "https://github.com/hrzlgnm/mdns-browser"
+authors = ["hrzlgnm"]
+
+[dependencies]
+log = "0.4"
+
+[features]
+default = []
+tauri = ["dep:tauri"]
+
+[target.'cfg(target_os = "linux")'.dependencies]
+tauri = { version = "2.0", optional = true }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

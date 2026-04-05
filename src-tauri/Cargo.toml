@@ -29,8 +29,17 @@ tokio = { workspace = true }
 # local
 models = { path = "../crates/models" }
 shared_constants = { path = "../crates/shared_constants" }
+webkit2gtk-nvidia-quirk = { path = "../crates/webkit2gtk-nvidia-quirk", optional = true }
 
-# platform-specific dependencies
+[target.'cfg(all(target_os = "linux", desktop))'.dependencies]
+webkit2gtk-nvidia-quirk = { path = "../crates/webkit2gtk-nvidia-quirk", optional = true }
+
+[features]
+default = []
+custom-protocol = ["tauri/custom-protocol"]
+devtools = ["tauri/devtools"]
+tauri-nvidia-quirk = ["webkit2gtk-nvidia-quirk"]
+
 [target.'cfg(not(windows))'.dependencies]
 pnet = { workspace = true }
 
