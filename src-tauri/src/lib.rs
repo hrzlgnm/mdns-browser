@@ -691,7 +691,7 @@ fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Resul
     Ok(())
 }
 
-#[cfg(all(target_os = "linux", desktop, feature = "tauri-nvidia-quirk"))]
+#[cfg(all(target_os = "linux", desktop))]
 use webkit2gtk_nvidia_quirk::apply_workaround_if_needed;
 
 #[tauri::command]
@@ -940,7 +940,7 @@ pub fn run() {
     use tauri_plugin_log::{Target, TargetKind};
     let args = Args::parse();
 
-    #[cfg(all(target_os = "linux", feature = "tauri-nvidia-quirk"))]
+    #[cfg(target_os = "linux")]
     apply_workaround_if_needed(args.disable_dmabuf_renderer);
 
     let mut log_targets = vec![
