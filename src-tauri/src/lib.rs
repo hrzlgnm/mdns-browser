@@ -692,7 +692,7 @@ fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Resul
 }
 
 #[cfg(all(target_os = "linux", desktop))]
-use webkit2gtk_nvidia_quirk::{should_disable_dmabuf_renderer, set_webkit_disable_dmabuf_renderer};
+use webkit2gtk_nvidia_quirk::{set_webkit_disable_dmabuf_renderer, should_disable_dmabuf_renderer};
 
 #[tauri::command]
 #[cfg(mobile)]
