@@ -23,6 +23,8 @@ use std::{
 use tauri::{AppHandle, Emitter, Manager, State, Theme, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_opener::OpenerExt;
+#[cfg(all(target_os = "linux", desktop))]
+use webkit2gtk_nvidia_quirk::{set_webkit_disable_dmabuf_renderer, should_disable_dmabuf_renderer};
 
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
@@ -691,9 +693,6 @@ fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Resul
     Ok(())
 }
 
-#[cfg(all(target_os = "linux", desktop))]
-use webkit2gtk_nvidia_quirk::{set_webkit_disable_dmabuf_renderer, should_disable_dmabuf_renderer};
-
 #[tauri::command]
 #[cfg(mobile)]
 fn is_desktop() -> bool {
@@ -940,7 +939,7 @@ pub fn run() {
     use tauri_plugin_log::{Target, TargetKind};
     let args = Args::parse();
 
-    #[cfg(all(target_os = "linux", desktop))]
+    #[cfg(target_os = "linux")]
     {
         let should_disable = should_disable_dmabuf_renderer(args.disable_dmabuf_renderer);
         if should_disable {
