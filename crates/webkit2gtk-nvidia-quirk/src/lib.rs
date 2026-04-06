@@ -185,6 +185,34 @@ pub fn nv_disable_explicit_sync() {
     std::env::set_var("__NV_DISABLE_EXPLICIT_SYNC", "1");
 }
 
+/// Applies the appropriate workaround if needed based on NVIDIA detection and session type.
+///
+/// This is a convenience function that combines [`should_apply_workaround`] and applying
+/// the resulting workaround in one call.
+///
+/// # Arguments
+///
+/// * `force_disable` - If `true`, indicates a workaround should be applied regardless of
+///   whether NVIDIA is detected (useful for manual overrides)
+///
+/// # Returns
+///
+/// The [`WorkaroundKind`] that was applied, or `WorkaroundKind::None` if no workaround was applied.
+///
+/// # Note
+///
+/// This function modifies the process environment. Call it early in your application's
+/// startup, before any threading has begun.
+pub fn apply_workaround_if_needed(force_disable: bool) -> WorkaroundKind {
+    let workaround = should_apply_workaround(force_disable);
+    match workaround {
+        WorkaroundKind::None => {}
+        WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
+        WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
+    }
+    workaround
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
