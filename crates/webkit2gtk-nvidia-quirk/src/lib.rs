@@ -4,12 +4,12 @@
 //! # webkit2gtk-nvidia-quirk
 //!
 //! A crate that provides a workaround for WebKitGTK DMABUF renderer issues
-//! on Linux systems with NVIDIA or Mesa drivers.
+//! on Linux systems with NVIDIA or Nouveau drivers.
 //!
 //! ## Problem
 //!
 //! When running WebKitGTK-based applications (such as Tauri apps) on Linux
-//! with NVIDIA drivers, the DMABUF renderer causes rendering issues on X.Org
+//! with NVIDIA or Nouveau drivers, the DMABUF renderer causes rendering issues on X.Org
 //! or crashes on Wayland. This is a known upstream issue in WebKitGTK and Tauri.
 //!
 //! Related upstream issues:
@@ -28,7 +28,7 @@
 //! use webkit2gtk_nvidia_quirk::{should_disable_dmabuf_renderer, set_webkit_disable_dmabuf_renderer};
 //!
 //! // Call early in your application's startup (before spawning threads)
-//! // Check if NVIDIA/Mesa is detected
+//! // Check if NVIDIA or Nouveau is detected
 //! let nvidia_detected = should_disable_dmabuf_renderer(false);
 //!
 //! // If detected, explicitly set the environment variable
@@ -36,7 +36,7 @@
 //!     set_webkit_disable_dmabuf_renderer();
 //! }
 //!
-//! // Or force-disable via command line argument
+//! // Or force-disable via force flag
 //! // set_webkit_disable_dmabuf_renderer();  // Call this to set the env var
 //! ```
 //!
