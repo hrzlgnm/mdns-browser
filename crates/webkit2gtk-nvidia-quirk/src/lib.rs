@@ -113,8 +113,26 @@ use udev::Enumerator;
 #[derive(Debug)]
 struct GpuDevice {
     pci_id: String,
+    vendor_id: u16,
+    device_id: u16,
     is_primary: bool,
     is_nvidia: bool,
+}
+
+fn parse_pci_ids(pci_parent: &udev::Device) -> (u16, u16) {
+    let vendor_id = pci_parent
+        .property_value("ID_VENDOR_ID")
+        .and_then(|v| v.to_str())
+        .and_then(|s| u16::from_str_radix(s, 16).ok())
+        .unwrap_or(0);
+
+    let device_id = pci_parent
+        .property_value("ID_MODEL_ID")
+        .and_then(|v| v.to_str())
+        .and_then(|s| u16::from_str_radix(s, 16).ok())
+        .unwrap_or(0);
+
+    (vendor_id, device_id)
 }
 
 fn enumerate_gpus() -> Vec<GpuDevice> {
@@ -159,6 +177,8 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
             continue;
         }
 
+        let (vendor_id, device_id) = parse_pci_ids(&pci_parent);
+
         let is_primary = device
             .attribute_value("boot_display")
             .and_then(|v| v.to_str())
@@ -172,6 +192,8 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
 
         devices.push(GpuDevice {
             pci_id,
+            vendor_id,
+            device_id,
             is_primary,
             is_nvidia,
         });
@@ -215,17 +237,28 @@ pub fn is_primary_gpu_nvidia() -> bool {
             return devices.get(index).map(|d| d.is_nvidia).unwrap_or(false);
         }
 
-        let normalized = if dri_prime.starts_with("pci-") {
-            dri_prime
+        if dri_prime.starts_with("pci-") {
+            let normalized = dri_prime
                 .strip_prefix("pci-")
                 .unwrap_or(&dri_prime)
-                .to_string()
-        } else {
-            dri_prime
-        };
-
-        if let Some(idx) = devices.iter().position(|d| d.pci_id == normalized) {
-            return devices[idx].is_nvidia;
+                .to_string();
+            if let Some(idx) = devices.iter().position(|d| d.pci_id == normalized) {
+                return devices[idx].is_nvidia;
+            }
+        } else if dri_prime.contains(':') {
+            let parts: Vec<&str> = dri_prime.split(':').collect();
+            if parts.len() == 2 {
+                let vendor_id = parts[0].parse::<u16>().ok();
+                let device_id = parts[1].parse::<u16>().ok();
+                if let (Some(vid), Some(did)) = (vendor_id, device_id) {
+                    if let Some(idx) = devices
+                        .iter()
+                        .position(|d| d.vendor_id == vid && d.device_id == did)
+                    {
+                        return devices[idx].is_nvidia;
+                    }
+                }
+            }
         }
     }
 
@@ -449,16 +482,22 @@ mod tests {
             let mut devices = [
                 GpuDevice {
                     pci_id: "0000:01:00.0".to_string(),
+                    vendor_id: 0x1002,
+                    device_id: 0x164e,
                     is_primary: false,
                     is_nvidia: false,
                 },
                 GpuDevice {
                     pci_id: "0000:02:00.0".to_string(),
+                    vendor_id: 0x10de,
+                    device_id: 0x2803,
                     is_primary: true,
                     is_nvidia: true,
                 },
                 GpuDevice {
                     pci_id: "0000:03:00.0".to_string(),
+                    vendor_id: 0x8086,
+                    device_id: 0x1234,
                     is_primary: false,
                     is_nvidia: true,
                 },
