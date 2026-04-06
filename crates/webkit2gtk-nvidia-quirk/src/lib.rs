@@ -32,17 +32,16 @@
 //! ## Usage
 //!
 //! ```rust,no_run
-//! use webkit2gtk_nvidia_quirk::{
-//!     should_apply_workaround, set_webkit_disable_dmabuf_renderer,
-//!     nv_disable_explicit_sync, WorkaroundKind
-//! };
+//! use webkit2gtk_nvidia_quirk::{ApplyWorkaroundOptions, apply_workaround_with_options};
 //!
-//! let force_disable = std::env::args().any(|arg| arg == "--force-disable-dmabuf");
-//! match should_apply_workaround(force_disable) {
-//!     WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
-//!     WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
-//!     WorkaroundKind::None => {},
-//! }
+//! let disable_dmabuf = std::env::args().any(|arg| arg == "--disable-dmabuf-renderer");
+//! let disable_nv_sync = std::env::args().any(|arg| arg == "--disable-nv-explicit-sync");
+//!
+//! let options = ApplyWorkaroundOptions::default()
+//!     .force_disable_dmabuf(disable_dmabuf)
+//!     .force_disable_nv_explicit_sync(disable_nv_sync);
+//!
+//! apply_workaround_with_options(options);
 //! ```
 //!
 //! ## API
