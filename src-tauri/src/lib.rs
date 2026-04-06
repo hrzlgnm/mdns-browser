@@ -24,7 +24,9 @@ use tauri::{AppHandle, Emitter, Manager, State, Theme, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_opener::OpenerExt;
 #[cfg(all(target_os = "linux", desktop))]
-use webkit2gtk_nvidia_quirk::{set_webkit_disable_dmabuf_renderer, should_disable_dmabuf_renderer};
+use webkit2gtk_nvidia_quirk::{
+    nv_disable_explicit_sync, set_webkit_disable_dmabuf_renderer, should_apply_workaround,
+};
 
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
@@ -941,9 +943,15 @@ pub fn run() {
 
     #[cfg(target_os = "linux")]
     {
-        let should_disable = should_disable_dmabuf_renderer(args.disable_dmabuf_renderer);
-        if should_disable {
-            set_webkit_disable_dmabuf_renderer();
+        let should_disable = should_apply_workaround(args.disable_dmabuf_renderer);
+        match should_disable {
+            webkit2gtk_nvidia_quirk::WokraroundKind::None => {}
+            webkit2gtk_nvidia_quirk::WokraroundKind::DisableWebkitDmabufRenderer => {
+                set_webkit_disable_dmabuf_renderer()
+            }
+            webkit2gtk_nvidia_quirk::WokraroundKind::DisableNvExplicitSync => {
+                nv_disable_explicit_sync()
+            }
         }
     }
 

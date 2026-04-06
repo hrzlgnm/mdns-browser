@@ -3,37 +3,45 @@
 
 //! # webkit2gtk-nvidia-quirk
 //!
-//! A crate that provides a workaround for WebKitGTK DMABUF renderer issues
+//! A crate that provides session-aware workarounds for WebKitGTK rendering issues
 //! on Linux systems with NVIDIA or Nouveau drivers.
 //!
 //! ## Problem
 //!
 //! When running WebKitGTK-based applications (such as Tauri apps) on Linux
-//! with NVIDIA or Nouveau drivers, the DMABUF renderer causes rendering issues on X.Org
-//! or crashes on Wayland. This is a known upstream issue in WebKitGTK and Tauri.
+//! with NVIDIA or Nouveau drivers, rendering issues occur that vary by session type:
+//!
+//! - **X11**: The DMABUF renderer causes visual artifacts and rendering issues
+//! - **Wayland**: The DMABUF renderer may crash or hang
 //!
 //! Related upstream issues:
 //! - [tauri-apps/tauri#10702](https://github.com/tauri-apps/tauri/issues/10702)
 //! - [tauri-apps/tauri#9304](https://github.com/tauri-apps/tauri/issues/9304)
+//! - [WebKitGTK Bug #280210](https://bugs.webkit.org/show_bug.cgi?id=280210)
 //!
 //! ## Solution
 //!
-//! This crate detects NVIDIA or Nouveau kernel modules and provides functions
-//! to disable the DMABUF renderer by setting the `WEBKIT_DISABLE_DMABUF_RENDERER`
-//! environment variable.
+//! This crate detects NVIDIA or Nouveau kernel modules and the session type (X11/Wayland),
+//! then applies the appropriate workaround:
+//!
+//! | Session Type | Workaround | Environment Variable |
+//! |-------------|------------|---------------------|
+//! | X11 | Disable DMABUF renderer | `WEBKIT_DISABLE_DMABUF_RENDERER=1` |
+//! | Wayland | Disable NVIDIA explicit sync | `__NV_DISABLE_EXPLICIT_SYNC=1` |
 //!
 //! ## Usage
 //!
 //! ```rust,no_run
-//! use webkit2gtk_nvidia_quirk::{should_disable_dmabuf_renderer, set_webkit_disable_dmabuf_renderer};
+//! use webkit2gtk_nvidia_quirk::{
+//!     should_apply_workaround, set_webkit_disable_dmabuf_renderer,
+//!     nv_disable_explicit_sync, WokraroundKind
+//! };
 //!
-//! // Call early in your application's startup (before spawning threads).
-//!
-//! // This example shows how to disable the DMABUF renderer if NVIDIA/Nouveau is
-//! // detected, or if a command-line flag `--force-disable-dmabuf` is present.
 //! let force_disable = std::env::args().any(|arg| arg == "--force-disable-dmabuf");
-//! if should_disable_dmabuf_renderer(force_disable) {
-//!     set_webkit_disable_dmabuf_renderer();
+//! match should_apply_workaround(force_disable) {
+//!     WokraroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
+//!     WokraroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
+//!     WokraroundKind::None => {},
 //! }
 //! ```
 //!
@@ -43,17 +51,22 @@
 //!
 //! Checks whether NVIDIA or Nouveau kernel modules are loaded.
 //!
-//! ### `should_disable_dmabuf_renderer(force_disable: bool)`
+//! ### `should_apply_workaround(force_disable: bool) -> WokraroundKind`
 //!
-//! Checks if the DMABUF renderer workaround should be applied.
+//! Determines which workaround should be applied based on NVIDIA detection and session type.
 //!
-//! - `force_disable` - If `true`, indicates the workaround should be applied regardless of detection
+//! - `force_disable` - If `true`, indicates a workaround should be applied regardless of detection
 //!
-//! Returns `true` if the workaround should be applied.
+//! Returns `WokraroundKind::None` if no workaround is needed, `WokraroundKind::DisableWebkitDmabufRenderer`
+//! for X11 sessions, or `WokraroundKind::DisableNvExplicitSync` for Wayland sessions.
 //!
 //! ### `set_webkit_disable_dmabuf_renderer()`
 //!
-//! Sets the `WEBKIT_DISABLE_DMABUF_RENDERER` environment variable. Must be called before spawning threads.
+//! Sets the `WEBKIT_DISABLE_DMABUF_RENDERER` environment variable. Use this for X11 sessions.
+//!
+//! ### `nv_disable_explicit_sync()`
+//!
+//! Sets the `__NV_DISABLE_EXPLICIT_SYNC` environment variable. Use this for Wayland sessions.
 //!
 //! ## Platform Support
 //!
@@ -80,7 +93,32 @@ pub fn is_nvidia_detected() -> bool {
     })
 }
 
-/// Checks if the DMABUF renderer workaround should be applied.
+enum SessionType {
+    Wayland,
+    X11,
+    None,
+}
+
+/// Detects the used session_type basedd upon XDG_SESSION_TYPE environment variable
+fn get_session_type() -> SessionType {
+    match std::env::var("XDG_SESSION_TYPE") {
+        Ok(session) => match session.as_str() {
+            "x11" => SessionType::X11,
+            "wayland" => SessionType::Wayland,
+            _ => SessionType::None,
+        },
+        _ => SessionType::None,
+    }
+}
+
+/// Models a workaround to be applied
+pub enum WokraroundKind {
+    None,
+    DisableWebkitDmabufRenderer,
+    DisableNvExplicitSync,
+}
+
+/// Checks if the a workaround should be applied.
 ///
 /// This function checks if NVIDIA or Nouveau kernel modules are loaded and
 /// returns whether the DMABUF renderer workaround should be applied.
@@ -92,28 +130,32 @@ pub fn is_nvidia_detected() -> bool {
 ///
 /// # Returns
 ///
-/// `true` if the workaround should be applied (NVIDIA detected or force requested),
-/// `false` otherwise.
+///  `None` if no workaround is needed
+///  `DisableWebkitDmabufRenderer´ if disabling the dmabuf renderer should be applied
+///  `DisableNvExplicitSync` if disabling nvidia explicit sync should be applied
 ///
 /// # Note
 ///
-/// This function only performs detection. Use [`set_webkit_disable_dmabuf_renderer`]
-/// to actually set the environment variable. Call this first, then call the setter
-/// if needed - ideally before spawning any threads.
-pub fn should_disable_dmabuf_renderer(force_disable: bool) -> bool {
+/// This function only performs detection. Use [`set_webkit_disable_dmabuf_renderer`] or
+/// [`nv_disable_explicit_sync`] to apply the respective wokraound.
+/// Call this first, then call the workaround if needed - ideally before spawning any threads.
+pub fn should_apply_workaround(force_disable: bool) -> WokraroundKind {
+    let session = get_session_type();
     if force_disable {
         eprintln!(
-            "Note: dmabuf renderer disabled by force flag. Expect degraded renderer performance"
+            "Note: nvidia workaround enabled by force flag. Expect degraded renderer performance"
         );
-        return true;
     }
 
     let detected = is_nvidia_detected();
-    if detected {
-        eprintln!("Note: NVIDIA or Nouveau detected, disabling dmabuf renderer. Expect degraded renderer performance.");
-        eprintln!("See https://github.com/tauri-apps/tauri/issues/10702 and https://github.com/tauri-apps/tauri/issues/9304 for more details.");
+    if !detected && !force_disable {
+        return WokraroundKind::None;
     }
-    detected
+    match session {
+        SessionType::Wayland => WokraroundKind::DisableNvExplicitSync,
+        SessionType::X11 => WokraroundKind::DisableWebkitDmabufRenderer,
+        SessionType::None => WokraroundKind::None,
+    }
 }
 
 /// Sets the `WEBKIT_DISABLE_DMABUF_RENDERER` environment variable.
@@ -126,7 +168,24 @@ pub fn should_disable_dmabuf_renderer(force_disable: bool) -> bool {
 /// This function modifies the process environment. Call it early in your
 /// application's startup, before any threading has begun.
 pub fn set_webkit_disable_dmabuf_renderer() {
+    eprintln!("Note: disabling dmabuf renderer, expect degraded renderer performance.");
+    eprintln!("See https://github.com/tauri-apps/tauri/issues/9304 for more details.");
     std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+}
+
+/// Sets the `__NV_DISABLE_EXPLICIT_SYNC` environment variable.
+///
+/// This function should be called explicitly from single-threaded startup
+/// (main) before spawning threads or when launching subprocesses.
+///
+/// # Note
+///
+/// This function modifies the process environment. Call it early in your
+/// application's startup, before any threading has begun.
+pub fn nv_disable_explicit_sync() {
+    eprintln!("Note: disabling nvidia explicit sync.");
+    eprintln!("See https://bugs.webkit.org/show_bug.cgi?id=280210 for more details");
+    std::env::set_var("__NV_DISABLE_EXPLICIT_SYNC", "1");
 }
 
 #[cfg(test)]
