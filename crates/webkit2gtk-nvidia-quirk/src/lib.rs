@@ -131,7 +131,7 @@ pub enum WorkaroundKind {
 /// # Returns
 ///
 ///  `None` if no workaround is needed
-///  `DisableWebkitDmabufRenderer´ if disabling the dmabuf renderer should be applied
+///  `DisableWebkitDmabufRenderer` if disabling the dmabuf renderer should be applied
 ///  `DisableNvExplicitSync` if disabling nvidia explicit sync should be applied
 ///
 /// # Note
