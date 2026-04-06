@@ -11,6 +11,7 @@ RUN xbps-install -Syu xbps \
     bsdtar \
     coreutils \
     curl \
+    eudev-libudev-devel \
     findutils \
     git \
     jq \
