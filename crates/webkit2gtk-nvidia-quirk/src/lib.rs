@@ -241,7 +241,7 @@ pub fn is_primary_gpu_nvidia() -> bool {
             let normalized = dri_prime
                 .strip_prefix("pci-")
                 .unwrap_or(&dri_prime)
-                .to_string();
+                .replace('_', ":");
             if let Some(idx) = devices.iter().position(|d| d.pci_id == normalized) {
                 return devices[idx].is_nvidia;
             }
