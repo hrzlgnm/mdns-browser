@@ -118,10 +118,10 @@ pub enum WorkaroundKind {
     DisableNvExplicitSync,
 }
 
-/// Checks if the a workaround should be applied.
+/// Checks if a workaround should be applied.
 ///
 /// This function checks if NVIDIA or Nouveau kernel modules are loaded and
-/// returns whether the DMABUF renderer workaround should be applied.
+/// returns which workaround should be applied.
 ///
 /// # Arguments
 ///
