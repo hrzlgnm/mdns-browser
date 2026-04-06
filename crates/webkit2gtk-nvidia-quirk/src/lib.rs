@@ -48,7 +48,7 @@
 //!
 //! ### `is_primary_gpu_nvidia() -> bool`
 //!
-//! Checks whether an NVIDIA GPU is considered as primary.
+//! Checks whether a NVIDIA GPU is considered as primary.
 //!
 //! Returns `true` if NVIDIA GPU is used as primary, `false` otherwise.
 //!
