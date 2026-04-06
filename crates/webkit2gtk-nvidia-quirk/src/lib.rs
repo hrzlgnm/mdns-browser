@@ -194,28 +194,20 @@ impl ApplyWorkaroundOptions {
     }
 }
 
-pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) -> WorkaroundKind {
-    let mut applied = WorkaroundKind::None;
-
-    if options.force_disable_dmabuf || options.force_disable_nv_explicit_sync {
-        if options.force_disable_dmabuf {
-            set_webkit_disable_dmabuf_renderer();
-            applied = WorkaroundKind::DisableWebkitDmabufRenderer;
-        }
-        if options.force_disable_nv_explicit_sync {
-            nv_disable_explicit_sync();
-            applied = WorkaroundKind::DisableNvExplicitSync;
-        }
-    } else {
-        let workaround = should_apply_workaround();
-        match workaround {
+pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) {
+    if options.force_disable_dmabuf {
+        set_webkit_disable_dmabuf_renderer();
+    }
+    if options.force_disable_nv_explicit_sync {
+        nv_disable_explicit_sync();
+    }
+    if !options.force_disable_dmabuf && !options.force_disable_nv_explicit_sync {
+        match should_apply_workaround() {
             WorkaroundKind::None => {}
             WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
             WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
         }
-        applied = workaround;
     }
-    applied
 }
 
 #[cfg(test)]

@@ -951,7 +951,7 @@ pub fn run() {
         let options = ApplyWorkaroundOptions::default()
             .force_disable_dmabuf(args.disable_dmabuf_renderer)
             .force_disable_nv_explicit_sync(args.disable_nv_explicit_sync);
-        let _ = apply_workaround_with_options(options);
+        apply_workaround_with_options(options);
     }
 
     let mut log_targets = vec![
