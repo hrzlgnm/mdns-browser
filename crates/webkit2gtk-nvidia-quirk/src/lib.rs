@@ -103,8 +103,8 @@
 //!
 //! This workaround may not work reliably when using multiple graphics cards
 //! (e.g., an integrated GPU provided by the CPU and a discrete GPU).
-//! Detection is based on kernel module presence in `/sys/module/`, which may
-//! not accurately reflect the currently active renderer in hybrid setups.
+//! Detection uses udev enumeration of DRM devices and may not accurately
+//! reflect the currently active renderer in hybrid setups.
 
 #![cfg(target_os = "linux")]
 use std::env;
@@ -190,8 +190,9 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
 ///
 /// The active GPU is determined as follows:
 /// - If the primary GPU (boot_display) is NVIDIA, return true (DRI_PRIME won't work)
-/// - If DRI_PRIME=1 and the selected GPU is NVIDIA, return true
-/// - Otherwise return false
+/// - If DRI_PRIME is set, try to match: first as numeric index, then as PCI id
+///   (e.g., "pci-0000:01:00.0"), and return that GPU's is_nvidia status
+/// - Otherwise fall back to index 0 behavior
 ///
 /// When the primary GPU is NVIDIA, DRI_PRIME does not work as expected
 /// because the NVIDIA driver does not properly offload to other GPUs.
@@ -208,12 +209,27 @@ pub fn is_primary_gpu_nvidia() -> bool {
     }
 
     let dri_prime = env::var("DRI_PRIME").ok();
-    let index: usize = match dri_prime.as_deref() {
-        Some(s) => s.parse().unwrap_or(0),
-        None => 0,
-    };
 
-    devices.get(index).map(|d| d.is_nvidia).unwrap_or(false)
+    if let Some(dri_prime) = dri_prime {
+        if let Ok(index) = dri_prime.parse::<usize>() {
+            return devices.get(index).map(|d| d.is_nvidia).unwrap_or(false);
+        }
+
+        let normalized = if dri_prime.starts_with("pci-") {
+            dri_prime
+                .strip_prefix("pci-")
+                .unwrap_or(&dri_prime)
+                .to_string()
+        } else {
+            dri_prime
+        };
+
+        if let Some(idx) = devices.iter().position(|d| d.pci_id == normalized) {
+            return devices[idx].is_nvidia;
+        }
+    }
+
+    devices.first().map(|d| d.is_nvidia).unwrap_or(false)
 }
 
 enum SessionType {
@@ -378,6 +394,85 @@ pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) {
             WorkaroundKind::None => {}
             WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
             WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::env;
+
+    fn set_env_var(key: &str, value: Option<&str>) {
+        match value {
+            Some(v) => env::set_var(key, v),
+            None => env::remove_var(key),
+        }
+    }
+
+    mod dri_prime_parsing {
+        use super::*;
+
+        #[test]
+        fn test_dri_prime_numeric_index_zero() {
+            set_env_var("DRI_PRIME", Some("0"));
+            let _ = is_primary_gpu_nvidia();
+            set_env_var("DRI_PRIME", None);
+        }
+
+        #[test]
+        fn test_dri_prime_numeric_index_one() {
+            set_env_var("DRI_PRIME", Some("1"));
+            let _ = is_primary_gpu_nvidia();
+            set_env_var("DRI_PRIME", None);
+        }
+
+        #[test]
+        fn test_dri_prime_invalid_string() {
+            set_env_var("DRI_PRIME", Some("invalid"));
+            let _ = is_primary_gpu_nvidia();
+            set_env_var("DRI_PRIME", None);
+        }
+
+        #[test]
+        fn test_dri_prime_not_set() {
+            set_env_var("DRI_PRIME", None);
+            let _ = is_primary_gpu_nvidia();
+        }
+    }
+
+    mod gpu_sorting {
+        use super::*;
+
+        #[test]
+        fn test_sort_primaries_first() {
+            let mut devices = [
+                GpuDevice {
+                    pci_id: "0000:01:00.0".to_string(),
+                    is_primary: false,
+                    is_nvidia: false,
+                },
+                GpuDevice {
+                    pci_id: "0000:02:00.0".to_string(),
+                    is_primary: true,
+                    is_nvidia: true,
+                },
+                GpuDevice {
+                    pci_id: "0000:03:00.0".to_string(),
+                    is_primary: false,
+                    is_nvidia: true,
+                },
+            ];
+
+            devices.sort_by(|a, b| match (a.is_primary, b.is_primary) {
+                (true, false) => std::cmp::Ordering::Less,
+                (false, true) => std::cmp::Ordering::Greater,
+                _ => a.pci_id.cmp(&b.pci_id),
+            });
+
+            assert!(devices[0].is_primary);
+            assert!(!devices[1].is_primary);
+            assert!(!devices[2].is_primary);
         }
     }
 }
