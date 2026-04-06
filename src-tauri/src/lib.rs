@@ -945,11 +945,11 @@ pub fn run() {
     {
         let should_disable = should_apply_workaround(args.disable_dmabuf_renderer);
         match should_disable {
-            webkit2gtk_nvidia_quirk::WokraroundKind::None => {}
-            webkit2gtk_nvidia_quirk::WokraroundKind::DisableWebkitDmabufRenderer => {
+            webkit2gtk_nvidia_quirk::WorkaroundKind::None => {}
+            webkit2gtk_nvidia_quirk::WorkaroundKind::DisableWebkitDmabufRenderer => {
                 set_webkit_disable_dmabuf_renderer()
             }
-            webkit2gtk_nvidia_quirk::WokraroundKind::DisableNvExplicitSync => {
+            webkit2gtk_nvidia_quirk::WorkaroundKind::DisableNvExplicitSync => {
                 nv_disable_explicit_sync()
             }
         }

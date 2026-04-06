@@ -34,14 +34,14 @@
 //! ```rust,no_run
 //! use webkit2gtk_nvidia_quirk::{
 //!     should_apply_workaround, set_webkit_disable_dmabuf_renderer,
-//!     nv_disable_explicit_sync, WokraroundKind
+//!     nv_disable_explicit_sync, WorkaroundKind
 //! };
 //!
 //! let force_disable = std::env::args().any(|arg| arg == "--force-disable-dmabuf");
 //! match should_apply_workaround(force_disable) {
-//!     WokraroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
-//!     WokraroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
-//!     WokraroundKind::None => {},
+//!     WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
+//!     WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
+//!     WorkaroundKind::None => {},
 //! }
 //! ```
 //!
@@ -51,14 +51,14 @@
 //!
 //! Checks whether NVIDIA or Nouveau kernel modules are loaded.
 //!
-//! ### `should_apply_workaround(force_disable: bool) -> WokraroundKind`
+//! ### `should_apply_workaround(force_disable: bool) -> WorkaroundKind`
 //!
 //! Determines which workaround should be applied based on NVIDIA detection and session type.
 //!
 //! - `force_disable` - If `true`, indicates a workaround should be applied regardless of detection
 //!
-//! Returns `WokraroundKind::None` if no workaround is needed, `WokraroundKind::DisableWebkitDmabufRenderer`
-//! for X11 sessions, or `WokraroundKind::DisableNvExplicitSync` for Wayland sessions.
+//! Returns `WorkaroundKind::None` if no workaround is needed, `WorkaroundKind::DisableWebkitDmabufRenderer`
+//! for X11 sessions, or `WorkaroundKind::DisableNvExplicitSync` for Wayland sessions.
 //!
 //! ### `set_webkit_disable_dmabuf_renderer()`
 //!
@@ -112,7 +112,7 @@ fn get_session_type() -> SessionType {
 }
 
 /// Models a workaround to be applied
-pub enum WokraroundKind {
+pub enum WorkaroundKind {
     None,
     DisableWebkitDmabufRenderer,
     DisableNvExplicitSync,
@@ -139,7 +139,7 @@ pub enum WokraroundKind {
 /// This function only performs detection. Use [`set_webkit_disable_dmabuf_renderer`] or
 /// [`nv_disable_explicit_sync`] to apply the respective wokraound.
 /// Call this first, then call the workaround if needed - ideally before spawning any threads.
-pub fn should_apply_workaround(force_disable: bool) -> WokraroundKind {
+pub fn should_apply_workaround(force_disable: bool) -> WorkaroundKind {
     let session = get_session_type();
     if force_disable {
         eprintln!(
@@ -149,12 +149,12 @@ pub fn should_apply_workaround(force_disable: bool) -> WokraroundKind {
 
     let detected = is_nvidia_detected();
     if !detected && !force_disable {
-        return WokraroundKind::None;
+        return WorkaroundKind::None;
     }
     match session {
-        SessionType::Wayland => WokraroundKind::DisableNvExplicitSync,
-        SessionType::X11 => WokraroundKind::DisableWebkitDmabufRenderer,
-        SessionType::None => WokraroundKind::None,
+        SessionType::Wayland => WorkaroundKind::DisableNvExplicitSync,
+        SessionType::X11 => WorkaroundKind::DisableWebkitDmabufRenderer,
+        SessionType::None => WorkaroundKind::None,
     }
 }
 
