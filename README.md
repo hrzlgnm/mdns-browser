@@ -64,12 +64,13 @@ For instructions on building the application, checkout the document [BUILDING](B
 Usage: mdns-browser [OPTIONS]
 
 Options:
-  -l, --log-level <LOG_LEVEL>    [default: info] [possible values: trace, debug, info, warn, error]
-  -D, --enable-devtools          Enable devtools at startup
-  -f, --log-to-file              Enable logging to file
-  -d, --disable-dmabuf-renderer  Disable dmabuf renderer, useful when having rendering issues
-  -h, --help                     Print help
-  -V, --version                  Print version
+  -l, --log-level <LOG_LEVEL>       [default: info] [possible values: trace, debug, info, warn, error]
+  -D, --enable-devtools             Enable devtools at startup
+  -f, --log-to-file                 Enable logging to file
+  -d, --disable-dmabuf-renderer     Disable dmabuf renderer (Linux only), useful when having rendering issues
+      --disable-nv-explicit-sync     Disable NVIDIA explicit sync (Linux only)
+  -h, --help                        Print help
+  -V, --version                     Print version
 
 ```
 
@@ -95,6 +96,11 @@ This option disables the dmabuf renderer, which is used to improve performance o
 If you experience rendering issues, you can try disabling this option to see if it resolves the problem.
 
 This option has been added with release [v0.12.0](https://github.com/hrzlgnm/mdns-browser/releases/tag/mdns-browser-v0.12.0)
+
+### disable-nv-explicit-sync (Linux only)
+
+This option disables NVIDIA explicit sync even if NVIDIA is not detected.
+This is useful for testing or debugging rendering issues on non-NVIDIA systems.
 
 ## Where to find the executables?
 
