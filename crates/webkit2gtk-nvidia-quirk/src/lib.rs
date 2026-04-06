@@ -46,11 +46,11 @@
 //!
 //! ## API
 //!
-//! ### `is_nvidia_detected() -> bool`
+//! ### `is_primary_gpu_nvidia() -> bool`
 //!
-//! Checks whether NVIDIA kernel module is loaded.
+//! Checks whether an NVIDIA GPU is considered as primary.
 //!
-//! Returns `true` if NVIDIA module is detected, `false` otherwise.
+//! Returns `true` if NVIDIA GPU is used as primary, `false` otherwise.
 //!
 //! ### `should_apply_workaround() -> WorkaroundKind`
 //!
@@ -107,27 +107,113 @@
 //! not accurately reflect the currently active renderer in hybrid setups.
 
 #![cfg(target_os = "linux")]
+use std::env;
+use udev::Enumerator;
 
-use std::path::Path;
+#[derive(Debug)]
+struct GpuDevice {
+    pci_id: String,
+    is_primary: bool,
+    is_nvidia: bool,
+}
 
-const NVIDIA_MODULES: &[&str] = &["nvidia"];
+fn enumerate_gpus() -> Vec<GpuDevice> {
+    let mut devices = Vec::new();
 
-// TODO: Get the actual used renderer more reliably, e.g. by examining process info
-// TODO: Handle PRIME offload rendering detection (check render node usage)
+    let mut enumerator = match Enumerator::new() {
+        Ok(e) => e,
+        Err(_) => return devices,
+    };
 
-/// Detects whether NVIDIA kernel modules are loaded.
+    if enumerator.match_subsystem("drm").is_err() {
+        return devices;
+    }
+
+    let device_iter = match enumerator.scan_devices() {
+        Ok(d) => d,
+        Err(_) => return devices,
+    };
+
+    for device in device_iter {
+        let sysname = match device.sysname().to_str() {
+            Some(s) => s,
+            None => continue,
+        };
+
+        if !sysname.starts_with("card") || sysname.contains('-') {
+            continue;
+        }
+
+        let pci_parent = match device.parent_with_subsystem("pci").ok().flatten() {
+            Some(p) => p,
+            None => continue,
+        };
+
+        let pci_id = pci_parent
+            .property_value("PCI_SLOT_NAME")
+            .and_then(|v| v.to_str())
+            .map(|s| s.to_string())
+            .unwrap_or_default();
+
+        if pci_id.is_empty() {
+            continue;
+        }
+
+        let is_primary = device
+            .attribute_value("boot_display")
+            .and_then(|v| v.to_str())
+            == Some("1");
+
+        let is_nvidia = pci_parent
+            .property_value("ID_VENDOR_FROM_DATABASE")
+            .and_then(|v| v.to_str())
+            .unwrap_or_default()
+            .contains("NVIDIA");
+
+        devices.push(GpuDevice {
+            pci_id,
+            is_primary,
+            is_nvidia,
+        });
+    }
+
+    devices.sort_by(|a, b| match (a.is_primary, b.is_primary) {
+        (true, false) => std::cmp::Ordering::Less,
+        (false, true) => std::cmp::Ordering::Greater,
+        _ => a.pci_id.cmp(&b.pci_id),
+    });
+
+    devices
+}
+
+/// Check if the active GPU is NVIDIA.
 ///
-/// This function checks for the presence of `nvidia` modules
-/// in `/sys/module/`.
+/// The active GPU is determined as follows:
+/// - If the primary GPU (boot_display) is NVIDIA, return true (DRI_PRIME won't work)
+/// - If DRI_PRIME=1 and the selected GPU is NVIDIA, return true
+/// - Otherwise return false
+///
+/// When the primary GPU is NVIDIA, DRI_PRIME does not work as expected
+/// because the NVIDIA driver does not properly offload to other GPUs.
 ///
 /// # Returns
 ///
-/// `true` if NVIDIA module is detected, `false` otherwise.
-pub fn is_nvidia_detected() -> bool {
-    NVIDIA_MODULES.iter().any(|module| {
-        let path = format!("/sys/module/{}", module);
-        Path::new(&path).exists()
-    })
+/// `true` if the primary GPU is an NVIDIA GPU, `false` otherwise.
+pub fn is_primary_gpu_nvidia() -> bool {
+    let devices = enumerate_gpus();
+
+    let primary_is_nvidia = devices.iter().any(|d| d.is_primary && d.is_nvidia);
+    if primary_is_nvidia {
+        return true;
+    }
+
+    let dri_prime = env::var("DRI_PRIME").ok();
+    let index: usize = match dri_prime.as_deref() {
+        Some(s) => s.parse().unwrap_or(0),
+        None => 0,
+    };
+
+    devices.get(index).map(|d| d.is_nvidia).unwrap_or(false)
 }
 
 enum SessionType {
@@ -185,7 +271,7 @@ pub enum WorkaroundKind {
 pub fn should_apply_workaround() -> WorkaroundKind {
     let session = get_session_type();
 
-    if !is_nvidia_detected() {
+    if !is_primary_gpu_nvidia() {
         return WorkaroundKind::None;
     }
     match session {
@@ -293,15 +379,5 @@ pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) {
             WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
             WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_nvidia_modules_are_correct() {
-        assert!(NVIDIA_MODULES.contains(&"nvidia"));
     }
 }
