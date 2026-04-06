@@ -99,7 +99,7 @@ enum SessionType {
     None,
 }
 
-/// Detects the used session_type based upon XDG_SESSION_TYPE environment variable
+/// Detects the used session type based upon the XDG_SESSION_TYPE environment variable
 fn get_session_type() -> SessionType {
     match std::env::var("XDG_SESSION_TYPE") {
         Ok(session) => match session.as_str() {
