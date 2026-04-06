@@ -4,12 +4,12 @@
 //! # webkit2gtk-nvidia-quirk
 //!
 //! A crate that provides session-aware workarounds for WebKitGTK rendering issues
-//! on Linux systems with NVIDIA or Nouveau drivers.
+//! on Linux systems with NVIDIA drivers.
 //!
 //! ## Problem
 //!
 //! When running WebKitGTK-based applications (such as Tauri apps) on Linux
-//! with NVIDIA or Nouveau drivers, rendering issues occur that vary by session type:
+//! with NVIDIA drivers, rendering issues occur that vary by session type:
 //!
 //! - **X11**: The DMABUF renderer causes blank windows
 //! - **Wayland**: The application does not start
@@ -21,7 +21,7 @@
 //!
 //! ## Solution
 //!
-//! This crate detects NVIDIA or Nouveau kernel modules and the session type (X11/Wayland),
+//! This crate detects NVIDIA kernel modules and the session type (X11/Wayland),
 //! then allows to apply the appropriate workaround:
 //!
 //! | Session Type | Workaround | Environment Variable |
@@ -103,16 +103,19 @@
 
 use std::path::Path;
 
-const NVIDIA_MODULES: &[&str] = &["nvidia", "nouveau"];
+const NVIDIA_MODULES: &[&str] = &["nvidia"];
 
-/// Detects whether NVIDIA or Nouveau kernel modules are loaded.
+// TODO: Get the actual used renderer more reliably, e.g. by examining process info
+// TODO: Handle PRIME offload rendering detection (check render node usage)
+
+/// Detects whether NVIDIA kernel modules are loaded.
 ///
-/// This function checks for the presence of `nvidia` or `nouveau` modules
+/// This function checks for the presence of `nvidia` modules
 /// in `/sys/module/`.
 ///
 /// # Returns
 ///
-/// `true` if either NVIDIA or Nouveau module is detected, `false` otherwise.
+/// `true` if NVIDIA module is detected, `false` otherwise.
 pub fn is_nvidia_detected() -> bool {
     NVIDIA_MODULES.iter().any(|module| {
         let path = format!("/sys/module/{}", module);
@@ -158,7 +161,7 @@ pub enum WorkaroundKind {
 
 /// Checks if a workaround should be applied.
 ///
-/// This function checks if NVIDIA or Nouveau kernel modules are loaded and
+/// This function checks if NVIDIA kernel modules are loaded and
 /// returns which workaround should be applied.
 ///
 /// # Returns
@@ -293,6 +296,5 @@ mod tests {
     #[test]
     fn test_nvidia_modules_are_correct() {
         assert!(NVIDIA_MODULES.contains(&"nvidia"));
-        assert!(NVIDIA_MODULES.contains(&"nouveau"));
     }
 }
