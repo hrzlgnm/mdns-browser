@@ -12,7 +12,7 @@
 //! with NVIDIA or Nouveau drivers, rendering issues occur that vary by session type:
 //!
 //! - **X11**: The DMABUF renderer causes blank windows
-//! - **Wayland**: The DMABUF renderer may crash or hang
+//! - **Wayland**: The application does not start
 //!
 //! Related upstream issues:
 //! - [tauri-apps/tauri#10702](https://github.com/tauri-apps/tauri/issues/10702)
