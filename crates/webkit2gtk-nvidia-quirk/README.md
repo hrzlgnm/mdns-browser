@@ -55,3 +55,10 @@ See the [full documentation](https://docs.rs/webkit2gtk-nvidia-quirk) for detail
 ## License
 
 MIT
+
+## Disclaimer
+
+This workaround may not work reliably when using multiple graphics cards
+(e.g., an integrated GPU provided by the CPU and a discrete GPU).
+Detection is based on kernel module presence in `/sys/module/`, which may
+not accurately reflect the currently active renderer in hybrid setups.
