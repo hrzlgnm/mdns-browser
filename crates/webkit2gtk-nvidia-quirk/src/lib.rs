@@ -27,17 +27,14 @@
 //! ```rust,no_run
 //! use webkit2gtk_nvidia_quirk::{should_disable_dmabuf_renderer, set_webkit_disable_dmabuf_renderer};
 //!
-//! // Call early in your application's startup (before spawning threads)
-//! // Check if NVIDIA or Nouveau is detected
-//! let nvidia_detected = should_disable_dmabuf_renderer(false);
+//! // Call early in your application's startup (before spawning threads).
 //!
-//! // If detected, explicitly set the environment variable
-//! if nvidia_detected {
+//! // This example shows how to disable the DMABUF renderer if NVIDIA/Nouveau is
+//! // detected, or if a command-line flag `--force-disable-dmabuf` is present.
+//! let force_disable = std::env::args().any(|arg| arg == "--force-disable-dmabuf");
+//! if should_disable_dmabuf_renderer(force_disable) {
 //!     set_webkit_disable_dmabuf_renderer();
 //! }
-//!
-//! // Or force-disable via force flag
-//! // set_webkit_disable_dmabuf_renderer();  // Call this to set the env var
 //! ```
 //!
 //! ## API
