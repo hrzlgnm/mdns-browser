@@ -48,9 +48,9 @@
 //!
 //! ### `is_nvidia_detected() -> bool`
 //!
-//! Checks whether NVIDIA or Nouveau kernel modules are loaded.
+//! Checks whether NVIDIA kernel module is loaded.
 //!
-//! Returns `true` if either NVIDIA or Nouveau module is detected, `false` otherwise.
+//! Returns `true` if NVIDIA module is detected, `false` otherwise.
 //!
 //! ### `should_apply_workaround() -> WorkaroundKind`
 //!

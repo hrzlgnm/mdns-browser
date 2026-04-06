@@ -3,18 +3,18 @@
 [![Crates.io](https://img.shields.io/crates/v/webkit2gtk-nvidia-quirk)](https://crates.io/crates/webkit2gtk-nvidia-quirk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-A crate that provides session-aware workarounds for WebKitGTK rendering issues on Linux systems with NVIDIA or Nouveau drivers.
+A crate that provides session-aware workarounds for WebKitGTK rendering issues on Linux systems with NVIDIA drivers.
 
 ## Problem
 
-When running WebKitGTK-based applications (such as Tauri apps) on Linux with NVIDIA or Nouveau drivers, rendering issues occur that vary by session type:
+When running WebKitGTK-based applications (such as Tauri apps) on Linux with NVIDIA drivers, rendering issues occur that vary by session type:
 
 - **X11**: The DMABUF renderer causes visual artifacts and rendering issues
 - **Wayland**: The DMABUF renderer may crash or hang
 
 ## Solution
 
-This crate detects NVIDIA or Nouveau kernel modules and the session type (X11/Wayland), then applies the appropriate workaround:
+This crate detects NVIDIA kernel module and the session type (X11/Wayland), then applies the appropriate workaround:
 
 | Session Type | Workaround | Environment Variable |
 |-------------|------------|---------------------|
