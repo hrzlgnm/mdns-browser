@@ -7,7 +7,7 @@ A crate that provides a workaround for WebKitGTK DMABUF renderer issues on Linux
 
 ## Problem
 
-When running WebKitGTK-based applications (such as Tauri apps) on Linux with NVIDIA drivers, the DMABUF renderer can cause degraded performance or rendering issues. This is a known upstream issue in WebKitGTK and Tauri.
+When running WebKitGTK-based applications (such as Tauri apps) on Linux with NVIDIA drivers, the DMABUF renderer causes rendering issues on X.Org or crashes on Wayland. This is a known upstream issue in WebKitGTK and Tauri.
 
 Related upstream issues:
 - [tauri-apps/tauri#10702](https://github.com/tauri-apps/tauri/issues/10702)
