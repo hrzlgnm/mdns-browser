@@ -137,7 +137,7 @@ pub enum WorkaroundKind {
 /// # Note
 ///
 /// This function only performs detection. Use [`set_webkit_disable_dmabuf_renderer`] or
-/// [`nv_disable_explicit_sync`] to apply the respective wokraound.
+/// [`nv_disable_explicit_sync`] to apply the respective workaround.
 /// Call this first, then call the workaround if needed - ideally before spawning any threads.
 pub fn should_apply_workaround(force_disable: bool) -> WorkaroundKind {
     let session = get_session_type();
