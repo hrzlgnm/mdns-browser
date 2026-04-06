@@ -9,8 +9,8 @@
 //! ## Problem
 //!
 //! When running WebKitGTK-based applications (such as Tauri apps) on Linux
-//! with NVIDIA drivers, the DMABUF renderer can cause degraded performance
-//! or rendering issues. This is a known upstream issue in WebKitGTK and Tauri.
+//! with NVIDIA drivers, the DMABUF renderer causes rendering issues on X.Org
+//! or crashes on Wayland. This is a known upstream issue in WebKitGTK and Tauri.
 //!
 //! Related upstream issues:
 //! - [tauri-apps/tauri#10702](https://github.com/tauri-apps/tauri/issues/10702)
@@ -18,8 +18,8 @@
 //!
 //! ## Solution
 //!
-//! This crate detects NVIDIA or Nouveau kernel modules and automatically
-//! disables the DMABUF renderer by setting the `WEBKIT_DISABLE_DMABUF_RENDERER`
+//! This crate detects NVIDIA or Nouveau kernel modules and provides functions
+//! to disable the DMABUF renderer by setting the `WEBKIT_DISABLE_DMABUF_RENDERER`
 //! environment variable.
 //!
 //! ## Usage
@@ -39,6 +39,24 @@
 //! // Or force-disable via command line argument
 //! // set_webkit_disable_dmabuf_renderer();  // Call this to set the env var
 //! ```
+//!
+//! ## API
+//!
+//! ### `is_nvidia_detected()`
+//!
+//! Checks whether NVIDIA or Nouveau kernel modules are loaded.
+//!
+//! ### `should_disable_dmabuf_renderer(force_disable: bool)`
+//!
+//! Checks if the DMABUF renderer workaround should be applied.
+//!
+//! - `force_disable` - If `true`, indicates the workaround should be applied regardless of detection
+//!
+//! Returns `true` if the workaround should be applied.
+//!
+//! ### `set_webkit_disable_dmabuf_renderer()`
+//!
+//! Sets the `WEBKIT_DISABLE_DMABUF_RENDERER` environment variable. Must be called before spawning threads.
 //!
 //! ## Platform Support
 //!
@@ -87,7 +105,9 @@ pub fn is_nvidia_detected() -> bool {
 /// if needed - ideally before spawning any threads.
 pub fn should_disable_dmabuf_renderer(force_disable: bool) -> bool {
     if force_disable {
-        eprintln!("Note: dmabuf renderer disabled by command line arg. Expect degraded renderer performance");
+        eprintln!(
+            "Note: dmabuf renderer disabled by force flag. Expect degraded renderer performance"
+        );
         return true;
     }
 
