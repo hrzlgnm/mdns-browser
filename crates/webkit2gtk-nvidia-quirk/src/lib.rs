@@ -98,13 +98,6 @@
 //! ## Platform Support
 //!
 //! This crate is Linux-only and provides no functionality on other platforms.
-//!
-//! ## Disclaimer
-//!
-//! This workaround may not work reliably when using multiple graphics cards
-//! (e.g., an integrated GPU provided by the CPU and a discrete GPU).
-//! Detection uses udev enumeration of DRM devices and may not accurately
-//! reflect the currently active renderer in hybrid setups.
 
 #![cfg(target_os = "linux")]
 use std::env;
