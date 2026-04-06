@@ -142,9 +142,7 @@ pub enum WorkaroundKind {
 pub fn should_apply_workaround(force_disable: bool) -> WorkaroundKind {
     let session = get_session_type();
     if force_disable {
-        eprintln!(
-            "Note: nvidia workaround enabled by force flag. Expect degraded renderer performance"
-        );
+        eprintln!("Note: nvidia workaround enabled by force flag.");
     }
 
     let detected = is_nvidia_detected();

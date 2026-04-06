@@ -943,8 +943,8 @@ pub fn run() {
 
     #[cfg(target_os = "linux")]
     {
-        let workaround_kind = should_apply_workaround(args.disable_dmabuf_renderer);
-        match workaround_kind {
+        let workaround = should_apply_workaround(args.disable_dmabuf_renderer);
+        match workaround {
             webkit2gtk_nvidia_quirk::WorkaroundKind::None => {}
             webkit2gtk_nvidia_quirk::WorkaroundKind::DisableWebkitDmabufRenderer => {
                 set_webkit_disable_dmabuf_renderer()
