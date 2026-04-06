@@ -24,6 +24,28 @@ This crate detects NVIDIA or Nouveau kernel modules and the session type (X11/Wa
 ## Usage
 
 ```rust,no_run
+use webkit2gtk_nvidia_quirk::{apply_workaround_with_options, ApplyWorkaroundOptions};
+
+let options = ApplyWorkaroundOptions::default()
+    .force_disable(true); // Apply workaround regardless of NVIDIA detection
+
+let _ = apply_workaround_with_options(options);
+```
+
+Or with specific workaround flags:
+
+```rust,no_run
+use webkit2gtk_nvidia_quirk::{apply_workaround_with_options, ApplyWorkaroundOptions};
+
+let options = ApplyWorkaroundOptions::default()
+    .force_disable_dmabuf(true); // Force disable dmabuf renderer
+
+let workaround = apply_workaround_with_options(options);
+```
+
+For backwards compatibility, you can also use the older API:
+
+```rust,no_run
 use webkit2gtk_nvidia_quirk::{should_apply_workaround, set_webkit_disable_dmabuf_renderer, nv_disable_explicit_sync, WorkaroundKind};
 
 let force_disable = std::env::args().any(|arg| arg == "--force-disable-dmabuf");

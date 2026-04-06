@@ -185,6 +185,30 @@ pub fn nv_disable_explicit_sync() {
     std::env::set_var("__NV_DISABLE_EXPLICIT_SYNC", "1");
 }
 
+#[derive(Default)]
+pub struct ApplyWorkaroundOptions {
+    pub force_disable: bool,
+    pub force_disable_dmabuf: bool,
+    pub force_disable_nv_explicit_sync: bool,
+}
+
+impl ApplyWorkaroundOptions {
+    pub fn force_disable(mut self, force_disable: bool) -> Self {
+        self.force_disable = force_disable;
+        self
+    }
+
+    pub fn force_disable_dmabuf(mut self, force_disable_dmabuf: bool) -> Self {
+        self.force_disable_dmabuf = force_disable_dmabuf;
+        self
+    }
+
+    pub fn force_disable_nv_explicit_sync(mut self, force_disable_nv_explicit_sync: bool) -> Self {
+        self.force_disable_nv_explicit_sync = force_disable_nv_explicit_sync;
+        self
+    }
+}
+
 /// Applies the appropriate workaround if needed based on NVIDIA detection and session type.
 ///
 /// This is a convenience function that combines [`should_apply_workaround`] and applying
@@ -203,8 +227,37 @@ pub fn nv_disable_explicit_sync() {
 ///
 /// This function modifies the process environment. Call it early in your application's
 /// startup, before any threading has begun.
+#[deprecated(since = "1.0.4", note = "Use apply_workaround_with_options instead")]
 pub fn apply_workaround_if_needed(force_disable: bool) -> WorkaroundKind {
-    let workaround = should_apply_workaround(force_disable);
+    apply_workaround_with_options(ApplyWorkaroundOptions::default().force_disable(force_disable))
+}
+
+/// Applies the appropriate workaround if needed based on NVIDIA detection and session type.
+///
+/// This is a convenience function that combines [`should_apply_workaround`] and applying
+/// the resulting workaround in one call.
+///
+/// # Arguments
+///
+/// * `options` - Options for forcing specific workarounds:
+///
+/// # Returns
+///
+/// The [`WorkaroundKind`] that was applied, or `WorkaroundKind::None` if no workaround was applied.
+///
+/// # Note
+///
+/// This function modifies the process environment. Call it early in your application's
+/// startup, before any threading has begun.
+pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) -> WorkaroundKind {
+    let workaround = should_apply_workaround(options.force_disable);
+    let workaround = if options.force_disable_dmabuf {
+        WorkaroundKind::DisableWebkitDmabufRenderer
+    } else if options.force_disable_nv_explicit_sync {
+        WorkaroundKind::DisableNvExplicitSync
+    } else {
+        workaround
+    };
     match workaround {
         WorkaroundKind::None => {}
         WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
