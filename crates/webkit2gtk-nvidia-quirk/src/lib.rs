@@ -123,11 +123,6 @@ pub enum WorkaroundKind {
 /// This function checks if NVIDIA or Nouveau kernel modules are loaded and
 /// returns which workaround should be applied.
 ///
-/// # Arguments
-///
-/// * `force_disable` - If `true`, indicates the workaround should be applied
-///   regardless of whether NVIDIA is detected (useful for manual overrides)
-///
 /// # Returns
 ///
 ///  `None` if no workaround is needed
@@ -139,14 +134,10 @@ pub enum WorkaroundKind {
 /// This function only performs detection. Use [`set_webkit_disable_dmabuf_renderer`] or
 /// [`nv_disable_explicit_sync`] to apply the respective workaround.
 /// Call this first, then call the workaround if needed - ideally before spawning any threads.
-pub fn should_apply_workaround(force_disable: bool) -> WorkaroundKind {
+pub fn should_apply_workaround() -> WorkaroundKind {
     let session = get_session_type();
-    if force_disable {
-        eprintln!("Note: nvidia workaround enabled by force flag.");
-    }
 
-    let detected = is_nvidia_detected();
-    if !detected && !force_disable {
+    if !is_nvidia_detected() {
         return WorkaroundKind::None;
     }
     match session {
@@ -203,25 +194,28 @@ impl ApplyWorkaroundOptions {
     }
 }
 
-#[deprecated(since = "1.0.4", note = "Use apply_workaround_with_options instead")]
-pub fn apply_workaround_if_needed() -> WorkaroundKind {
-    apply_workaround_with_options(ApplyWorkaroundOptions::default())
-}
-
 pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) -> WorkaroundKind {
-    let workaround = if options.force_disable_dmabuf {
-        WorkaroundKind::DisableWebkitDmabufRenderer
-    } else if options.force_disable_nv_explicit_sync {
-        WorkaroundKind::DisableNvExplicitSync
+    let mut applied = WorkaroundKind::None;
+
+    if options.force_disable_dmabuf || options.force_disable_nv_explicit_sync {
+        if options.force_disable_dmabuf {
+            set_webkit_disable_dmabuf_renderer();
+            applied = WorkaroundKind::DisableWebkitDmabufRenderer;
+        }
+        if options.force_disable_nv_explicit_sync {
+            nv_disable_explicit_sync();
+            applied = WorkaroundKind::DisableNvExplicitSync;
+        }
     } else {
-        should_apply_workaround(false)
-    };
-    match workaround {
-        WorkaroundKind::None => {}
-        WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
-        WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
+        let workaround = should_apply_workaround();
+        match workaround {
+            WorkaroundKind::None => {}
+            WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
+            WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
+        }
+        applied = workaround;
     }
-    workaround
+    applied
 }
 
 #[cfg(test)]

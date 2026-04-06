@@ -789,16 +789,9 @@ struct Args {
     #[arg(
         long,
         default_value_t = false,
-        help = "Force disable dmabuf renderer even if NVIDIA is not detected"
+        help = "Disable NVIDIA explicit sync even if NVIDIA is not detected"
     )]
-    force_disable_dmabuf: bool,
-    #[cfg(target_os = "linux")]
-    #[arg(
-        long,
-        default_value_t = false,
-        help = "Force disable NVIDIA explicit sync even if NVIDIA is not detected"
-    )]
-    force_disable_nv_explicit_sync: bool,
+    disable_nv_explicit_sync: bool,
 }
 
 #[cfg(desktop)]
@@ -956,8 +949,8 @@ pub fn run() {
     #[cfg(target_os = "linux")]
     {
         let options = ApplyWorkaroundOptions::default()
-            .force_disable_dmabuf(args.disable_dmabuf_renderer || args.force_disable_dmabuf)
-            .force_disable_nv_explicit_sync(args.force_disable_nv_explicit_sync);
+            .force_disable_dmabuf(args.disable_dmabuf_renderer)
+            .force_disable_nv_explicit_sync(args.disable_nv_explicit_sync);
         let _ = apply_workaround_with_options(options);
     }
 
