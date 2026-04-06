@@ -153,8 +153,7 @@ pub fn should_apply_workaround(force_disable: bool) -> WorkaroundKind {
     }
     match session {
         SessionType::Wayland => WorkaroundKind::DisableNvExplicitSync,
-        SessionType::X11 => WorkaroundKind::DisableWebkitDmabufRenderer,
-        SessionType::None => WorkaroundKind::None,
+        _ => WorkaroundKind::DisableWebkitDmabufRenderer,
     }
 }
 
