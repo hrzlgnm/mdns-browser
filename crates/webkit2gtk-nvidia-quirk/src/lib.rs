@@ -208,16 +208,40 @@ enum DriPrime {
     VendorDevice(u16, u16),
 }
 
+/// Parse DRI_PRIME value which may use underscore notation (e.g., `pci-0000_01_02_00`).
+///
+/// The normalized internal form uses colons and a dot before the function component
+/// (e.g., `pci-0000:01:02.00`).
+///
+/// Supports:
+/// - Numeric index (e.g., "0", "1")
+/// - PCI ID with underscores (e.g., "pci-0000_01_02_00") normalized to `domain:bus:device.function`
+/// - Vendor:Device hex pairs (e.g., "1234:4567")
+///
+/// The input may end with a trailing `'!'` which is stripped before parsing.
 fn parse_dri_prime(prime: impl Into<String>) -> Option<DriPrime> {
     let prime = prime.into();
+    // Strip trailing '!' if present
+    let prime = prime.strip_suffix('!').unwrap_or(&prime);
+
     if let Ok(index) = prime.parse::<usize>() {
         return Some(DriPrime::Index(index));
     }
     if prime.starts_with("pci-") {
-        let normalized = prime
-            .strip_prefix("pci-")
-            .unwrap_or(&prime)
-            .replace('_', ":");
+        // Strip "pci-" prefix and split on underscores
+        let value = prime.strip_prefix("pci-").unwrap_or(&prime);
+        let components: Vec<&str> = value.split('_').collect();
+
+        // Recompose as "domain:bus:device.function" notation
+        if components.len() == 4 {
+            let normalized = format!(
+                "{}:{}:{}.{}",
+                components[0], components[1], components[2], components[3]
+            );
+            return Some(DriPrime::PciId(normalized));
+        }
+        // Fallback for other formats
+        let normalized = value.replace('_', ":");
         return Some(DriPrime::PciId(normalized));
     } else if prime.contains(':') {
         let parts: Vec<&str> = prime.split(':').collect();
@@ -234,18 +258,36 @@ fn parse_dri_prime(prime: impl Into<String>) -> Option<DriPrime> {
 
 /// Check if the active GPU is NVIDIA.
 ///
-/// The active GPU is determined as follows:
-/// - If the primary GPU (boot_display) is NVIDIA, return true (DRI_PRIME won't work)
-/// - If DRI_PRIME is set, try to match: first as numeric index, then as PCI id
-///   (e.g., "pci-0000:01:00.0"), and return that GPU's is_nvidia status
-/// - Otherwise fall back to index 0 behavior
+/// Returns `true` if either the primary GPU (boot_display) is NVIDIA or if `DRI_PRIME`
+/// is set and resolves to an NVIDIA device.
 ///
-/// When the primary GPU is NVIDIA, DRI_PRIME does not work as expected
-/// because the NVIDIA driver does not properly offload to other GPUs.
+/// # Resolution Order
+///
+/// 1. **Primary GPU check**: If the primary GPU (boot_display) is NVIDIA, immediately
+///    returns `true`. This takes precedence because the NVIDIA driver does not properly
+///    support offloading to other GPUs, meaning `DRI_PRIME` will not work as expected
+///    when the NVIDIA GPU is primary.
+///
+/// 2. **DRI_PRIME resolution**: If `DRI_PRIME` is set, attempts to resolve it in order:
+///    - As a numeric index (e.g., "0", "1")
+///    - As a PCI ID (e.g., "pci-0000_01_02_00" normalized to "0000:01:02.00")
+///    - As a vendor:device hex pair (e.g., "8086:1234")
+///
+///    Returns the `is_nvidia` status of the resolved device.
+///
+/// 3. **Fallback**: If neither of the above apply, falls back to checking the first
+///    enumerated GPU (index 0).
+///
+/// # Special Semantics
+///
+/// Note that this function may return `true` even if the primary (boot_display) GPU
+/// is *not* NVIDIA, as long as `DRI_PRIME` resolves to an NVIDIA device. The function
+/// name reflects the typical use case but callers should be aware of this behavior.
 ///
 /// # Returns
 ///
-/// `true` if the primary GPU is an NVIDIA GPU, `false` otherwise.
+/// `true` if an NVIDIA GPU is considered active per the resolution logic above,
+/// `false` otherwise.
 pub fn is_primary_gpu_nvidia() -> bool {
     let devices = enumerate_gpus();
 
