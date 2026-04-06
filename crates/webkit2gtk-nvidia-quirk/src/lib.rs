@@ -22,7 +22,7 @@
 //! ## Solution
 //!
 //! This crate detects NVIDIA or Nouveau kernel modules and the session type (X11/Wayland),
-//! then applies the appropriate workaround:
+//! then allows to apply the appropriate workaround:
 //!
 //! | Session Type | Workaround | Environment Variable |
 //! |-------------|------------|---------------------|
