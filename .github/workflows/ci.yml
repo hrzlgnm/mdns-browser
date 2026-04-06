@@ -93,7 +93,7 @@ jobs:
               - '.github/docker/**'
             tauri:
               - '.github/actions/setup-*/**'
-              - 'crates/**'
+              - 'crates/**/src/**'
               - 'public/**'
               - 'src/**'
               - 'src-tauri/Cargo.toml'
