@@ -102,6 +102,8 @@ This option has been added with release [v0.12.0](https://github.com/hrzlgnm/mdn
 This option disables NVIDIA explicit sync even if NVIDIA is not detected.
 This is useful for testing or debugging rendering issues on non-NVIDIA systems.
 
+This option has been added with release [v1.8.0](https://github.com/hrzlgnm/mdns-browser/releases/tag/mdns-browser-v1.8.0)
+
 ## Where to find the executables?
 
 ### GitHub Releases
