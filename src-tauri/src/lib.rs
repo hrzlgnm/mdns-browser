@@ -956,8 +956,7 @@ pub fn run() {
     #[cfg(target_os = "linux")]
     {
         let options = ApplyWorkaroundOptions::default()
-            .force_disable(args.disable_dmabuf_renderer)
-            .force_disable_dmabuf(args.force_disable_dmabuf)
+            .force_disable_dmabuf(args.disable_dmabuf_renderer || args.force_disable_dmabuf)
             .force_disable_nv_explicit_sync(args.force_disable_nv_explicit_sync);
         let _ = apply_workaround_with_options(options);
     }
