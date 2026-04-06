@@ -124,7 +124,7 @@ pub fn is_nvidia_detected() -> bool {
 enum SessionType {
     Wayland,
     X11,
-    None,
+    Unknown,
 }
 
 /// Detects the used session type based upon the XDG_SESSION_TYPE environment variable
@@ -133,9 +133,9 @@ fn get_session_type() -> SessionType {
         Ok(session) => match session.as_str() {
             "x11" => SessionType::X11,
             "wayland" => SessionType::Wayland,
-            _ => SessionType::None,
+            _ => SessionType::Unknown,
         },
-        _ => SessionType::None,
+        _ => SessionType::Unknown,
     }
 }
 
