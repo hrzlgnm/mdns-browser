@@ -10,6 +10,3 @@ license = "MIT"
 repository = "https://github.com/hrzlgnm/mdns-browser"
 authors = ["hrzlgnm"]
 readme = "README.md"
-
-[dependencies]
-log = { workspace = true }
