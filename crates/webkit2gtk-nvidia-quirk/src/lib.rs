@@ -47,15 +47,15 @@
 //!
 //! ## API
 //!
-//! ### `is_nvidia_detected()`
+//! ### `is_nvidia_detected() -> bool`
 //!
 //! Checks whether NVIDIA or Nouveau kernel modules are loaded.
 //!
-//! ### `should_apply_workaround(force_disable: bool) -> WorkaroundKind`
+//! Returns `true` if either NVIDIA or Nouveau module is detected, `false` otherwise.
+//!
+//! ### `should_apply_workaround() -> WorkaroundKind`
 //!
 //! Determines which workaround should be applied based on NVIDIA detection and session type.
-//!
-//! - `force_disable` - If `true`, indicates a workaround should be applied regardless of detection
 //!
 //! Returns `WorkaroundKind::None` if no workaround is needed, `WorkaroundKind::DisableWebkitDmabufRenderer`
 //! for X11 sessions, or `WorkaroundKind::DisableNvExplicitSync` for Wayland sessions.
@@ -67,6 +67,34 @@
 //! ### `nv_disable_explicit_sync()`
 //!
 //! Sets the `__NV_DISABLE_EXPLICIT_SYNC` environment variable. Use this for Wayland sessions.
+//!
+//! ### `apply_workaround_with_options(options: ApplyWorkaroundOptions)`
+//!
+//! Convenience function that applies workarounds based on the provided options.
+//! If any force options are set, it applies those directly. Otherwise, it calls
+//! [`should_apply_workaround`] to detect which workaround is needed.
+//!
+//! This is the recommended way to apply workarounds from CLI arguments.
+//!
+//! ### `WorkaroundKind`
+//!
+//! Enum representing the type of workaround to apply:
+//! - `None`: No workaround needed
+//! - `DisableWebkitDmabufRenderer`: Disable the DMABUF renderer (for X11)
+//! - `DisableNvExplicitSync`: Disable NVIDIA explicit sync (for Wayland)
+//!
+//! ### `ApplyWorkaroundOptions`
+//!
+//! Builder struct for configuring which workarounds to force-apply.
+//! Use the builder pattern to set options:
+//! ```rust,no_run
+//! use webkit2gtk_nvidia_quirk::{ApplyWorkaroundOptions, apply_workaround_with_options};
+//!
+//! let options = ApplyWorkaroundOptions::default()
+//!     .force_disable_dmabuf(true);
+//!
+//! apply_workaround_with_options(options);
+//! ```
 //!
 //! ## Platform Support
 //!
@@ -111,10 +139,21 @@ fn get_session_type() -> SessionType {
     }
 }
 
+/// Represents the type of workaround to apply for NVIDIA WebKitGTK issues.
+///
+/// Use this enum to determine which workaround is needed based on the session type
+/// and whether NVIDIA is detected.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum WorkaroundKind {
+    /// No workaround needed.
     None,
+    /// Disable the WebKit DMABUF renderer.
+    ///
+    /// This workaround is needed for X11 sessions with NVIDIA drivers.
     DisableWebkitDmabufRenderer,
+    /// Disable NVIDIA explicit sync.
+    ///
+    /// This workaround is needed for Wayland sessions with NVIDIA drivers.
     DisableNvExplicitSync,
 }
 
@@ -176,24 +215,62 @@ pub fn nv_disable_explicit_sync() {
     std::env::set_var("__NV_DISABLE_EXPLICIT_SYNC", "1");
 }
 
+/// Builder struct for configuring which workarounds to force-apply.
+///
+/// Use the builder pattern to set options before passing to [`apply_workaround_with_options`].
+///
+/// # Example
+///
+/// ```rust,no_run
+/// use webkit2gtk_nvidia_quirk::{ApplyWorkaroundOptions, apply_workaround_with_options};
+///
+/// let options = ApplyWorkaroundOptions::default()
+///     .force_disable_dmabuf(true)
+///     .force_disable_nv_explicit_sync(true);
+///
+/// apply_workaround_with_options(options);
+/// ```
 #[derive(Default)]
 pub struct ApplyWorkaroundOptions {
+    /// Force disable the DMABUF renderer.
     pub force_disable_dmabuf: bool,
+    /// Force disable NVIDIA explicit sync.
     pub force_disable_nv_explicit_sync: bool,
 }
 
 impl ApplyWorkaroundOptions {
-    pub fn force_disable_dmabuf(mut self, force_disable_dmabuf: bool) -> Self {
-        self.force_disable_dmabuf = force_disable_dmabuf;
+    /// Sets the `force_disable_dmabuf` option.
+    ///
+    /// When `true`, the DMABUF renderer will be disabled regardless of
+    /// whether NVIDIA is detected.
+    pub fn force_disable_dmabuf(mut self, value: bool) -> Self {
+        self.force_disable_dmabuf = value;
         self
     }
 
-    pub fn force_disable_nv_explicit_sync(mut self, force_disable_nv_explicit_sync: bool) -> Self {
-        self.force_disable_nv_explicit_sync = force_disable_nv_explicit_sync;
+    /// Sets the `force_disable_nv_explicit_sync` option.
+    ///
+    /// When `true`, NVIDIA explicit sync will be disabled regardless of
+    /// whether NVIDIA is detected.
+    pub fn force_disable_nv_explicit_sync(mut self, value: bool) -> Self {
+        self.force_disable_nv_explicit_sync = value;
         self
     }
 }
 
+/// Applies workarounds based on the provided options.
+///
+/// If any force options are set in `options`, those workarounds are applied directly.
+/// Otherwise, it calls [`should_apply_workaround`] to detect which workaround is needed.
+///
+/// # Arguments
+///
+/// * `options` - The workaround options to apply
+///
+/// # Note
+///
+/// This function modifies the process environment. Call it early in your
+/// application's startup, before any threading has begun.
 pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) {
     if options.force_disable_dmabuf {
         set_webkit_disable_dmabuf_renderer();
