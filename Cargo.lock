@@ -7100,9 +7100,6 @@ dependencies = [
 [[package]]
 name = "webkit2gtk-nvidia-quirk"
 version = "1.0.2"
-dependencies = [
- "log",
-]
 
 [[package]]
 name = "webkit2gtk-sys"
