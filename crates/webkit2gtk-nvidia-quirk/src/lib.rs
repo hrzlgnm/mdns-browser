@@ -11,7 +11,7 @@
 //! When running WebKitGTK-based applications (such as Tauri apps) on Linux
 //! with NVIDIA or Nouveau drivers, rendering issues occur that vary by session type:
 //!
-//! - **X11**: The DMABUF renderer causes visual artifacts and rendering issues
+//! - **X11**: The DMABUF renderer causes blank windows
 //! - **Wayland**: The DMABUF renderer may crash or hang
 //!
 //! Related upstream issues:
