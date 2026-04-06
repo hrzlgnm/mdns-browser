@@ -201,6 +201,37 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
     devices
 }
 
+#[derive(Debug, PartialEq, Eq)]
+enum DriPrime {
+    Index(usize),
+    PciId(String),
+    VendorDevice(u16, u16),
+}
+
+fn parse_dri_prime(prime: impl Into<String>) -> Option<DriPrime> {
+    let prime = prime.into();
+    if let Ok(index) = prime.parse::<usize>() {
+        return Some(DriPrime::Index(index));
+    }
+    if prime.starts_with("pci-") {
+        let normalized = prime
+            .strip_prefix("pci-")
+            .unwrap_or(&prime)
+            .replace('_', ":");
+        return Some(DriPrime::PciId(normalized));
+    } else if prime.contains(':') {
+        let parts: Vec<&str> = prime.split(':').collect();
+        if parts.len() == 2 {
+            let vendor_id = u16::from_str_radix(parts[0], 16).ok();
+            let device_id = u16::from_str_radix(parts[1], 16).ok();
+            if let (Some(vid), Some(did)) = (vendor_id, device_id) {
+                return Some(DriPrime::VendorDevice(vid, did));
+            }
+        }
+    }
+    None
+}
+
 /// Check if the active GPU is NVIDIA.
 ///
 /// The active GPU is determined as follows:
@@ -226,27 +257,20 @@ pub fn is_primary_gpu_nvidia() -> bool {
     let dri_prime = env::var("DRI_PRIME").ok();
 
     if let Some(dri_prime) = dri_prime {
-        if let Ok(index) = dri_prime.parse::<usize>() {
-            return devices.get(index).map(|d| d.is_nvidia).unwrap_or(false);
-        }
-
-        if dri_prime.starts_with("pci-") {
-            let normalized = dri_prime
-                .strip_prefix("pci-")
-                .unwrap_or(&dri_prime)
-                .replace('_', ":");
-            if let Some(idx) = devices.iter().position(|d| d.pci_id == normalized) {
-                return devices[idx].is_nvidia;
-            }
-        } else if dri_prime.contains(':') {
-            let parts: Vec<&str> = dri_prime.split(':').collect();
-            if parts.len() == 2 {
-                let vendor_id = parts[0].parse::<u16>().ok();
-                let device_id = parts[1].parse::<u16>().ok();
-                if let (Some(vid), Some(did)) = (vendor_id, device_id) {
+        if let Some(prime) = parse_dri_prime(dri_prime) {
+            match prime {
+                DriPrime::Index(index) => {
+                    return devices.get(index).map(|d| d.is_nvidia).unwrap_or(false);
+                }
+                DriPrime::PciId(pci_id) => {
+                    if let Some(idx) = devices.iter().position(|d| d.pci_id == pci_id) {
+                        return devices[idx].is_nvidia;
+                    }
+                }
+                DriPrime::VendorDevice(vendor_id, device_id) => {
                     if let Some(idx) = devices
                         .iter()
-                        .position(|d| d.vendor_id == vid && d.device_id == did)
+                        .position(|d| d.vendor_id == vendor_id && d.device_id == device_id)
                     {
                         return devices[idx].is_nvidia;
                     }
@@ -427,84 +451,65 @@ pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::env;
 
-    fn set_env_var(key: &str, value: Option<&str>) {
-        match value {
-            Some(v) => env::set_var(key, v),
-            None => env::remove_var(key),
-        }
+    #[test]
+    fn test_dri_prime_numeric_index_zero() {
+        assert_eq!(Some(DriPrime::Index(0)), parse_dri_prime("0"));
+        assert_eq!(Some(DriPrime::Index(1)), parse_dri_prime("1"));
+    }
+    #[test]
+    fn test_dri_prime_pci_id() {
+        assert_eq!(
+            Some(DriPrime::PciId("0000:01:02".into())),
+            parse_dri_prime("pci-0000_01_02")
+        );
+    }
+    #[test]
+    fn test_dri_prime_vendor_device() {
+        assert_eq!(
+            Some(DriPrime::VendorDevice(0x1234, 0x4567)),
+            parse_dri_prime("1234:4567")
+        );
+    }
+    #[test]
+    fn test_dri_prime_invalid_string() {
+        assert_eq!(None, parse_dri_prime("invalid"));
     }
 
-    mod dri_prime_parsing {
-        use super::*;
+    #[test]
+    fn test_sort_primaries_first() {
+        let mut devices = [
+            GpuDevice {
+                pci_id: "0000:01:00.0".to_string(),
+                vendor_id: 0x1002,
+                device_id: 0x164e,
+                is_primary: false,
+                is_nvidia: false,
+            },
+            GpuDevice {
+                pci_id: "0000:02:00.0".to_string(),
+                vendor_id: 0x10de,
+                device_id: 0x2803,
+                is_primary: true,
+                is_nvidia: true,
+            },
+            GpuDevice {
+                pci_id: "0000:03:00.0".to_string(),
+                vendor_id: 0x8086,
+                device_id: 0x1234,
+                is_primary: false,
+                is_nvidia: true,
+            },
+        ];
 
-        #[test]
-        fn test_dri_prime_numeric_index_zero() {
-            set_env_var("DRI_PRIME", Some("0"));
-            let _ = is_primary_gpu_nvidia();
-            set_env_var("DRI_PRIME", None);
-        }
+        devices.sort_by(|a, b| match (a.is_primary, b.is_primary) {
+            (true, false) => std::cmp::Ordering::Less,
+            (false, true) => std::cmp::Ordering::Greater,
+            _ => a.pci_id.cmp(&b.pci_id),
+        });
 
-        #[test]
-        fn test_dri_prime_numeric_index_one() {
-            set_env_var("DRI_PRIME", Some("1"));
-            let _ = is_primary_gpu_nvidia();
-            set_env_var("DRI_PRIME", None);
-        }
-
-        #[test]
-        fn test_dri_prime_invalid_string() {
-            set_env_var("DRI_PRIME", Some("invalid"));
-            let _ = is_primary_gpu_nvidia();
-            set_env_var("DRI_PRIME", None);
-        }
-
-        #[test]
-        fn test_dri_prime_not_set() {
-            set_env_var("DRI_PRIME", None);
-            let _ = is_primary_gpu_nvidia();
-        }
-    }
-
-    mod gpu_sorting {
-        use super::*;
-
-        #[test]
-        fn test_sort_primaries_first() {
-            let mut devices = [
-                GpuDevice {
-                    pci_id: "0000:01:00.0".to_string(),
-                    vendor_id: 0x1002,
-                    device_id: 0x164e,
-                    is_primary: false,
-                    is_nvidia: false,
-                },
-                GpuDevice {
-                    pci_id: "0000:02:00.0".to_string(),
-                    vendor_id: 0x10de,
-                    device_id: 0x2803,
-                    is_primary: true,
-                    is_nvidia: true,
-                },
-                GpuDevice {
-                    pci_id: "0000:03:00.0".to_string(),
-                    vendor_id: 0x8086,
-                    device_id: 0x1234,
-                    is_primary: false,
-                    is_nvidia: true,
-                },
-            ];
-
-            devices.sort_by(|a, b| match (a.is_primary, b.is_primary) {
-                (true, false) => std::cmp::Ordering::Less,
-                (false, true) => std::cmp::Ordering::Greater,
-                _ => a.pci_id.cmp(&b.pci_id),
-            });
-
-            assert!(devices[0].is_primary);
-            assert!(!devices[1].is_primary);
-            assert!(!devices[2].is_primary);
-        }
+        assert!(devices[0].is_primary);
+        assert!(!devices[1].is_primary);
+        assert!(!devices[2].is_primary);
     }
 }
