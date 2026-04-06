@@ -68,7 +68,7 @@ Options:
   -D, --enable-devtools             Enable devtools at startup
   -f, --log-to-file                 Enable logging to file
   -d, --disable-dmabuf-renderer     Disable dmabuf renderer (Linux only), useful when having rendering issues
-      --disable-nv-explicit-sync     Disable NVIDIA explicit sync (Linux only)
+      --disable-nv-explicit-sync    Disable NVIDIA explicit sync (Linux only)
   -h, --help                        Print help
   -V, --version                     Print version
 
