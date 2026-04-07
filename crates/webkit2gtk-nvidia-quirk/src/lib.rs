@@ -46,11 +46,12 @@
 //!
 //! ## API
 //!
-//! ### `is_primary_gpu_nvidia() -> bool`
+//! ### `is_effective_gpu_nvidia() -> bool`
 //!
-//! Checks whether a NVIDIA GPU is considered as primary.
+//! Checks whether an NVIDIA GPU is considered as the effective (active) GPU.
 //!
-//! Returns `true` if NVIDIA GPU is used as primary, `false` otherwise.
+//! Returns `true` if an NVIDIA GPU is the primary GPU or if `DRI_PRIME` resolves to
+//! an NVIDIA GPU, `false` otherwise.
 //!
 //! ### `should_apply_workaround() -> WorkaroundKind`
 //!
@@ -128,6 +129,14 @@ fn parse_pci_ids(pci_parent: &udev::Device) -> (u16, u16) {
     (vendor_id, device_id)
 }
 
+fn gpu_cmp(a: &GpuDevice, b: &GpuDevice) -> std::cmp::Ordering {
+    match (a.is_primary, b.is_primary) {
+        (true, false) => std::cmp::Ordering::Less,
+        (false, true) => std::cmp::Ordering::Greater,
+        _ => a.pci_id.cmp(&b.pci_id),
+    }
+}
+
 fn enumerate_gpus() -> Vec<GpuDevice> {
     let mut devices = Vec::new();
 
@@ -188,11 +197,7 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
         });
     }
 
-    devices.sort_by(|a, b| match (a.is_primary, b.is_primary) {
-        (true, false) => std::cmp::Ordering::Less,
-        (false, true) => std::cmp::Ordering::Greater,
-        _ => a.pci_id.cmp(&b.pci_id),
-    });
+    devices.sort_by(gpu_cmp);
 
     devices
 }
@@ -252,7 +257,7 @@ fn parse_dri_prime(prime: impl Into<String>) -> Option<DriPrime> {
     None
 }
 
-/// Check if the active GPU is NVIDIA.
+/// Check if the effective (active) GPU is NVIDIA.
 ///
 /// Returns `true` if either the primary GPU (boot_display) is NVIDIA or if `DRI_PRIME`
 /// is set and resolves to an NVIDIA device.
@@ -278,13 +283,13 @@ fn parse_dri_prime(prime: impl Into<String>) -> Option<DriPrime> {
 ///
 /// Note that this function may return `true` even if the primary (boot_display) GPU
 /// is *not* NVIDIA, as long as `DRI_PRIME` resolves to an NVIDIA device. The function
-/// name reflects the typical use case but callers should be aware of this behavior.
+/// name reflects the effective GPU determination but callers should be aware of this behavior.
 ///
 /// # Returns
 ///
 /// `true` if an NVIDIA GPU is considered active per the resolution logic above,
 /// `false` otherwise.
-pub fn is_primary_gpu_nvidia() -> bool {
+pub fn is_effective_gpu_nvidia() -> bool {
     let devices = enumerate_gpus();
 
     let primary_is_nvidia = devices.iter().any(|d| d.is_primary && d.is_nvidia);
@@ -375,7 +380,7 @@ pub enum WorkaroundKind {
 pub fn should_apply_workaround() -> WorkaroundKind {
     let session = get_session_type();
 
-    if !is_primary_gpu_nvidia() {
+    if !is_effective_gpu_nvidia() {
         return WorkaroundKind::None;
     }
     match session {
@@ -491,9 +496,22 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_dri_prime_numeric_index() {
-        assert_eq!(Some(DriPrime::Index(0)), parse_dri_prime("0"));
+    fn test_dri_prime_numeric_index_trailing_bang() {
         assert_eq!(Some(DriPrime::Index(1)), parse_dri_prime("1!"));
+    }
+    #[test]
+    fn test_dri_prime_pci_id_trailing_bang() {
+        assert_eq!(
+            Some(DriPrime::PciId("0000:01:02.00".into())),
+            parse_dri_prime("pci-0000_01_02_00!")
+        );
+    }
+    #[test]
+    fn test_dri_prime_vendor_device_trailing_bang() {
+        assert_eq!(
+            Some(DriPrime::VendorDevice(0x1234, 0x5678)),
+            parse_dri_prime("1234:5678!")
+        );
     }
     #[test]
     fn test_dri_prime_pci_id() {
@@ -540,11 +558,7 @@ mod tests {
             },
         ];
 
-        devices.sort_by(|a, b| match (a.is_primary, b.is_primary) {
-            (true, false) => std::cmp::Ordering::Less,
-            (false, true) => std::cmp::Ordering::Greater,
-            _ => a.pci_id.cmp(&b.pci_id),
-        });
+        devices.sort_by(gpu_cmp);
 
         assert!(devices[0].is_primary);
         assert!(!devices[1].is_primary);
