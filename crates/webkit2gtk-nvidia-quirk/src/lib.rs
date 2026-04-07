@@ -177,11 +177,7 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
             .and_then(|v| v.to_str())
             == Some("1");
 
-        let is_nvidia = pci_parent
-            .property_value("ID_VENDOR_FROM_DATABASE")
-            .and_then(|v| v.to_str())
-            .unwrap_or_default()
-            .contains("NVIDIA");
+        let is_nvidia = vendor_id == 0x10de;
 
         devices.push(GpuDevice {
             pci_id,
