@@ -34,7 +34,6 @@
 //! The crate detects the proprietary NVIDIA driver by checking:
 //! 1. If the primary GPU (`boot_display` attribute) is NVIDIA (vendor ID 0x10de)
 //! 2. If the proprietary `nvidia` kernel module is loaded (`/sys/module/nvidia` exists)
-//!    AND any NVIDIA GPU is present in the system
 //!
 //! This specifically targets the proprietary NVIDIA driver, not the open-source nouveau driver.
 //!
