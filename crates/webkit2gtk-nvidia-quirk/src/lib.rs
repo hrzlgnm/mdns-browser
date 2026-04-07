@@ -4,12 +4,12 @@
 //! # webkit2gtk-nvidia-quirk
 //!
 //! A crate that provides session-aware workarounds for WebKitGTK rendering issues
-//! on Linux systems with NVIDIA drivers.
+//! on Linux systems with the proprietary NVIDIA driver.
 //!
 //! ## Problem
 //!
 //! When running WebKitGTK-based applications (such as Tauri apps) on Linux
-//! with NVIDIA drivers, rendering issues occur that vary by session type:
+//! with the proprietary NVIDIA driver, rendering issues occur that vary by session type:
 //!
 //! - **X11**: The DMABUF renderer causes blank windows
 //! - **Wayland**: The application does not start
@@ -21,13 +21,21 @@
 //!
 //! ## Solution
 //!
-//! This crate detects NVIDIA kernel modules and the session type (X11/Wayland),
-//! then allows to apply the appropriate workaround:
+//! This crate detects the proprietary NVIDIA driver and the session type (X11/Wayland),
+//! then applies the appropriate workaround:
 //!
 //! | Session Type | Workaround | Environment Variable |
 //! |-------------|------------|---------------------|
 //! | X11 | Disable DMABUF renderer | `WEBKIT_DISABLE_DMABUF_RENDERER=1` |
 //! | Wayland | Disable NVIDIA explicit sync | `__NV_DISABLE_EXPLICIT_SYNC=1` |
+//!
+//! ## Detection Method
+//!
+//! The crate detects the NVIDIA driver by checking:
+//! 1. If the primary/boot GPU (via `boot_display` or `boot_vga` attributes) has vendor ID 0x10de
+//! 2. If the proprietary `nvidia` kernel module is loaded (`/sys/module/nvidia` exists)
+//!
+//! This specifically targets the proprietary NVIDIA driver, not the open-source nouveau driver.
 //!
 //! ## Usage
 //!
@@ -46,13 +54,14 @@
 //!
 //! ## API
 //!
-//! ### `is_nvidia_detected() -> bool`
+//! ### `is_primary_gpu_nvidia() -> bool`
 //!
-//! Checks whether NVIDIA kernel module is loaded.
+//! Checks whether the primary GPU is an NVIDIA GPU.
 //!
-//! Returns `true` if NVIDIA module is detected, `false` otherwise.
+//! Returns `true` if the primary GPU (boot_display or boot_vga attribute) has vendor ID 0x10de (NVIDIA),
+//! Returns `false` otherwise. This function does not check kernel module loading.
 //!
-//! ### `should_apply_workaround() -> WorkaroundKind`
+//! ### `needs_workaround() -> WorkaroundKind`
 //!
 //! Determines which workaround should be applied based on NVIDIA detection and session type.
 //!
@@ -71,7 +80,7 @@
 //!
 //! Convenience function that applies workarounds based on the provided options.
 //! If any force options are set, it applies those directly. Otherwise, it calls
-//! [`should_apply_workaround`] to detect which workaround is needed.
+//! [`needs_workaround`] to detect which workaround is needed.
 //!
 //! This is the recommended way to apply workarounds from CLI arguments.
 //!
@@ -98,36 +107,87 @@
 //! ## Platform Support
 //!
 //! This crate is Linux-only and provides no functionality on other platforms.
-//!
-//! ## Disclaimer
-//!
-//! This workaround may not work reliably when using multiple graphics cards
-//! (e.g., an integrated GPU provided by the CPU and a discrete GPU).
-//! Detection is based on kernel module presence in `/sys/module/`, which may
-//! not accurately reflect the currently active renderer in hybrid setups.
 
 #![cfg(target_os = "linux")]
+use udev::Enumerator;
 
-use std::path::Path;
+#[derive(Debug)]
+struct GpuDevice {
+    is_primary: bool,
+    is_nvidia: bool,
+}
 
-const NVIDIA_MODULES: &[&str] = &["nvidia"];
+fn parse_vendor_id(pci_parent: &udev::Device) -> u16 {
+    let parse_hex = |s: &str| u16::from_str_radix(s.strip_prefix("0x").unwrap_or(s), 16).ok();
 
-// TODO: Get the actual used renderer more reliably, e.g. by examining process info
-// TODO: Handle PRIME offload rendering detection (check render node usage)
+    if let Some(pci_id) = pci_parent.property_value("PCI_ID").and_then(|v| v.to_str()) {
+        let parts: Vec<&str> = pci_id.split(':').collect();
+        if parts.len() == 2 {
+            return parse_hex(parts[0]).unwrap_or(0);
+        }
+    }
 
-/// Detects whether NVIDIA kernel modules are loaded.
-///
-/// This function checks for the presence of `nvidia` modules
-/// in `/sys/module/`.
-///
-/// # Returns
-///
-/// `true` if NVIDIA module is detected, `false` otherwise.
-pub fn is_nvidia_detected() -> bool {
-    NVIDIA_MODULES.iter().any(|module| {
-        let path = format!("/sys/module/{}", module);
-        Path::new(&path).exists()
-    })
+    pci_parent
+        .property_value("ID_VENDOR_ID")
+        .and_then(|v| v.to_str())
+        .and_then(parse_hex)
+        .unwrap_or(0)
+}
+
+fn enumerate_gpus() -> Vec<GpuDevice> {
+    let mut devices = Vec::new();
+
+    let mut enumerator = match Enumerator::new() {
+        Ok(e) => e,
+        Err(_) => return devices,
+    };
+
+    if enumerator.match_subsystem("drm").is_err() {
+        return devices;
+    }
+
+    let device_iter = match enumerator.scan_devices() {
+        Ok(d) => d,
+        Err(_) => return devices,
+    };
+
+    for device in device_iter {
+        let sysname = match device.sysname().to_str() {
+            Some(s) => s,
+            None => continue,
+        };
+
+        if !sysname.starts_with("card") || sysname.contains('-') {
+            continue;
+        }
+
+        let pci_parent = match device.parent_with_subsystem("pci").ok().flatten() {
+            Some(p) => p,
+            None => continue,
+        };
+
+        let vendor_id = parse_vendor_id(&pci_parent);
+
+        let attr_is_one = |dev: &udev::Device, name: &str| {
+            dev.attribute_value(name).and_then(|v| v.to_str()) == Some("1")
+        };
+        let is_primary = attr_is_one(&device, "boot_display")
+            || attr_is_one(&pci_parent, "boot_display")
+            || attr_is_one(&pci_parent, "boot_vga");
+
+        let is_nvidia = vendor_id == 0x10de;
+
+        devices.push(GpuDevice {
+            is_primary,
+            is_nvidia,
+        });
+    }
+
+    devices
+}
+
+fn nvidia_driver_loaded() -> bool {
+    std::path::Path::new("/sys/module/nvidia").exists()
 }
 
 enum SessionType {
@@ -168,8 +228,8 @@ pub enum WorkaroundKind {
 
 /// Checks if a workaround should be applied.
 ///
-/// This function checks if NVIDIA kernel modules are loaded and
-/// returns which workaround should be applied.
+/// This function checks if the proprietary NVIDIA driver is loaded and the primary GPU is NVIDIA.
+/// If so, it detects the session type (X11 or Wayland) and returns which workaround should be applied.
 ///
 /// # Returns
 ///
@@ -182,16 +242,27 @@ pub enum WorkaroundKind {
 /// This function only performs detection. Use [`set_webkit_disable_dmabuf_renderer`] or
 /// [`nv_disable_explicit_sync`] to apply the respective workaround.
 /// Call this first, then call the workaround if needed - ideally before spawning any threads.
-pub fn should_apply_workaround() -> WorkaroundKind {
+pub fn needs_workaround() -> WorkaroundKind {
     let session = get_session_type();
 
-    if !is_nvidia_detected() {
+    if !is_primary_gpu_nvidia() || !nvidia_driver_loaded() {
         return WorkaroundKind::None;
     }
     match session {
         SessionType::Wayland => WorkaroundKind::DisableNvExplicitSync,
-        _ => WorkaroundKind::DisableWebkitDmabufRenderer,
+        SessionType::X11 => WorkaroundKind::DisableWebkitDmabufRenderer,
+        SessionType::Unknown => WorkaroundKind::None,
     }
+}
+
+/// Checks if the primary GPU is an NVIDIA GPU.
+///
+/// Returns `true` if the primary GPU (boot_display or boot_vga) is NVIDIA
+/// Returns `false` otherwise.
+pub fn is_primary_gpu_nvidia() -> bool {
+    let devices = enumerate_gpus();
+
+    devices.iter().any(|d| d.is_primary && d.is_nvidia)
 }
 
 /// Sets the `WEBKIT_DISABLE_DMABUF_RENDERER` environment variable.
@@ -270,7 +341,7 @@ impl ApplyWorkaroundOptions {
 /// Applies workarounds based on the provided options.
 ///
 /// If any force options are set in `options`, those workarounds are applied directly.
-/// Otherwise, it calls [`should_apply_workaround`] to detect which workaround is needed.
+/// Otherwise, it calls [`needs_workaround`] to detect which workaround is needed.
 ///
 /// # Arguments
 ///
@@ -288,20 +359,10 @@ pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) {
         nv_disable_explicit_sync();
     }
     if !options.force_disable_dmabuf && !options.force_disable_nv_explicit_sync {
-        match should_apply_workaround() {
+        match needs_workaround() {
             WorkaroundKind::None => {}
             WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
             WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_nvidia_modules_are_correct() {
-        assert!(NVIDIA_MODULES.contains(&"nvidia"));
     }
 }

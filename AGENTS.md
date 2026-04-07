@@ -29,7 +29,7 @@ cargo tauri dev
 ### Test Commands
 ```bash
 # Run all tests using nextest (preferred)
-cargo nextest run --profile ci
+cargo nextest run --profile ci --workspace
 
 # Run specific package tests
 cargo nextest run -p mdns-browser --profile ci
@@ -39,10 +39,8 @@ cargo nextest run -p models --profile ci
 cargo nextest run --profile ci test_name
 
 # Traditional cargo test (fallback)
-cargo test -p models  -p mdns-browser
+cargo test -p models -p mdns-browser
 
-# Run tests with specific features
-cargo nextest run --profile ci --features desktop
 ```
 
 ### Lint Commands
@@ -74,7 +72,7 @@ cd src-tauri && cargo fmt -- --check
 ```bash
 leptosfmt --check src && \
 cargo clippy --workspace --tests -- -D warnings && \
-cargo nextest run --profile ci -p models -p mdns-browser && \
+cargo nextest run --profile ci --workspace && \
 actionlint .github/workflows/*.yml
 ```
 
@@ -171,19 +169,20 @@ All source files must include:
 ## Project Structure
 
 ```text
-├── src/                    # Leptos frontend
-│   ├── app/               # Feature modules
-│   └── main.rs            # Frontend entry point
-├── src-tauri/             # Tauri backend
-│   ├── src/               # Rust backend code
-│   ├── tauri.conf.json    # Tauri configuration
-│   └── Cargo.toml         # Backend dependencies
-├── crates/                # Shared libraries
-│   ├── models/            # Data structures and validation
-│   └── shared_constants/  # Constants shared across crates
-├── Trunk.toml             # Frontend build configuration
-├── Cargo.toml             # Workspace configuration
-└── .config/nextest.toml   # Test configuration
+├── src/                          # Leptos frontend
+│   ├── app/                      # Feature modules
+│   └── main.rs                   # Frontend entry point
+├── src-tauri/                    # Tauri backend
+│   ├── src/                      # Rust backend code
+│   ├── tauri.conf.json           # Tauri configuration
+│   └── Cargo.toml                # Backend dependencies
+├── crates/                       # Shared libraries
+│   ├── models/                   # Data structures and validation
+│   └── shared_constants/         # Constants shared across crates
+│   └── webkit2gtk-nvidia-quirk/  # WebKit2Gtk NVIDIA quirk
+├── Trunk.toml                    # Frontend build configuration
+├── Cargo.toml                    # Workspace configuration
+└── .config/nextest.toml          # Test configuration
 ```
 
 ## Important Notes
@@ -206,7 +205,7 @@ cd src-tauri && cargo fmt -- --check && \
 cd .. && \
 leptosfmt --check src && \
 cargo clippy --workspace --tests -- -D warnings && \
-cargo nextest run --profile ci && \
+cargo nextest run --profile ci --workspace && \
 actionlint .github/workflows/*.yml
 ```
 3. **Use conventional commits**: Follow the conventional commits format (e.g., `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`)

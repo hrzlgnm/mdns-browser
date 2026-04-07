@@ -3,10 +3,13 @@
 
 [package]
 name = "webkit2gtk-nvidia-quirk"
-version = "1.1.0"
+version = "1.2.0"
 edition = "2021"
 description = "WebKitGTK DMABUF renderer quirk for NVIDIA/Mesa drivers on Linux"
 license = "MIT"
 repository = "https://github.com/hrzlgnm/mdns-browser"
 authors = ["hrzlgnm"]
 readme = "README.md"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+udev = { workspace = true }
