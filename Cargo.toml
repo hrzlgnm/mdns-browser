@@ -54,7 +54,12 @@ shared_constants = { path = "./crates/shared_constants" }
 models = { path = "./crates/models" }
 
 [workspace]
-members = ["crates/models", "crates/shared_constants", "crates/webkit2gtk-nvidia-quirk", "src-tauri"]
+members = [
+    "crates/models",
+    "crates/shared_constants",
+    "crates/webkit2gtk-nvidia-quirk",
+    "src-tauri",
+]
 resolver = "2"
 
 [workspace.dependencies]
@@ -75,3 +80,4 @@ tauri-plugin-updater = "2.0"
 pnet = "0.35"
 ipconfig = "0.3"
 clap = { version = "4.5", features = ["derive"] }
+udev = "0.9"
