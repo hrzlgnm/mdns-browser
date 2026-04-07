@@ -493,7 +493,7 @@ mod tests {
     #[test]
     fn test_dri_prime_numeric_index() {
         assert_eq!(Some(DriPrime::Index(0)), parse_dri_prime("0"));
-        assert_eq!(Some(DriPrime::Index(1)), parse_dri_prime("1"));
+        assert_eq!(Some(DriPrime::Index(1)), parse_dri_prime("1!"));
     }
     #[test]
     fn test_dri_prime_pci_id() {
