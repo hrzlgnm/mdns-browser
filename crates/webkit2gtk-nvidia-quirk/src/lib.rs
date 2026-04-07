@@ -124,7 +124,7 @@ fn parse_vendor_id(pci_parent: &udev::Device) -> u16 {
     if let Some(pci_id) = pci_parent.property_value("PCI_ID").and_then(|v| v.to_str()) {
         let parts: Vec<&str> = pci_id.split(':').collect();
         if parts.len() == 2 {
-            return u16::from_str_radix(parts[0], 16).ok().unwrap_or(0);
+            return parse_hex(parts[0]).unwrap_or(0);
         }
     }
 
