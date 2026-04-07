@@ -116,7 +116,6 @@ use udev::Enumerator;
 
 #[derive(Debug)]
 struct GpuDevice {
-    pci_id: String,
     is_primary: bool,
     is_nvidia: bool,
 }
@@ -136,14 +135,6 @@ fn parse_vendor_id(pci_parent: &udev::Device) -> u16 {
         .and_then(|v| v.to_str())
         .and_then(parse_hex)
         .unwrap_or(0)
-}
-
-fn gpu_cmp(a: &GpuDevice, b: &GpuDevice) -> std::cmp::Ordering {
-    match (a.is_primary, b.is_primary) {
-        (true, false) => std::cmp::Ordering::Less,
-        (false, true) => std::cmp::Ordering::Greater,
-        _ => a.pci_id.cmp(&b.pci_id),
-    }
 }
 
 fn enumerate_gpus() -> Vec<GpuDevice> {
@@ -198,13 +189,10 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
         let is_nvidia = vendor_id == 0x10de;
 
         devices.push(GpuDevice {
-            pci_id,
             is_primary,
             is_nvidia,
         });
     }
-
-    devices.sort_by(gpu_cmp);
 
     devices
 }
@@ -251,7 +239,8 @@ pub enum WorkaroundKind {
 
 /// Checks if a workaround should be applied.
 ///
-/// This function checks if the proprietary NVIDIA driver is loaded and
+/// This function checks if the proprietary NVIDIA driver is loaded and the primary GPU is NVIDIA.
+/// If so, it detects the session type (X11 or Wayland)
 /// returns which workaround should be applied.
 ///
 /// # Returns
@@ -268,7 +257,7 @@ pub enum WorkaroundKind {
 pub fn needs_workaround() -> WorkaroundKind {
     let session = get_session_type();
 
-    if !is_primary_gpu_nvidia() {
+    if !is_primary_gpu_nvidia() || !nvidia_driver_loaded() {
         return WorkaroundKind::None;
     }
     match session {
@@ -279,24 +268,12 @@ pub fn needs_workaround() -> WorkaroundKind {
 
 /// Checks if the primary GPU is an NVIDIA GPU.
 ///
-/// Returns `true` if the primary GPU (boot_display) is NVIDIA, or if the proprietary
-/// NVIDIA driver (`nvidia` kernel module) is loaded and any NVIDIA GPU is present.
+/// Returns `true` if the primary GPU (boot_display) is NVIDIA
 /// Returns `false` otherwise.
-///
-/// This specifically detects the proprietary NVIDIA driver, not the open-source nouveau driver.
 pub fn is_primary_gpu_nvidia() -> bool {
     let devices = enumerate_gpus();
 
-    let primary_is_nvidia = devices.iter().any(|d| d.is_primary && d.is_nvidia);
-    if primary_is_nvidia {
-        return true;
-    }
-
-    if nvidia_driver_loaded() {
-        return devices.iter().any(|d| d.is_nvidia);
-    }
-
-    false
+    devices.iter().any(|d| d.is_primary && d.is_nvidia)
 }
 
 /// Sets the `WEBKIT_DISABLE_DMABUF_RENDERER` environment variable.
@@ -398,37 +375,5 @@ pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) {
             WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
             WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_sort_primaries_first() {
-        let mut devices = [
-            GpuDevice {
-                pci_id: "0000:01:00.0".to_string(),
-                is_primary: false,
-                is_nvidia: false,
-            },
-            GpuDevice {
-                pci_id: "0000:02:00.0".to_string(),
-                is_primary: true,
-                is_nvidia: true,
-            },
-            GpuDevice {
-                pci_id: "0000:03:00.0".to_string(),
-                is_primary: false,
-                is_nvidia: true,
-            },
-        ];
-
-        devices.sort_by(gpu_cmp);
-
-        assert!(devices[0].is_primary);
-        assert!(!devices[1].is_primary);
-        assert!(!devices[2].is_primary);
     }
 }
