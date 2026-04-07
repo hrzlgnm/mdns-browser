@@ -502,8 +502,8 @@ mod tests {
     #[test]
     fn test_dri_prime_pci_id() {
         assert_eq!(
-            Some(DriPrime::PciId("0000:01:02".into())),
-            parse_dri_prime("pci-0000_01_02")
+            Some(DriPrime::PciId("0000:01:02.01".into())),
+            parse_dri_prime("pci-0000_01_02_01")
         );
     }
     #[test]
