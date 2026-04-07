@@ -229,7 +229,7 @@ fn parse_dri_prime(prime: impl Into<String>) -> Option<DriPrime> {
     }
     if prime.starts_with("pci-") {
         // Strip "pci-" prefix and split on underscores
-        let value = prime.strip_prefix("pci-").unwrap_or(&prime);
+        let value = prime.strip_prefix("pci-").unwrap_or(prime);
         let components: Vec<&str> = value.split('_').collect();
 
         // Recompose as "domain:bus:device.function" notation
