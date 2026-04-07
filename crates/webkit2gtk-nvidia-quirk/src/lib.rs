@@ -114,6 +114,22 @@ struct GpuDevice {
 }
 
 fn parse_pci_ids(pci_parent: &udev::Device) -> (u16, u16) {
+    eprintln!("PCI parent properties:");
+    let props = [
+        "ID_VENDOR_ID",
+        "ID_MODEL_ID",
+        "ID_VENDOR",
+        "ID_MODEL",
+        "PCI_SLOT_NAME",
+    ];
+    for key in props {
+        if let Some(value) = pci_parent.property_value(key) {
+            if let Some(s) = value.to_str() {
+                eprintln!("  {} = {}", key, s);
+            }
+        }
+    }
+
     let parse_hex = |s: &str| u16::from_str_radix(s.strip_prefix("0x").unwrap_or(s), 16).ok();
 
     let vendor_id = pci_parent
@@ -128,32 +144,12 @@ fn parse_pci_ids(pci_parent: &udev::Device) -> (u16, u16) {
         .and_then(parse_hex)
         .unwrap_or(0);
 
-    if vendor_id != 0 {
-        return (vendor_id, device_id);
-    }
+    eprintln!(
+        "Parsed vendor_id: {:x}, device_id: {:x}",
+        vendor_id, device_id
+    );
 
-    let pci_slot = pci_parent
-        .property_value("PCI_SLOT_NAME")
-        .and_then(|v| v.to_str())
-        .map(|s| s.to_string());
-
-    if let Some(slot) = pci_slot {
-        let sysfs_vendor = format!("/sys/bus/pci/devices/{}/vendor", slot);
-        let sysfs_device = format!("/sys/bus/pci/devices/{}/device", slot);
-
-        let vendor = std::fs::read_to_string(&sysfs_vendor)
-            .ok()
-            .and_then(|s| u16::from_str_radix(s.trim(), 16).ok())
-            .unwrap_or(0);
-        let device = std::fs::read_to_string(&sysfs_device)
-            .ok()
-            .and_then(|s| u16::from_str_radix(s.trim(), 16).ok())
-            .unwrap_or(0);
-
-        return (vendor, device);
-    }
-
-    (0, 0)
+    (vendor_id, device_id)
 }
 
 fn gpu_cmp(a: &GpuDevice, b: &GpuDevice) -> std::cmp::Ordering {
