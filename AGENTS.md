@@ -34,7 +34,6 @@ cargo nextest run --profile ci --workspace
 # Run specific package tests
 cargo nextest run -p mdns-browser --profile ci
 cargo nextest run -p models --profile ci
-cargo nextest run -p webkit2gtk-nvidia-quirk --profile ci
 
 # Run a single test
 cargo nextest run --profile ci test_name
