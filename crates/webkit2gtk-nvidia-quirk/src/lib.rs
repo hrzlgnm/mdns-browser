@@ -113,23 +113,7 @@ struct GpuDevice {
     is_nvidia: bool,
 }
 
-fn parse_pci_ids(pci_parent: &udev::Device) -> (u16, u16) {
-    eprintln!("PCI parent properties:");
-    let props = [
-        "ID_VENDOR_ID",
-        "ID_MODEL_ID",
-        "ID_VENDOR",
-        "ID_MODEL",
-        "PCI_SLOT_NAME",
-    ];
-    for key in props {
-        if let Some(value) = pci_parent.property_value(key) {
-            if let Some(s) = value.to_str() {
-                eprintln!("  {} = {}", key, s);
-            }
-        }
-    }
-
+fn parse_pci_ids(device: &udev::Device, pci_parent: &udev::Device) -> (u16, u16) {
     let parse_hex = |s: &str| u16::from_str_radix(s.strip_prefix("0x").unwrap_or(s), 16).ok();
 
     let vendor_id = pci_parent
@@ -144,12 +128,29 @@ fn parse_pci_ids(pci_parent: &udev::Device) -> (u16, u16) {
         .and_then(parse_hex)
         .unwrap_or(0);
 
-    eprintln!(
-        "Parsed vendor_id: {:x}, device_id: {:x}",
-        vendor_id, device_id
-    );
+    if vendor_id != 0 {
+        return (vendor_id, device_id);
+    }
 
-    (vendor_id, device_id)
+    if let Some(syspath) = device.syspath().to_str() {
+        let vendor_path = format!("{}/device/vendor", syspath);
+        let device_path = format!("{}/device/device", syspath);
+
+        let vendor = std::fs::read_to_string(&vendor_path)
+            .ok()
+            .and_then(|s| u16::from_str_radix(s.trim(), 16).ok())
+            .unwrap_or(0);
+        let device = std::fs::read_to_string(&device_path)
+            .ok()
+            .and_then(|s| u16::from_str_radix(s.trim(), 16).ok())
+            .unwrap_or(0);
+
+        if vendor != 0 {
+            return (vendor, device);
+        }
+    }
+
+    (0, 0)
 }
 
 fn gpu_cmp(a: &GpuDevice, b: &GpuDevice) -> std::cmp::Ordering {
@@ -202,7 +203,7 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
             continue;
         }
 
-        let (vendor_id, device_id) = parse_pci_ids(&pci_parent);
+        let (vendor_id, device_id) = parse_pci_ids(&device, &pci_parent);
 
         let is_primary = device
             .attribute_value("boot_display")
