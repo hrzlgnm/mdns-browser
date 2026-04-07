@@ -3,23 +3,32 @@
 [![Crates.io](https://img.shields.io/crates/v/webkit2gtk-nvidia-quirk)](https://crates.io/crates/webkit2gtk-nvidia-quirk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-A crate that provides session-aware workarounds for WebKitGTK rendering issues on Linux systems with NVIDIA drivers.
+A crate that provides session-aware workarounds for WebKitGTK rendering issues on Linux systems with the proprietary NVIDIA driver.
 
 ## Problem
 
-When running WebKitGTK-based applications (such as Tauri apps) on Linux with NVIDIA drivers, rendering issues occur that vary by session type:
+When running WebKitGTK-based applications (such as Tauri apps) on Linux with the proprietary NVIDIA driver, rendering issues occur that vary by session type:
 
 - **X11**: The DMABUF renderer causes visual artifacts and rendering issues
 - **Wayland**: The DMABUF renderer may crash or hang
 
 ## Solution
 
-This crate detects NVIDIA kernel module and the session type (X11/Wayland), then applies the appropriate workaround:
+This crate detects the proprietary NVIDIA driver and the session type (X11/Wayland), then applies the appropriate workaround:
 
 | Session Type | Workaround | Environment Variable |
 |-------------|------------|---------------------|
 | X11 | Disable DMABUF renderer | `WEBKIT_DISABLE_DMABUF_RENDERER=1` |
 | Wayland | Disable NVIDIA explicit sync | `__NV_DISABLE_EXPLICIT_SYNC=1` |
+
+## Detection Method
+
+The crate detects the proprietary NVIDIA driver by checking:
+
+1. If the primary GPU (`boot_display` attribute) is NVIDIA (vendor ID 0x10de)
+2. If the proprietary `nvidia` kernel module is loaded (`/sys/module/nvidia` exists) AND any NVIDIA GPU is present in the system
+
+This specifically targets the proprietary NVIDIA driver, not the open-source nouveau driver. DRI_PRIME offloading to/from NVIDIA cards with the proprietary driver does not work, so DRI_PRIME resolution is not supported.
 
 ## Usage
 
@@ -35,9 +44,9 @@ let workaround = apply_workaround_with_options(options);
 For backwards compatibility, you can also use the older API:
 
 ```rust,no_run
-use webkit2gtk_nvidia_quirk::{should_apply_workaround, set_webkit_disable_dmabuf_renderer, nv_disable_explicit_sync, WorkaroundKind};
+use webkit2gtk_nvidia_quirk::{needs_workaround, set_webkit_disable_dmabuf_renderer, nv_disable_explicit_sync, WorkaroundKind};
 
-match should_apply_workaround(false) {
+match needs_workaround() {
     WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
     WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
     WorkaroundKind::None => {},
@@ -58,7 +67,6 @@ MIT
 
 ## Disclaimer
 
-This workaround may not work reliably when using multiple graphics cards
-(e.g., an integrated GPU provided by the CPU and a discrete GPU).
-Detection is based on kernel module presence in `/sys/module/`, which may
-not accurately reflect the currently active renderer in hybrid setups.
+This workaround specifically detects the proprietary NVIDIA driver (the `nvidia` kernel module), not the open-source nouveau driver. It will not apply workarounds when using nouveau or when no NVIDIA GPU is present in the system.
+
+Detection is based on kernel module presence in `/sys/module/nvidia`, which accurately reflects whether the proprietary driver is loaded.
