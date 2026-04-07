@@ -31,8 +31,8 @@
 //!
 //! ## Detection Method
 //!
-//! The crate detects the proprietary NVIDIA driver by checking:
-//! 1. If the primary GPU (`boot_display` attribute) is NVIDIA (vendor ID 0x10de)
+//! The crate detects the NVIDIA driver by checking:
+//! 1. If the primary/boot GPU (via `boot_display` or `boot_vga` attributes) has vendor ID 0x10de
 //! 2. If the proprietary `nvidia` kernel module is loaded (`/sys/module/nvidia` exists)
 //!
 //! This specifically targets the proprietary NVIDIA driver, not the open-source nouveau driver.
@@ -58,7 +58,7 @@
 //!
 //! Checks whether the primary GPU is an NVIDIA GPU.
 //!
-//! Returns `true` if the primary GPU (boot_display attribute) has vendor ID 0x10de (NVIDIA),
+//! Returns `true` if the primary GPU (boot_display or boot_vga attribute) has vendor ID 0x10de (NVIDIA),
 //! Returns `false` otherwise. This function does not check kernel module loading.
 //!
 //! ### `needs_workaround() -> WorkaroundKind`
@@ -229,8 +229,7 @@ pub enum WorkaroundKind {
 /// Checks if a workaround should be applied.
 ///
 /// This function checks if the proprietary NVIDIA driver is loaded and the primary GPU is NVIDIA.
-/// If so, it detects the session type (X11 or Wayland)
-/// returns which workaround should be applied.
+/// If so, it detects the session type (X11 or Wayland) and returns which workaround should be applied.
 ///
 /// # Returns
 ///
@@ -258,7 +257,7 @@ pub fn needs_workaround() -> WorkaroundKind {
 
 /// Checks if the primary GPU is an NVIDIA GPU.
 ///
-/// Returns `true` if the primary GPU (boot_display) is NVIDIA
+/// Returns `true` if the primary GPU (boot_display or boot_vga) is NVIDIA
 /// Returns `false` otherwise.
 pub fn is_primary_gpu_nvidia() -> bool {
     let devices = enumerate_gpus();
