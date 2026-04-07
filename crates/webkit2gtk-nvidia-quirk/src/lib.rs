@@ -114,16 +114,18 @@ struct GpuDevice {
 }
 
 fn parse_pci_ids(pci_parent: &udev::Device) -> (u16, u16) {
+    let parse_hex = |s: &str| u16::from_str_radix(s.strip_prefix("0x").unwrap_or(s), 16).ok();
+
     let vendor_id = pci_parent
         .property_value("ID_VENDOR_ID")
         .and_then(|v| v.to_str())
-        .and_then(|s| u16::from_str_radix(s, 16).ok())
+        .and_then(parse_hex)
         .unwrap_or(0);
 
     let device_id = pci_parent
         .property_value("ID_MODEL_ID")
         .and_then(|v| v.to_str())
-        .and_then(|s| u16::from_str_radix(s, 16).ok())
+        .and_then(parse_hex)
         .unwrap_or(0);
 
     (vendor_id, device_id)
