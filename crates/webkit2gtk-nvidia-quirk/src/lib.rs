@@ -59,8 +59,8 @@
 //!
 //! Checks whether the primary GPU is an NVIDIA GPU.
 //!
-//! Returns `true` if the primary GPU (boot_display) is NVIDIA, or if the proprietary
-//! NVIDIA driver is loaded and any NVIDIA GPU is present. Returns `false` otherwise.
+//! Returns `true` if the primary GPU (boot_display attribute) has vendor ID 0x10de (NVIDIA),
+//! Returns `false` otherwise. This function does not check kernel module loading.
 //!
 //! ### `needs_workaround() -> WorkaroundKind`
 //!
@@ -167,16 +167,6 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
             None => continue,
         };
 
-        let pci_id = pci_parent
-            .property_value("PCI_SLOT_NAME")
-            .and_then(|v| v.to_str())
-            .map(|s| s.to_string())
-            .unwrap_or_default();
-
-        if pci_id.is_empty() {
-            continue;
-        }
-
         let vendor_id = parse_vendor_id(&pci_parent);
 
         let is_primary = device
@@ -260,7 +250,8 @@ pub fn needs_workaround() -> WorkaroundKind {
     }
     match session {
         SessionType::Wayland => WorkaroundKind::DisableNvExplicitSync,
-        _ => WorkaroundKind::DisableWebkitDmabufRenderer,
+        SessionType::X11 => WorkaroundKind::DisableWebkitDmabufRenderer,
+        SessionType::Unknown => WorkaroundKind::None,
     }
 }
 
