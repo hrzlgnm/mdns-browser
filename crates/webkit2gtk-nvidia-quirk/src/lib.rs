@@ -304,20 +304,30 @@ pub fn is_effective_gpu_nvidia() -> bool {
 
     if let Some(dri_prime) = dri_prime {
         if let Some(prime) = parse_dri_prime(dri_prime) {
+            eprintln!("DRI_PRIME parsed: {:?}", prime);
+            eprintln!("Available devices: {:?}", devices);
             match prime {
                 DriPrime::Index(index) => {
                     return devices.get(index).map(|d| d.is_nvidia).unwrap_or(false);
                 }
                 DriPrime::PciId(pci_id) => {
+                    eprintln!("Looking for PCI ID: {}", pci_id);
                     if let Some(idx) = devices.iter().position(|d| d.pci_id == pci_id) {
+                        eprintln!("Found match at index {}", idx);
                         return devices[idx].is_nvidia;
                     }
                 }
                 DriPrime::VendorDevice(vendor_id, device_id) => {
+                    eprintln!("Looking for vendor:device {:x}:{:x}", vendor_id, device_id);
                     if let Some(idx) = devices
                         .iter()
                         .position(|d| d.vendor_id == vendor_id && d.device_id == device_id)
                     {
+                        eprintln!("Found exact match at index {}", idx);
+                        return devices[idx].is_nvidia;
+                    }
+                    if let Some(idx) = devices.iter().position(|d| d.vendor_id == vendor_id) {
+                        eprintln!("Found vendor-only match at index {}", idx);
                         return devices[idx].is_nvidia;
                     }
                 }
