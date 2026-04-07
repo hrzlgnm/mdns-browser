@@ -297,6 +297,12 @@ fn parse_dri_prime(prime: impl Into<String>) -> Option<DriPrime> {
 /// is *not* NVIDIA, as long as `DRI_PRIME` resolves to an NVIDIA device. The function
 /// name reflects the effective GPU determination but callers should be aware of this behavior.
 ///
+/// # TODO
+///
+/// DRI_PRIME offloading to proprietary NVIDIA drivers via Mesa does not work properly.
+/// We should detect this case and ignore DRI_PRIME, falling back to the primary GPU check.
+/// See: https://bugs.freedesktop.org/show_bug.cgi?id=124047
+///
 /// # Returns
 ///
 /// `true` if an NVIDIA GPU is considered active per the resolution logic above,
