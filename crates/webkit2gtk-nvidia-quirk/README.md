@@ -8,9 +8,12 @@ Session-aware workarounds for WebKitGTK rendering issues on Linux with NVIDIA dr
 ## Quick Start
 
 ```rust,no_run
-use webkit2gtk_nvidia_quirk::{apply_workaround_with_options, ApplyWorkaroundOptions};
+#[cfg(target_os == "linux")]
+{
+    use webkit2gtk_nvidia_quirk::{apply_workaround_with_options, ApplyWorkaroundOptions};
 
-apply_workaround_with_options(ApplyWorkaroundOptions::default());
+    apply_workaround_with_options(ApplyWorkaroundOptions::default());
+}
 ```
 
 See the [full documentation](https://docs.rs/webkit2gtk-nvidia-quirk) for detailed API information.
