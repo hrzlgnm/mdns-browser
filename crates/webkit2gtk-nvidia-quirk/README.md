@@ -28,7 +28,7 @@ The crate detects the proprietary NVIDIA driver by checking:
 1. If the primary GPU (`boot_display` attribute) is NVIDIA (vendor ID 0x10de)
 2. If the proprietary `nvidia` kernel module is loaded (`/sys/module/nvidia` exists) AND any NVIDIA GPU is present in the system
 
-This specifically targets the proprietary NVIDIA driver, not the open-source nouveau driver. DRI_PRIME offloading to/from NVIDIA cards with the proprietary driver does not work, so DRI_PRIME resolution is not supported.
+This specifically targets the proprietary NVIDIA driver, not the open-source nouveau driver.
 
 ## Usage
 
@@ -67,4 +67,4 @@ MIT
 
 This workaround specifically detects the proprietary NVIDIA driver (the `nvidia` kernel module), not the open-source nouveau driver. It will not apply workarounds when using nouveau or when the NVIDIA GPU is not the primary GPU in the system.
 
-Detection is based on kernel module presence in `/sys/module/nvidia`, which accurately reflects whether the proprietary driver is loaded.
+Detection is based on udev enumeration of DRM devices, using the `boot_display` attribute to identify the primary GPU.

@@ -37,8 +37,6 @@
 //!    AND any NVIDIA GPU is present in the system
 //!
 //! This specifically targets the proprietary NVIDIA driver, not the open-source nouveau driver.
-//! DRI_PRIME offloading to/from NVIDIA cards with the proprietary driver does not work,
-//! so DRI_PRIME resolution is not supported.
 //!
 //! ## Usage
 //!
