@@ -168,10 +168,12 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
 
         let vendor_id = parse_vendor_id(&pci_parent);
 
-        let is_primary = device
-            .attribute_value("boot_display")
-            .and_then(|v| v.to_str())
-            == Some("1");
+        let attr_is_one = |dev: &udev::Device, name: &str| {
+            dev.attribute_value(name).and_then(|v| v.to_str()) == Some("1")
+        };
+        let is_primary = attr_is_one(&device, "boot_display")
+            || attr_is_one(&pci_parent, "boot_display")
+            || attr_is_one(&pci_parent, "boot_vga");
 
         let is_nvidia = vendor_id == 0x10de;
 
