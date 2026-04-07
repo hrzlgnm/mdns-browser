@@ -233,17 +233,18 @@ fn parse_dri_prime(prime: impl Into<String>) -> Option<DriPrime> {
         let value = prime.strip_prefix("pci-").unwrap_or(prime);
         let components: Vec<&str> = value.split('_').collect();
 
-        // Recompose as "domain:bus:device.function" notation
+        // Recompose as "domain:bus:device.function" notation with canonical hex format
         if components.len() == 4 {
-            let normalized = format!(
-                "{}:{}:{}.{}",
-                components[0], components[1], components[2], components[3]
-            );
-            return Some(DriPrime::PciId(normalized));
+            if let (Ok(d), Ok(b), Ok(s), Ok(f)) = (
+                u16::from_str_radix(components[0], 16),
+                u8::from_str_radix(components[1], 16),
+                u8::from_str_radix(components[2], 16),
+                u8::from_str_radix(components[3], 16),
+            ) {
+                let normalized = format!("{:04x}:{:02x}:{:02x}.{:x}", d, b, s, f);
+                return Some(DriPrime::PciId(normalized));
+            }
         }
-        // Fallback for other formats
-        let normalized = value.replace('_', ":");
-        return Some(DriPrime::PciId(normalized));
     } else if prime.contains(':') {
         let parts: Vec<&str> = prime.split(':').collect();
         if parts.len() == 2 {
@@ -502,8 +503,15 @@ mod tests {
     #[test]
     fn test_dri_prime_pci_id_trailing_bang() {
         assert_eq!(
-            Some(DriPrime::PciId("0000:01:02.00".into())),
+            Some(DriPrime::PciId("0000:01:02.0".into())),
             parse_dri_prime("pci-0000_01_02_00!")
+        );
+    }
+    #[test]
+    fn test_dri_prime_pci_id() {
+        assert_eq!(
+            Some(DriPrime::PciId("0000:01:02.1".into())),
+            parse_dri_prime("pci-0000_01_02_01")
         );
     }
     #[test]
@@ -511,13 +519,6 @@ mod tests {
         assert_eq!(
             Some(DriPrime::VendorDevice(0x1234, 0x5678)),
             parse_dri_prime("1234:5678!")
-        );
-    }
-    #[test]
-    fn test_dri_prime_pci_id() {
-        assert_eq!(
-            Some(DriPrime::PciId("0000:01:02.01".into())),
-            parse_dri_prime("pci-0000_01_02_01")
         );
     }
     #[test]
