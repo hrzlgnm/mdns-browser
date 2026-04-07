@@ -35,13 +35,11 @@ This specifically targets the proprietary NVIDIA driver, not the open-source nou
 ```rust,no_run
 use webkit2gtk_nvidia_quirk::{apply_workaround_with_options, ApplyWorkaroundOptions};
 
-let options = ApplyWorkaroundOptions::default()
-    .force_disable_dmabuf(true); // Force disable dmabuf renderer
-
-let workaround = apply_workaround_with_options(options);
+apply_workaround_with_options(ApplyWorkaroundOptions::default()
+    .force_disable_dmabuf(true)); // Force disable dmabuf renderer
 ```
 
-For backwards compatibility, you can also use the older API:
+One can also use the following API instead:
 
 ```rust,no_run
 use webkit2gtk_nvidia_quirk::{needs_workaround, set_webkit_disable_dmabuf_renderer, nv_disable_explicit_sync, WorkaroundKind};
@@ -67,6 +65,6 @@ MIT
 
 ## Disclaimer
 
-This workaround specifically detects the proprietary NVIDIA driver (the `nvidia` kernel module), not the open-source nouveau driver. It will not apply workarounds when using nouveau or when no NVIDIA GPU is present in the system.
+This workaround specifically detects the proprietary NVIDIA driver (the `nvidia` kernel module), not the open-source nouveau driver. It will not apply workarounds when using nouveau or when the NVIDIA GPU is not the primary GPU in the system.
 
 Detection is based on kernel module presence in `/sys/module/nvidia`, which accurately reflects whether the proprietary driver is loaded.
