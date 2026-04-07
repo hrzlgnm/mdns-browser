@@ -128,7 +128,32 @@ fn parse_pci_ids(pci_parent: &udev::Device) -> (u16, u16) {
         .and_then(parse_hex)
         .unwrap_or(0);
 
-    (vendor_id, device_id)
+    if vendor_id != 0 {
+        return (vendor_id, device_id);
+    }
+
+    let pci_slot = pci_parent
+        .property_value("PCI_SLOT_NAME")
+        .and_then(|v| v.to_str())
+        .map(|s| s.to_string());
+
+    if let Some(slot) = pci_slot {
+        let sysfs_vendor = format!("/sys/bus/pci/devices/{}/vendor", slot);
+        let sysfs_device = format!("/sys/bus/pci/devices/{}/device", slot);
+
+        let vendor = std::fs::read_to_string(&sysfs_vendor)
+            .ok()
+            .and_then(|s| u16::from_str_radix(s.trim(), 16).ok())
+            .unwrap_or(0);
+        let device = std::fs::read_to_string(&sysfs_device)
+            .ok()
+            .and_then(|s| u16::from_str_radix(s.trim(), 16).ok())
+            .unwrap_or(0);
+
+        return (vendor, device);
+    }
+
+    (0, 0)
 }
 
 fn gpu_cmp(a: &GpuDevice, b: &GpuDevice) -> std::cmp::Ordering {
@@ -304,30 +329,23 @@ pub fn is_effective_gpu_nvidia() -> bool {
 
     if let Some(dri_prime) = dri_prime {
         if let Some(prime) = parse_dri_prime(dri_prime) {
-            eprintln!("DRI_PRIME parsed: {:?}", prime);
-            eprintln!("Available devices: {:?}", devices);
             match prime {
                 DriPrime::Index(index) => {
                     return devices.get(index).map(|d| d.is_nvidia).unwrap_or(false);
                 }
                 DriPrime::PciId(pci_id) => {
-                    eprintln!("Looking for PCI ID: {}", pci_id);
                     if let Some(idx) = devices.iter().position(|d| d.pci_id == pci_id) {
-                        eprintln!("Found match at index {}", idx);
                         return devices[idx].is_nvidia;
                     }
                 }
                 DriPrime::VendorDevice(vendor_id, device_id) => {
-                    eprintln!("Looking for vendor:device {:x}:{:x}", vendor_id, device_id);
                     if let Some(idx) = devices
                         .iter()
                         .position(|d| d.vendor_id == vendor_id && d.device_id == device_id)
                     {
-                        eprintln!("Found exact match at index {}", idx);
                         return devices[idx].is_nvidia;
                     }
                     if let Some(idx) = devices.iter().position(|d| d.vendor_id == vendor_id) {
-                        eprintln!("Found vendor-only match at index {}", idx);
                         return devices[idx].is_nvidia;
                     }
                 }
