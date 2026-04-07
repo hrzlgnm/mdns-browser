@@ -113,35 +113,17 @@ struct GpuDevice {
     is_nvidia: bool,
 }
 
-fn parse_pci_ids(device: &udev::Device, pci_parent: &udev::Device) -> (u16, u16) {
-    eprintln!("DRM device properties:");
-    let props = [
-        "ID_VENDOR_ID",
-        "ID_MODEL_ID",
-        "ID_VENDOR",
-        "ID_MODEL",
-        "PCI_ID",
-        "PCI_SLOT_NAME",
-    ];
-    for key in props {
-        if let Some(value) = device.property_value(key) {
-            if let Some(s) = value.to_str() {
-                eprintln!("  {} = {}", key, s);
-            }
-        }
-    }
-
-    eprintln!("PCI parent properties:");
-    let props = ["ID_VENDOR_ID", "ID_MODEL_ID", "PCI_ID", "PCI_SLOT_NAME"];
-    for key in props {
-        if let Some(value) = pci_parent.property_value(key) {
-            if let Some(s) = value.to_str() {
-                eprintln!("  {} = {}", key, s);
-            }
-        }
-    }
-
+fn parse_pci_ids(pci_parent: &udev::Device) -> (u16, u16) {
     let parse_hex = |s: &str| u16::from_str_radix(s.strip_prefix("0x").unwrap_or(s), 16).ok();
+
+    if let Some(pci_id) = pci_parent.property_value("PCI_ID").and_then(|v| v.to_str()) {
+        let parts: Vec<&str> = pci_id.split(':').collect();
+        if parts.len() == 2 {
+            let vendor_id = u16::from_str_radix(parts[0], 16).ok().unwrap_or(0);
+            let device_id = u16::from_str_radix(parts[1], 16).ok().unwrap_or(0);
+            return (vendor_id, device_id);
+        }
+    }
 
     let vendor_id = pci_parent
         .property_value("ID_VENDOR_ID")
@@ -208,7 +190,7 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
             continue;
         }
 
-        let (vendor_id, device_id) = parse_pci_ids(&device, &pci_parent);
+        let (vendor_id, device_id) = parse_pci_ids(&pci_parent);
 
         let is_primary = device
             .attribute_value("boot_display")
