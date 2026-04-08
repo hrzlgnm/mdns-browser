@@ -31,9 +31,12 @@
 //!
 //! ## Detection Method
 //!
-//! The crate detects the NVIDIA driver by checking:
+//! The crate detects the NVIDIA driver by:
 //! 1. If the primary/boot GPU (via `boot_display` or `boot_vga` attributes) has vendor ID 0x10de
 //! 2. If the proprietary `nvidia` kernel module is loaded (`/sys/module/nvidia` exists)
+//!
+//! GPU detection uses sysfs exclusively (`/sys/class/drm/`). This provides a simpler and
+//! more reliable detection mechanism with no external runtime dependencies.
 //!
 //! This specifically targets the proprietary NVIDIA driver, not the open-source nouveau driver.
 //!
@@ -109,7 +112,8 @@
 //! This crate is Linux-only and provides no functionality on other platforms.
 
 #![cfg(target_os = "linux")]
-use udev::Enumerator;
+
+use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
 struct GpuDevice {
@@ -117,42 +121,37 @@ struct GpuDevice {
     is_nvidia: bool,
 }
 
-fn parse_vendor_id(pci_parent: &udev::Device) -> u16 {
-    let parse_hex = |s: &str| u16::from_str_radix(s.strip_prefix("0x").unwrap_or(s), 16).ok();
+fn read_sysfs_file(path: &PathBuf) -> Option<String> {
+    std::fs::read_to_string(path)
+        .ok()
+        .map(|s| s.trim().to_string())
+}
 
-    if let Some(pci_id) = pci_parent.property_value("PCI_ID").and_then(|v| v.to_str()) {
-        let parts: Vec<&str> = pci_id.split(':').collect();
-        if parts.len() == 2 {
-            return parse_hex(parts[0]).unwrap_or(0);
-        }
+fn parse_vendor_id(card_path: &Path) -> u16 {
+    let vendor_path = card_path.join("device/vendor");
+    if let Some(content) = read_sysfs_file(&vendor_path) {
+        return u16::from_str_radix(content.strip_prefix("0x").unwrap_or(&content), 16)
+            .unwrap_or(0);
     }
+    0
+}
 
-    pci_parent
-        .property_value("ID_VENDOR_ID")
-        .and_then(|v| v.to_str())
-        .and_then(parse_hex)
-        .unwrap_or(0)
+fn is_sysfs_attr_one(card_path: &Path, attr: &str) -> bool {
+    read_sysfs_file(&card_path.join(attr)) == Some("1".to_string())
 }
 
 fn enumerate_gpus() -> Vec<GpuDevice> {
     let mut devices = Vec::new();
+    let drm_path = PathBuf::from("/sys/class/drm");
 
-    let mut enumerator = match Enumerator::new() {
+    let entries = match std::fs::read_dir(&drm_path) {
         Ok(e) => e,
         Err(_) => return devices,
     };
 
-    if enumerator.match_subsystem("drm").is_err() {
-        return devices;
-    }
-
-    let device_iter = match enumerator.scan_devices() {
-        Ok(d) => d,
-        Err(_) => return devices,
-    };
-
-    for device in device_iter {
-        let sysname = match device.sysname().to_str() {
+    for entry in entries.flatten() {
+        let file_name = entry.file_name();
+        let sysname = match file_name.to_str() {
             Some(s) => s,
             None => continue,
         };
@@ -161,19 +160,12 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
             continue;
         }
 
-        let pci_parent = match device.parent_with_subsystem("pci").ok().flatten() {
-            Some(p) => p,
-            None => continue,
-        };
+        let card_path = entry.path();
+        let vendor_id = parse_vendor_id(&card_path);
 
-        let vendor_id = parse_vendor_id(&pci_parent);
-
-        let attr_is_one = |dev: &udev::Device, name: &str| {
-            dev.attribute_value(name).and_then(|v| v.to_str()) == Some("1")
-        };
-        let is_primary = attr_is_one(&device, "boot_display")
-            || attr_is_one(&pci_parent, "boot_display")
-            || attr_is_one(&pci_parent, "boot_vga");
+        let is_primary = is_sysfs_attr_one(&card_path, "boot_display")
+            || is_sysfs_attr_one(&card_path.join("device"), "boot_display")
+            || is_sysfs_attr_one(&card_path.join("device"), "boot_vga");
 
         let is_nvidia = vendor_id == 0x10de;
 

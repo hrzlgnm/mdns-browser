@@ -12,4 +12,3 @@ authors = ["hrzlgnm"]
 readme = "README.md"
 
 [target.'cfg(target_os = "linux")'.dependencies]
-udev = { workspace = true }
