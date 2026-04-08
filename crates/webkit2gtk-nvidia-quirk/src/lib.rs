@@ -121,7 +121,7 @@ struct GpuDevice {
     is_nvidia: bool,
 }
 
-fn read_sysfs_file(path: &PathBuf) -> Option<String> {
+fn read_sysfs_file(path: &Path) -> Option<String> {
     std::fs::read_to_string(path)
         .ok()
         .map(|s| s.trim().to_string())
