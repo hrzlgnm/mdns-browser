@@ -137,7 +137,7 @@ fn parse_vendor_id(card_path: &Path) -> u16 {
 }
 
 fn is_sysfs_attr_one(card_path: &Path, attr: &str) -> bool {
-    read_sysfs_file(&card_path.join(attr)) == Some("1".to_string())
+    read_sysfs_file(&card_path.join(attr)).as_deref() == Some("1")
 }
 
 fn enumerate_gpus() -> Vec<GpuDevice> {
