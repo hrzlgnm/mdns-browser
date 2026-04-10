@@ -4,7 +4,6 @@
 FROM archlinux:base-devel@sha256:4a48384d9725d1901fca133f43b6a41dee98acee2c9379c4b4d81bed77051cdd
 RUN pacman -Syu --noconfirm \
     && pacman -S --noconfirm --needed \
-    actionlint \
     appmenu-gtk-module \
     cargo \
     cargo-auditable \
@@ -21,7 +20,6 @@ RUN pacman -Syu --noconfirm \
     openssh \
     rust \
     rust-wasm \
-    shellcheck \
     webkit2gtk-4.1 \
     sudo \
     trunk \
