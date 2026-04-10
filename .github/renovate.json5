@@ -25,6 +25,21 @@
             managerFilePatterns: [
                 '/^\\.github/workflows/.*\\.yml$/',
             ],
+            matchStrings: [
+                '# ?actionlint version: \\s*(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)',
+            ],
+            depNameTemplate: 'rhysd/actionlint',
+            depTypeTemplate: 'build-dependencies',
+            datasourceTemplate: 'github-releases',
+            versioningTemplate: 'semver',
+            autoReplaceStringTemplate: '# actionlint version: {{#if newValue}}{{newValue}}{{/if}}',
+        },
+        {
+            matchStringsStrategy: 'any',
+            customType: 'regex',
+            managerFilePatterns: [
+                '/^\\.github/workflows/.*\\.yml$/',
+            ],
             depTypeTemplate: 'container',
             datasourceTemplate: 'docker',
             versioningTemplate: 'docker',
