@@ -130,8 +130,7 @@ jobs:
   actionlint:
     name: "🔍 Validate Workflows"
     needs: changes
-    runs-on: ubuntu-latest
-    container: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:efcda21fbc1ef841ba2acff134533c1e9a0b730f03b255c4bfcc01cb94dd6654
+    runs-on: ubuntu-slim
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -146,6 +145,35 @@ jobs:
           else
             echo "should_run=false" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: 🛠️ Install actionlint
+        if: steps.actionlint_check.outputs.should_run == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # actionlint version: v1.7.12
+          ACTIONLINT_VERSION="v1.7.12"
+
+          # Download checksums file and extract SHA256 for linux_amd64
+          gh release download "$ACTIONLINT_VERSION" --repo rhysd/actionlint --pattern '*checksums*' -D /tmp/actionlint
+          EXPECTED_SHA256=$(grep "_linux_amd64.tar.gz" /tmp/actionlint/*checksums*.txt | awk '{print $1}')
+
+          # Download actionlint binary
+          gh release download "$ACTIONLINT_VERSION" --repo rhysd/actionlint --pattern '*_linux_amd64.tar.gz' -D /tmp/actionlint
+
+          # Verify checksum
+          ACTUAL_SHA256=$(sha256sum /tmp/actionlint/*.tar.gz | awk '{print $1}')
+          if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
+            echo "ERROR: Checksum mismatch! Expected: $EXPECTED_SHA256, Got: $ACTUAL_SHA256"
+            exit 1
+          fi
+
+          # Extract and install
+          tar -xzf /tmp/actionlint/*.tar.gz -C /tmp/actionlint
+          mkdir -p "$HOME/.local/bin"
+          mv /tmp/actionlint/actionlint "$HOME/.local/bin/"
+          rm -rf /tmp/actionlint
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: 🔍 Validate workflows
         if: steps.actionlint_check.outputs.should_run == 'true'
