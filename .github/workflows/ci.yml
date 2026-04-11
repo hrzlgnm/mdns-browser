@@ -125,7 +125,7 @@ jobs:
   typos:
     name: 📝 Check typos
     if: always()
-    uses: hrzlgnm/actions/.github/workflows/typos-reusable.yml@c1fb11c343810b2123926de6453018dcc3f2dab7 # v2.0.7
+    uses: hrzlgnm/actions/.github/workflows/typos-reusable.yml@7eff0b759d07a79a20925c58c8be02bf106ebc1e # v2.1.0
 
   actionlint:
     name: "🔍 Validate Workflows"
@@ -267,7 +267,7 @@ jobs:
       contents: read # needed to checkout code for docker build
       packages: write # needed to push to GHCR
 
-    uses: hrzlgnm/actions/.github/workflows/docker-reusable.yml@c1fb11c343810b2123926de6453018dcc3f2dab7 # v2.0.7
+    uses: hrzlgnm/actions/.github/workflows/docker-reusable.yml@7eff0b759d07a79a20925c58c8be02bf106ebc1e # v2.1.0
     with:
       branch: ${{ needs.changes.outputs.branch }}
 
