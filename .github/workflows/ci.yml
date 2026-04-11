@@ -45,7 +45,6 @@ jobs:
     name: "🔍 Detect Changes"
     runs-on: ubuntu-slim
     outputs:
-      actionlint: ${{ steps.filter.outputs.actionlint }}
       android: ${{ steps.filter.outputs.android }}
       aur: ${{ steps.filter.outputs.aur }}
       branch: ${{ steps.branch.outputs.branch }}
@@ -67,9 +66,6 @@ jobs:
         id: filter
         with:
           filters: |
-            actionlint:
-              - '.github/workflows/*.yml'
-              - '.github/actions/*/action.yml'
             android:
               - '.github/actions/sbom/**'
               - '.github/workflows/android-reusable.yml'
@@ -128,57 +124,8 @@ jobs:
     uses: hrzlgnm/actions/.github/workflows/typos-reusable.yml@c1fb11c343810b2123926de6453018dcc3f2dab7 # v2.0.7
 
   actionlint:
-    name: "🔍 Validate Workflows"
-    needs: changes
-    runs-on: ubuntu-slim
-    steps:
-      - name: 🔄 Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 1
-
-      - name: 📋 Determine actionlint result
-        id: actionlint_check
-        run: |
-          if [[ "${{ needs.changes.outputs.actionlint }}" == "true" ]]; then
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "should_run=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: 🛠️ Install actionlint
-        if: steps.actionlint_check.outputs.should_run == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # actionlint version: v1.7.12
-          ACTIONLINT_VERSION="v1.7.12"
-
-          # Download checksums file and extract SHA256 for linux_amd64
-          gh release download "$ACTIONLINT_VERSION" --repo rhysd/actionlint --pattern '*checksums*' -D /tmp/actionlint
-          EXPECTED_SHA256=$(grep "_linux_amd64.tar.gz" /tmp/actionlint/*checksums*.txt | awk '{print $1}')
-
-          # Download actionlint binary
-          gh release download "$ACTIONLINT_VERSION" --repo rhysd/actionlint --pattern '*_linux_amd64.tar.gz' -D /tmp/actionlint
-
-          # Verify checksum
-          ACTUAL_SHA256=$(sha256sum /tmp/actionlint/*.tar.gz | awk '{print $1}')
-          if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
-            echo "ERROR: Checksum mismatch! Expected: $EXPECTED_SHA256, Got: $ACTUAL_SHA256"
-            exit 1
-          fi
-
-          # Extract and install
-          tar -xzf /tmp/actionlint/*.tar.gz -C /tmp/actionlint
-          mkdir -p "$HOME/.local/bin"
-          mv /tmp/actionlint/actionlint "$HOME/.local/bin/"
-          rm -rf /tmp/actionlint
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-
-      - name: 🔍 Validate workflows
-        if: steps.actionlint_check.outputs.should_run == 'true'
-        run: |
-          actionlint .github/workflows/*.yml
+    if: always()
+    uses: hrzlgnm/actions/.github/workflows/actionlint-reusable.yml@7eff0b759d07a79a20925c58c8be02bf106ebc1e # v2.1.0
 
   aur:
     name: AUR
