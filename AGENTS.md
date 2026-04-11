@@ -56,6 +56,9 @@ cargo fmt -- --check
 
 # Run clippy lints
 cargo clippy --workspace --tests -- -D warnings
+
+# Validate renovate configuration
+docker run --rm -v "$(pwd):/repo" -w /repo ghcr.io/renovatebot/renovate renovate-config-validator .github/renovate.json5
 ```
 
 ### Lint GitHub Actions workflows and actions
@@ -93,10 +96,11 @@ cargo tauri dev -- --log-level debug --enable-devtools
 6. Run `cargo --locked tauri build --no-bundle --no-sign` to build release version
 7. Run `cargo clippy --release -workspace --tests -- -D warnings` to ensure no warnings in release
 8. Run `actionlint` to check GitHub Actions workflows if modified
-9. If README.md was updated, update the manpage (`docs/mdns-browser.1`)
-10. Commit only when all checks pass
-11. After committing, push to the repository and create a pull request if applicable
-12. Use conventional commit format (e.g., feat:, fix:, chore:, refactor:, docs:) for commit messages
+9. Run renovate config validator if `.github/renovate.json5` was modified
+10. If README.md was updated, update the manpage (`docs/mdns-browser.1`)
+11. Commit only when all checks pass
+12. After committing, push to the repository and create a pull request if applicable
+13. Use conventional commit format (e.g., feat:, fix:, chore:, refactor:, docs:) for commit messages
 
 # Code Style Guidelines
 
