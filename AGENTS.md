@@ -58,7 +58,7 @@ cargo fmt -- --check
 cargo clippy --workspace --tests -- -D warnings
 
 # Validate renovate configuration
-docker run --rm -v "$(pwd):/repo" -w /repo ghcr.io/renovatebot/renovate renovate-config-validator .github/renovate.json5
+docker run --rm --volume=$(pwd):$(pwd):ro --workdir=$(pwd) kokuwaio/renovate-config-validator:latest
 ```
 
 ### Lint GitHub Actions workflows and actions
