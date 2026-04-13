@@ -121,11 +121,11 @@ jobs:
   typos:
     name: 📝 Check typos
     if: always()
-    uses: hrzlgnm/actions/.github/workflows/typos-reusable.yml@7eff0b759d07a79a20925c58c8be02bf106ebc1e # v2.1.0
+    uses: hrzlgnm/actions/.github/workflows/typos-reusable.yml@3d2a44a0ae4164021956c6183a2097e3efc38659 # v2.1.1
 
   actionlint:
     if: always()
-    uses: hrzlgnm/actions/.github/workflows/actionlint-reusable.yml@7eff0b759d07a79a20925c58c8be02bf106ebc1e # v2.1.0
+    uses: hrzlgnm/actions/.github/workflows/actionlint-reusable.yml@3d2a44a0ae4164021956c6183a2097e3efc38659 # v2.1.1
 
   aur:
     name: AUR
@@ -214,7 +214,7 @@ jobs:
       contents: read # needed to checkout code for docker build
       packages: write # needed to push to GHCR
 
-    uses: hrzlgnm/actions/.github/workflows/docker-reusable.yml@7eff0b759d07a79a20925c58c8be02bf106ebc1e # v2.1.0
+    uses: hrzlgnm/actions/.github/workflows/docker-reusable.yml@3d2a44a0ae4164021956c6183a2097e3efc38659 # v2.1.1
     with:
       branch: ${{ needs.changes.outputs.branch }}
 
