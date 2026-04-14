@@ -449,11 +449,11 @@ fn ResolvedServiceItem(
     });
 
     let url = Memo::new(move |_| {
-        let _ = resolved_service.addresses().get();
-        let _ = resolved_service.txt().get();
-        let _ = resolved_service.service_type().get();
-        let _ = resolved_service.port().get();
-        get_open_url(&resolved_service.get())
+        resolved_service.addresses().track();
+        resolved_service.txt().track();
+        resolved_service.service_type().track();
+        resolved_service.port().track();
+        resolved_service.with(get_open_url)
     });
 
     let on_open_click = move |_| {
