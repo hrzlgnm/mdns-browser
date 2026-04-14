@@ -448,7 +448,13 @@ fn ResolvedServiceItem(
         async move { open_url(url.as_str()).await }
     });
 
-    let url = Memo::new(move |_| get_open_url(&resolved_service.get()));
+    let url = Memo::new(move |_| {
+        let _ = resolved_service.addresses().get();
+        let _ = resolved_service.txt().get();
+        let _ = resolved_service.service_type().get();
+        let _ = resolved_service.port().get();
+        get_open_url(&resolved_service.get())
+    });
 
     let on_open_click = move |_| {
         if let Some(url) = url.get() {
