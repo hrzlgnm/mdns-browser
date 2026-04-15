@@ -1,4 +1,4 @@
-// Copyright 2024-2025 hrzlgnm
+// Copyright 2026 hrzlgnm
 // SPDX-License-Identifier: MIT-0
 
 use chrono::{DateTime, Local};
@@ -455,13 +455,7 @@ fn ResolvedServiceItem(
     });
 
     let url: Memo<Option<String>> = Memo::new(move |_| {
-        resolved_service.try_get().and_then(|rs| {
-            resolved_service.addresses().track();
-            resolved_service.txt().track();
-            resolved_service.service_type().track();
-            resolved_service.port().track();
-            get_open_url(&rs)
-        })
+        resolved_service.try_get().and_then(|rs| get_open_url(&rs))
     });
 
     let on_open_click = move |_| {
