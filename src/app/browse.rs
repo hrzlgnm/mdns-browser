@@ -422,6 +422,12 @@ fn ResolvedRow(
 }
 
 /// Component that shows a resolved service reactivly as a card
+///
+/// This component uses `try_get()` for all accesses to `resolved_service` fields
+/// to gracefully handle disposal. When the quick filter changes, the parent
+/// `filtered` store replaces its items which disposes the old `Field<ResolvedService>`
+/// wrappers. Without `try_get()`, accessing disposed fields would panic with
+/// "you tried to access a reactive value which was already been disposed".
 #[component]
 fn ResolvedServiceItem(
     #[prop(into)] resolved_service: Field<ResolvedService>,
