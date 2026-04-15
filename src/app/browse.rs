@@ -453,7 +453,7 @@ fn ResolvedServiceItem(
         resolved_service.txt().track();
         resolved_service.service_type().track();
         resolved_service.port().track();
-        resolved_service.with(get_open_url)
+        resolved_service.try_get().and_then(|rs| get_open_url(&rs))
     });
 
     let on_open_click = move |_| {
@@ -462,42 +462,59 @@ fn ResolvedServiceItem(
         }
     };
 
-    let updated_at =
-        Memo::new(move |_| to_local_timestamp(resolved_service.updated_at_micros().get()));
+    let updated_at = Memo::new(move |_| {
+        resolved_service
+            .try_get()
+            .map_or_else(String::new, |rs| to_local_timestamp(rs.updated_at_micros))
+    });
 
     let addrs = Memo::new(move |_| {
         resolved_service
-            .addresses()
-            .get()
-            .iter()
-            .map(|a| a.to_string())
-            .collect::<Vec<_>>()
+            .try_get()
+            .map(|rs| {
+                rs.addresses
+                    .iter()
+                    .map(|a| a.to_string())
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default()
     });
 
     let addrs_for_copy = Memo::new(move |_| {
         resolved_service
-            .addresses()
-            .get()
-            .iter()
-            .map(|a| a.to_ip_string())
-            .collect::<Vec<_>>()
+            .try_get()
+            .map(|rs| {
+                rs.addresses
+                    .iter()
+                    .map(|a| a.to_ip_string())
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default()
     });
 
     let txts = Memo::new(move |_| {
         resolved_service
-            .txt()
-            .get()
-            .iter()
-            .map(|t| t.to_string())
-            .collect::<Vec<_>>()
+            .try_get()
+            .map(|rs| rs.txt.iter().map(|t| t.to_string()).collect::<Vec<_>>())
+            .unwrap_or_default()
     });
 
-    let subtype = Memo::new(move |_| match resolved_service.subtype().get() {
-        None => vec![],
-        Some(s) => vec![s.to_owned()],
+    let subtype = Memo::new(move |_| {
+        resolved_service
+            .try_get()
+            .map(|rs| match &rs.subtype {
+                None => vec![],
+                Some(s) => vec![s.to_owned()],
+            })
+            .unwrap_or_default()
     });
 
-    let title = Signal::derive(move || resolved_service.get().get_instance_name());
+    let title = Memo::new(move |_| {
+        resolved_service
+            .try_get()
+            .map(|rs| rs.get_instance_name())
+            .unwrap_or_default()
+    });
     let show_details = RwSignal::new(false);
     let first_address = Memo::new(move |_| {
         addrs
@@ -508,38 +525,52 @@ fn ResolvedServiceItem(
     });
     let first_address_for_copy = Memo::new(move |_| {
         resolved_service
-            .addresses()
-            .get()
-            .first()
-            .map(|a| a.to_ip_string())
+            .try_get()
+            .and_then(|rs| rs.addresses.first().map(|a| a.to_ip_string()))
             .unwrap_or_default()
     });
 
     let first_address_display = Memo::new(move |_| {
-        let additional_addrs = resolved_service.addresses().get().len() - 1;
-        if additional_addrs > 0 {
-            format!("{} (+{})", first_address.get(), additional_addrs)
-        } else {
-            first_address.get()
-        }
+        resolved_service.try_get().map_or_else(String::new, |rs| {
+            let additional_addrs = rs.addresses.len().saturating_sub(1);
+            let first = first_address.get();
+            if additional_addrs > 0 {
+                format!("{} (+{})", first, additional_addrs)
+            } else {
+                first
+            }
+        })
     });
 
     let is_desktop = IsDesktopInjection::expect_context();
     let card_class = get_class(&is_desktop, "resolved-service-card");
     let value_cell_class = get_class(&is_desktop, "resolved-service-value-cell");
     let dead = resolved_service.dead();
-    // Avoid disposed-scope panics: read via try_get() default to dead when unavailable
     let dead = {
         let dead_signal = dead;
         Memo::new(move |_| dead_signal.try_get().unwrap_or(true))
     };
-    let port = Memo::new(move |_| resolved_service.port().get().to_string());
+    let port = Memo::new(move |_| {
+        resolved_service
+            .try_get()
+            .map(|rs| rs.port.to_string())
+            .unwrap_or_default()
+    });
     let hostname = resolved_service.hostname();
-    let hostname_display = Memo::new(move |_| drop_trailing_dot(&hostname.get()));
+    let hostname_display = Memo::new(move |_| {
+        hostname
+            .try_get()
+            .map(|h| drop_trailing_dot(h.as_str()))
+            .unwrap_or_default()
+    });
     let instance_fullname = resolved_service.instance_fullname();
     let service_type = resolved_service.service_type();
-    let service_type_display =
-        Memo::new(move |_| drop_local_and_trailing_dot(service_type.get().as_str()));
+    let service_type_display = Memo::new(move |_| {
+        service_type
+            .try_get()
+            .map(|s| drop_local_and_trailing_dot(s.as_str()))
+            .unwrap_or_default()
+    });
     let dead_or_alive_icon_class = Memo::new(move |_| {
         if dead.get() {
             "resolved-service-dead".to_string()
