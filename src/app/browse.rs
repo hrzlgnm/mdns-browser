@@ -454,17 +454,19 @@ fn ResolvedServiceItem(
         async move { open_url(url.as_str()).await }
     });
 
-    let url = Memo::new(move |_| {
-        resolved_service.addresses().track();
-        resolved_service.txt().track();
-        resolved_service.service_type().track();
-        resolved_service.port().track();
-        resolved_service.try_get().and_then(|rs| get_open_url(&rs))
+    let url: Memo<Option<String>> = Memo::new(move |_| {
+        resolved_service.try_get().and_then(|rs| {
+            resolved_service.addresses().track();
+            resolved_service.txt().track();
+            resolved_service.service_type().track();
+            resolved_service.port().track();
+            get_open_url(&rs)
+        })
     });
 
     let on_open_click = move |_| {
-        if let Some(url) = url.get() {
-            open_action.dispatch(url.clone());
+        if let Some(url_to_open) = url.get() {
+            open_action.dispatch(url_to_open);
         }
     };
 
@@ -478,6 +480,7 @@ fn ResolvedServiceItem(
         resolved_service
             .try_get()
             .map(|rs| {
+                resolved_service.addresses().track();
                 rs.addresses
                     .iter()
                     .map(|a| a.to_string())
@@ -490,6 +493,7 @@ fn ResolvedServiceItem(
         resolved_service
             .try_get()
             .map(|rs| {
+                resolved_service.addresses().track();
                 rs.addresses
                     .iter()
                     .map(|a| a.to_ip_string())
@@ -501,16 +505,22 @@ fn ResolvedServiceItem(
     let txts = Memo::new(move |_| {
         resolved_service
             .try_get()
-            .map(|rs| rs.txt.iter().map(|t| t.to_string()).collect::<Vec<_>>())
+            .map(|rs| {
+                resolved_service.txt().track();
+                rs.txt.iter().map(|t| t.to_string()).collect::<Vec<_>>()
+            })
             .unwrap_or_default()
     });
 
     let subtype = Memo::new(move |_| {
         resolved_service
             .try_get()
-            .map(|rs| match &rs.subtype {
-                None => vec![],
-                Some(s) => vec![s.to_owned()],
+            .map(|rs| {
+                resolved_service.track();
+                match &rs.subtype {
+                    None => vec![],
+                    Some(s) => vec![s.to_owned()],
+                }
             })
             .unwrap_or_default()
     });
@@ -518,7 +528,11 @@ fn ResolvedServiceItem(
     let title = Memo::new(move |_| {
         resolved_service
             .try_get()
-            .map(|rs| rs.get_instance_name())
+            .map(|rs| {
+                resolved_service.instance_fullname().track();
+                resolved_service.service_type().track();
+                rs.get_instance_name()
+            })
             .unwrap_or_default()
     });
     let show_details = RwSignal::new(false);
@@ -532,12 +546,16 @@ fn ResolvedServiceItem(
     let first_address_for_copy = Memo::new(move |_| {
         resolved_service
             .try_get()
-            .and_then(|rs| rs.addresses.first().map(|a| a.to_ip_string()))
+            .and_then(|rs| {
+                resolved_service.addresses().track();
+                rs.addresses.first().map(|a| a.to_ip_string())
+            })
             .unwrap_or_default()
     });
 
     let first_address_display = Memo::new(move |_| {
         resolved_service.try_get().map_or_else(String::new, |rs| {
+            resolved_service.addresses().track();
             let additional_addrs = rs.addresses.len().saturating_sub(1);
             let first = first_address.get();
             if additional_addrs > 0 {
@@ -559,7 +577,10 @@ fn ResolvedServiceItem(
     let port = Memo::new(move |_| {
         resolved_service
             .try_get()
-            .map(|rs| rs.port.to_string())
+            .map(|rs| {
+                resolved_service.port().track();
+                rs.port.to_string()
+            })
             .unwrap_or_default()
     });
     let hostname = resolved_service.hostname();
