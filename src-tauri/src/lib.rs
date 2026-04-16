@@ -260,11 +260,10 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
                         }
                     }
                 }
-                ServiceEvent::SearchStopped(service_type) => {
-                    if service_type == MDNS_SD_META_SERVICE {
+                ServiceEvent::SearchStopped(service_type)
+                    if service_type == MDNS_SD_META_SERVICE => {
                         break;
                     }
-                }
                 _ => {}
             }
         }
