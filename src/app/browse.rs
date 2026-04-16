@@ -433,6 +433,19 @@ fn ResolvedServiceItem(
     #[prop(into)] resolved_service: Field<ResolvedService>,
     #[prop(into)] browsing: Signal<bool>,
 ) -> impl IntoView {
+    let rs = Memo::new(move |_| {
+        resolved_service.try_get().inspect(|_| {
+            resolved_service.addresses().track();
+            resolved_service.txt().track();
+            resolved_service.service_type().track();
+            resolved_service.port().track();
+            resolved_service.hostname().track();
+            resolved_service.instance_fullname().track();
+            resolved_service.dead().track();
+            resolved_service.subtype().track();
+        })
+    });
+
     let verify_action = Action::new_local(|instance_fullname: &String| {
         let instance_fullname = instance_fullname.clone();
         async move { verify_instance(instance_fullname.clone()).await }
@@ -440,7 +453,9 @@ fn ResolvedServiceItem(
     let verifying = RwSignal::new(false);
     let on_verify_click = move |_| {
         verifying.set(true);
-        verify_action.dispatch(resolved_service.instance_fullname().get_untracked());
+        if let Some(rs) = rs.get() {
+            verify_action.dispatch(rs.instance_fullname.clone());
+        }
         set_timeout(
             move || {
                 verifying.set(false);
@@ -454,33 +469,25 @@ fn ResolvedServiceItem(
         async move { open_url(url.as_str()).await }
     });
 
-    let url: Memo<Option<String>> = Memo::new(move |_| {
-        resolved_service.try_get().and_then(|rs| {
-            resolved_service.addresses().track();
-            resolved_service.txt().track();
-            resolved_service.service_type().track();
-            resolved_service.port().track();
-            get_open_url(&rs)
-        })
-    });
-
     let on_open_click = move |_| {
-        if let Some(url_to_open) = url.get() {
+        if let Some(ref rs) = rs.get()
+            && let Some(url_to_open) = get_open_url(rs)
+        {
             open_action.dispatch(url_to_open);
         }
     };
 
+    let url = Memo::new(move |_| rs.get().and_then(|rs| get_open_url(&rs)));
+
     let updated_at = Memo::new(move |_| {
-        resolved_service
-            .try_get()
-            .map_or_else(String::new, |rs| to_local_timestamp(rs.updated_at_micros))
+        rs.get()
+            .map(|rs| to_local_timestamp(rs.updated_at_micros))
+            .unwrap_or_default()
     });
 
     let addrs = Memo::new(move |_| {
-        resolved_service
-            .try_get()
+        rs.get()
             .map(|rs| {
-                resolved_service.addresses().track();
                 rs.addresses
                     .iter()
                     .map(|a| a.to_string())
@@ -490,10 +497,8 @@ fn ResolvedServiceItem(
     });
 
     let addrs_for_copy = Memo::new(move |_| {
-        resolved_service
-            .try_get()
+        rs.get()
             .map(|rs| {
-                resolved_service.addresses().track();
                 rs.addresses
                     .iter()
                     .map(|a| a.to_ip_string())
@@ -503,39 +508,28 @@ fn ResolvedServiceItem(
     });
 
     let txts = Memo::new(move |_| {
-        resolved_service
-            .try_get()
-            .map(|rs| {
-                resolved_service.txt().track();
-                rs.txt.iter().map(|t| t.to_string()).collect::<Vec<_>>()
-            })
+        rs.get()
+            .map(|rs| rs.txt.iter().map(|t| t.to_string()).collect::<Vec<_>>())
             .unwrap_or_default()
     });
 
     let subtype = Memo::new(move |_| {
-        resolved_service
-            .try_get()
-            .map(|rs| {
-                resolved_service.track();
-                match &rs.subtype {
-                    None => vec![],
-                    Some(s) => vec![s.to_owned()],
-                }
+        rs.get()
+            .map(|rs| match &rs.subtype {
+                None => vec![],
+                Some(s) => vec![s.to_owned()],
             })
             .unwrap_or_default()
     });
 
     let title = Memo::new(move |_| {
-        resolved_service
-            .try_get()
-            .map(|rs| {
-                resolved_service.instance_fullname().track();
-                resolved_service.service_type().track();
-                rs.get_instance_name()
-            })
+        rs.get()
+            .map(|rs| rs.get_instance_name())
             .unwrap_or_default()
     });
+
     let show_details = RwSignal::new(false);
+
     let first_address = Memo::new(move |_| {
         addrs
             .get()
@@ -543,46 +537,35 @@ fn ResolvedServiceItem(
             .map(|a| a.to_string())
             .unwrap_or_default()
     });
+
     let first_address_for_copy = Memo::new(move |_| {
-        resolved_service
-            .try_get()
-            .and_then(|rs| {
-                resolved_service.addresses().track();
-                rs.addresses.first().map(|a| a.to_ip_string())
-            })
+        rs.get()
+            .and_then(|rs| rs.addresses.first().map(|a| a.to_ip_string()))
             .unwrap_or_default()
     });
 
     let first_address_display = Memo::new(move |_| {
-        resolved_service.try_get().map_or_else(String::new, |rs| {
-            resolved_service.addresses().track();
-            let additional_addrs = rs.addresses.len().saturating_sub(1);
-            let first = first_address.get();
-            if additional_addrs > 0 {
-                format!("{} (+{})", first, additional_addrs)
-            } else {
-                first
-            }
-        })
+        rs.get()
+            .map(|rs| {
+                let additional_addrs = rs.addresses.len().saturating_sub(1);
+                let first = first_address.get();
+                if additional_addrs > 0 {
+                    format!("{} (+{})", first, additional_addrs)
+                } else {
+                    first
+                }
+            })
+            .unwrap_or_default()
     });
 
     let is_desktop = IsDesktopInjection::expect_context();
     let card_class = get_class(&is_desktop, "resolved-service-card");
     let value_cell_class = get_class(&is_desktop, "resolved-service-value-cell");
-    let dead = resolved_service.dead();
-    let dead = {
-        let dead_signal = dead;
-        Memo::new(move |_| dead_signal.try_get().unwrap_or(true))
-    };
-    let port = Memo::new(move |_| {
-        resolved_service
-            .try_get()
-            .map(|rs| {
-                resolved_service.port().track();
-                rs.port.to_string()
-            })
-            .unwrap_or_default()
-    });
+
+    let dead = Memo::new(move |_| rs.get().map(|rs| rs.dead).unwrap_or(true));
+
+    let port = Memo::new(move |_| rs.get().map(|rs| rs.port.to_string()).unwrap_or_default());
+
     let hostname = resolved_service.hostname();
     let hostname_display = Memo::new(move |_| {
         hostname
@@ -590,6 +573,7 @@ fn ResolvedServiceItem(
             .map(|h| drop_trailing_dot(h.as_str()))
             .unwrap_or_default()
     });
+
     let instance_fullname = resolved_service.instance_fullname();
     let service_type = resolved_service.service_type();
     let service_type_display = Memo::new(move |_| {
@@ -598,6 +582,7 @@ fn ResolvedServiceItem(
             .map(|s| drop_local_and_trailing_dot(s.as_str()))
             .unwrap_or_default()
     });
+
     let dead_or_alive_icon_class = Memo::new(move |_| {
         if dead.get() {
             "resolved-service-dead".to_string()
