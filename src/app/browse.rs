@@ -469,15 +469,13 @@ fn ResolvedServiceItem(
         async move { open_url(url.as_str()).await }
     });
 
+    let url = Memo::new(move |_| rs.get().and_then(|rs| get_open_url(&rs)));
+
     let on_open_click = move |_| {
-        if let Some(ref rs) = rs.get()
-            && let Some(url_to_open) = get_open_url(rs)
-        {
+        if let Some(url_to_open) = url.get() {
             open_action.dispatch(url_to_open);
         }
     };
-
-    let url = Memo::new(move |_| rs.get().and_then(|rs| get_open_url(&rs)));
 
     let updated_at = Memo::new(move |_| {
         rs.get()
