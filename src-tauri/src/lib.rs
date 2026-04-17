@@ -792,6 +792,13 @@ struct Args {
         help = "Disable NVIDIA explicit sync even if NVIDIA is not detected"
     )]
     disable_nv_explicit_sync: bool,
+    #[cfg(target_os = "linux")]
+    #[arg(
+        long,
+        default_value_t = false,
+        help = "Disable all NVIDIA workarounds entirely"
+    )]
+    no_nvidia_workaround: bool,
 }
 
 #[cfg(desktop)]
@@ -948,10 +955,12 @@ pub fn run() {
 
     #[cfg(target_os = "linux")]
     {
-        let options = ApplyWorkaroundOptions::default()
-            .force_disable_dmabuf(args.disable_dmabuf_renderer)
-            .force_disable_nv_explicit_sync(args.disable_nv_explicit_sync);
-        apply_workaround_with_options(options);
+        if !args.no_nvidia_workaround {
+            let options = ApplyWorkaroundOptions::default()
+                .force_disable_dmabuf(args.disable_dmabuf_renderer)
+                .force_disable_nv_explicit_sync(args.disable_nv_explicit_sync);
+            apply_workaround_with_options(options);
+        }
     }
 
     let mut log_targets = vec![
