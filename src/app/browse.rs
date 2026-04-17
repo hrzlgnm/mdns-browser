@@ -453,8 +453,8 @@ fn ResolvedServiceItem(
     let verifying = RwSignal::new(false);
     let on_verify_click = move |_| {
         verifying.set(true);
-        if let Some(rs) = rs.get() {
-            verify_action.dispatch(rs.instance_fullname.clone());
+        if let Some(resolved) = rs.get() {
+            verify_action.dispatch(resolved.instance_fullname.clone());
         }
         set_timeout(
             move || {
@@ -693,7 +693,7 @@ fn ResolvedServiceItem(
                                             size=ButtonSize::Small
                                             appearance=ButtonAppearance::Primary
                                             on_click=on_open_click
-                                            disabled=Memo::new(move |_| { url.get().is_none() })
+                                            disabled=Signal::derive(move || url.get().is_none())
                                             icon=icondata::MdiOpenInNew
                                         >
                                             "Open"
