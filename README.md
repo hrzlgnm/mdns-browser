@@ -69,6 +69,7 @@ Options:
   -f, --log-to-file                 Enable logging to file
   -d, --disable-dmabuf-renderer     Disable dmabuf renderer (Linux only), useful when having rendering issues
       --disable-nv-explicit-sync    Disable NVIDIA explicit sync (Linux only)
+      --no-nvidia-workaround         Disable all NVIDIA workarounds (Linux only)
   -h, --help                        Print help
   -V, --version                     Print version
 
@@ -101,6 +102,13 @@ This option has been added with release [v0.12.0](https://github.com/hrzlgnm/mdn
 
 This option disables NVIDIA explicit sync, useful for testing or debugging rendering issues on non-NVIDIA systems.
 This option has been added with release [v1.8.0](https://github.com/hrzlgnm/mdns-browser/releases/tag/mdns-browser-v1.8.0)
+
+### no-nvidia-workaround (Linux only)
+
+This option disables all NVIDIA workarounds entirely, including automatic detection.
+Useful for testing whether rendering issues are caused by the workarounds or to completely disable them.
+
+This option takes precedence over both `--disable-dmabuf-renderer` and `--disable-nv-explicit-sync`.
 
 ## Where to find the executables?
 
