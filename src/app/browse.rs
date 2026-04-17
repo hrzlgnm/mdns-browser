@@ -693,7 +693,7 @@ fn ResolvedServiceItem(
                                             size=ButtonSize::Small
                                             appearance=ButtonAppearance::Primary
                                             on_click=on_open_click
-                                            disabled=Signal::derive(move || url.get().is_none())
+                                            disabled=Signal::derive(move || url.with(|u| u.is_none()))
                                             icon=icondata::MdiOpenInNew
                                         >
                                             "Open"
