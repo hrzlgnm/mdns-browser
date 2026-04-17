@@ -453,7 +453,9 @@ fn ResolvedServiceItem(
     let verifying = RwSignal::new(false);
     let on_verify_click = move |_| {
         verifying.set(true);
-        if let Some(instance_fullname) = rs.with(|s| s.as_ref().map(|r| r.instance_fullname.clone())) {
+        if let Some(instance_fullname) =
+            rs.with(|s| s.as_ref().map(|r| r.instance_fullname.clone()))
+        {
             verify_action.dispatch(instance_fullname);
         }
         set_timeout(
