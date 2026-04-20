@@ -3,7 +3,7 @@
 
 [package]
 name = "mdns-browser"
-version = "1.9.0"
+version = "1.9.1"
 description = "mDNS browser"
 authors = ["hrzlgnm"]
 edition = "2021"
