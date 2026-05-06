@@ -1,0 +1,83 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+name: Update Homebrew Tap
+
+on:
+  workflow_call:
+    inputs:
+      tagName:
+        required: true
+        type: string
+  workflow_dispatch:
+  release:
+    types: [released]
+
+jobs:
+  release-info:
+    permissions:
+      packages: read # needed to read release info from GitHub Packages
+    runs-on: ubuntu-slim
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tagName: ${{ steps.version.outputs.tagName }}
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+
+      - name: 🏷️ Get version info
+        id: version
+        uses: ./.github/actions/latest-release-info
+
+  update-homebrew-tap:
+    needs: [release-info]
+    runs-on: ubuntu-latest
+    name: 🍺 Update Homebrew Tap
+    steps:
+      - name: 🔄 Checkout Tap Repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          repository: hrzlgnm/homebrew-tap
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          path: homebrew-tap
+
+      - name: 📥 Download DMG Checksum
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tagName || needs.release-info.outputs.tagName }}
+        run: |
+          gh release download "$TAG" --pattern "*.dmg.sha256" --dir /tmp/dmg-checksum
+          CHECKSUM=$(grep "universal.dmg" /tmp/dmg-checksum/*.sha256 | cut -d' ' -f1)
+          echo "DMG_CHECKSUM=$CHECKSUM" >> "$GITHUB_ENV"
+
+      - name: 🔑 Configure SSH Signing
+        env:
+          SSH_SIGNING_KEY: ${{ secrets.SSH_SIGNING_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_SIGNING_KEY" > ~/.ssh/id_ed25519_signing
+          chmod 600 ~/.ssh/id_ed25519_signing
+          git config --global gpg.format ssh
+          git config --global user.signingKey ~/.ssh/id_ed25519_signing
+          git config --global user.name "hrzlgnm"
+          git config --global user.email "hrzlgnm@users.noreply.github.com"
+
+      - name: 🔄 Update Cask Version & SHA256
+        shell: bash
+        env:
+          NEW_VERSION: ${{ needs.release-info.outputs.version }}
+          CHECKSUM: ${{ env.DMG_CHECKSUM }}
+          CASK_PATH: homebrew-tap/Casks/mdns-browser.rb
+        run: |
+          sed -i "s/version \".*\"/version \"$NEW_VERSION\"/" "$CASK_PATH"
+          sed -i "s/sha256 \".*\"/sha256 \"$CHECKSUM\"/" "$CASK_PATH"
+
+      - name: 💾 Commit & Push to Tap
+        working-directory: homebrew-tap
+        run: |
+          git add Casks/mdns-browser.rb
+          git commit -S -m "Update mdns-browser to v${{ needs.release-info.outputs.version }}"
+          git push

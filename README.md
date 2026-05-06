@@ -47,6 +47,7 @@ Screenshots from [v0.11.28](https://github.com/hrzlgnm/mdns-browser/releases/tag
         - [Winget Installation](#winget-installation)
         - [Arch Linux (AUR)](#arch-linux-aur)
         - [Void Linux](#void-linux)
+        - [Homebrew (macOS)](#homebrew-macos)
     - [Auditable binaries](#auditable-binaries)
     - [Attested build artifacts](#attested-build-artifacts)
     - [Privacy](#privacy)
@@ -165,6 +166,21 @@ sudo xbps-install -S mdns-browser
 ```
 
 During installation, you will be prompted to accept a public key signed by `hrzlgnm@users.noreply.github.com`. The repository and package are signed with a key having the fingerprint: `64:6d:b9:23:3d:ad:9d:f1:b0:fe:64:8e:da:46:57:d3`.
+
+### Homebrew (macOS)
+
+To install on macOS using Homebrew, you can use the custom tap:
+
+```console
+brew install --cask hrzlgnm/tap/mdns-browser
+```
+
+Or add the tap first:
+
+```console
+brew tap hrzlgnm/tap
+brew install --cask mdns-browser
+```
 
 ## Auditable binaries
 
