@@ -169,7 +169,7 @@ During installation, you will be prompted to accept a public key signed by `hrzl
 
 ### Homebrew (macOS)
 
-Install via custom tap:
+To install on macOS using Homebrew, you can use the custom tap:
 
 ```console
 brew install --cask hrzlgnm/tap/mdns-browser
