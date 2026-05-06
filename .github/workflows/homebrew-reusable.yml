@@ -5,10 +5,6 @@ name: Update Homebrew Tap
 
 on:
   workflow_call:
-    inputs:
-      tagName:
-        required: true
-        type: string
   workflow_dispatch:
   release:
     types: [released]
@@ -47,10 +43,14 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ inputs.tagName || needs.release-info.outputs.tagName }}
+          TAG: ${{ needs.release-info.outputs.tagName }}
         run: |
           gh release download "$TAG" --pattern "*.dmg.sha256" --dir /tmp/dmg-checksum
           CHECKSUM=$(grep "universal.dmg" /tmp/dmg-checksum/*.sha256 | cut -d' ' -f1)
+          if [ -z "$CHECKSUM" ]; then
+            echo "Error: No checksum found for universal.dmg in release $TAG"
+            exit 1
+          fi
           echo "DMG_CHECKSUM=$CHECKSUM" >> "$GITHUB_ENV"
 
       - name: 🔑 Configure SSH Signing
@@ -79,5 +79,9 @@ jobs:
         working-directory: homebrew-tap
         run: |
           git add Casks/mdns-browser.rb
-          git commit -S -m "Update mdns-browser to v${{ needs.release-info.outputs.version }}"
-          git push
+          if ! git diff --cached --quiet; then
+            git commit -S -m "Update mdns-browser to v${{ needs.release-info.outputs.version }}"
+            git push
+          else
+            echo "No changes to commit"
+          fi
