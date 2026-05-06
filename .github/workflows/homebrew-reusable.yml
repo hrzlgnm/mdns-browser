@@ -45,7 +45,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.release-info.outputs.tagName }}
         run: |
-          gh release download "$TAG" --pattern "*.dmg.sha256" --dir /tmp/dmg-checksum
+          gh release download "$TAG" --repo hrzlgnm/mdns-browser --pattern "*.dmg.sha256" --dir /tmp/dmg-checksum
           CHECKSUM=$(grep "universal.dmg" /tmp/dmg-checksum/*.sha256 | cut -d' ' -f1)
           if [ -z "$CHECKSUM" ]; then
             echo "Error: No checksum found for universal.dmg in release $TAG"
