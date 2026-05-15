@@ -32,7 +32,7 @@ jobs:
       - release-info
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:4becbbb9143aea772557c534b8b3df0503967ecfc3a6c73e288a99fb2945c5a6
+      image: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:4e372d5e691c6c21cfde6d718f3f372cdd94c0faaefd5d9b86b067bc2654bca3
     strategy:
       fail-fast: false
       matrix:
