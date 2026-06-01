@@ -1,7 +1,7 @@
 # Copyright 2025 hrzlgnm
 # SPDX-License-Identifier: MIT-0
 
-FROM ghcr.io/void-linux/void-glibc@sha256:7df0a471f50c6cc9d77e26b1a904fd82d712fa5ea781ae219847b2d8f8f2b721
+FROM ghcr.io/void-linux/void-glibc@sha256:1a429bd49a58447fded84374c87c15af9828b289205fcd73d9db9ecb64183c2c
 RUN xbps-install -Syu xbps \
     && xbps-install -Syu \
     && xbps-install -Sy \
