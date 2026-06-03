@@ -23,7 +23,7 @@ jobs:
       image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:fa3fba2226b5c534ca86fcdc4288f5c5e2249285eba89b55a63a30be6f6bf56b
     steps:
       - name: 🔄 Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           ref: ${{ inputs.tagName || github.ref }}
           fetch-depth: ${{ inputs.tagName && '0' || '1' }}
