@@ -1,7 +1,7 @@
 # Copyright 2025 hrzlgnm
 # SPDX-License-Identifier: MIT-0
 
-FROM archlinux:base-devel@sha256:25074821d28e54a0bbbd87a88d392f1489be9bd815ee5c60744be6e57fd500d8
+FROM archlinux:base-devel@sha256:c84ad63503efc5d386e30a5f44945fa8eee10fcb21b3d5fceda260783de394ff
 RUN pacman -Syu --noconfirm \
     && pacman -S --noconfirm --needed \
     appmenu-gtk-module \
