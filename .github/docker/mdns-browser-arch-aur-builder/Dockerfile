@@ -24,7 +24,7 @@ RUN pacman -Syu --noconfirm \
     sudo \
     trunk \
     wget \
-    libsoup \
+    libsoup3 \
     && useradd -m -G wheel -s /bin/bash runner \
     && echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers \
     && pacman -Scc --noconfirm
