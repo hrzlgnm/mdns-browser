@@ -1,7 +1,7 @@
 # Copyright 2025 hrzlgnm
 # SPDX-License-Identifier: MIT-0
 
-FROM ubuntu:latest@sha256:e153663f92c94118ff22a5dc397b59b351ffd695480566debb5850e017e5937a
+FROM ubuntu:latest@sha256:53958ec7b67c2c9355df922dd08dbf0360611f8c3cdb656875e81873db9ffdba
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     build-essential \
