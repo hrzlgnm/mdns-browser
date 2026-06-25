@@ -167,7 +167,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🗒️ Create pre-release
-        uses: release-drafter/release-drafter@ed4bc48ec97379be2258e7b7ac2624a3e26ab809 # v7.4.0
+        uses: release-drafter/release-drafter@73b95fa1c286dfd6802a4f949b07dad6149f2b0f # v7.5.0
         with:
           latest: false
           name: "mDNS-Browser Release v${{ needs.bump_version.outputs.version }}"
