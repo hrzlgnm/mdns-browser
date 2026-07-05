@@ -249,9 +249,9 @@ When changing any GitHub Actions workflows (.github/workflows/*.yml) or actions 
      run: gh command "$MY_VAR"
    ```
 
-This ensures your workflow changes follow GitHub Actions best practices and will execute correctly.
-
 5. **Re-run actionlint** after making changes to ensure all issues are resolved.
+
+This ensures your workflow changes follow GitHub Actions best practices and will execute correctly.
 
 ## Common Pitfalls to Avoid
 
