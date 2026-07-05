@@ -103,6 +103,18 @@ jobs:
           Remove-Item -path certificate -include tempCert.txt
           Import-PfxCertificate -FilePath certificate/certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
 
+      - name: 📋 Get current release body
+        if: inputs.tagName
+        id: current-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          {
+            echo "body<<BODYEOF"
+            gh release view "${{ inputs.tagName }}" --json body --jq '.body'
+            echo "BODYEOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: 🔨 Build plain executables using tauri action (publish artifacts on release)
         uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
         if: ${{ !contains(matrix.os, 'macos') }}
@@ -113,6 +125,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           tagName: ${{ inputs.tagName }}
+          releaseBody: ${{ steps.current-release.outputs.body }}
           releaseDraft: false
           prerelease: false
           tauriScript: cargo --locked auditable tauri
@@ -130,6 +143,7 @@ jobs:
         with:
           updaterJsonPreferNsis: true
           tagName: ${{ inputs.tagName }}
+          releaseBody: ${{ steps.current-release.outputs.body }}
           releaseDraft: false
           prerelease: false
           tauriScript: cargo --locked auditable tauri
