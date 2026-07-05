@@ -106,6 +106,7 @@ jobs:
       - name: 📋 Get current release body
         if: inputs.tagName
         id: current-release
+        shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ inputs.tagName }}
