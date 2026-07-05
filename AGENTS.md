@@ -229,7 +229,7 @@ When changing any GitHub Actions workflows (.github/workflows/*.yml) or actions 
    - Follow GitHub Actions best practices
    - Validate workflow structure
 
-3. **Always specify `shell: bash` on steps using bash-specific syntax** (heredocs `<<`, `$GITHUB_OUTPUT`, etc.) when the workflow runs on Windows. The default shell on Windows runners is PowerShell, which doesn't support bash heredoc syntax. Add `shell: bash` explicitly:
+3. **Always specify `shell: bash` on steps using bash-specific syntax** (such as group redirection `{ ... } >> "$GITHUB_OUTPUT"`, bash heredocs, etc.) when the workflow runs on Windows. The default shell on Windows runners is PowerShell, which doesn't support bash syntax. Add `shell: bash` explicitly:
    ```yaml
    - name: Step using bash syntax
      shell: bash
