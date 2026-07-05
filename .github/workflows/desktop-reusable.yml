@@ -108,10 +108,11 @@ jobs:
         id: current-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ inputs.tagName }}
         run: |
           {
             echo "body<<BODYEOF"
-            gh release view "${{ inputs.tagName }}" --json body --jq '.body'
+            gh release view "$TAG_NAME" --json body --jq '.body'
             echo "BODYEOF"
           } >> "$GITHUB_OUTPUT"
 
