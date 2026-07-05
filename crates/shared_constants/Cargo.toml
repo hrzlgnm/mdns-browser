@@ -1,4 +1,4 @@
 [package]
 name = "shared_constants"
-version = "1.9.13"
+version = "1.9.14"
 edition = "2021"
