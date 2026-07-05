@@ -229,7 +229,17 @@ When changing any GitHub Actions workflows (.github/workflows/*.yml) or actions 
    - Follow GitHub Actions best practices
    - Validate workflow structure
 
-3. **Re-run actionlint** to ensure all issues are resolved
+3. **Always specify `shell: bash` on steps using bash-specific syntax** (such as group redirection `{ ... } >> "$GITHUB_OUTPUT"`, bash heredocs, etc.) when the workflow runs on Windows. The default shell on Windows runners is PowerShell, which doesn't support bash syntax. Add `shell: bash` explicitly:
+   ```yaml
+   - name: Step using bash syntax
+     shell: bash
+     run: |
+       {
+         echo "body<<BODYEOF"
+         some_command
+         echo "BODYEOF"
+       } >> "$GITHUB_OUTPUT"
+   ```
 
 4. **Pass GitHub Actions context values (`inputs`, `secrets`, `env`) through the `env` block** instead of interpolating them directly in `run` scripts. Direct interpolation (e.g., `${{ inputs.foo }}` inside a `run:` block) creates a template-injection risk. Use an `env:` mapping and reference as a shell variable instead:
    ```yaml
@@ -238,6 +248,8 @@ When changing any GitHub Actions workflows (.github/workflows/*.yml) or actions 
        MY_VAR: ${{ inputs.foo }}
      run: gh command "$MY_VAR"
    ```
+
+5. **Re-run actionlint** after making changes to ensure all issues are resolved.
 
 This ensures your workflow changes follow GitHub Actions best practices and will execute correctly.
 
