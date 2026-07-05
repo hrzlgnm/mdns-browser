@@ -231,7 +231,7 @@ When changing any GitHub Actions workflows (.github/workflows/*.yml) or actions 
 
 3. **Re-run actionlint** to ensure all issues are resolved
 
-4. **Pass `github` context values (inputs, secrets, env) through the `env` block** instead of interpolating them directly in `run` scripts. Direct interpolation (`${{ inputs.foo }}` inside a `run:` block) creates a template-injection risk. Use an `env:` mapping and reference as a shell variable instead:
+4. **Pass GitHub Actions context values (`inputs`, `secrets`, `env`) through the `env` block** instead of interpolating them directly in `run` scripts. Direct interpolation (e.g., `${{ inputs.foo }}` inside a `run:` block) creates a template-injection risk. Use an `env:` mapping and reference as a shell variable instead:
    ```yaml
    - name: Example
      env:
