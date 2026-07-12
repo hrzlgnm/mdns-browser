@@ -59,6 +59,7 @@ jobs:
 
             # Check if this run was already retried by looking for a re-run
             # created after this failed run on the same head branch
+            # shellcheck disable=SC2016
             EXISTING_RERUN=$(gh api \
               --method GET \
               -f head="$HEAD_BRANCH" \
