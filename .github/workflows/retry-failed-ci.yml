@@ -43,7 +43,7 @@ jobs:
             -f event=pull_request \
             -f created=">=$SINCE" \
             -q '.workflow_runs[] | "\(.id) \(.head_branch) \(.run_number) \(.created_at)"' \
-            "repos/{owner}/{repo}/actions/workflows/ci.yml/runs" 2>/dev/null || true)
+            "repos/{owner}/{repo}/actions/workflows/ci.yml/runs")
 
           if [ -z "$FAILED_RUNS" ]; then
             echo "No failed CI runs found in the last 24 hours. Nothing to retry."
@@ -52,6 +52,7 @@ jobs:
 
           RETRIED=0
           SKIPPED=0
+          FAILED=0
 
           while IFS=' ' read -r RUN_ID HEAD_BRANCH RUN_NUMBER _CREATED_AT; do
             [ -z "$RUN_ID" ] && continue
@@ -61,9 +62,10 @@ jobs:
             EXISTING_RERUN=$(gh api \
               --method GET \
               -f head="$HEAD_BRANCH" \
-              -f status=completed \
-              -q ".workflow_runs[] | select(.head_branch == \"$HEAD_BRANCH\" and .run_number > $RUN_NUMBER) | .id" \
-              "repos/{owner}/{repo}/actions/workflows/ci.yml/runs" 2>/dev/null | head -1 || true)
+              -q '.workflow_runs[] | select(.head_branch == $branch and .run_number > $num) | .id' \
+              --raw-field "branch=$HEAD_BRANCH" \
+              --raw-field "num=$RUN_NUMBER" \
+              "repos/{owner}/{repo}/actions/workflows/ci.yml/runs" | head -1 || true)
 
             if [ -n "$EXISTING_RERUN" ]; then
               echo "Skipping run #$RUN_NUMBER on branch $HEAD_BRANCH — already has a newer run ($EXISTING_RERUN)"
@@ -73,15 +75,18 @@ jobs:
 
             echo "Retrying CI run #$RUN_NUMBER on branch $HEAD_BRANCH (run_id=$RUN_ID)..."
 
-            gh api \
+            if gh api \
               --method POST \
               -f run_id="$RUN_ID" \
-              "repos/{owner}/{repo}/actions/runs/$RUN_ID/rerun" 2>/dev/null && \
-              echo "  ✅ Successfully retried run #$RUN_NUMBER" && \
-              RETRIED=$((RETRIED + 1)) || \
-              echo "  ⚠️ Failed to retry run #$RUN_NUMBER (may lack permissions or run is too old)"
+              "repos/{owner}/{repo}/actions/runs/$RUN_ID/rerun"; then
+              echo "  ✅ Successfully retried run #$RUN_NUMBER"
+              RETRIED=$((RETRIED + 1))
+            else
+              echo "  ❌ Failed to retry run #$RUN_NUMBER"
+              FAILED=$((FAILED + 1))
+            fi
 
           done <<< "$FAILED_RUNS"
 
           echo ""
-          echo "Summary: retried=$RETRIED skipped=$SKIPPED"
+          echo "Summary: retried=$RETRIED skipped=$SKIPPED failed=$FAILED"
