@@ -59,13 +59,11 @@ jobs:
 
             # Check if this run was already retried by looking for a re-run
             # created after this failed run on the same head branch
-            # shellcheck disable=SC2016
-            EXISTING_RERUN=$(gh api \
+            # shellcheck disable=SC2016,SC2097,SC2098
+            EXISTING_RERUN=$(HEAD_BRANCH="$HEAD_BRANCH" RUN_NUMBER="$RUN_NUMBER" gh api \
               --method GET \
               -f head="$HEAD_BRANCH" \
-              -q '.workflow_runs[] | select(.head_branch == $branch and .run_number > $num) | .id' \
-              --raw-field "branch=$HEAD_BRANCH" \
-              --raw-field "num=$RUN_NUMBER" \
+              -q 'env as $env | .workflow_runs[] | select(.head_branch == $env.HEAD_BRANCH and .run_number > ($env.RUN_NUMBER | tonumber)) | .id' \
               "repos/{owner}/{repo}/actions/workflows/ci.yml/runs" | head -1 || true)
 
             if [ -n "$EXISTING_RERUN" ]; then
