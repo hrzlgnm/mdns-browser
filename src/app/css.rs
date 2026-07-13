@@ -13,7 +13,7 @@ pub fn get_class(is_desktop: &ReadSignal<bool>, base_class: &str) -> Signal<Stri
             } else {
                 "mobile-"
             };
-            format!("{} {}{}", &base_class, prefix, &base_class)
+            format!("{} {}{}", base_class, prefix, base_class)
         }
     })
 }
