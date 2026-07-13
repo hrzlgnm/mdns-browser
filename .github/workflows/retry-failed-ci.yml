@@ -77,7 +77,7 @@ jobs:
             if gh api \
               --method POST \
               -f run_id="$RUN_ID" \
-              "repos/{owner}/{repo}/actions/runs/$RUN_ID/rerun"; then
+              "repos/{owner}/{repo}/actions/runs/$RUN_ID/rerun-failed-jobs"; then
               echo "  ✅ Successfully retried run #$RUN_NUMBER"
               RETRIED=$((RETRIED + 1))
             else
