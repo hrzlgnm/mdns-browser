@@ -10,7 +10,7 @@ on:
 
 jobs:
   retry-failed:
-    uses: hrzlgnm/actions/.github/workflows/retry-failed-ci-reusable.yml@5c3ee62b20f3732929760d8b3c793c28a5f3e3a1 # main
+    uses: hrzlgnm/actions/.github/workflows/retry-failed-ci-reusable.yml@e586283adf0bbcc1b38aaa0c484a9a5d55db8316 # v2.2.0
     permissions:
       actions: write
       contents: read
