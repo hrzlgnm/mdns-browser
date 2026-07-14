@@ -8,59 +8,84 @@ name-template: "mDNS-Browser Release v$RESOLVED_VERSION"
 tag-template: "mdns-browser-v$RESOLVED_VERSION"
 tag-prefix: mdns-browser-v
 
-version-resolver:
-  major:
-    labels:
-      - "major"
-      - "breaking-change"
-  minor:
-    labels:
-      - "feature"
-      - "enhancement"
-
-  patch:
-    labels:
-      - "patch"
-      - "bug"
-      - "bugfix"
-      - "dependencies"
-
-  default: patch
-
 category-template: "### $TITLE"
 categories:
+  - type: "version-resolver"
+    when:
+      labels:
+        - "major"
+        - "breaking-change"
+    semver-increment: "major"
+
+  - type: "version-resolver"
+    when:
+      labels:
+        - "feature"
+        - "enhancement"
+    semver-increment: "minor"
+
+  - type: "version-resolver"
+    when:
+      labels:
+        - "patch"
+        - "bug"
+        - "bugfix"
+        - "dependencies"
+    semver-increment: "patch"
+
   - title: ":boom: Breaking Changes"
-    label: "breaking-change"
+    when:
+      labels:
+        - "breaking-change"
+        - "major"
 
   - title: ":sparkles: New Features"
-    label: "enhancement"
+    when:
+      labels:
+        - "enhancement"
+        - "feature"
 
   - title: ":bug: Bug Fixes"
-    labels:
-      - "bug"
-      - "bugfix"
+    when:
+      labels:
+        - "bug"
+        - "bugfix"
 
   - title: "🧰 Maintenance"
-    label: "chore"
+    when:
+      labels:
+        - "chore"
 
   - title: ":zap: Performance"
-    label: "performance"
+    when:
+      labels:
+        - "performance"
 
   - title: ":recycle: Refactor"
-    label: "refactor"
+    when:
+      labels:
+        - "refactor"
 
   - title: ":scroll: Documentation"
-    label: "documentation"
+    when:
+      labels:
+        - "documentation"
 
   - title: ":white_check_mark: Test"
-    label: "test"
+    when:
+      labels:
+        - "test"
 
   - title: ":arrow_up: Dependency Updates"
-    label: "dependencies"
+    when:
+      labels:
+        - "dependencies"
     collapse-after: 10
 
-exclude-labels:
-  - ignore
+  - type: "pre-exclude"
+    when:
+      labels:
+        - "ignore"
 
 header: |
 
