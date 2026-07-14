@@ -3,7 +3,7 @@
 
 [package]
 name = "mdns-browser-ui"
-version = "1.9.15"
+version = "1.9.16"
 edition = "2024"
 rust-version = "1.90"
 
