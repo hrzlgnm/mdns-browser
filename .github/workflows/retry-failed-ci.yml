@@ -1,7 +1,7 @@
 # Copyright 2026 hrzlgnm
 # SPDX-License-Identifier: MIT-0
 
-name: Retry Failed CI on PRs
+name: Retry Failed CI
 
 on:
   schedule:
