@@ -155,7 +155,7 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-latest
-    container: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:75d0b43ca266de3375148062f95d34084c40b04f5c6a553af87c499a1c66e639
+    container: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:de9a928fd35df7aca34c1fc31255fd11837e8ed537e9b622bf139e06d4ce2cd7
     name: 📦 Publish to crates.io
     steps:
       - name: 🔄 Checkout
