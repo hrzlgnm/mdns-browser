@@ -1,0 +1,79 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+name: Update Changelog
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  update-changelog:
+    if: startsWith(github.event.release.tag_name, 'mdns-browser-v')
+    runs-on: ubuntu-slim
+    name: 📝 Update Changelog
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.x"
+
+      - name: 📝 Update CHANGELOG.md
+        shell: bash
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          SECTION=$(python3 generate_changelog.py --tag "$TAG" --repository "$REPOSITORY")
+
+          if [[ -z "$SECTION" ]]; then
+            echo "No user-facing changes, skipping"
+            exit 0
+          fi
+
+          echo "$SECTION" > /tmp/changelog_section.md
+
+          # Insert section after [Unreleased]
+          UNRELEASED_LINE=$(grep -n "^## \[Unreleased\]" CHANGELOG.md | head -1 | cut -d: -f1)
+          if [[ -z "$UNRELEASED_LINE" ]]; then
+            echo "ERROR: Could not find [Unreleased] section"
+            exit 1
+          fi
+
+          NEXT_SECTION=$(tail -n +"$((UNRELEASED_LINE + 1))" CHANGELOG.md | grep -n "^## \[" | head -1 | cut -d: -f1)
+          if [[ -z "$NEXT_SECTION" ]]; then
+            echo -e "\n$(cat /tmp/changelog_section.md)" >> CHANGELOG.md
+          else
+            INSERT_LINE=$((UNRELEASED_LINE + NEXT_SECTION - 1))
+            {
+              head -n "$((INSERT_LINE - 1))" CHANGELOG.md
+              cat /tmp/changelog_section.md
+              tail -n +"${INSERT_LINE}" CHANGELOG.md
+            } > CHANGELOG.md.new
+            mv CHANGELOG.md.new CHANGELOG.md
+          fi
+
+          echo "CHANGELOG.md updated"
+
+      - name: 💾 Commit changes
+        if: success()
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION="${TAG#mdns-browser-v}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "docs: update CHANGELOG.md for v${VERSION}"
+          git push
