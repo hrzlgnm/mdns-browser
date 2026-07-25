@@ -38,11 +38,15 @@ jobs:
 
       - name: 📝 Generate CHANGELOG.md
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 generate_changelog.py
 
       - name: 📝 Generate crate CHANGELOG.md
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 generate_changelog.py --crate webkit2gtk-nvidia-quirk \
             --crate-path crates/webkit2gtk-nvidia-quirk
