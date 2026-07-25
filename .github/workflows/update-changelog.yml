@@ -66,14 +66,28 @@ jobs:
 
           echo "CHANGELOG.md updated"
 
+      - name: 📝 Update crate CHANGELOG.md
+        shell: bash
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          if [[ "$TAG" == webkit2gtk-nvidia-quirk-v* ]]; then
+            python3 generate_changelog.py --crate webkit2gtk-nvidia-quirk \
+              --crate-path crates/webkit2gtk-nvidia-quirk \
+              --repository "$REPOSITORY"
+            echo "crates/webkit2gtk-nvidia-quirk/CHANGELOG.md updated"
+          fi
+
       - name: 💾 Commit changes
         if: success()
         env:
           TAG: ${{ github.event.release.tag_name }}
         run: |
           VERSION="${TAG#mdns-browser-v}"
+          VERSION="${VERSION#webkit2gtk-nvidia-quirk-v}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md
+          git add CHANGELOG.md crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
           git commit -m "docs: update CHANGELOG.md for v${VERSION}"
           git push

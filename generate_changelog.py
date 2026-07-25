@@ -49,7 +49,11 @@ def parse_date(published_at):
 
 
 def strip_version_prefix(tag):
-    return tag.replace("mdns-browser-v", "")
+    """Strip version prefix from tag."""
+    for prefix in ["mdns-browser-v", "webkit2gtk-nvidia-quirk-v"]:
+        if tag.startswith(prefix):
+            return tag[len(prefix):]
+    return tag
 
 
 def fetch_pr_files(pr_number):
@@ -86,9 +90,17 @@ def update_pr_labels_if_needed(pr):
 
 
 def fetch_merged_prs(prev_tag, current_tag):
-    """Fetch PRs merged between two releases with their labels and files."""
+    """Fetch PRs merged between two tags with their labels and files."""
+    # Try to get dates from releases first, fall back to git tags
     prev_date = fetch_release_date(prev_tag)
     curr_date = fetch_release_date(current_tag)
+
+    if not prev_date or not curr_date:
+        # Fall back to git tag dates
+        if prev_tag:
+            prev_date = run(f'git log -1 --format=%ai "{prev_tag}"')
+        curr_date = run(f'git log -1 --format=%ai "{current_tag}"')
+
     if not prev_date or not curr_date:
         return []
 
@@ -458,10 +470,109 @@ def insert_section_into_changelog(section):
     return True
 
 
+def fetch_tags(prefix):
+    """Fetch git tags with a specific prefix."""
+    raw = run("git tag --sort=-version:refname")
+    if not raw:
+        return []
+    tags = raw.split("\n")
+    return [t for t in tags if t.startswith(prefix)]
+
+
+def generate_crate_changelog(crate_name, crate_path, repository):
+    """Generate a separate changelog for a workspace crate."""
+    crate_dir = crate_path.rstrip("/")
+    tag_prefix = f"{crate_name}-v"
+
+    print(f"Fetching tags for {crate_name}...", file=sys.stderr)
+    tags = fetch_tags(tag_prefix)
+    print(f"Found {len(tags)} tags", file=sys.stderr)
+
+    if not tags:
+        return "# Changelog\n\nNo releases yet.\n"
+
+    lines = [
+        "# Changelog\n",
+        f"All notable changes to `{crate_name}` will be documented in this file.\n",
+        "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).",
+        "This changelog is auto-generated from PRs that only modify this crate.\n",
+        "## [Unreleased]\n",
+        "### Added\n",
+        "### Changed\n",
+        "### Fixed\n",
+    ]
+
+    versions = []
+    for i, tag in enumerate(tags):
+        version = strip_version_prefix(tag)
+        # Get tag date
+        date_raw = run(f'git log -1 --format=%ai "{tag}"')
+        date = parse_date_from_git(date_raw)
+
+        prev_tag = tags[i + 1] if i + 1 < len(tags) else None
+
+        # Find PRs between this tag and previous tag
+        prs = fetch_merged_prs(prev_tag, tag) if prev_tag else []
+        crate_prs = [pr for pr in prs if pr_files_match_crate(pr, crate_dir)]
+
+        categories = {"Added": [], "Changed": [], "Fixed": [], "Security": []}
+        for pr in crate_prs:
+            cat = classify_pr(pr)
+            if cat:
+                entry = f"{pr['title']} #{pr['number']}"
+                categories[cat].append(entry)
+
+        note = None
+        if not any(len(v) > 0 for v in categories.values()):
+            if crate_prs:
+                note = "No user-facing changes to this crate."
+
+        versions.append((version, date, categories, tag, note, prev_tag))
+
+    link_defs = []
+    for i, (version, date, categories, tag, note, prev_tag) in enumerate(versions):
+        section = build_changelog_section(version, date, categories, note=note)
+        if section:
+            lines.append(section.rstrip())
+            lines.append("")
+        if prev_tag:
+            link_defs.append(f"[{version}]: https://github.com/{repository}/compare/{prev_tag}...{tag}")
+        else:
+            link_defs.append(f"[{version}]: https://github.com/{repository}/releases/tag/{tag}")
+
+    if versions:
+        lines.append(f"[Unreleased]: https://github.com/{repository}/compare/{versions[0][3]}...HEAD")
+    for link in link_defs:
+        lines.append(link)
+
+    return "\n".join(lines)
+
+
+def parse_date_from_git(date_raw):
+    """Parse git date string to YYYY-MM-DD format."""
+    if not date_raw:
+        return "Unknown"
+    try:
+        dt = datetime.strptime(date_raw.strip()[:10], "%Y-%m-%d")
+        return dt.strftime("%Y-%m-%d")
+    except ValueError:
+        return "Unknown"
+
+
+def pr_files_match_crate(pr, crate_dir):
+    """Check if PR files are all within a specific crate directory."""
+    files = pr.get("files", [])
+    if not files:
+        return False
+    return all(f.startswith(crate_dir + "/") or f.startswith(crate_dir + "\\") for f in files)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate CHANGELOG.md")
     parser.add_argument("--tag", help="Release tag for incremental update (e.g., mdns-browser-v1.9.0)")
     parser.add_argument("--repository", default="hrzlgnm/mdns-browser", help="GitHub repository")
+    parser.add_argument("--crate", help="Generate changelog for a specific crate (e.g., webkit2gtk-nvidia-quirk)")
+    parser.add_argument("--crate-path", help="Path to crate directory (e.g., crates/webkit2gtk-nvidia-quirk)")
     args = parser.parse_args()
 
     if args.tag:
@@ -471,6 +582,12 @@ def main():
         else:
             print("Error: could not generate section", file=sys.stderr)
             sys.exit(1)
+    elif args.crate and args.crate_path:
+        changelog = generate_crate_changelog(args.crate, args.crate_path, args.repository)
+        output_path = f"{args.crate_path}/CHANGELOG.md"
+        with open(output_path, "w") as f:
+            f.write(changelog)
+        print(f"Changelog written to {output_path}", file=sys.stderr)
     else:
         changelog = generate_full_changelog()
         with open("CHANGELOG.md", "w") as f:
