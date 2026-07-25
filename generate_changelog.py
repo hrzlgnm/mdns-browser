@@ -257,9 +257,10 @@ def is_user_facing_content(entry):
     return False
 
 
-def extract_pr_numbers(entry):
-    """Extract all PR numbers from entry."""
-    return [int(m) for m in re.findall(r'#(\d+)', entry)]
+def extract_pr_number(entry):
+    """Extract the last PR number from entry (the primary PR)."""
+    matches = re.findall(r'#(\d+)', entry)
+    return int(matches[-1]) if matches else None
 
 
 def fetch_pr_files_batch(pr_numbers):
@@ -330,23 +331,17 @@ def parse_release_body(body):
                 continue
             if not is_user_facing_content(entry):
                 continue
-            pr_nums = extract_pr_numbers(entry)
-            entries_with_prs.append((entry, pr_nums))
+            pr_num = extract_pr_number(entry)
+            entries_with_prs.append((entry, pr_num))
 
-    # Batch fetch PR files and filter CI-only PRs
-    all_pr_nums = set()
-    for _, pr_nums in entries_with_prs:
-        all_pr_nums.update(pr_nums)
-    pr_files = fetch_pr_files_batch(list(all_pr_nums))
+    # Fetch PR files and filter CI-only PRs
+    pr_numbers = [p for _, p in entries_with_prs if p is not None]
+    pr_files = fetch_pr_files_batch(pr_numbers)
 
-    for entry, pr_nums in entries_with_prs:
-        # Skip if ALL referenced PRs are CI-only
-        if pr_nums and all(
-            is_ci_only_pr(pr_files.get(p, []))
-            for p in pr_nums
-            if p in pr_files
-        ):
-            continue
+    for entry, pr_num in entries_with_prs:
+        if pr_num and pr_num in pr_files:
+            if is_ci_only_pr(pr_files[pr_num]):
+                continue
         cat = classify_entry_content(entry)
         if cat:
             categories[cat].append(entry)

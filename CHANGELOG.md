@@ -47,9 +47,7 @@ Only dependencies were updated.
 
 ## [1.9.6] - 2026-05-06
 
-### Fixed
-
-- fix: Address review comments missed from #2154 #2155
+Only dependencies were updated.
 
 ## [1.9.5] - 2026-05-04
 
