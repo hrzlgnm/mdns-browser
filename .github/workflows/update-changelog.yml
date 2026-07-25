@@ -1,0 +1,79 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+name: Update Changelog
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - "webkit2gtk-nvidia-quirk-v*"
+  release:
+    types: [published]
+
+concurrency:
+  group: update-changelog
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-slim
+    name: 📝 Update Changelog
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.x"
+
+      - name: 📝 Generate CHANGELOG.md
+        shell: bash
+        run: |
+          python3 generate_changelog.py
+
+      - name: 📝 Generate crate CHANGELOG.md
+        shell: bash
+        run: |
+          python3 generate_changelog.py --crate webkit2gtk-nvidia-quirk \
+            --crate-path crates/webkit2gtk-nvidia-quirk
+
+      - name: 💾 Create or update PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: docs/update-changelog
+        run: |
+          if git diff --quiet CHANGELOG.md crates/webkit2gtk-nvidia-quirk/CHANGELOG.md; then
+            echo "No changes to changelog"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B "$BRANCH"
+          git add CHANGELOG.md crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
+          git commit -m "docs: update CHANGELOG.md"
+          git push -f origin "$BRANCH"
+
+          PR_URL=$(gh pr list --head "$BRANCH" --json url -q '.[0].url')
+          if [[ -n "$PR_URL" ]]; then
+            echo "Updated existing PR: $PR_URL"
+          else
+            PR_URL=$(gh pr create \
+              --title "docs: update CHANGELOG.md" \
+              --body "Automated PR to update CHANGELOG.md with latest changes." \
+              --head "$BRANCH" \
+              --base main)
+            echo "Created PR: $PR_URL"
+          fi
