@@ -52,8 +52,16 @@ def strip_version_prefix(tag):
     return tag.replace("mdns-browser-v", "")
 
 
+def fetch_pr_files(pr_number):
+    """Fetch files changed in a PR."""
+    raw = run(f'gh pr view {pr_number} --json files -q ".files[].path"')
+    if not raw:
+        return []
+    return raw.split("\n")
+
+
 def fetch_merged_prs(prev_tag, current_tag):
-    """Fetch PRs merged between two releases with their labels."""
+    """Fetch PRs merged between two releases with their labels and files."""
     prev_date = fetch_release_date(prev_tag)
     curr_date = fetch_release_date(current_tag)
     if not prev_date or not curr_date:
@@ -67,10 +75,15 @@ def fetch_merged_prs(prev_tag, current_tag):
         return []
 
     prs = json.loads(raw)
-    return [
+    merged = [
         pr for pr in prs
         if pr["mergedAt"] >= prev_date and pr["mergedAt"] <= curr_date
     ]
+
+    for pr in merged:
+        pr["files"] = fetch_pr_files(pr["number"])
+
+    return merged
 
 
 # CI/internal label patterns - PRs with these labels are not user-facing
@@ -81,13 +94,22 @@ USER_FACING_LABELS = {"enhancement", "bug", "bugfix", "security", "feature"}
 
 
 def has_user_facing_label(pr):
-    """Check if PR has user-facing labels."""
+    """Check if PR has user-facing labels or changes."""
     labels = {l["name"].lower() for l in pr.get("labels", [])}
     if labels & USER_FACING_LABELS:
         return True
-    if not (labels & CI_LABELS):
+    if labels & CI_LABELS:
+        return False
+    files = pr.get("files", [])
+    if not files:
         return True
-    return False
+    all_ci = all(
+        f.startswith(".github/") or f == "Cargo.lock"
+        for f in files
+    )
+    if all_ci:
+        return False
+    return True
 
 
 def classify_pr(pr):
@@ -136,7 +158,7 @@ CI_PREFIX_PATTERNS = [
 
 USER_FACING_OVERRIDES = [
     'nvidia', 'webkit2gtk', 'service', 'mdns', 'browse', 'listen',
-    'ui', 'ux', 'button', 'dialog', 'window', 'theme', 'icon',
+    'ui', 'ux', 'button', 'dialog', 'theme', 'icon',
     'cli', 'command line', 'option', 'argument', 'splash',
     'filter', 'sort', 'copy', 'clipboard', 'auto-update', 'updater',
     'mobile', 'android', 'ios', 'platform', 'error handling',

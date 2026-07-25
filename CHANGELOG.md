@@ -23,9 +23,7 @@ Only dependencies were updated.
 
 ## [1.9.15] - 2026-07-05
 
-### Fixed
-
-- fix: use bash to get current release body step for windows #2256
+Only dependencies were updated.
 
 ## [1.9.11] - 2026-06-26
 
