@@ -65,9 +65,7 @@ Only dependencies were updated.
 
 ## [1.9.2] - 2026-04-24
 
-### Security
-
-- GHSA-82j2-j2ch-gfr8 with #2134
+Only dependencies were updated.
 
 ## [1.9.1] - 2026-04-20
 
@@ -111,11 +109,6 @@ Only dependencies were updated.
 
 - feat: webkit2gtk-nvidia-quirk: check primary gpu #2070
 
-### Fixed
-
-- fix: use ubuntu builder image to ensure build dependencies #2079
-- fix: use ubuntu builder image the correct step #2080
-
 ## [1.8.0] - 2026-04-06
 
 ### Added
@@ -142,9 +135,7 @@ Only dependencies were updated.
 
 ## [1.5.13] - 2026-03-29
 
-### Fixed
-
-- fix: resolve 3 security vulnerabilities in dependencies #2041
+Only dependencies were updated.
 
 ## [1.5.12] - 2026-03-11
 
@@ -168,9 +159,7 @@ Only dependencies were updated.
 
 ## [1.5.6] - 2026-02-21
 
-### Added
-
-- feat: add debug symbols attestation and upload for all desktop platforms #1919
+No user-facing changes.
 
 ## [1.5.3] - 2026-02-20
 

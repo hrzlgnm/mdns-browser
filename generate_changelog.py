@@ -257,6 +257,24 @@ def is_user_facing_content(entry):
     return False
 
 
+def extract_pr_numbers(entry):
+    """Extract all PR numbers from entry."""
+    return [int(m) for m in re.findall(r'#(\d+)', entry)]
+
+
+def fetch_pr_files_batch(pr_numbers):
+    """Fetch files for multiple PRs."""
+    if not pr_numbers:
+        return {}
+    result = {}
+    for pr_num in pr_numbers:
+        raw = run_optional(["gh", "pr", "view", str(pr_num), "--json", "files"])
+        if raw:
+            data = json.loads(raw)
+            result[pr_num] = [f["path"] for f in data.get("files", [])]
+    return result
+
+
 def classify_entry_content(entry):
     """Classify entry into category by content."""
     if entry.startswith('feat:'):
@@ -280,6 +298,7 @@ def parse_release_body(body):
 
     lines = body.split("\n")
     in_collapsed = False
+    entries_with_prs = []
 
     for line in lines:
         stripped = line.strip()
@@ -311,9 +330,26 @@ def parse_release_body(body):
                 continue
             if not is_user_facing_content(entry):
                 continue
-            cat = classify_entry_content(entry)
-            if cat:
-                categories[cat].append(entry)
+            pr_nums = extract_pr_numbers(entry)
+            entries_with_prs.append((entry, pr_nums))
+
+    # Batch fetch PR files and filter CI-only PRs
+    all_pr_nums = set()
+    for _, pr_nums in entries_with_prs:
+        all_pr_nums.update(pr_nums)
+    pr_files = fetch_pr_files_batch(list(all_pr_nums))
+
+    for entry, pr_nums in entries_with_prs:
+        # Skip if ALL referenced PRs are CI-only
+        if pr_nums and all(
+            is_ci_only_pr(pr_files.get(p, []))
+            for p in pr_nums
+            if p in pr_files
+        ):
+            continue
+        cat = classify_entry_content(entry)
+        if cat:
+            categories[cat].append(entry)
 
     return categories
 
