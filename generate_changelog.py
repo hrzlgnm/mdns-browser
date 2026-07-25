@@ -164,7 +164,18 @@ def classify_pr(pr):
         return "Changed"
     if title.startswith("breaking"):
         return "Changed"
+    if title.startswith(("doc", "docs")):
+        return "Changed"
+    if title.startswith("chore"):
+        return "Changed"
+    if title.startswith("bump"):
+        return "Changed"
     return None
+
+
+def classify_pr_for_crate(pr):
+    """Classify PR for crate changelog (includes all changes)."""
+    return classify_pr(pr)
 
 
 # Content-based filtering for full regeneration mode
@@ -495,7 +506,7 @@ def generate_crate_changelog(crate_name, crate_path, repository):
         "# Changelog\n",
         f"All notable changes to `{crate_name}` will be documented in this file.\n",
         "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).",
-        "This changelog is auto-generated from PRs that only modify this crate.\n",
+        "This changelog is auto-generated from commits that modify this crate.\n",
         "## [Unreleased]\n",
         "### Added\n",
         "### Changed\n",
@@ -505,29 +516,42 @@ def generate_crate_changelog(crate_name, crate_path, repository):
     versions = []
     for i, tag in enumerate(tags):
         version = strip_version_prefix(tag)
-        # Get tag date
         date_raw = run(f'git log -1 --format=%ai "{tag}"')
         date = parse_date_from_git(date_raw)
 
         prev_tag = tags[i + 1] if i + 1 < len(tags) else None
 
-        # Find PRs between this tag and previous tag
-        prs = fetch_merged_prs(prev_tag, tag) if prev_tag else []
-        crate_prs = [pr for pr in prs if pr_files_match_crate(pr, crate_dir)]
+        # Get commits between tags
+        if prev_tag:
+            log = run(f'git log --oneline {prev_tag}..{tag} -- {crate_dir}/')
+        else:
+            log = run(f'git log --oneline {tag} -- {crate_dir}/')
 
         categories = {"Added": [], "Changed": [], "Fixed": [], "Security": []}
-        for pr in crate_prs:
-            cat = classify_pr(pr)
+        for line in log.split("\n"):
+            if not line.strip():
+                continue
+            parts = line.split(" ", 1)
+            if len(parts) < 2:
+                continue
+            commit_hash, message = parts
+            # Skip version bump commits
+            if re.match(r'^bump\s', message, re.IGNORECASE):
+                continue
+            # Skip revert of bump commits
+            if re.match(r'^revert\s.*bump', message, re.IGNORECASE):
+                continue
+
+            # Extract PR number if present
+            pr_match = re.search(r'#(\d+)', message)
+            pr_num = pr_match.group(1) if pr_match else None
+
+            cat = classify_commit_message(message)
             if cat:
-                entry = f"{pr['title']} #{pr['number']}"
+                entry = f"{message} #{pr_num}" if pr_num else message
                 categories[cat].append(entry)
 
-        note = None
-        if not any(len(v) > 0 for v in categories.values()):
-            if crate_prs:
-                note = "No user-facing changes to this crate."
-
-        versions.append((version, date, categories, tag, note, prev_tag))
+        versions.append((version, date, categories, tag, None, prev_tag))
 
     link_defs = []
     for i, (version, date, categories, tag, note, prev_tag) in enumerate(versions):
@@ -546,6 +570,21 @@ def generate_crate_changelog(crate_name, crate_path, repository):
         lines.append(link)
 
     return "\n".join(lines)
+
+
+def classify_commit_message(message):
+    """Classify a commit message into a changelog category."""
+    if message.startswith(("feat", "add")):
+        return "Added"
+    if message.startswith("fix"):
+        return "Fixed"
+    if message.startswith(("refactor", "doc", "docs", "chore")):
+        return "Changed"
+    if message.startswith(("security", "GHSA-")):
+        return "Security"
+    if message.startswith("breaking"):
+        return "Changed"
+    return "Changed"
 
 
 def parse_date_from_git(date_raw):
