@@ -119,7 +119,7 @@ CI_CONTENT_KEYWORDS = [
     'env var', 'jq via', 'environment variable', 'release body',
     'release notes', 'release drafter', 'workflow_call', 'workflow_dispatch',
     'ruleset', 'ssh key', 'signing key', 'deploy key', 'GITHUB_TOKEN',
-    'debug symbol', 'crash report',
+    'debug symbol', 'crash report', 'rerun', 're-run', 're run',
 ]
 
 CI_PREFIX_PATTERNS = [

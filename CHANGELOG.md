@@ -19,9 +19,7 @@ Only dependencies were updated.
 
 ## [1.9.17] - 2026-07-14
 
-### Fixed
-
-- fix: only rerun failed jobs #2267
+Only dependencies were updated.
 
 ## [1.9.15] - 2026-07-05
 
