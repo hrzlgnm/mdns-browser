@@ -548,7 +548,13 @@ def generate_crate_changelog(crate_name, crate_path, repository):
 
             cat = classify_commit_message(message)
             if cat:
-                entry = f"{message} #{pr_num}" if pr_num else message
+                # Remove duplicate PR ref if already in message
+                if pr_num and f"#{pr_num}" in message:
+                    entry = message
+                elif pr_num:
+                    entry = f"{message} #{pr_num}"
+                else:
+                    entry = message
                 categories[cat].append(entry)
 
         versions.append((version, date, categories, tag, None, prev_tag))
