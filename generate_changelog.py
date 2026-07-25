@@ -60,6 +60,31 @@ def fetch_pr_files(pr_number):
     return raw.split("\n")
 
 
+def is_ci_only_pr(files):
+    """Check if PR only changes CI/dependency files."""
+    if not files:
+        return False
+    return all(
+        f.startswith(".github/") or f == "Cargo.lock"
+        for f in files
+    )
+
+
+def update_pr_labels_if_needed(pr):
+    """Add chore label to PR if it only has CI/dependency changes."""
+    files = pr.get("files", [])
+    if not is_ci_only_pr(files):
+        return
+
+    labels = {l["name"].lower() for l in pr.get("labels", [])}
+    if "chore" in labels:
+        return
+
+    pr_number = pr["number"]
+    print(f"  Adding chore label to PR #{pr_number} (CI-only changes)", file=sys.stderr)
+    run(f'gh pr edit {pr_number} --add-label "chore"')
+
+
 def fetch_merged_prs(prev_tag, current_tag):
     """Fetch PRs merged between two releases with their labels and files."""
     prev_date = fetch_release_date(prev_tag)
@@ -358,6 +383,10 @@ def update_single_release(tag, repository):
     # Fetch PRs merged between releases
     prs = fetch_merged_prs(prev_tag, tag)
     print(f"Found {len(prs)} PRs between {prev_tag} and {tag}", file=sys.stderr)
+
+    # Update labels for CI-only PRs
+    for pr in prs:
+        update_pr_labels_if_needed(pr)
 
     categories = {"Added": [], "Changed": [], "Fixed": [], "Security": []}
 
