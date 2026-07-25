@@ -14,19 +14,30 @@ import subprocess
 import sys
 import re
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def run(cmd):
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    """Run a command as argument list with shell=False."""
+    if isinstance(cmd, str):
+        cmd = cmd.split()
+    result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
-        print(f"Error: {result.stderr.strip()}", file=sys.stderr)
-        return ""
+        raise RuntimeError(f"Command failed: {' '.join(cmd)}\n{result.stderr.strip()}")
     return result.stdout.strip()
 
 
+def run_optional(cmd):
+    """Run a command, returning empty string on failure."""
+    try:
+        return run(cmd)
+    except RuntimeError:
+        return ""
+
+
 def fetch_releases():
-    raw = run("gh release list --limit 500 --json tagName,name,publishedAt,isDraft,isPrerelease")
+    raw = run(["gh", "release", "list", "--limit", "500",
+               "--json", "tagName,name,publishedAt,isDraft,isPrerelease"])
     if not raw:
         return []
     releases = json.loads(raw)
@@ -39,11 +50,13 @@ def fetch_releases():
 
 
 def fetch_release_body(tag):
-    return run(f'gh release view {tag} --json body -q ".body"')
+    return run_optional(["gh", "release", "view", tag,
+                         "--json", "body", "-q", ".body"])
 
 
 def fetch_release_date(tag):
-    return run(f'gh release view {tag} --json publishedAt -q ".publishedAt"')
+    return run_optional(["gh", "release", "view", tag,
+                         "--json", "publishedAt", "-q", ".publishedAt"])
 
 
 def parse_date(published_at):
@@ -53,20 +66,27 @@ def parse_date(published_at):
     return dt.strftime("%Y-%m-%d")
 
 
+def parse_date_to_aware(date_str):
+    """Parse date string to timezone-aware datetime for comparison."""
+    if not date_str:
+        return None
+    date_str = date_str.strip()
+    try:
+        if "T" in date_str:
+            dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+        else:
+            dt = datetime.strptime(date_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        return dt
+    except ValueError:
+        return None
+
+
 def strip_version_prefix(tag):
     """Strip version prefix from tag."""
     for prefix in ["mdns-browser-v", "webkit2gtk-nvidia-quirk-v"]:
         if tag.startswith(prefix):
             return tag[len(prefix):]
     return tag
-
-
-def fetch_pr_files(pr_number):
-    """Fetch files changed in a PR."""
-    raw = run(f'gh pr view {pr_number} --json files -q ".files[].path"')
-    if not raw:
-        return []
-    return raw.split("\n")
 
 
 def is_ci_only_pr(files):
@@ -91,25 +111,28 @@ def update_pr_labels_if_needed(pr):
 
     pr_number = pr["number"]
     print(f"  Adding chore label to PR #{pr_number} (CI-only changes)", file=sys.stderr)
-    run(f'gh pr edit {pr_number} --add-label "chore"')
+    run_optional(["gh", "pr", "edit", str(pr_number), "--add-label", "chore"])
 
 
 def fetch_merged_prs(prev_tag, current_tag):
     """Fetch PRs merged between two tags with their labels and files."""
-    prev_date = fetch_release_date(prev_tag)
-    curr_date = fetch_release_date(current_tag)
+    prev_date_str = fetch_release_date(prev_tag)
+    curr_date_str = fetch_release_date(current_tag)
 
-    if not prev_date or not curr_date:
+    if not prev_date_str or not curr_date_str:
         if prev_tag:
-            prev_date = run(f'git log -1 --format=%ai "{prev_tag}"')
-        curr_date = run(f'git log -1 --format=%ai "{current_tag}"')
+            prev_date_str = run_optional(["git", "log", "-1", "--format=%ai", prev_tag])
+        curr_date_str = run_optional(["git", "log", "-1", "--format=%ai", current_tag])
+
+    prev_date = parse_date_to_aware(prev_date_str)
+    curr_date = parse_date_to_aware(curr_date_str)
 
     if not prev_date or not curr_date:
         return []
 
-    raw = run(
-        f'gh pr list --state merged --base main --limit 500 '
-        f'--json number,title,labels,mergedAt,files '
+    raw = run_optional(
+        ["gh", "pr", "list", "--state", "merged", "--base", "main",
+         "--limit", "500", "--json", "number,title,labels,mergedAt,files"]
     )
     if not raw:
         return []
@@ -117,7 +140,8 @@ def fetch_merged_prs(prev_tag, current_tag):
     prs = json.loads(raw)
     return [
         pr for pr in prs
-        if pr["mergedAt"] >= prev_date and pr["mergedAt"] <= curr_date
+        if parse_date_to_aware(pr["mergedAt"]) is not None
+        and prev_date <= parse_date_to_aware(pr["mergedAt"]) <= curr_date
     ]
 
 
@@ -434,7 +458,7 @@ def update_single_release(tag, repository):
     return build_changelog_section(version, date, categories, prev_tag, tag, repository, note=note)
 
 
-def insert_section_into_changelog(section):
+def insert_section_into_changelog(section, repository="hrzlgnm/mdns-browser"):
     """Insert a new section after [Unreleased] in CHANGELOG.md."""
     with open("CHANGELOG.md", "r") as f:
         content = f.read()
@@ -444,6 +468,7 @@ def insert_section_into_changelog(section):
 
     for i, line in enumerate(lines):
         if line.startswith("## [Unreleased]"):
+            insert_idx = i + 1
             for j in range(i + 1, len(lines)):
                 if lines[j].startswith("## ["):
                     insert_idx = j
@@ -457,17 +482,16 @@ def insert_section_into_changelog(section):
     section_lines = section.rstrip().split("\n")
     new_lines = lines[:insert_idx] + section_lines + [""] + lines[insert_idx:]
 
-    # Update Unreleased comparison link
-    tag = None
+    # Update Unreleased comparison link from the new section
     for line in section_lines:
-        m = re.search(r'\[(\d+\.\d+\.\d+)\]:.*compare/([^.]+' , line)
+        m = re.search(r'\[([0-9]+\.[0-9]+\.[0-9]+)\]:.*compare/([^)]+)\.\.\.([^)]+)', line)
         if m:
-            tag = m.group(2)
+            new_tag = m.group(3)
+            for idx, ln in enumerate(new_lines):
+                if ln.startswith("[Unreleased]:"):
+                    new_lines[idx] = f"[Unreleased]: https://github.com/{repository}/compare/{new_tag}...HEAD"
+                    break
             break
-    if tag:
-        for i, line in enumerate(new_lines):
-            if line.startswith("[Unreleased]:"):
-                new_lines[i] = f"[Unreleased]: https://github.com/hrzlgnm/mdns-browser/compare/{tag}...HEAD"
 
     with open("CHANGELOG.md", "w") as f:
         f.write("\n".join(new_lines))
@@ -477,7 +501,7 @@ def insert_section_into_changelog(section):
 
 def fetch_tags(prefix):
     """Fetch git tags with a specific prefix."""
-    raw = run("git tag --sort=-version:refname")
+    raw = run_optional(["git", "tag", "--sort=-version:refname"])
     if not raw:
         return []
     tags = raw.split("\n")
@@ -508,18 +532,19 @@ def generate_crate_changelog(crate_name, crate_path, repository):
     ]
 
     versions = []
-    for i, tag in enumerate(tags):
+    for tag in tags:
         version = strip_version_prefix(tag)
-        date_raw = run(f'git log -1 --format=%ai "{tag}"')
+        date_raw = run_optional(["git", "log", "-1", "--format=%ai", tag])
         date = parse_date_from_git(date_raw)
 
-        prev_tag = tags[i + 1] if i + 1 < len(tags) else None
+        tag_idx = tags.index(tag)
+        prev_tag = tags[tag_idx + 1] if tag_idx + 1 < len(tags) else None
 
         # Get commits between tags
         if prev_tag:
-            log = run(f'git log --oneline {prev_tag}..{tag} -- {crate_dir}/')
+            log = run_optional(["git", "log", "--oneline", f"{prev_tag}..{tag}", "--", f"{crate_dir}/"])
         else:
-            log = run(f'git log --oneline {tag} -- {crate_dir}/')
+            log = run_optional(["git", "log", "--oneline", tag, "--", f"{crate_dir}/"])
 
         categories = {"Added": [], "Changed": [], "Fixed": [], "Security": []}
         for line in log.split("\n"):
@@ -585,14 +610,6 @@ def parse_date_from_git(date_raw):
         return dt.strftime("%Y-%m-%d")
     except ValueError:
         return "Unknown"
-
-
-def pr_files_match_crate(pr, crate_dir):
-    """Check if PR files are all within a specific crate directory."""
-    files = pr.get("files", [])
-    if not files:
-        return False
-    return all(f.startswith(crate_dir + "/") or f.startswith(crate_dir + "\\") for f in files)
 
 
 def main():
