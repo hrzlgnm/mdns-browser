@@ -154,10 +154,6 @@ Only dependencies were updated.
 
 Only dependencies were updated.
 
-## [1.5.10] - 2026-03-04
-
-Only dependencies were updated.
-
 ## [1.5.9] - 2026-03-03
 
 Only dependencies were updated.
@@ -171,18 +167,6 @@ Only dependencies were updated.
 Only dependencies were updated.
 
 ## [1.5.6] - 2026-02-21
-
-### Added
-
-- feat: add debug symbols attestation and upload for all desktop platforms #1919
-
-## [1.5.5] - 2026-02-21
-
-### Added
-
-- feat: add debug symbols attestation and upload for all desktop platforms #1919
-
-## [1.5.4] - 2026-02-21
 
 ### Added
 
@@ -287,13 +271,6 @@ Only dependencies were updated.
 Only dependencies were updated.
 
 ## [0.28.1] - 2025-12-01
-
-### Changed
-
-- refactor: move local crates into directory `crates` #1697
-- refactor: move packaging related directories to `packaging` #1700
-
-## [0.28.0] - 2025-11-30
 
 ### Changed
 
@@ -814,14 +791,11 @@ No user-facing changes.
 [1.6.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.13...mdns-browser-v1.6.0
 [1.5.13]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.12...mdns-browser-v1.5.13
 [1.5.12]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.11...mdns-browser-v1.5.12
-[1.5.11]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.10...mdns-browser-v1.5.11
-[1.5.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.9...mdns-browser-v1.5.10
+[1.5.11]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.9...mdns-browser-v1.5.11
 [1.5.9]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.8...mdns-browser-v1.5.9
 [1.5.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.7...mdns-browser-v1.5.8
 [1.5.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.6...mdns-browser-v1.5.7
-[1.5.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.5...mdns-browser-v1.5.6
-[1.5.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.4...mdns-browser-v1.5.5
-[1.5.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.3...mdns-browser-v1.5.4
+[1.5.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.3...mdns-browser-v1.5.6
 [1.5.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.2...mdns-browser-v1.5.3
 [1.5.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.1...mdns-browser-v1.5.2
 [1.5.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.4.2...mdns-browser-v1.5.1
@@ -844,8 +818,7 @@ No user-facing changes.
 [1.0.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.1...mdns-browser-v1.0.5
 [1.0.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.0...mdns-browser-v1.0.1
 [1.0.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.28.1...mdns-browser-v1.0.0
-[0.28.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.28.0...mdns-browser-v0.28.1
-[0.28.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.8...mdns-browser-v0.28.0
+[0.28.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.8...mdns-browser-v0.28.1
 [0.27.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.7...mdns-browser-v0.27.8
 [0.27.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.6...mdns-browser-v0.27.7
 [0.27.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.5...mdns-browser-v0.27.6

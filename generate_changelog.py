@@ -30,7 +30,12 @@ def fetch_releases():
     if not raw:
         return []
     releases = json.loads(raw)
-    return [r for r in releases if r["tagName"].startswith("mdns-browser-v") and not r["isDraft"]]
+    return [
+        r for r in releases
+        if r["tagName"].startswith("mdns-browser-v")
+        and not r["isDraft"]
+        and not r["isPrerelease"]
+    ]
 
 
 def fetch_release_body(tag):
@@ -80,7 +85,7 @@ def update_pr_labels_if_needed(pr):
     if not is_ci_only_pr(files):
         return
 
-    labels = {l["name"].lower() for l in pr.get("labels", [])}
+    labels = {label["name"].lower() for label in pr.get("labels", [])}
     if "chore" in labels:
         return
 
@@ -91,12 +96,10 @@ def update_pr_labels_if_needed(pr):
 
 def fetch_merged_prs(prev_tag, current_tag):
     """Fetch PRs merged between two tags with their labels and files."""
-    # Try to get dates from releases first, fall back to git tags
     prev_date = fetch_release_date(prev_tag)
     curr_date = fetch_release_date(current_tag)
 
     if not prev_date or not curr_date:
-        # Fall back to git tag dates
         if prev_tag:
             prev_date = run(f'git log -1 --format=%ai "{prev_tag}"')
         curr_date = run(f'git log -1 --format=%ai "{current_tag}"')
@@ -106,21 +109,16 @@ def fetch_merged_prs(prev_tag, current_tag):
 
     raw = run(
         f'gh pr list --state merged --base main --limit 500 '
-        f'--json number,title,labels,mergedAt '
+        f'--json number,title,labels,mergedAt,files '
     )
     if not raw:
         return []
 
     prs = json.loads(raw)
-    merged = [
+    return [
         pr for pr in prs
         if pr["mergedAt"] >= prev_date and pr["mergedAt"] <= curr_date
     ]
-
-    for pr in merged:
-        pr["files"] = fetch_pr_files(pr["number"])
-
-    return merged
 
 
 # CI/internal label patterns - PRs with these labels are not user-facing
@@ -132,7 +130,7 @@ USER_FACING_LABELS = {"enhancement", "bug", "bugfix", "security", "feature"}
 
 def has_user_facing_label(pr):
     """Check if PR has user-facing labels or changes."""
-    labels = {l["name"].lower() for l in pr.get("labels", [])}
+    labels = {label["name"].lower() for label in pr.get("labels", [])}
     if labels & USER_FACING_LABELS:
         return True
     if labels & CI_LABELS:
@@ -152,7 +150,7 @@ def has_user_facing_label(pr):
 def classify_pr(pr):
     """Classify PR into Keep a Changelog category based on title and labels."""
     title = pr["title"]
-    labels = {l["name"].lower() for l in pr.get("labels", [])}
+    labels = {label["name"].lower() for label in pr.get("labels", [])}
 
     if labels & {"security"} or "GHSA-" in title:
         return "Security"
@@ -171,11 +169,6 @@ def classify_pr(pr):
     if title.startswith("bump"):
         return "Changed"
     return None
-
-
-def classify_pr_for_crate(pr):
-    """Classify PR for crate changelog (includes all changes)."""
-    return classify_pr(pr)
 
 
 # Content-based filtering for full regeneration mode
@@ -332,7 +325,7 @@ def has_dep_updates(body):
     return False
 
 
-def generate_full_changelog():
+def generate_full_changelog(repository="hrzlgnm/mdns-browser"):
     """Full regeneration of CHANGELOG.md."""
     print("Fetching releases...", file=sys.stderr)
     releases = fetch_releases()
@@ -372,11 +365,12 @@ def generate_full_changelog():
             lines.append("")
         if i + 1 < len(versions):
             prev_tag = versions[i + 1][3]
-            link_defs.append(f"[{version}]: https://github.com/hrzlgnm/mdns-browser/compare/{prev_tag}...{tag}")
+            link_defs.append(f"[{version}]: https://github.com/{repository}/compare/{prev_tag}...{tag}")
         else:
-            link_defs.append(f"[{version}]: https://github.com/hrzlgnm/mdns-browser/releases/tag/{tag}")
+            link_defs.append(f"[{version}]: https://github.com/{repository}/releases/tag/{tag}")
 
-    lines.append(f"[Unreleased]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v{versions[0][0]}...HEAD")
+    if versions:
+        lines.append(f"[Unreleased]: https://github.com/{repository}/compare/{versions[0][3]}...HEAD")
     for link in link_defs:
         lines.append(link)
 
@@ -534,7 +528,7 @@ def generate_crate_changelog(crate_name, crate_path, repository):
             parts = line.split(" ", 1)
             if len(parts) < 2:
                 continue
-            commit_hash, message = parts
+            _commit_hash, message = parts
             # Skip version bump commits
             if re.match(r'^bump\s', message, re.IGNORECASE):
                 continue
@@ -542,25 +536,14 @@ def generate_crate_changelog(crate_name, crate_path, repository):
             if re.match(r'^revert\s.*bump', message, re.IGNORECASE):
                 continue
 
-            # Extract PR number if present
-            pr_match = re.search(r'#(\d+)', message)
-            pr_num = pr_match.group(1) if pr_match else None
-
             cat = classify_commit_message(message)
             if cat:
-                # Remove duplicate PR ref if already in message
-                if pr_num and f"#{pr_num}" in message:
-                    entry = message
-                elif pr_num:
-                    entry = f"{message} #{pr_num}"
-                else:
-                    entry = message
-                categories[cat].append(entry)
+                categories[cat].append(message)
 
         versions.append((version, date, categories, tag, None, prev_tag))
 
     link_defs = []
-    for i, (version, date, categories, tag, note, prev_tag) in enumerate(versions):
+    for version, date, categories, tag, note, prev_tag in versions:
         section = build_changelog_section(version, date, categories, note=note)
         if section:
             lines.append(section.rstrip())
@@ -590,7 +573,7 @@ def classify_commit_message(message):
         return "Security"
     if message.startswith("breaking"):
         return "Changed"
-    return "Changed"
+    return None
 
 
 def parse_date_from_git(date_raw):
@@ -620,24 +603,31 @@ def main():
     parser.add_argument("--crate-path", help="Path to crate directory (e.g., crates/webkit2gtk-nvidia-quirk)")
     args = parser.parse_args()
 
-    if args.tag:
-        section = update_single_release(args.tag, args.repository)
-        if section:
-            print(section)
+    if bool(args.crate) != bool(args.crate_path):
+        parser.error("--crate and --crate-path must be used together")
+
+    try:
+        if args.tag:
+            section = update_single_release(args.tag, args.repository)
+            if section:
+                print(section)
+            else:
+                print("Error: could not generate section", file=sys.stderr)
+                sys.exit(1)
+        elif args.crate and args.crate_path:
+            changelog = generate_crate_changelog(args.crate, args.crate_path, args.repository)
+            output_path = f"{args.crate_path}/CHANGELOG.md"
+            with open(output_path, "w") as f:
+                f.write(changelog)
+            print(f"Changelog written to {output_path}", file=sys.stderr)
         else:
-            print("Error: could not generate section", file=sys.stderr)
-            sys.exit(1)
-    elif args.crate and args.crate_path:
-        changelog = generate_crate_changelog(args.crate, args.crate_path, args.repository)
-        output_path = f"{args.crate_path}/CHANGELOG.md"
-        with open(output_path, "w") as f:
-            f.write(changelog)
-        print(f"Changelog written to {output_path}", file=sys.stderr)
-    else:
-        changelog = generate_full_changelog()
-        with open("CHANGELOG.md", "w") as f:
-            f.write(changelog)
-        print("Changelog written to CHANGELOG.md", file=sys.stderr)
+            changelog = generate_full_changelog(args.repository)
+            with open("CHANGELOG.md", "w") as f:
+                f.write(changelog)
+            print("Changelog written to CHANGELOG.md", file=sys.stderr)
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
