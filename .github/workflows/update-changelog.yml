@@ -6,6 +6,8 @@ name: Update Changelog
 on:
   push:
     branches: [main]
+  release:
+    types: [published]
 
 permissions:
   contents: write
