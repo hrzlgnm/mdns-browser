@@ -1,0 +1,80 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+name: "📝 Update Changelog"
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write # Needed to push to the update branch
+  pull-requests: write # Needed to create/update the pull request
+
+concurrency:
+  group: update-changelog
+  cancel-in-progress: true
+
+jobs:
+  update-changelog:
+    name: "📝 Update Unreleased Changelog"
+    runs-on: ubuntu-slim
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Install git-cliff
+        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
+        with:
+          crate: git-cliff
+          version: 2.13.1
+          locked: true
+
+      - name: 📝 Generate changelog
+        run: |
+          git-cliff --output CHANGELOG.md
+          git-cliff --config cliff-webkit2gtk.toml --output crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
+
+      - name: ⚙️ Set up SSH signing key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/id_ed25519_signing
+          chmod 600 ~/.ssh/id_ed25519_signing
+          git config --global gpg.format ssh
+          git config --global user.signingKey ~/.ssh/id_ed25519_signing
+          git config --global user.name "hrzlgnm"
+          git config --global user.email "hrzlgnm@users.noreply.github.com"
+
+      - name: 🔁 Create or update Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GH_CONTENT_WRITE }}
+        run: |
+          if git diff --quiet CHANGELOG.md crates/webkit2gtk-nvidia-quirk/CHANGELOG.md; then
+            echo "No changes to changelog"
+            exit 0
+          fi
+
+          BRANCH="chore/update-changelog"
+          git checkout -B "$BRANCH"
+          git add CHANGELOG.md crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
+          git commit -S -m "chore(version): update unreleased changelog"
+          git push --force-with-lease origin "$BRANCH"
+
+          if [ "$(gh pr list --head "$BRANCH" --state open --json number --jq 'length')" = "0" ]; then
+            gh pr create \
+              --title "chore: update unreleased changelog" \
+              --body "Automated update of the \`[Unreleased]\` section in \`CHANGELOG.md\`.
+
+          This PR is created automatically on every push to \`main\`
+          by running \`git-cliff\` without a version tag." \
+              --label chore
+          fi
+
+          gh pr merge "$BRANCH" --auto --squash
+
+      - name: 🧹 Cleanup SSH signing key
+        if: always()
+        run: rm -f ~/.ssh/id_ed25519_signing
