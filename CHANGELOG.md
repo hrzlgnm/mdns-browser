@@ -7,12 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- Ignore update changelog PRs in release-drafter (#2316) ([#2316](https://github.com/hrzlgnm/mdns-browser/pull/2316))
-
-## [Unreleased]
-
 ### Added
 
 - Replace generate_changelog.py with git-cliff (#2311) ([#2311](https://github.com/hrzlgnm/mdns-browser/pull/2311))
@@ -48,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add GH_TOKEN to changelog generation steps in workflow (#2310) ([#2310](https://github.com/hrzlgnm/mdns-browser/pull/2310))
 
 - Include changelog in packaging configurations (#2314) ([#2314](https://github.com/hrzlgnm/mdns-browser/pull/2314))
+
+- Ignore update changelog PRs in release-drafter (#2316) ([#2316](https://github.com/hrzlgnm/mdns-browser/pull/2316))
 
 ## [1.9.18] - 2026-07-17
 
