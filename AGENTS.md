@@ -214,6 +214,18 @@ actionlint .github/workflows/*.yml
 ```
 3. **Use conventional commits**: Follow the conventional commits format (e.g., `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`)
 
+## After Completion
+
+After all checks pass and changes are committed:
+
+1. **Push changes** to the repository
+2. **Create a pull request** with a descriptive title using conventional commit format
+3. **Include in PR description**:
+   - Summary of changes made
+   - Any relevant issue numbers (e.g., "Closes #123")
+   - Testing performed
+4. **Request review** if applicable
+
 ## Before Modifying Workflows or Actions
 
 When changing any GitHub Actions workflows (.github/workflows/*.yml) or actions (.github/actions/*/action.yml):
