@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.9.20] - 2026-07-26
+## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.20...HEAD)
+
+### Changed
+
+- Move changelog comparison links inline with version sections (#2320) ([#2320](https://github.com/hrzlgnm/mdns-browser/pull/2320))
+
+## [1.9.20] - 2026-07-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.19...mdns-browser-v1.9.20)
 
 ### Added
 
@@ -45,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Ignore update changelog PRs in release-drafter (#2316) ([#2316](https://github.com/hrzlgnm/mdns-browser/pull/2316))
 
-## [1.9.18] - 2026-07-17
+## [1.9.18] - 2026-07-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.17...mdns-browser-v1.9.18)
 
 ### Changed
 
@@ -69,7 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tokio to v1.53.0 (#2294) ([#2294](https://github.com/hrzlgnm/mdns-browser/pull/2294))
 
-## [1.9.16] - 2026-07-14
+## [1.9.16] - 2026-07-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.15...mdns-browser-v1.9.16)
 
 ### Added
 
@@ -107,25 +113,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Migrate release-drafter to new category syntax (#2275) ([#2275](https://github.com/hrzlgnm/mdns-browser/pull/2275))
 
-## [1.9.15] - 2026-07-05
+## [1.9.15] - 2026-07-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.14...mdns-browser-v1.9.15)
 
 ### Fixed
 
 - Add shell: bash to get current release body step for Windows compatibility (#2256) ([#2256](https://github.com/hrzlgnm/mdns-browser/pull/2256))
 
-## [1.9.14] - 2026-07-05
+## [1.9.14] - 2026-07-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.13...mdns-browser-v1.9.14)
 
 ### Fixed
 
 - Use curl instead of gh for fetching release body
 
-## [1.9.13] - 2026-07-05
+## [1.9.13] - 2026-07-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.12...mdns-browser-v1.9.13)
 
 ### Fixed
 
 - Preserve release notes from release-drafter when tauri-action uploads artifacts (#2253) ([#2253](https://github.com/hrzlgnm/mdns-browser/pull/2253))
 
-## [1.9.12] - 2026-07-05
+## [1.9.12] - 2026-07-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.11...mdns-browser-v1.9.12)
 
 ### Changed
 
@@ -145,7 +151,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dorny/paths-filter action to v4.0.2 (#2252) ([#2252](https://github.com/hrzlgnm/mdns-browser/pull/2252))
 
-## [1.9.11] - 2026-06-26
+## [1.9.11] - 2026-06-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.10...mdns-browser-v1.9.11)
 
 ### Changed
 
@@ -169,7 +175,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update actions/attest digest to a1948c3 (#2233) ([#2233](https://github.com/hrzlgnm/mdns-browser/pull/2233))
 
-## [1.9.10] - 2026-06-18
+## [1.9.10] - 2026-06-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.9...mdns-browser-v1.9.10)
 
 ### Changed
 
@@ -183,7 +189,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency tauri-cli to v2.11.3 (#2213) ([#2213](https://github.com/hrzlgnm/mdns-browser/pull/2213))
 
-## [1.9.9] - 2026-06-04
+## [1.9.9] - 2026-06-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.8...mdns-browser-v1.9.9)
 
 ### Changed
 
@@ -215,7 +221,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate serde_with to v3.21.0 (#2200) ([#2200](https://github.com/hrzlgnm/mdns-browser/pull/2200))
 
-## [1.9.8] - 2026-05-18
+## [1.9.8] - 2026-05-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.7...mdns-browser-v1.9.8)
 
 ### Changed
 
@@ -237,13 +243,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to v0.19.2 (#2176) ([#2176](https://github.com/hrzlgnm/mdns-browser/pull/2176))
 
-## [1.9.7] - 2026-05-08
+## [1.9.7] - 2026-05-08 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.6...mdns-browser-v1.9.7)
 
 ### Fixed
 
 - Specify repo for gh release download in homebrew workflow (#2157) ([#2157](https://github.com/hrzlgnm/mdns-browser/pull/2157))
 
-## [1.9.6] - 2026-05-06
+## [1.9.6] - 2026-05-06 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.5...mdns-browser-v1.9.6)
 
 ### Added
 
@@ -259,13 +265,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Address review comments missed from #2154 (#2155) ([#2154](https://github.com/hrzlgnm/mdns-browser/pull/2154)) ([#2155](https://github.com/hrzlgnm/mdns-browser/pull/2155))
 
-## [1.9.5] - 2026-05-04
+## [1.9.5] - 2026-05-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.4...mdns-browser-v1.9.5)
 
 ### Changed
 
 - *(deps)* Update rust crate tokio to v1.52.2 (#2147) ([#2147](https://github.com/hrzlgnm/mdns-browser/pull/2147))
 
-## [1.9.4] - 2026-05-03
+## [1.9.4] - 2026-05-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.3...mdns-browser-v1.9.4)
 
 ### Changed
 
@@ -273,7 +279,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate serde_with to v3.19.0 (#2145) ([#2145](https://github.com/hrzlgnm/mdns-browser/pull/2145))
 
-## [1.9.3] - 2026-04-30
+## [1.9.3] - 2026-04-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.2...mdns-browser-v1.9.3)
 
 ### Changed
 
@@ -285,7 +291,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update tauri monorepo (#2139) ([#2139](https://github.com/hrzlgnm/mdns-browser/pull/2139))
 
-## [1.9.2] - 2026-04-24
+## [1.9.2] - 2026-04-24 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.1...mdns-browser-v1.9.2)
 
 ### Changed
 
@@ -293,7 +299,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update mozilla-actions/sccache-action action to v0.0.10 (#2133) ([#2133](https://github.com/hrzlgnm/mdns-browser/pull/2133))
 
-## [1.9.1] - 2026-04-20
+## [1.9.1] - 2026-04-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.0...mdns-browser-v1.9.1)
 
 ### Changed
 
@@ -301,7 +307,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to v0.19.1 (#2129) ([#2129](https://github.com/hrzlgnm/mdns-browser/pull/2129))
 
-## [1.9.0] - 2026-04-17
+## [1.9.0] - 2026-04-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.8.4...mdns-browser-v1.9.0)
 
 ### Added
 
@@ -319,7 +325,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Resolve variable shadowing and replace Memo with Signal::derive (#2125) ([#2125](https://github.com/hrzlgnm/mdns-browser/pull/2125))
 
-## [1.8.4] - 2026-04-15
+## [1.8.4] - 2026-04-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.8.3...mdns-browser-v1.8.4)
 
 ### Changed
 
@@ -333,7 +339,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Handle disposal gracefully in ResolvedServiceItem component (#2113) ([#2113](https://github.com/hrzlgnm/mdns-browser/pull/2113))
 
-## [1.8.3] - 2026-04-14
+## [1.8.3] - 2026-04-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.8.2...mdns-browser-v1.8.3)
 
 ### Changed
 
@@ -367,7 +373,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Ensure url memo tracks reactive field changes (#2107) ([#2107](https://github.com/hrzlgnm/mdns-browser/pull/2107))
 
-## [1.8.2] - 2026-04-08
+## [1.8.2] - 2026-04-08 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.8.1...mdns-browser-v1.8.2)
 
 ### Changed
 
@@ -375,7 +381,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use sysfs instead of udev for GPU detection (#2083) ([#2083](https://github.com/hrzlgnm/mdns-browser/pull/2083))
 
-## [1.8.1] - 2026-04-07
+## [1.8.1] - 2026-04-07 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.8.0...mdns-browser-v1.8.1)
 
 ### Added
 
@@ -393,7 +399,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use ubuntu builder image the correct step (#2080) ([#2080](https://github.com/hrzlgnm/mdns-browser/pull/2080))
 
-## [1.8.0] - 2026-04-06
+## [1.8.0] - 2026-04-06 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.7.1...mdns-browser-v1.8.0)
 
 ### Added
 
@@ -407,7 +413,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Clarify the issues webkit2gtk has with nvidia drivers (#2068) ([#2068](https://github.com/hrzlgnm/mdns-browser/pull/2068))
 
-## [1.7.1] - 2026-04-05
+## [1.7.1] - 2026-04-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.7.0...mdns-browser-v1.7.1)
 
 ### Changed
 
@@ -419,7 +425,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update mdns-sd digest to d5f9060 (#2061) ([#2061](https://github.com/hrzlgnm/mdns-browser/pull/2061))
 
-## [1.7.0] - 2026-04-04
+## [1.7.0] - 2026-04-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.6.0...mdns-browser-v1.7.0)
 
 ### Added
 
@@ -435,7 +441,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update agents (#2057) ([#2057](https://github.com/hrzlgnm/mdns-browser/pull/2057))
 
-## [1.6.0] - 2026-04-03
+## [1.6.0] - 2026-04-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.13...mdns-browser-v1.6.0)
 
 ### Added
 
@@ -451,7 +457,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tokio to v1.51.0 (#2048) ([#2048](https://github.com/hrzlgnm/mdns-browser/pull/2048))
 
-## [1.5.13] - 2026-03-29
+## [1.5.13] - 2026-03-29 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.12...mdns-browser-v1.5.13)
 
 ### Changed
 
@@ -507,7 +513,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Resolve 3 security vulnerabilities in dependencies (#2041) ([#2041](https://github.com/hrzlgnm/mdns-browser/pull/2041))
 
-## [1.5.12] - 2026-03-11
+## [1.5.12] - 2026-03-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.11...mdns-browser-v1.5.12)
 
 ### Added
 
@@ -559,7 +565,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add actionlint validation step to CI workflow (#1990) ([#1990](https://github.com/hrzlgnm/mdns-browser/pull/1990))
 
-## [1.5.10] - 2026-03-04
+## [1.5.10] - 2026-03-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.9...mdns-browser-v1.5.10)
 
 ### Changed
 
@@ -571,7 +577,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update tauri monorepo (#1961) ([#1961](https://github.com/hrzlgnm/mdns-browser/pull/1961))
 
-## [1.5.9] - 2026-03-03
+## [1.5.9] - 2026-03-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.8...mdns-browser-v1.5.9)
 
 ### Changed
 
@@ -585,7 +591,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tokio to v1.50.0 (#1956) ([#1956](https://github.com/hrzlgnm/mdns-browser/pull/1956))
 
-## [1.5.8] - 2026-03-01
+## [1.5.8] - 2026-03-01 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.7...mdns-browser-v1.5.8)
 
 ### Changed
 
@@ -593,7 +599,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate leptos to v0.8.17 (#1945) ([#1945](https://github.com/hrzlgnm/mdns-browser/pull/1945))
 
-## [1.5.7] - 2026-02-28
+## [1.5.7] - 2026-02-28 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.6...mdns-browser-v1.5.7)
 
 ### Changed
 
@@ -621,7 +627,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update actions/attest-build-provenance action to v4 (#1936) ([#1936](https://github.com/hrzlgnm/mdns-browser/pull/1936))
 
-## [1.5.6] - 2026-02-21
+## [1.5.6] - 2026-02-21 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.5...mdns-browser-v1.5.6)
 
 ### Changed
 
@@ -629,13 +635,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Rename debug symbol artifacts (#1922) ([#1922](https://github.com/hrzlgnm/mdns-browser/pull/1922))
 
-## [1.5.5] - 2026-02-21
+## [1.5.5] - 2026-02-21 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.4...mdns-browser-v1.5.5)
 
 ### Changed
 
 - Remove debug logs for received events (#1921) ([#1921](https://github.com/hrzlgnm/mdns-browser/pull/1921))
 
-## [1.5.4] - 2026-02-21
+## [1.5.4] - 2026-02-21 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.3...mdns-browser-v1.5.4)
 
 ### Added
 
@@ -645,7 +651,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Optimize interface filtering (#1918) ([#1918](https://github.com/hrzlgnm/mdns-browser/pull/1918))
 
-## [1.5.3] - 2026-02-20
+## [1.5.3] - 2026-02-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.2...mdns-browser-v1.5.3)
 
 ### Changed
 
@@ -655,7 +661,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Aur deployment key setup (#1917) ([#1917](https://github.com/hrzlgnm/mdns-browser/pull/1917))
 
-## [1.5.2] - 2026-02-19
+## [1.5.2] - 2026-02-19 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.1...mdns-browser-v1.5.2)
 
 ### Added
 
@@ -675,7 +681,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use env vars for secrets in workflows to prevent log exposure (#1914) ([#1914](https://github.com/hrzlgnm/mdns-browser/pull/1914))
 
-## [1.5.1] - 2026-02-18
+## [1.5.1] - 2026-02-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.0...mdns-browser-v1.5.1)
 
 ### Changed
 
@@ -683,7 +689,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update year in LICENSE (#1905) ([#1905](https://github.com/hrzlgnm/mdns-browser/pull/1905))
 
-## [1.5.0] - 2026-02-18
+## [1.5.0] - 2026-02-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.4.2...mdns-browser-v1.5.0)
 
 ### Added
 
@@ -695,7 +701,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency tauri-cli to v2.10.0 (#1903) ([#1903](https://github.com/hrzlgnm/mdns-browser/pull/1903))
 
-## [1.4.2] - 2026-02-18
+## [1.4.2] - 2026-02-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.4.1...mdns-browser-v1.4.2)
 
 ### Changed
 
@@ -707,7 +713,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate leptos to v0.8.16 (#1898) ([#1898](https://github.com/hrzlgnm/mdns-browser/pull/1898))
 
-## [1.4.1] - 2026-02-15
+## [1.4.1] - 2026-02-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.4.0...mdns-browser-v1.4.1)
 
 ### Changed
 
@@ -719,7 +725,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to 0.18 (#1887) ([#1887](https://github.com/hrzlgnm/mdns-browser/pull/1887))
 
-## [1.4.0] - 2026-02-11
+## [1.4.0] - 2026-02-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.3.2...mdns-browser-v1.4.0)
 
 ### Changed
 
@@ -745,7 +751,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Various issues in the new release workflow (#1880) ([#1880](https://github.com/hrzlgnm/mdns-browser/pull/1880))
 
-## [1.3.2] - 2026-02-08
+## [1.3.2] - 2026-02-08 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.3.1...mdns-browser-v1.3.2)
 
 ### Changed
 
@@ -755,7 +761,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add man page (#1866) ([#1866](https://github.com/hrzlgnm/mdns-browser/pull/1866))
 
-## [1.3.1] - 2026-02-07
+## [1.3.1] - 2026-02-07 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.3.0...mdns-browser-v1.3.1)
 
 ### Changed
 
@@ -775,7 +781,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update MSRV to 1.88 to allow for security updates (#1861) ([#1861](https://github.com/hrzlgnm/mdns-browser/pull/1861))
 
-## [1.3.0] - 2026-02-04
+## [1.3.0] - 2026-02-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.2.3...mdns-browser-v1.3.0)
 
 ### Added
 
@@ -811,7 +817,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add 'enhancement' label to minor version changes (#1852) ([#1852](https://github.com/hrzlgnm/mdns-browser/pull/1852))
 
-## [1.2.2] - 2026-02-03
+## [1.2.2] - 2026-02-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.2.1...mdns-browser-v1.2.2)
 
 ### Changed
 
@@ -823,13 +829,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Increase release optimization to level 'z' and retain debug info (#1825) ([#1825](https://github.com/hrzlgnm/mdns-browser/pull/1825))
 
-## [1.2.1] - 2026-01-28
+## [1.2.1] - 2026-01-28 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.2.0...mdns-browser-v1.2.1)
 
 ### Fixed
 
 - Ignore service type removal events (#1828) ([#1828](https://github.com/hrzlgnm/mdns-browser/pull/1828))
 
-## [1.2.0] - 2026-01-27
+## [1.2.0] - 2026-01-27 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.1.2...mdns-browser-v1.2.0)
 
 ### Changed
 
@@ -841,7 +847,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Skip service subtypes in service type enumeration (#1824) ([#1824](https://github.com/hrzlgnm/mdns-browser/pull/1824))
 
-## [1.1.2] - 2026-01-22
+## [1.1.2] - 2026-01-22 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.1.1...mdns-browser-v1.1.2)
 
 ### Changed
 
@@ -861,13 +867,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update release-drafter/release-drafter action to v6.2.0 (#1820) ([#1820](https://github.com/hrzlgnm/mdns-browser/pull/1820))
 
-## [1.1.1] - 2026-01-17
+## [1.1.1] - 2026-01-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.1.0...mdns-browser-v1.1.1)
 
 ### Changed
 
 - *(deps)* Update rust crate mdns-sd to v0.17.2 (#1802) ([#1802](https://github.com/hrzlgnm/mdns-browser/pull/1802))
 
-## [1.1.0] - 2026-01-16
+## [1.1.0] - 2026-01-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.8...mdns-browser-v1.1.0)
 
 ### Added
 
@@ -877,7 +883,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate chrono to v0.4.43 (#1797) ([#1797](https://github.com/hrzlgnm/mdns-browser/pull/1797))
 
-## [1.0.8] - 2026-01-14
+## [1.0.8] - 2026-01-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.7...mdns-browser-v1.0.8)
 
 ### Changed
 
@@ -901,7 +907,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency cargo-nextest to v0.9.122 (#1792) ([#1792](https://github.com/hrzlgnm/mdns-browser/pull/1792))
 
-## [1.0.7] - 2026-01-04
+## [1.0.7] - 2026-01-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.6...mdns-browser-v1.0.7)
 
 ### Changed
 
@@ -937,7 +943,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate icondata to 0.7 (#1778) ([#1778](https://github.com/hrzlgnm/mdns-browser/pull/1778))
 
-## [1.0.6] - 2025-12-19
+## [1.0.6] - 2025-12-19 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.5...mdns-browser-v1.0.6)
 
 ### Changed
 
@@ -951,7 +957,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate leptos to v0.8.15 (#1754) ([#1754](https://github.com/hrzlgnm/mdns-browser/pull/1754))
 
-## [1.0.5] - 2025-12-16
+## [1.0.5] - 2025-12-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.4...mdns-browser-v1.0.5)
 
 ### Changed
 
@@ -963,25 +969,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(void)* Use correct version outputs after refactoring (#1745) ([#1745](https://github.com/hrzlgnm/mdns-browser/pull/1745))
 
-## [1.0.4] - 2025-12-14
+## [1.0.4] - 2025-12-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.3...mdns-browser-v1.0.4)
 
 ### Changed
 
 - *(ci)* Add missing actions write permissions (#1737) ([#1737](https://github.com/hrzlgnm/mdns-browser/pull/1737))
 
-## [1.0.3] - 2025-12-14
+## [1.0.3] - 2025-12-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.2...mdns-browser-v1.0.3)
 
 ### Changed
 
 - *(ci)* Pass gh token to gh workflow run (#1736) ([#1736](https://github.com/hrzlgnm/mdns-browser/pull/1736))
 
-## [1.0.2] - 2025-12-14
+## [1.0.2] - 2025-12-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.1...mdns-browser-v1.0.2)
 
 ### Changed
 
 - *(ci)* Trigger release drafter run after bumping the version (#1735) ([#1735](https://github.com/hrzlgnm/mdns-browser/pull/1735))
 
-## [1.0.1] - 2025-12-13
+## [1.0.1] - 2025-12-13 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.0...mdns-browser-v1.0.1)
 
 ### Added
 
@@ -1005,7 +1011,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update hrzlgnm/actions action to v1.5.6 (#1733) ([#1733](https://github.com/hrzlgnm/mdns-browser/pull/1733))
 
-## [1.0.0] - 2025-12-06
+## [1.0.0] - 2025-12-06 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.28.1...mdns-browser-v1.0.0)
 
 ### Changed
 
@@ -1031,13 +1037,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to v0.17.1 (#1722) ([#1722](https://github.com/hrzlgnm/mdns-browser/pull/1722))
 
-## [0.28.1] - 2025-12-01
+## [0.28.1] - 2025-12-01 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.28.0...mdns-browser-v0.28.1)
 
 ### Changed
 
 - *(ci)* Fix missing sbom for android on publish (#1703) ([#1703](https://github.com/hrzlgnm/mdns-browser/pull/1703))
 
-## [0.28.0] - 2025-11-30
+## [0.28.0] - 2025-11-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.8...mdns-browser-v0.28.0)
 
 ### Changed
 
@@ -1059,13 +1065,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Tweak coderabbit settings (#1702) ([#1702](https://github.com/hrzlgnm/mdns-browser/pull/1702))
 
-## [0.27.8] - 2025-11-29
+## [0.27.8] - 2025-11-29 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.7...mdns-browser-v0.27.8)
 
 ### Fixed
 
 - Add workaround --no-sign not working as expected (#1687) ([#1687](https://github.com/hrzlgnm/mdns-browser/pull/1687))
 
-## [0.27.7] - 2025-11-29
+## [0.27.7] - 2025-11-29 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.6...mdns-browser-v0.27.7)
 
 ### Changed
 
@@ -1117,7 +1123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update hrzlgnm/actions action to v1.3.0 (#1685) ([#1685](https://github.com/hrzlgnm/mdns-browser/pull/1685))
 
-## [0.27.6] - 2025-11-24
+## [0.27.6] - 2025-11-24 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.5...mdns-browser-v0.27.6)
 
 ### Changed
 
@@ -1145,13 +1151,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add badges for license and build status (#1658) ([#1658](https://github.com/hrzlgnm/mdns-browser/pull/1658))
 
-## [0.27.5] - 2025-11-20
+## [0.27.5] - 2025-11-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.4...mdns-browser-v0.27.5)
 
 ### Changed
 
 - *(aur)* Use another directory in lint step (#1638) ([#1638](https://github.com/hrzlgnm/mdns-browser/pull/1638))
 
-## [0.27.4] - 2025-11-20
+## [0.27.4] - 2025-11-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.3...mdns-browser-v0.27.4)
 
 ### Changed
 
@@ -1177,25 +1183,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.53 (#1636) ([#1636](https://github.com/hrzlgnm/mdns-browser/pull/1636))
 
-## [0.27.3] - 2025-11-16
+## [0.27.3] - 2025-11-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.2...mdns-browser-v0.27.3)
 
 ### Changed
 
 - *(ci)* Create SBOM before building (#1611) ([#1611](https://github.com/hrzlgnm/mdns-browser/pull/1611))
 
-## [0.27.2] - 2025-11-16
+## [0.27.2] - 2025-11-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.1...mdns-browser-v0.27.2)
 
 ### Changed
 
 - *(ci)* Filter changes more granulary (#1610) ([#1610](https://github.com/hrzlgnm/mdns-browser/pull/1610))
 
-## [0.27.1] - 2025-11-16
+## [0.27.1] - 2025-11-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.0...mdns-browser-v0.27.1)
 
 ### Changed
 
 - *(desktop)* Prefer NSIS updater in latest.json (#1603) ([#1603](https://github.com/hrzlgnm/mdns-browser/pull/1603))
 
-## [0.27.0] - 2025-11-16
+## [0.27.0] - 2025-11-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.8...mdns-browser-v0.27.0)
 
 ### Changed
 
@@ -1207,19 +1213,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Create sbom for android (#1598) ([#1598](https://github.com/hrzlgnm/mdns-browser/pull/1598))
 
-## [0.26.8] - 2025-11-15
+## [0.26.8] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.7...mdns-browser-v0.26.8)
 
 ### Changed
 
 - *(ci)* Resolve an artifact name collision (#1587) ([#1587](https://github.com/hrzlgnm/mdns-browser/pull/1587))
 
-## [0.26.7] - 2025-11-15
+## [0.26.7] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.6...mdns-browser-v0.26.7)
 
 ### Changed
 
 - *(ci)* Fix conflict of asset checksums with source checksums (#1586) ([#1586](https://github.com/hrzlgnm/mdns-browser/pull/1586))
 
-## [0.26.5] - 2025-11-15
+## [0.26.5] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.4...mdns-browser-v0.26.5)
 
 ### Changed
 
@@ -1229,31 +1235,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Refactor publishing (#1584) ([#1584](https://github.com/hrzlgnm/mdns-browser/pull/1584))
 
-## [0.26.4] - 2025-11-15
+## [0.26.4] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.3...mdns-browser-v0.26.4)
 
 ### Changed
 
 - *(aur)* Build mdns-browser without bundling (#1580) ([#1580](https://github.com/hrzlgnm/mdns-browser/pull/1580))
 
-## [0.26.3] - 2025-11-15
+## [0.26.3] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.2...mdns-browser-v0.26.3)
 
 ### Changed
 
 - *(ci)* Only build changed dockerfiles in pull requests (#1577) ([#1577](https://github.com/hrzlgnm/mdns-browser/pull/1577))
 
-## [0.26.2] - 2025-11-15
+## [0.26.2] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.1...mdns-browser-v0.26.2)
 
 ### Changed
 
 - *(aur)* Enable default binary stripping in mdns-browser-bin package (#1574) ([#1574](https://github.com/hrzlgnm/mdns-browser/pull/1574))
 
-## [0.26.1] - 2025-11-15
+## [0.26.1] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.0...mdns-browser-v0.26.1)
 
 ### Changed
 
 - *(ci)* Move android specific steps after rust steps (#1572) ([#1572](https://github.com/hrzlgnm/mdns-browser/pull/1572))
 
-## [0.26.0] - 2025-11-15
+## [0.26.0] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.8...mdns-browser-v0.26.0)
 
 ### Changed
 
@@ -1267,13 +1273,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update updater endpoints (#1571) ([#1571](https://github.com/hrzlgnm/mdns-browser/pull/1571))
 
-## [0.25.8] - 2025-11-12
+## [0.25.8] - 2025-11-12 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.7...mdns-browser-v0.25.8)
 
 ### Changed
 
 - *(ci)* Fix conditional `sccache` (#1562) ([#1562](https://github.com/hrzlgnm/mdns-browser/pull/1562))
 
-## [0.25.7] - 2025-11-12
+## [0.25.7] - 2025-11-12 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.6...mdns-browser-v0.25.7)
 
 ### Changed
 
@@ -1281,13 +1287,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Fix passing caching flags (#1560) ([#1560](https://github.com/hrzlgnm/mdns-browser/pull/1560))
 
-## [0.25.6] - 2025-11-12
+## [0.25.6] - 2025-11-12 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.5...mdns-browser-v0.25.6)
 
 ### Changed
 
 - *(ci)* Handle enabling `sccache` correctly (#1559) ([#1559](https://github.com/hrzlgnm/mdns-browser/pull/1559))
 
-## [0.25.5] - 2025-11-12
+## [0.25.5] - 2025-11-12 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.4...mdns-browser-v0.25.5)
 
 ### Changed
 
@@ -1309,7 +1315,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Rename publish workflows for better clarity (#1558) ([#1558](https://github.com/hrzlgnm/mdns-browser/pull/1558))
 
-## [0.25.4] - 2025-11-07
+## [0.25.4] - 2025-11-07 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.3...mdns-browser-v0.25.4)
 
 ### Changed
 
@@ -1317,7 +1323,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Update bump version workflow (#1543) ([#1543](https://github.com/hrzlgnm/mdns-browser/pull/1543))
 
-## [0.25.3] - 2025-11-07
+## [0.25.3] - 2025-11-07 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.2...mdns-browser-v0.25.3)
 
 ### Changed
 
@@ -1335,7 +1341,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to 0.17 (#1537) ([#1537](https://github.com/hrzlgnm/mdns-browser/pull/1537))
 
-## [0.25.2] - 2025-11-03
+## [0.25.2] - 2025-11-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.1...mdns-browser-v0.25.2)
 
 ### Changed
 
@@ -1351,13 +1357,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Add building and publishing of un-bundled executables (#1521) ([#1521](https://github.com/hrzlgnm/mdns-browser/pull/1521))
 
-## [0.25.1] - 2025-10-30
+## [0.25.1] - 2025-10-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.0...mdns-browser-v0.25.1)
 
 ### Changed
 
 - *(ci)* Add unzip to ubuntu builder dependencies (#1507) ([#1507](https://github.com/hrzlgnm/mdns-browser/pull/1507))
 
-## [0.25.0] - 2025-10-30
+## [0.25.0] - 2025-10-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.10...mdns-browser-v0.25.0)
 
 ### Changed
 
@@ -1409,13 +1415,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to 0.16 (#1506) ([#1506](https://github.com/hrzlgnm/mdns-browser/pull/1506))
 
-## [0.24.10] - 2025-10-26
+## [0.24.10] - 2025-10-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.9...mdns-browser-v0.24.10)
 
 ### Changed
 
 - *(ci)* Tweak bump version workflow (#1472) ([#1472](https://github.com/hrzlgnm/mdns-browser/pull/1472))
 
-## [0.24.9] - 2025-10-26
+## [0.24.9] - 2025-10-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.8...mdns-browser-v0.24.9)
 
 ### Changed
 
@@ -1437,7 +1443,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Lint in own separate job (#1470) ([#1470](https://github.com/hrzlgnm/mdns-browser/pull/1470))
 
-## [0.24.8] - 2025-10-17
+## [0.24.8] - 2025-10-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.7...mdns-browser-v0.24.8)
 
 ### Changed
 
@@ -1445,13 +1451,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Don't publish unused sha512 checksums (#1454) ([#1454](https://github.com/hrzlgnm/mdns-browser/pull/1454))
 
-## [0.24.7] - 2025-10-17
+## [0.24.7] - 2025-10-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.6...mdns-browser-v0.24.7)
 
 ### Changed
 
 - Simplify `nvidia` or `nouveau` detection (#1452) ([#1452](https://github.com/hrzlgnm/mdns-browser/pull/1452))
 
-## [0.24.6] - 2025-10-17
+## [0.24.6] - 2025-10-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.5...mdns-browser-v0.24.6)
 
 ### Changed
 
@@ -1463,7 +1469,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Enable the workaround for nvidia also when running in wayland (#1451) ([#1451](https://github.com/hrzlgnm/mdns-browser/pull/1451))
 
-## [0.24.5] - 2025-10-16
+## [0.24.5] - 2025-10-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.4...mdns-browser-v0.24.5)
 
 ### Added
 
@@ -1485,13 +1491,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update anchore/sbom-action digest to aa0e114 (#1446) ([#1446](https://github.com/hrzlgnm/mdns-browser/pull/1446))
 
-## [0.24.4] - 2025-10-09
+## [0.24.4] - 2025-10-09 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.3...mdns-browser-v0.24.4)
 
 ### Fixed
 
 - *(void-packaging)* Update webkit2gtk dependencies (#1434) ([#1434](https://github.com/hrzlgnm/mdns-browser/pull/1434))
 
-## [0.24.3] - 2025-10-09
+## [0.24.3] - 2025-10-09 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.2...mdns-browser-v0.24.3)
 
 ### Changed
 
@@ -1519,13 +1525,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate serde to v1.0.228 (#1431) ([#1431](https://github.com/hrzlgnm/mdns-browser/pull/1431))
 
-## [0.24.2] - 2025-09-23
+## [0.24.2] - 2025-09-23 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.1...mdns-browser-v0.24.2)
 
 ### Fixed
 
 - Use Memo for dead state with try_get default `true` (#1410) ([#1410](https://github.com/hrzlgnm/mdns-browser/pull/1410))
 
-## [0.24.1] - 2025-09-23
+## [0.24.1] - 2025-09-23 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.0...mdns-browser-v0.24.1)
 
 ### Changed
 
@@ -1551,13 +1557,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate serde_with to v3.14.1 (#1404) ([#1404](https://github.com/hrzlgnm/mdns-browser/pull/1404))
 
-## [0.24.0] - 2025-09-10
+## [0.24.0] - 2025-09-10 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.23.1...mdns-browser-v0.24.0)
 
 ### Added
 
 - Increase mDNS-Browser window width to 1615 (#1392) ([#1392](https://github.com/hrzlgnm/mdns-browser/pull/1392))
 
-## [0.23.1] - 2025-09-08
+## [0.23.1] - 2025-09-08 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.23.0...mdns-browser-v0.23.1)
 
 ### Changed
 
@@ -1585,7 +1591,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tauri-plugin-opener to v2.5.0 (#1388) ([#1388](https://github.com/hrzlgnm/mdns-browser/pull/1388))
 
-## [0.23.0] - 2025-09-02
+## [0.23.0] - 2025-09-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.22.3...mdns-browser-v0.23.0)
 
 ### Changed
 
@@ -1595,7 +1601,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Ensure details dialog close button is visible with long titles (#1377) ([#1377](https://github.com/hrzlgnm/mdns-browser/pull/1377))
 
-## [0.22.3] - 2025-09-01
+## [0.22.3] - 2025-09-01 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.22.2...mdns-browser-v0.22.3)
 
 ### Changed
 
@@ -1649,7 +1655,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tauri-plugin-opener to v2.5.0 (#1375) ([#1375](https://github.com/hrzlgnm/mdns-browser/pull/1375))
 
-## [0.22.2] - 2025-08-18
+## [0.22.2] - 2025-08-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.22.1...mdns-browser-v0.22.2)
 
 ### Added
 
@@ -1663,7 +1669,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tauri-plugin-opener to v2.4.0 (#1336) ([#1336](https://github.com/hrzlgnm/mdns-browser/pull/1336))
 
-## [0.22.1] - 2025-08-15
+## [0.22.1] - 2025-08-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.22.0...mdns-browser-v0.22.1)
 
 ### Added
 
@@ -1673,13 +1679,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update anchore/sbom-action digest to da167ea (#1331) ([#1331](https://github.com/hrzlgnm/mdns-browser/pull/1331))
 
-## [0.22.0] - 2025-08-13
+## [0.22.0] - 2025-08-13 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.10...mdns-browser-v0.22.0)
 
 ### Added
 
 - Add BackTop  component, wire into app, add CSS (#1327) ([#1327](https://github.com/hrzlgnm/mdns-browser/pull/1327))
 
-## [0.21.10] - 2025-08-12
+## [0.21.10] - 2025-08-12 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.9...mdns-browser-v0.21.10)
 
 ### Added
 
@@ -1697,7 +1703,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.45 (#1325) ([#1325](https://github.com/hrzlgnm/mdns-browser/pull/1325))
 
-## [0.21.9] - 2025-08-11
+## [0.21.9] - 2025-08-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.8...mdns-browser-v0.21.9)
 
 ### Changed
 
@@ -1717,7 +1723,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Tweak layout on mobile so top controls are usable again (#1315) ([#1315](https://github.com/hrzlgnm/mdns-browser/pull/1315))
 
-## [0.21.8] - 2025-08-10
+## [0.21.8] - 2025-08-10 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.7...mdns-browser-v0.21.8)
 
 ### Changed
 
@@ -1743,13 +1749,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.43 (#1305) ([#1305](https://github.com/hrzlgnm/mdns-browser/pull/1305))
 
-## [0.21.7] - 2025-07-29
+## [0.21.7] - 2025-07-29 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.6...mdns-browser-v0.21.7)
 
 ### Fixed
 
 - *(deps)* Update rust crate tauri-plugin-opener to v2.4.0 (#1289) ([#1289](https://github.com/hrzlgnm/mdns-browser/pull/1289))
 
-## [0.21.6] - 2025-07-29
+## [0.21.6] - 2025-07-29 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.5...mdns-browser-v0.21.6)
 
 ### Changed
 
@@ -1765,7 +1771,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tauri-plugin-opener to v2.4.0 (#1284) ([#1284](https://github.com/hrzlgnm/mdns-browser/pull/1284))
 
-## [0.21.5] - 2025-07-24
+## [0.21.5] - 2025-07-24 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.4...mdns-browser-v0.21.5)
 
 ### Changed
 
@@ -1773,19 +1779,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency tauri-cli to v2.7.1 (#1274) ([#1274](https://github.com/hrzlgnm/mdns-browser/pull/1274))
 
-## [0.21.4] - 2025-07-21
+## [0.21.4] - 2025-07-21 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.3...mdns-browser-v0.21.4)
 
 ### Changed
 
 - Fix typo in Cargo.toml by changing resolve to resolver in workspace section (#1271) ([#1271](https://github.com/hrzlgnm/mdns-browser/pull/1271))
 
-## [0.21.3] - 2025-07-21
+## [0.21.3] - 2025-07-21 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.2...mdns-browser-v0.21.3)
 
 ### Changed
 
 - Set resolve version to 2 in Cargo.toml workspace section (#1270) ([#1270](https://github.com/hrzlgnm/mdns-browser/pull/1270))
 
-## [0.21.2] - 2025-07-21
+## [0.21.2] - 2025-07-21 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.1...mdns-browser-v0.21.2)
 
 ### Changed
 
@@ -1797,7 +1803,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate leptos to v0.8.5 (#1269) ([#1269](https://github.com/hrzlgnm/mdns-browser/pull/1269))
 
-## [0.21.1] - 2025-07-20
+## [0.21.1] - 2025-07-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.0...mdns-browser-v0.21.1)
 
 ### Changed
 
@@ -1807,7 +1813,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate leptos to v0.8.4 (#1247) ([#1247](https://github.com/hrzlgnm/mdns-browser/pull/1247))
 
-## [0.21.0] - 2025-07-19
+## [0.21.0] - 2025-07-19 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.20.4...mdns-browser-v0.21.0)
 
 ### Added
 
@@ -1817,19 +1823,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate serde_json to v1.0.141 (#1263) ([#1263](https://github.com/hrzlgnm/mdns-browser/pull/1263))
 
-## [0.20.4] - 2025-07-15
+## [0.20.4] - 2025-07-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.20.3...mdns-browser-v0.20.4)
 
 ### Added
 
 - Disable mDNS incapable interfaces on `ServiceDaemon` (#1258) ([#1258](https://github.com/hrzlgnm/mdns-browser/pull/1258))
 
-## [0.20.3] - 2025-07-14
+## [0.20.3] - 2025-07-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.20.2...mdns-browser-v0.20.3)
 
 ### Fixed
 
 - Add deduplication of sorted addresses in from_resolved_service_detailed (#1254) ([#1254](https://github.com/hrzlgnm/mdns-browser/pull/1254))
 
-## [0.20.2] - 2025-07-14
+## [0.20.2] - 2025-07-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.20.1...mdns-browser-v0.20.2)
 
 ### Added
 
@@ -1837,13 +1843,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add ScopedAddr type and update ResolvedService usage (#1252) ([#1252](https://github.com/hrzlgnm/mdns-browser/pull/1252))
 
-## [0.20.1] - 2025-07-13
+## [0.20.1] - 2025-07-13 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.20.0...mdns-browser-v0.20.1)
 
 ### Changed
 
 - Add explicit conflict declarations between mdns-browser and mdns-browser-bin (#1250) ([#1250](https://github.com/hrzlgnm/mdns-browser/pull/1250))
 
-## [0.20.0] - 2025-07-13
+## [0.20.0] - 2025-07-13 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.7...mdns-browser-v0.20.0)
 
 ### Changed
 
@@ -1933,19 +1939,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.41 (#1245) ([#1245](https://github.com/hrzlgnm/mdns-browser/pull/1245))
 
-## [0.19.7] - 2025-06-09
+## [0.19.7] - 2025-06-09 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.6...mdns-browser-v0.19.7)
 
 ### Fixed
 
 - Refactor drag-and-drop event handling to selectively block non-editable targets (#1181) ([#1181](https://github.com/hrzlgnm/mdns-browser/pull/1181))
 
-## [0.19.6] - 2025-06-09
+## [0.19.6] - 2025-06-09 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.5...mdns-browser-v0.19.6)
 
 ### Added
 
 - Disable drag-and-drop interactions to prevent uninended navigation (#1180) ([#1180](https://github.com/hrzlgnm/mdns-browser/pull/1180))
 
-## [0.19.5] - 2025-06-08
+## [0.19.5] - 2025-06-08 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.4...mdns-browser-v0.19.5)
 
 ### Added
 
@@ -1969,7 +1975,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate icondata to 0.6 (#1178) ([#1178](https://github.com/hrzlgnm/mdns-browser/pull/1178))
 
-## [0.19.4] - 2025-06-05
+## [0.19.4] - 2025-06-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.3...mdns-browser-v0.19.4)
 
 ### Changed
 
@@ -1983,13 +1989,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix typo in .coderabbit.yaml tone_instructions field (#1169) ([#1169](https://github.com/hrzlgnm/mdns-browser/pull/1169))
 
-## [0.19.3] - 2025-06-03
+## [0.19.3] - 2025-06-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.2...mdns-browser-v0.19.3)
 
 ### Added
 
 - Ignore redundant updates of resolved services (#1163) ([#1163](https://github.com/hrzlgnm/mdns-browser/pull/1163))
 
-## [0.19.2] - 2025-06-03
+## [0.19.2] - 2025-06-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.1...mdns-browser-v0.19.2)
 
 ### Changed
 
@@ -2003,7 +2009,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Spelling of browse_types command (#1162) ([#1162](https://github.com/hrzlgnm/mdns-browser/pull/1162))
 
-## [0.19.1] - 2025-06-02
+## [0.19.1] - 2025-06-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.0...mdns-browser-v0.19.1)
 
 ### Changed
 
@@ -2019,7 +2025,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Report an Issue to preload the correct issue template (#1153) ([#1153](https://github.com/hrzlgnm/mdns-browser/pull/1153))
 
-## [0.19.0] - 2025-05-27
+## [0.19.0] - 2025-05-27 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.18.5...mdns-browser-v0.19.0)
 
 ### Added
 
@@ -2041,31 +2047,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.39 (#1137) ([#1137](https://github.com/hrzlgnm/mdns-browser/pull/1137))
 
-## [0.18.5] - 2025-05-24
+## [0.18.5] - 2025-05-24 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.18.4...mdns-browser-v0.18.5)
 
 ### Added
 
 - Enhance filtering services by their `dead` or `alive` status. (#1130) ([#1130](https://github.com/hrzlgnm/mdns-browser/pull/1130))
 
-## [0.18.4] - 2025-05-24
+## [0.18.4] - 2025-05-24 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.18.3...mdns-browser-v0.18.4)
 
 ### Added
 
 - Integrate icon rendering into CopyToClipBoardButton (#1129) ([#1129](https://github.com/hrzlgnm/mdns-browser/pull/1129))
 
-## [0.18.3] - 2025-05-24
+## [0.18.3] - 2025-05-24 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.18.2...mdns-browser-v0.18.3)
 
 ### Changed
 
 - Simplify layout in ResolvedServiceItem components (#1127) ([#1127](https://github.com/hrzlgnm/mdns-browser/pull/1127))
 
-## [0.18.2] - 2025-05-24
+## [0.18.2] - 2025-05-24 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.18.1...mdns-browser-v0.18.2)
 
 ### Fixed
 
 - Refine UI layout for service status (#1126) ([#1126](https://github.com/hrzlgnm/mdns-browser/pull/1126))
 
-## [0.18.1] - 2025-05-24
+## [0.18.1] - 2025-05-24 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.18.0...mdns-browser-v0.18.1)
 
 ### Changed
 
@@ -2077,7 +2083,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Make display of table row button texts reactive (#1125) ([#1125](https://github.com/hrzlgnm/mdns-browser/pull/1125))
 
-## [0.18.0] - 2025-05-23
+## [0.18.0] - 2025-05-23 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.17.1...mdns-browser-v0.18.0)
 
 ### Added
 
@@ -2105,7 +2111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate uuid to v1.17.0 (#1118) ([#1118](https://github.com/hrzlgnm/mdns-browser/pull/1118))
 
-## [0.17.1] - 2025-05-19
+## [0.17.1] - 2025-05-19 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.17.0...mdns-browser-v0.17.1)
 
 ### Changed
 
@@ -2117,7 +2123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Ensure resolved records are updated (#1106) ([#1106](https://github.com/hrzlgnm/mdns-browser/pull/1106))
 
-## [0.17.0] - 2025-05-08
+## [0.17.0] - 2025-05-08 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.16.1...mdns-browser-v0.17.0)
 
 ### Added
 
@@ -2129,7 +2135,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency trunk to v0.21.14 (#1097) ([#1097](https://github.com/hrzlgnm/mdns-browser/pull/1097))
 
-## [0.16.1] - 2025-05-06
+## [0.16.1] - 2025-05-06 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.16.0...mdns-browser-v0.16.1)
 
 ### Added
 
@@ -2153,7 +2159,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tokio to v1.45.0 (#1091) ([#1091](https://github.com/hrzlgnm/mdns-browser/pull/1091))
 
-## [0.16.0] - 2025-05-05
+## [0.16.0] - 2025-05-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.15.3...mdns-browser-v0.16.0)
 
 ### Added
 
@@ -2171,7 +2177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Reorganize tauri commands (#1083) ([#1083](https://github.com/hrzlgnm/mdns-browser/pull/1083))
 
-## [0.15.3] - 2025-05-04
+## [0.15.3] - 2025-05-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.15.2...mdns-browser-v0.15.3)
 
 ### Changed
 
@@ -2209,13 +2215,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to v0.13.9 (#1076) ([#1076](https://github.com/hrzlgnm/mdns-browser/pull/1076))
 
-## [0.15.2] - 2025-04-27
+## [0.15.2] - 2025-04-27 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.15.1...mdns-browser-v0.15.2)
 
 ### Changed
 
 - Format css and js code using prettier with tab width of 4 (#1052) ([#1052](https://github.com/hrzlgnm/mdns-browser/pull/1052))
 
-## [0.15.1] - 2025-04-27
+## [0.15.1] - 2025-04-27 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.15.0...mdns-browser-v0.15.1)
 
 ### Changed
 
@@ -2239,13 +2245,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tauri to v2.5.1 (#1035) ([#1035](https://github.com/hrzlgnm/mdns-browser/pull/1035))
 
-## [0.15.0] - 2025-04-23
+## [0.15.0] - 2025-04-23 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.14.5...mdns-browser-v0.15.0)
 
 ### Fixed
 
 - *(deps)* Update rust crate mdns-sd to v0.13.8 (#1032) ([#1032](https://github.com/hrzlgnm/mdns-browser/pull/1032))
 
-## [0.14.5] - 2025-04-21
+## [0.14.5] - 2025-04-21 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.14.4...mdns-browser-v0.14.5)
 
 ### Changed
 
@@ -2261,13 +2267,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate thaw to v0.4.6 (#1028) ([#1028](https://github.com/hrzlgnm/mdns-browser/pull/1028))
 
-## [0.14.4] - 2025-04-18
+## [0.14.4] - 2025-04-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.14.3...mdns-browser-v0.14.4)
 
 ### Changed
 
 - Subscribe void linux publish workflows to published event
 
-## [0.14.3] - 2025-04-18
+## [0.14.3] - 2025-04-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.14.2...mdns-browser-v0.14.3)
 
 ### Changed
 
@@ -2275,7 +2281,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Subscribe publish workflows to published event
 
-## [0.14.2] - 2025-04-18
+## [0.14.2] - 2025-04-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.14.0...mdns-browser-v0.14.2)
 
 ### Changed
 
@@ -2289,7 +2295,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Move counter badge next to stop button (#1024) ([#1024](https://github.com/hrzlgnm/mdns-browser/pull/1024))
 
-## [0.14.0] - 2025-04-18
+## [0.14.0] - 2025-04-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.13.2...mdns-browser-v0.14.0)
 
 ### Added
 
@@ -2301,7 +2307,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add sonarqube scanning (#1020) ([#1020](https://github.com/hrzlgnm/mdns-browser/pull/1020))
 
-## [0.13.2] - 2025-04-16
+## [0.13.2] - 2025-04-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.13.1...mdns-browser-v0.13.2)
 
 ### Changed
 
@@ -2317,7 +2323,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Downgrade crate mdns-sd to v0.13.2 to resolve an issue (#1016) ([#1016](https://github.com/hrzlgnm/mdns-browser/pull/1016))
 
-## [0.13.1] - 2025-04-14
+## [0.13.1] - 2025-04-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.13.0...mdns-browser-v0.13.1)
 
 ### Changed
 
@@ -2331,7 +2337,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Only checksum binaries and source tar balls (#1003) ([#1003](https://github.com/hrzlgnm/mdns-browser/pull/1003))
 
-## [0.13.0] - 2025-04-13
+## [0.13.0] - 2025-04-13 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.12.0...mdns-browser-v0.13.0)
 
 ### Added
 
@@ -2371,7 +2377,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.36 (#964) ([#964](https://github.com/hrzlgnm/mdns-browser/pull/964))
 
-## [0.12.0] - 2025-04-11
+## [0.12.0] - 2025-04-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.34...mdns-browser-v0.12.0)
 
 ### Added
 
@@ -2399,7 +2405,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improve nvidia detection (#956) ([#956](https://github.com/hrzlgnm/mdns-browser/pull/956))
 
-## [0.11.34] - 2025-04-10
+## [0.11.34] - 2025-04-10 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.33...mdns-browser-v0.11.34)
 
 ### Changed
 
@@ -2407,7 +2413,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Subscribe `metrics` once, stop `type` browsing on reload (#954) ([#954](https://github.com/hrzlgnm/mdns-browser/pull/954))
 
-## [0.11.32] - 2025-04-10
+## [0.11.32] - 2025-04-10 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.31...mdns-browser-v0.11.32)
 
 ### Changed
 
@@ -2421,7 +2427,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Only disable webkit dmabuf rendering if nvidia driver is detected (#949) ([#949](https://github.com/hrzlgnm/mdns-browser/pull/949))
 
-## [0.11.31] - 2025-04-06
+## [0.11.31] - 2025-04-06 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.30...mdns-browser-v0.11.31)
 
 ### Added
 
@@ -2435,7 +2441,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tokio to v1.44.2 (#936) ([#936](https://github.com/hrzlgnm/mdns-browser/pull/936))
 
-## [0.11.30] - 2025-04-04
+## [0.11.30] - 2025-04-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.29...mdns-browser-v0.11.30)
 
 ### Added
 
@@ -2453,7 +2459,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Filter out ipv6 link local addresses for opening `_http._tcp` like services  (#930) ([#930](https://github.com/hrzlgnm/mdns-browser/pull/930))
 
-## [0.11.29] - 2025-04-02
+## [0.11.29] - 2025-04-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.28...mdns-browser-v0.11.29)
 
 ### Added
 
@@ -2479,13 +2485,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ux)* Make filtering service types more intuitive (#921) ([#921](https://github.com/hrzlgnm/mdns-browser/pull/921))
 
-## [0.11.28] - 2025-03-30
+## [0.11.28] - 2025-03-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.27...mdns-browser-v0.11.28)
 
 ### Fixed
 
 - *(deps)* Update rust crate thaw to v0.4.5 (#904) ([#904](https://github.com/hrzlgnm/mdns-browser/pull/904))
 
-## [0.11.15] - 2025-03-28
+## [0.11.15] - 2025-03-28 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.14...mdns-browser-v0.11.15)
 
 ### Changed
 
@@ -2493,7 +2499,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Check tag after checking out
 
-## [0.11.14] - 2025-03-28
+## [0.11.14] - 2025-03-28 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.13...mdns-browser-v0.11.14)
 
 ### Changed
 
@@ -2507,7 +2513,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Verify tag matches version in tauri conf on publish ([#335](https://github.com/hrzlgnm/mdns-browser/pull/335))
 
-## [0.11.10] - 2025-03-28
+## [0.11.10] - 2025-03-28 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.9...mdns-browser-v0.11.10)
 
 ### Changed
 
@@ -2533,13 +2539,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.34 (#868) ([#868](https://github.com/hrzlgnm/mdns-browser/pull/868))
 
-## [0.11.9] - 2025-03-26
+## [0.11.9] - 2025-03-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.8...mdns-browser-v0.11.9)
 
 ### Added
 
 - Pressing enter in quick filter starts browsing (#866) ([#866](https://github.com/hrzlgnm/mdns-browser/pull/866))
 
-## [0.11.8] - 2025-03-26
+## [0.11.8] - 2025-03-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.7...mdns-browser-v0.11.8)
 
 ### Added
 
@@ -2555,7 +2561,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.33 (#863) ([#863](https://github.com/hrzlgnm/mdns-browser/pull/863))
 
-## [0.11.6] - 2025-03-25
+## [0.11.6] - 2025-03-25 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.5...mdns-browser-v0.11.6)
 
 ### Changed
 
@@ -2569,7 +2575,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Make metrics visible again by using log_fn! macro (#848) ([#848](https://github.com/hrzlgnm/mdns-browser/pull/848))
 
-## [0.11.5] - 2025-03-24
+## [0.11.5] - 2025-03-24 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.4...mdns-browser-v0.11.5)
 
 ### Changed
 
@@ -2587,7 +2593,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improve error handling to avoid crashing due to panics (#840) ([#840](https://github.com/hrzlgnm/mdns-browser/pull/840))
 
-## [0.11.4] - 2025-03-19
+## [0.11.4] - 2025-03-19 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.3...mdns-browser-v0.11.4)
 
 ### Added
 
@@ -2597,7 +2603,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update actions/upload-artifact action to v4.6.2 (#830) ([#830](https://github.com/hrzlgnm/mdns-browser/pull/830))
 
-## [0.11.3] - 2025-03-18
+## [0.11.3] - 2025-03-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.2...mdns-browser-v0.11.3)
 
 ### Added
 
@@ -2619,7 +2625,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tauri-plugin-updater to v2.6.1 (#821) ([#821](https://github.com/hrzlgnm/mdns-browser/pull/821))
 
-## [0.11.2] - 2025-03-13
+## [0.11.2] - 2025-03-13 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.1...mdns-browser-v0.11.2)
 
 ### Added
 
@@ -2637,7 +2643,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tokio to v1.44.1 (#814) ([#814](https://github.com/hrzlgnm/mdns-browser/pull/814))
 
-## [0.11.1] - 2025-03-12
+## [0.11.1] - 2025-03-12 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.0...mdns-browser-v0.11.1)
 
 ### Added
 
@@ -2645,7 +2651,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use a table to visualize the resolved service card (#809) ([#809](https://github.com/hrzlgnm/mdns-browser/pull/809))
 
-## [0.11.0] - 2025-03-11
+## [0.11.0] - 2025-03-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.12...mdns-browser-v0.11.0)
 
 ### Added
 
@@ -2743,7 +2749,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Layout issues on android (#804) ([#804](https://github.com/hrzlgnm/mdns-browser/pull/804))
 
-## [0.10.12] - 2025-02-19
+## [0.10.12] - 2025-02-19 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.11...mdns-browser-v0.10.12)
 
 ### Changed
 
@@ -2779,13 +2785,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate uuid to v1.13.2 (#740) ([#740](https://github.com/hrzlgnm/mdns-browser/pull/740))
 
-## [0.10.11] - 2025-01-28
+## [0.10.11] - 2025-01-28 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.10...mdns-browser-v0.10.11)
 
 ### Added
 
 - Build linux bundles with ubuntu-22.04 (#721) ([#721](https://github.com/hrzlgnm/mdns-browser/pull/721))
 
-## [0.10.10] - 2025-01-28
+## [0.10.10] - 2025-01-28 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.9...mdns-browser-v0.10.10)
 
 ### Changed
 
@@ -2815,7 +2821,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Shorten text in version is already latest (#719) ([#719](https://github.com/hrzlgnm/mdns-browser/pull/719))
 
-## [0.10.9] - 2025-01-20
+## [0.10.9] - 2025-01-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.8...mdns-browser-v0.10.9)
 
 ### Added
 
@@ -2841,7 +2847,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.27 (#705) ([#705](https://github.com/hrzlgnm/mdns-browser/pull/705))
 
-## [0.10.8] - 2025-01-16
+## [0.10.8] - 2025-01-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.7...mdns-browser-v0.10.8)
 
 ### Added
 
@@ -2939,7 +2945,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate log to v0.4.25 (#691) ([#691](https://github.com/hrzlgnm/mdns-browser/pull/691))
 
-## [0.10.7] - 2024-12-18
+## [0.10.7] - 2024-12-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.6...mdns-browser-v0.10.7)
 
 ### Added
 
@@ -2959,7 +2965,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate thiserror to v2.0.8 (#637) ([#637](https://github.com/hrzlgnm/mdns-browser/pull/637))
 
-## [0.10.5] - 2024-12-17
+## [0.10.5] - 2024-12-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.4...mdns-browser-v0.10.5)
 
 ### Added
 
@@ -3001,7 +3007,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to v0.13.1 (#624) ([#624](https://github.com/hrzlgnm/mdns-browser/pull/624))
 
-## [0.10.4] - 2024-12-09
+## [0.10.4] - 2024-12-09 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.3...mdns-browser-v0.10.4)
 
 ### Added
 
@@ -3013,13 +3019,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update actions/attest-sbom digest to cbfd002 (#609) ([#609](https://github.com/hrzlgnm/mdns-browser/pull/609))
 
-## [0.10.3] - 2024-12-09
+## [0.10.3] - 2024-12-09 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.2...mdns-browser-v0.10.3)
 
 ### Fixed
 
 - Only use opener plugin on desktop platforms (#605) ([#605](https://github.com/hrzlgnm/mdns-browser/pull/605))
 
-## [0.10.2] - 2024-12-09
+## [0.10.2] - 2024-12-09 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.1...mdns-browser-v0.10.2)
 
 ### Added
 
@@ -3043,7 +3049,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tauri-plugin-clipboard-manager to v2.2.0 (#597) ([#597](https://github.com/hrzlgnm/mdns-browser/pull/597))
 
-## [0.10.1] - 2024-12-08
+## [0.10.1] - 2024-12-08 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.0...mdns-browser-v0.10.1)
 
 ### Added
 
@@ -3065,7 +3071,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate thiserror to v2.0.5 (#588) ([#588](https://github.com/hrzlgnm/mdns-browser/pull/588))
 
-## [0.10.0] - 2024-12-04
+## [0.10.0] - 2024-12-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.10...mdns-browser-v0.10.0)
 
 ### Added
 
@@ -3097,7 +3103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.22 (#576) ([#576](https://github.com/hrzlgnm/mdns-browser/pull/576))
 
-## [0.9.10] - 2024-11-26
+## [0.9.10] - 2024-11-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.9...mdns-browser-v0.9.10)
 
 ### Added
 
@@ -3113,7 +3119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Pass full instance name correctly to verify (#557) ([#557](https://github.com/hrzlgnm/mdns-browser/pull/557))
 
-## [0.9.9] - 2024-11-25
+## [0.9.9] - 2024-11-25 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.8...mdns-browser-v0.9.9)
 
 ### Added
 
@@ -3139,7 +3145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to 0.12.0 (#553) ([#553](https://github.com/hrzlgnm/mdns-browser/pull/553))
 
-## [0.9.8] - 2024-11-15
+## [0.9.8] - 2024-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.7...mdns-browser-v0.9.8)
 
 ### Changed
 
@@ -3153,7 +3159,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.21 (#537) ([#537](https://github.com/hrzlgnm/mdns-browser/pull/537))
 
-## [0.9.7] - 2024-11-11
+## [0.9.7] - 2024-11-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.5...mdns-browser-v0.9.7)
 
 ### Changed
 
@@ -3231,7 +3237,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tauri to v2.1.1 (#532) ([#532](https://github.com/hrzlgnm/mdns-browser/pull/532))
 
-## [0.9.5] - 2024-11-02
+## [0.9.5] - 2024-11-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.4...mdns-browser-v0.9.5)
 
 ### Added
 
@@ -3251,7 +3257,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate thiserror to v1.0.66 (#479) ([#479](https://github.com/hrzlgnm/mdns-browser/pull/479))
 
-## [0.9.4] - 2024-10-30
+## [0.9.4] - 2024-10-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.3...mdns-browser-v0.9.4)
 
 ### Changed
 
@@ -3267,7 +3273,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Tweak release settings and drop unneeded comments (#476) ([#476](https://github.com/hrzlgnm/mdns-browser/pull/476))
 
-## [0.9.3] - 2024-10-29
+## [0.9.3] - 2024-10-29 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.2...mdns-browser-v0.9.3)
 
 ### Changed
 
@@ -3283,7 +3289,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Attempt to fix loading ends up with a blank/white screen  (#466) ([#466](https://github.com/hrzlgnm/mdns-browser/pull/466))
 
-## [0.9.2] - 2024-10-26
+## [0.9.2] - 2024-10-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.1...mdns-browser-v0.9.2)
 
 ### Added
 
@@ -3307,7 +3313,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Workaround  window sometimes only showing a white background (#459) ([#459](https://github.com/hrzlgnm/mdns-browser/pull/459))
 
-## [0.9.1] - 2024-10-23
+## [0.9.1] - 2024-10-23 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.0...mdns-browser-v0.9.1)
 
 ### Added
 
@@ -3367,7 +3373,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add feedback to the user in case no update is available (#448) ([#448](https://github.com/hrzlgnm/mdns-browser/pull/448))
 
-## [0.9.0] - 2024-10-20
+## [0.9.0] - 2024-10-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.13...mdns-browser-v0.9.0)
 
 ### Added
 
@@ -3441,7 +3447,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tauri to v2.0.5
 
-## [0.8.13] - 2024-10-17
+## [0.8.13] - 2024-10-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.12...mdns-browser-v0.8.13)
 
 ### Changed
 
@@ -3505,7 +3511,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ui)* Disable copy button for when a resolved record dies (#392) ([#392](https://github.com/hrzlgnm/mdns-browser/pull/392))
 
-## [0.8.12] - 2024-10-06
+## [0.8.12] - 2024-10-06 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.11...mdns-browser-v0.8.12)
 
 ### Added
 
@@ -3515,7 +3521,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(build-deps)* Update build dependencies (#348) ([#348](https://github.com/hrzlgnm/mdns-browser/pull/348))
 
-## [0.8.11] - 2024-10-05
+## [0.8.11] - 2024-10-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.10...mdns-browser-v0.8.11)
 
 ### Added
 
@@ -3525,7 +3531,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate futures to v0.3.31
 
-## [0.8.9] - 2024-10-05
+## [0.8.9] - 2024-10-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.8...mdns-browser-v0.8.9)
 
 ### Added
 
@@ -3535,7 +3541,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Attest build provenance of android package (#331) ([#331](https://github.com/hrzlgnm/mdns-browser/pull/331))
 
-## [0.8.8] - 2024-10-04
+## [0.8.8] - 2024-10-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.7...mdns-browser-v0.8.8)
 
 ### Changed
 
@@ -3561,7 +3567,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ui)* Fix layout issues on android (#326) ([#326](https://github.com/hrzlgnm/mdns-browser/pull/326))
 
-## [0.8.6] - 2024-10-04
+## [0.8.6] - 2024-10-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.5...mdns-browser-v0.8.6)
 
 ### Changed
 
@@ -3569,25 +3575,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(attest)* Introduce signed sbom (#311) ([#311](https://github.com/hrzlgnm/mdns-browser/pull/311))
 
-## [0.8.5] - 2024-10-03
+## [0.8.5] - 2024-10-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.4...mdns-browser-v0.8.5)
 
 ### Fixed
 
 - *(deps)* Update rust crate tauri-plugin-clipboard-manager to v2.0.1
 
-## [0.8.4] - 2024-10-03
+## [0.8.4] - 2024-10-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.3...mdns-browser-v0.8.4)
 
 ### Changed
 
 - *(identifier)* Use identifier matching the github repository (#303) ([#303](https://github.com/hrzlgnm/mdns-browser/pull/303))
 
-## [0.8.3] - 2024-10-03
+## [0.8.3] - 2024-10-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.2...mdns-browser-v0.8.3)
 
 ### Fixed
 
 - *(conf)* Fix typo in product name (#301) ([#301](https://github.com/hrzlgnm/mdns-browser/pull/301))
 
-## [0.8.2] - 2024-10-03
+## [0.8.2] - 2024-10-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.1...mdns-browser-v0.8.2)
 
 ### Added
 
@@ -3597,13 +3603,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update tauri monorepo to v2.0.1
 
-## [0.8.1] - 2024-10-02
+## [0.8.1] - 2024-10-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.0...mdns-browser-v0.8.1)
 
 ### Fixed
 
 - *(compat)* Restore identifier < 0.8.0 to avoid issues with updates (#295) ([#295](https://github.com/hrzlgnm/mdns-browser/pull/295))
 
-## [0.8.0] - 2024-10-02
+## [0.8.0] - 2024-10-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.17...mdns-browser-v0.8.0)
 
 ### Added
 
@@ -3619,19 +3625,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.19
 
-## [0.7.17] - 2024-09-30
+## [0.7.17] - 2024-09-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.16...mdns-browser-v0.7.17)
 
 ### Changed
 
 - *(bump)* Version 0.7.17 (#280) ([#280](https://github.com/hrzlgnm/mdns-browser/pull/280))
 
-## [0.7.16] - 2024-09-30
+## [0.7.16] - 2024-09-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.15...mdns-browser-v0.7.16)
 
 ### Fixed
 
 - *(attest)* Fix permissions (#278) ([#278](https://github.com/hrzlgnm/mdns-browser/pull/278))
 
-## [0.7.15] - 2024-09-30
+## [0.7.15] - 2024-09-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.14...mdns-browser-v0.7.15)
 
 ### Added
 
@@ -3663,7 +3669,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to v0.11.5
 
-## [0.7.14] - 2024-09-20
+## [0.7.14] - 2024-09-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.13...mdns-browser-v0.7.14)
 
 ### Added
 
@@ -3683,7 +3689,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate thaw_utils to 0.0.6
 
-## [0.7.13] - 2024-09-09
+## [0.7.13] - 2024-09-09 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.12...mdns-browser-v0.7.13)
 
 ### Added
 
@@ -3697,13 +3703,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update peter-evans/create-pull-request action to v7 (#236) ([#236](https://github.com/hrzlgnm/mdns-browser/pull/236))
 
-## [0.7.12] - 2024-08-18
+## [0.7.12] - 2024-08-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.11...mdns-browser-v0.7.12)
 
 ### Added
 
 - Integrate latest changes of dependency mdns-sd (#226) ([#226](https://github.com/hrzlgnm/mdns-browser/pull/226))
 
-## [0.7.11] - 2024-08-13
+## [0.7.11] - 2024-08-13 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.10...mdns-browser-v0.7.11)
 
 ### Added
 
@@ -3711,31 +3717,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Actually use attr as it supposed to be used :see_no_evil:
 
-## [0.7.10] - 2024-08-11
+## [0.7.10] - 2024-08-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.9...mdns-browser-v0.7.10)
 
 ### Added
 
 - Validate service type while user is typing (#218) ([#218](https://github.com/hrzlgnm/mdns-browser/pull/218))
 
-## [0.7.9] - 2024-08-11
+## [0.7.9] - 2024-08-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.8...mdns-browser-v0.7.9)
 
 ### Added
 
 - Remove annoying popovers (#216) ([#216](https://github.com/hrzlgnm/mdns-browser/pull/216))
 
-## [0.7.8] - 2024-08-11
+## [0.7.8] - 2024-08-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.7...mdns-browser-v0.7.8)
 
 ### Added
 
 - Move location of popover and trigger it on click (#214) ([#214](https://github.com/hrzlgnm/mdns-browser/pull/214))
 
-## [0.7.7] - 2024-08-11
+## [0.7.7] - 2024-08-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.6...mdns-browser-v0.7.7)
 
 ### Added
 
 - Tweak layout (#212) ([#212](https://github.com/hrzlgnm/mdns-browser/pull/212))
 
-## [0.7.6] - 2024-08-10
+## [0.7.6] - 2024-08-10 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.5...mdns-browser-v0.7.6)
 
 ### Added
 
@@ -3749,13 +3755,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Update workflows (#199) ([#199](https://github.com/hrzlgnm/mdns-browser/pull/199))
 
-## [0.7.4] - 2024-08-06
+## [0.7.4] - 2024-08-06 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.3...mdns-browser-v0.7.4)
 
 ### Fixed
 
 - Use fixed fork of mdns-sd temporarily (#191) ([#191](https://github.com/hrzlgnm/mdns-browser/pull/191))
 
-## [0.7.3] - 2024-08-04
+## [0.7.3] - 2024-08-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.2...mdns-browser-v0.7.3)
 
 ### Changed
 
@@ -3763,19 +3769,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(build)* Reduce release binary size (#189) ([#189](https://github.com/hrzlgnm/mdns-browser/pull/189))
 
-## [0.7.2] - 2024-07-30
+## [0.7.2] - 2024-07-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.1...mdns-browser-v0.7.2)
 
 ### Added
 
 - More pleasant splash screen experience (#186) ([#186](https://github.com/hrzlgnm/mdns-browser/pull/186))
 
-## [0.7.1] - 2024-07-29
+## [0.7.1] - 2024-07-29 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.0...mdns-browser-v0.7.1)
 
 ### Changed
 
 - *(style)* Use a more prettier font in the splash screen
 
-## [0.7.0] - 2024-07-29
+## [0.7.0] - 2024-07-29 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.6.3...mdns-browser-v0.7.0)
 
 ### Added
 
@@ -3803,7 +3809,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate thaw_utils to 0.0.5
 
-## [0.6.3] - 2024-06-26
+## [0.6.3] - 2024-06-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.6.2...mdns-browser-v0.6.3)
 
 ### Changed
 
@@ -3855,25 +3861,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Handle txt values properly (#170) ([#170](https://github.com/hrzlgnm/mdns-browser/pull/170)) ([#169](https://github.com/hrzlgnm/mdns-browser/pull/169))
 
-## [0.6.2] - 2024-05-14
+## [0.6.2] - 2024-05-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.6.1...mdns-browser-v0.6.2)
 
 ### Added
 
 - Show removed services visually as dead instead of removing them (#149) ([#149](https://github.com/hrzlgnm/mdns-browser/pull/149))
 
-## [0.6.1] - 2024-05-14
+## [0.6.1] - 2024-05-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.6.0...mdns-browser-v0.6.1)
 
 ### Fixed
 
 - *(ui)* Remove comment as it appears as a random doc element (#145) ([#145](https://github.com/hrzlgnm/mdns-browser/pull/145))
 
-## [0.6.0] - 2024-05-14
+## [0.6.0] - 2024-05-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.5.3...mdns-browser-v0.6.0)
 
 ### Added
 
 - Responsive grid layout automatically adjusting columns depending on width (#144) ([#144](https://github.com/hrzlgnm/mdns-browser/pull/144))
 
-## [0.5.3] - 2024-05-14
+## [0.5.3] - 2024-05-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.5.2...mdns-browser-v0.5.3)
 
 ### Added
 
@@ -3883,13 +3889,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update crate mdns-sd to 0.11.1 (#141) ([#141](https://github.com/hrzlgnm/mdns-browser/pull/141))
 
-## [0.5.2] - 2024-05-11
+## [0.5.2] - 2024-05-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.5.1...mdns-browser-v0.5.2)
 
 ### Changed
 
 - *(deps)* Update mdns-sd to latest git rev (#138) ([#138](https://github.com/hrzlgnm/mdns-browser/pull/138))
 
-## [0.5.1] - 2024-05-11
+## [0.5.1] - 2024-05-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.5.0...mdns-browser-v0.5.1)
 
 ### Changed
 
@@ -3899,7 +3905,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove existing service instances before adding new ones (#137) ([#137](https://github.com/hrzlgnm/mdns-browser/pull/137))
 
-## [0.5.0] - 2024-05-11
+## [0.5.0] - 2024-05-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.4.1...mdns-browser-v0.5.0)
 
 ### Added
 
@@ -3907,13 +3913,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove resolve workflow (#135) ([#135](https://github.com/hrzlgnm/mdns-browser/pull/135))
 
-## [0.4.1] - 2024-05-10
+## [0.4.1] - 2024-05-10 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.4.0...mdns-browser-v0.4.1)
 
 ### Fixed
 
 - Deduplicate browsed service types
 
-## [0.4.0] - 2024-05-10
+## [0.4.0] - 2024-05-10 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.3.2...mdns-browser-v0.4.0)
 
 ### Added
 
@@ -3921,7 +3927,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Browse for service types while running (#132) ([#132](https://github.com/hrzlgnm/mdns-browser/pull/132))
 
-## [0.3.2] - 2024-05-09
+## [0.3.2] - 2024-05-09 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.3.1...mdns-browser-v0.3.2)
 
 ### Added
 
@@ -3937,13 +3943,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update deps
 
-## [0.3.1] - 2024-05-07
+## [0.3.1] - 2024-05-07 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.3.0...mdns-browser-v0.3.1)
 
 ### Added
 
 - Add loading suspense and add port to endless browsing output (#125) ([#125](https://github.com/hrzlgnm/mdns-browser/pull/125))
 
-## [0.3.0] - 2024-05-07
+## [0.3.0] - 2024-05-07 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.10...mdns-browser-v0.3.0)
 
 ### Added
 
@@ -3963,7 +3969,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Make resolved records unique by full name and host name (#120) ([#120](https://github.com/hrzlgnm/mdns-browser/pull/120))
 
-## [0.2.10] - 2024-05-02
+## [0.2.10] - 2024-05-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.8...mdns-browser-v0.2.10)
 
 ### Added
 
@@ -4009,13 +4015,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate thaw to 0.3.1 (#114) ([#114](https://github.com/hrzlgnm/mdns-browser/pull/114))
 
-## [0.2.8] - 2024-04-04
+## [0.2.8] - 2024-04-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.7...mdns-browser-v0.2.8)
 
 ### Added
 
 - Sort resolved entries by instance (#86) ([#86](https://github.com/hrzlgnm/mdns-browser/pull/86))
 
-## [0.2.7] - 2024-04-02
+## [0.2.7] - 2024-04-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.6...mdns-browser-v0.2.7)
 
 ### Added
 
@@ -4033,13 +4039,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate if-addrs to 0.12.0
 
-## [0.2.6] - 2024-03-29
+## [0.2.6] - 2024-03-29 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.5...mdns-browser-v0.2.6)
 
 ### Added
 
 - Do not filter addresses when no interface is selected (#80) ([#80](https://github.com/hrzlgnm/mdns-browser/pull/80))
 
-## [0.2.5] - 2024-03-27
+## [0.2.5] - 2024-03-27 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.4...mdns-browser-v0.2.5)
 
 ### Changed
 
@@ -4053,13 +4059,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(crash)* Avoid endless browsing with empty service type (#77) ([#77](https://github.com/hrzlgnm/mdns-browser/pull/77))
 
-## [0.2.4] - 2024-03-25
+## [0.2.4] - 2024-03-25 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.3...mdns-browser-v0.2.4)
 
 ### Fixed
 
 - Speedup resolving (#69) ([#69](https://github.com/hrzlgnm/mdns-browser/pull/69))
 
-## [0.2.3] - 2024-03-25
+## [0.2.3] - 2024-03-25 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.2...mdns-browser-v0.2.3)
 
 ### Changed
 
@@ -4073,19 +4079,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Resolving for services taking longer (#68) ([#68](https://github.com/hrzlgnm/mdns-browser/pull/68))
 
-## [0.2.2] - 2024-03-17
+## [0.2.2] - 2024-03-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.1...mdns-browser-v0.2.2)
 
 ### Added
 
 - Allow filtering of resolved records by network interfaces :sparkles: (#62) ([#62](https://github.com/hrzlgnm/mdns-browser/pull/62))
 
-## [0.2.1] - 2024-03-16
+## [0.2.1] - 2024-03-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.0...mdns-browser-v0.2.1)
 
 ### Fixed
 
 - :sparkles: show friendly name of the network interface on windows (#61) ([#61](https://github.com/hrzlgnm/mdns-browser/pull/61))
 
-## [0.2.0] - 2024-03-16
+## [0.2.0] - 2024-03-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.1.12...mdns-browser-v0.2.0)
 
 ### Added
 
@@ -4095,19 +4101,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Leptosfmt the source
 
-## [0.1.12] - 2024-03-15
+## [0.1.12] - 2024-03-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.1.11...mdns-browser-v0.1.12)
 
 ### Added
 
 - New custom app icon (#59) ([#59](https://github.com/hrzlgnm/mdns-browser/pull/59))
 
-## [0.1.11] - 2024-03-15
+## [0.1.11] - 2024-03-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.1.10...mdns-browser-v0.1.11)
 
 ### Added
 
 - Nsis is actually better! (#58) ([#58](https://github.com/hrzlgnm/mdns-browser/pull/58))
 
-## [0.1.10] - 2024-03-15
+## [0.1.10] - 2024-03-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.1.9...mdns-browser-v0.1.10)
 
 ### Added
 
@@ -4134,503 +4140,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update description in package
 
 - Updater kung-foo (#54) ([#54](https://github.com/hrzlgnm/mdns-browser/pull/54))
-
-[1.9.20]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.19...mdns-browser-v1.9.20
-
-[1.9.18]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.17...mdns-browser-v1.9.18
-
-[1.9.16]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.15...mdns-browser-v1.9.16
-
-[1.9.15]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.14...mdns-browser-v1.9.15
-
-[1.9.14]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.13...mdns-browser-v1.9.14
-
-[1.9.13]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.12...mdns-browser-v1.9.13
-
-[1.9.12]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.11...mdns-browser-v1.9.12
-
-[1.9.11]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.10...mdns-browser-v1.9.11
-
-[1.9.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.9...mdns-browser-v1.9.10
-
-[1.9.9]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.8...mdns-browser-v1.9.9
-
-[1.9.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.7...mdns-browser-v1.9.8
-
-[1.9.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.6...mdns-browser-v1.9.7
-
-[1.9.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.5...mdns-browser-v1.9.6
-
-[1.9.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.4...mdns-browser-v1.9.5
-
-[1.9.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.3...mdns-browser-v1.9.4
-
-[1.9.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.2...mdns-browser-v1.9.3
-
-[1.9.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.1...mdns-browser-v1.9.2
-
-[1.9.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.0...mdns-browser-v1.9.1
-
-[1.9.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.8.4...mdns-browser-v1.9.0
-
-[1.8.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.8.3...mdns-browser-v1.8.4
-
-[1.8.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.8.2...mdns-browser-v1.8.3
-
-[1.8.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.8.1...mdns-browser-v1.8.2
-
-[1.8.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.8.0...mdns-browser-v1.8.1
-
-[1.8.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.7.1...mdns-browser-v1.8.0
-
-[1.7.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.7.0...mdns-browser-v1.7.1
-
-[1.7.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.6.0...mdns-browser-v1.7.0
-
-[1.6.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.13...mdns-browser-v1.6.0
-
-[1.5.13]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.12...mdns-browser-v1.5.13
-
-[1.5.12]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.11...mdns-browser-v1.5.12
-
-[1.5.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.9...mdns-browser-v1.5.10
-
-[1.5.9]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.8...mdns-browser-v1.5.9
-
-[1.5.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.7...mdns-browser-v1.5.8
-
-[1.5.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.6...mdns-browser-v1.5.7
-
-[1.5.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.5...mdns-browser-v1.5.6
-
-[1.5.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.4...mdns-browser-v1.5.5
-
-[1.5.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.3...mdns-browser-v1.5.4
-
-[1.5.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.2...mdns-browser-v1.5.3
-
-[1.5.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.1...mdns-browser-v1.5.2
-
-[1.5.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.0...mdns-browser-v1.5.1
-
-[1.5.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.4.2...mdns-browser-v1.5.0
-
-[1.4.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.4.1...mdns-browser-v1.4.2
-
-[1.4.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.4.0...mdns-browser-v1.4.1
-
-[1.4.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.3.2...mdns-browser-v1.4.0
-
-[1.3.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.3.1...mdns-browser-v1.3.2
-
-[1.3.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.3.0...mdns-browser-v1.3.1
-
-[1.3.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.2.3...mdns-browser-v1.3.0
-
-[1.2.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.2.1...mdns-browser-v1.2.2
-
-[1.2.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.2.0...mdns-browser-v1.2.1
-
-[1.2.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.1.2...mdns-browser-v1.2.0
-
-[1.1.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.1.1...mdns-browser-v1.1.2
-
-[1.1.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.1.0...mdns-browser-v1.1.1
-
-[1.1.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.8...mdns-browser-v1.1.0
-
-[1.0.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.7...mdns-browser-v1.0.8
-
-[1.0.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.6...mdns-browser-v1.0.7
-
-[1.0.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.5...mdns-browser-v1.0.6
-
-[1.0.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.4...mdns-browser-v1.0.5
-
-[1.0.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.3...mdns-browser-v1.0.4
-
-[1.0.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.2...mdns-browser-v1.0.3
-
-[1.0.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.1...mdns-browser-v1.0.2
-
-[1.0.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.0...mdns-browser-v1.0.1
-
-[1.0.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.28.1...mdns-browser-v1.0.0
-
-[0.28.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.28.0...mdns-browser-v0.28.1
-
-[0.28.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.8...mdns-browser-v0.28.0
-
-[0.27.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.7...mdns-browser-v0.27.8
-
-[0.27.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.6...mdns-browser-v0.27.7
-
-[0.27.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.5...mdns-browser-v0.27.6
-
-[0.27.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.4...mdns-browser-v0.27.5
-
-[0.27.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.3...mdns-browser-v0.27.4
-
-[0.27.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.2...mdns-browser-v0.27.3
-
-[0.27.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.1...mdns-browser-v0.27.2
-
-[0.27.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.0...mdns-browser-v0.27.1
-
-[0.27.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.8...mdns-browser-v0.27.0
-
-[0.26.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.7...mdns-browser-v0.26.8
-
-[0.26.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.6...mdns-browser-v0.26.7
-
-[0.26.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.4...mdns-browser-v0.26.5
-
-[0.26.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.3...mdns-browser-v0.26.4
-
-[0.26.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.2...mdns-browser-v0.26.3
-
-[0.26.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.1...mdns-browser-v0.26.2
-
-[0.26.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.0...mdns-browser-v0.26.1
-
-[0.26.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.8...mdns-browser-v0.26.0
-
-[0.25.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.7...mdns-browser-v0.25.8
-
-[0.25.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.6...mdns-browser-v0.25.7
-
-[0.25.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.5...mdns-browser-v0.25.6
-
-[0.25.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.4...mdns-browser-v0.25.5
-
-[0.25.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.3...mdns-browser-v0.25.4
-
-[0.25.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.2...mdns-browser-v0.25.3
-
-[0.25.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.1...mdns-browser-v0.25.2
-
-[0.25.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.0...mdns-browser-v0.25.1
-
-[0.25.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.10...mdns-browser-v0.25.0
-
-[0.24.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.9...mdns-browser-v0.24.10
-
-[0.24.9]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.8...mdns-browser-v0.24.9
-
-[0.24.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.7...mdns-browser-v0.24.8
-
-[0.24.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.6...mdns-browser-v0.24.7
-
-[0.24.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.5...mdns-browser-v0.24.6
-
-[0.24.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.4...mdns-browser-v0.24.5
-
-[0.24.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.3...mdns-browser-v0.24.4
-
-[0.24.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.2...mdns-browser-v0.24.3
-
-[0.24.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.1...mdns-browser-v0.24.2
-
-[0.24.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.0...mdns-browser-v0.24.1
-
-[0.24.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.23.1...mdns-browser-v0.24.0
-
-[0.23.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.23.0...mdns-browser-v0.23.1
-
-[0.23.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.22.3...mdns-browser-v0.23.0
-
-[0.22.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.22.2...mdns-browser-v0.22.3
-
-[0.22.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.22.1...mdns-browser-v0.22.2
-
-[0.22.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.22.0...mdns-browser-v0.22.1
-
-[0.22.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.10...mdns-browser-v0.22.0
-
-[0.21.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.9...mdns-browser-v0.21.10
-
-[0.21.9]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.8...mdns-browser-v0.21.9
-
-[0.21.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.7...mdns-browser-v0.21.8
-
-[0.21.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.6...mdns-browser-v0.21.7
-
-[0.21.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.5...mdns-browser-v0.21.6
-
-[0.21.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.4...mdns-browser-v0.21.5
-
-[0.21.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.3...mdns-browser-v0.21.4
-
-[0.21.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.2...mdns-browser-v0.21.3
-
-[0.21.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.1...mdns-browser-v0.21.2
-
-[0.21.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.0...mdns-browser-v0.21.1
-
-[0.21.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.20.4...mdns-browser-v0.21.0
-
-[0.20.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.20.3...mdns-browser-v0.20.4
-
-[0.20.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.20.2...mdns-browser-v0.20.3
-
-[0.20.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.20.1...mdns-browser-v0.20.2
-
-[0.20.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.20.0...mdns-browser-v0.20.1
-
-[0.20.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.7...mdns-browser-v0.20.0
-
-[0.19.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.6...mdns-browser-v0.19.7
-
-[0.19.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.5...mdns-browser-v0.19.6
-
-[0.19.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.4...mdns-browser-v0.19.5
-
-[0.19.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.3...mdns-browser-v0.19.4
-
-[0.19.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.2...mdns-browser-v0.19.3
-
-[0.19.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.1...mdns-browser-v0.19.2
-
-[0.19.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.0...mdns-browser-v0.19.1
-
-[0.19.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.18.5...mdns-browser-v0.19.0
-
-[0.18.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.18.4...mdns-browser-v0.18.5
-
-[0.18.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.18.3...mdns-browser-v0.18.4
-
-[0.18.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.18.2...mdns-browser-v0.18.3
-
-[0.18.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.18.1...mdns-browser-v0.18.2
-
-[0.18.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.18.0...mdns-browser-v0.18.1
-
-[0.18.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.17.1...mdns-browser-v0.18.0
-
-[0.17.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.17.0...mdns-browser-v0.17.1
-
-[0.17.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.16.1...mdns-browser-v0.17.0
-
-[0.16.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.16.0...mdns-browser-v0.16.1
-
-[0.16.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.15.3...mdns-browser-v0.16.0
-
-[0.15.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.15.2...mdns-browser-v0.15.3
-
-[0.15.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.15.1...mdns-browser-v0.15.2
-
-[0.15.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.15.0...mdns-browser-v0.15.1
-
-[0.15.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.14.5...mdns-browser-v0.15.0
-
-[0.14.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.14.4...mdns-browser-v0.14.5
-
-[0.14.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.14.3...mdns-browser-v0.14.4
-
-[0.14.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.14.2...mdns-browser-v0.14.3
-
-[0.14.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.14.0...mdns-browser-v0.14.2
-
-[0.14.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.13.2...mdns-browser-v0.14.0
-
-[0.13.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.13.1...mdns-browser-v0.13.2
-
-[0.13.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.13.0...mdns-browser-v0.13.1
-
-[0.13.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.12.0...mdns-browser-v0.13.0
-
-[0.12.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.34...mdns-browser-v0.12.0
-
-[0.11.34]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.33...mdns-browser-v0.11.34
-
-[0.11.32]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.31...mdns-browser-v0.11.32
-
-[0.11.31]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.30...mdns-browser-v0.11.31
-
-[0.11.30]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.29...mdns-browser-v0.11.30
-
-[0.11.29]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.28...mdns-browser-v0.11.29
-
-[0.11.28]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.27...mdns-browser-v0.11.28
-
-[0.11.15]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.14...mdns-browser-v0.11.15
-
-[0.11.14]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.13...mdns-browser-v0.11.14
-
-[0.11.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.9...mdns-browser-v0.11.10
-
-[0.11.9]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.8...mdns-browser-v0.11.9
-
-[0.11.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.7...mdns-browser-v0.11.8
-
-[0.11.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.5...mdns-browser-v0.11.6
-
-[0.11.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.4...mdns-browser-v0.11.5
-
-[0.11.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.3...mdns-browser-v0.11.4
-
-[0.11.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.2...mdns-browser-v0.11.3
-
-[0.11.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.1...mdns-browser-v0.11.2
-
-[0.11.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.0...mdns-browser-v0.11.1
-
-[0.11.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.12...mdns-browser-v0.11.0
-
-[0.10.12]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.11...mdns-browser-v0.10.12
-
-[0.10.11]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.10...mdns-browser-v0.10.11
-
-[0.10.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.9...mdns-browser-v0.10.10
-
-[0.10.9]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.8...mdns-browser-v0.10.9
-
-[0.10.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.7...mdns-browser-v0.10.8
-
-[0.10.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.6...mdns-browser-v0.10.7
-
-[0.10.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.4...mdns-browser-v0.10.5
-
-[0.10.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.3...mdns-browser-v0.10.4
-
-[0.10.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.2...mdns-browser-v0.10.3
-
-[0.10.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.1...mdns-browser-v0.10.2
-
-[0.10.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.10.0...mdns-browser-v0.10.1
-
-[0.10.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.10...mdns-browser-v0.10.0
-
-[0.9.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.9...mdns-browser-v0.9.10
-
-[0.9.9]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.8...mdns-browser-v0.9.9
-
-[0.9.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.7...mdns-browser-v0.9.8
-
-[0.9.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.5...mdns-browser-v0.9.7
-
-[0.9.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.4...mdns-browser-v0.9.5
-
-[0.9.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.3...mdns-browser-v0.9.4
-
-[0.9.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.2...mdns-browser-v0.9.3
-
-[0.9.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.1...mdns-browser-v0.9.2
-
-[0.9.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.9.0...mdns-browser-v0.9.1
-
-[0.9.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.13...mdns-browser-v0.9.0
-
-[0.8.13]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.12...mdns-browser-v0.8.13
-
-[0.8.12]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.11...mdns-browser-v0.8.12
-
-[0.8.11]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.10...mdns-browser-v0.8.11
-
-[0.8.9]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.8...mdns-browser-v0.8.9
-
-[0.8.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.7...mdns-browser-v0.8.8
-
-[0.8.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.5...mdns-browser-v0.8.6
-
-[0.8.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.4...mdns-browser-v0.8.5
-
-[0.8.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.3...mdns-browser-v0.8.4
-
-[0.8.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.2...mdns-browser-v0.8.3
-
-[0.8.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.1...mdns-browser-v0.8.2
-
-[0.8.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.0...mdns-browser-v0.8.1
-
-[0.8.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.17...mdns-browser-v0.8.0
-
-[0.7.17]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.16...mdns-browser-v0.7.17
-
-[0.7.16]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.15...mdns-browser-v0.7.16
-
-[0.7.15]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.14...mdns-browser-v0.7.15
-
-[0.7.14]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.13...mdns-browser-v0.7.14
-
-[0.7.13]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.12...mdns-browser-v0.7.13
-
-[0.7.12]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.11...mdns-browser-v0.7.12
-
-[0.7.11]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.10...mdns-browser-v0.7.11
-
-[0.7.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.9...mdns-browser-v0.7.10
-
-[0.7.9]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.8...mdns-browser-v0.7.9
-
-[0.7.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.7...mdns-browser-v0.7.8
-
-[0.7.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.6...mdns-browser-v0.7.7
-
-[0.7.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.5...mdns-browser-v0.7.6
-
-[0.7.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.3...mdns-browser-v0.7.4
-
-[0.7.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.2...mdns-browser-v0.7.3
-
-[0.7.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.1...mdns-browser-v0.7.2
-
-[0.7.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.0...mdns-browser-v0.7.1
-
-[0.7.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.6.3...mdns-browser-v0.7.0
-
-[0.6.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.6.2...mdns-browser-v0.6.3
-
-[0.6.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.6.1...mdns-browser-v0.6.2
-
-[0.6.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.6.0...mdns-browser-v0.6.1
-
-[0.6.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.5.3...mdns-browser-v0.6.0
-
-[0.5.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.5.2...mdns-browser-v0.5.3
-
-[0.5.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.5.1...mdns-browser-v0.5.2
-
-[0.5.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.5.0...mdns-browser-v0.5.1
-
-[0.5.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.4.1...mdns-browser-v0.5.0
-
-[0.4.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.4.0...mdns-browser-v0.4.1
-
-[0.4.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.3.2...mdns-browser-v0.4.0
-
-[0.3.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.3.1...mdns-browser-v0.3.2
-
-[0.3.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.3.0...mdns-browser-v0.3.1
-
-[0.3.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.10...mdns-browser-v0.3.0
-
-[0.2.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.8...mdns-browser-v0.2.10
-
-[0.2.8]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.7...mdns-browser-v0.2.8
-
-[0.2.7]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.6...mdns-browser-v0.2.7
-
-[0.2.6]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.5...mdns-browser-v0.2.6
-
-[0.2.5]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.4...mdns-browser-v0.2.5
-
-[0.2.4]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.3...mdns-browser-v0.2.4
-
-[0.2.3]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.2...mdns-browser-v0.2.3
-
-[0.2.2]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.1...mdns-browser-v0.2.2
-
-[0.2.1]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.0...mdns-browser-v0.2.1
-
-[0.2.0]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.1.12...mdns-browser-v0.2.0
-
-[0.1.12]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.1.11...mdns-browser-v0.1.12
-
-[0.1.11]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.1.10...mdns-browser-v0.1.11
-
-[0.1.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.1.9...mdns-browser-v0.1.10
-
-[Unreleased]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.20...HEAD
 
 
