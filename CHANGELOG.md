@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update hrzlgnm/actions action to v2.4.0 (#2322) ([#2322](https://github.com/hrzlgnm/mdns-browser/pull/2322))
 
+- *(deps)* Update rust crate mdns-sd to v0.20.3 (#2324) ([#2324](https://github.com/hrzlgnm/mdns-browser/pull/2324))
+
 ## [1.9.20] - 2026-07-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.19...mdns-browser-v1.9.20)
 
 ### Added
