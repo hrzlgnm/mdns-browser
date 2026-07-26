@@ -23,11 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate serde_json to v1.0.151 (#2300) ([#2300](https://github.com/hrzlgnm/mdns-browser/pull/2300))
 
-- *(deps)* Update archlinux:base-devel docker digest to 412efeb (#2302) ([#2302](https://github.com/hrzlgnm/mdns-browser/pull/2302))
-
 - *(deps)* Update actions/checkout digest to 3d3c42e (#2301) ([#2301](https://github.com/hrzlgnm/mdns-browser/pull/2301))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to e5ae39e (#2303) ([#2303](https://github.com/hrzlgnm/mdns-browser/pull/2303))
 
 - *(deps)* Update rust crate clap to v4.6.3 (#2304) ([#2304](https://github.com/hrzlgnm/mdns-browser/pull/2304))
 
@@ -43,17 +39,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add GH_TOKEN to changelog generation steps in workflow (#2310) ([#2310](https://github.com/hrzlgnm/mdns-browser/pull/2310))
 
+- Add typo corrections to git-cliff postprocessors
+
 ## [1.9.18] - 2026-07-17
 
 ### Changed
 
 - *(deps)* Update dependency cargo-edit to v0.13.12 (#2278) ([#2278](https://github.com/hrzlgnm/mdns-browser/pull/2278))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 66b197b (#2279) ([#2279](https://github.com/hrzlgnm/mdns-browser/pull/2279))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to de9a928 (#2280) ([#2280](https://github.com/hrzlgnm/mdns-browser/pull/2280))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to ee2735a (#2281) ([#2281](https://github.com/hrzlgnm/mdns-browser/pull/2281))
 
 - *(deps)* Update rust crate console_log to v1.1.0 (#2282) ([#2282](https://github.com/hrzlgnm/mdns-browser/pull/2282))
 
@@ -61,23 +53,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.6.2 (#2284) ([#2284](https://github.com/hrzlgnm/mdns-browser/pull/2284))
 
-- *(deps)* Update ubuntu:latest docker digest to 651ba3f (#2285) ([#2285](https://github.com/hrzlgnm/mdns-browser/pull/2285))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to ee6b730 (#2286) ([#2286](https://github.com/hrzlgnm/mdns-browser/pull/2286))
-
 - *(deps)* Update rust crate tokio to v1.52.4 (#2287) ([#2287](https://github.com/hrzlgnm/mdns-browser/pull/2287))
 
 - *(deps)* Update actions/setup-java digest to 03ad4de (#2289) ([#2289](https://github.com/hrzlgnm/mdns-browser/pull/2289))
 
 - *(deps)* Update actions/attest digest to f7c74d2 (#2288) ([#2288](https://github.com/hrzlgnm/mdns-browser/pull/2288))
 
-- *(deps)* Update ubuntu:latest docker digest to 3131b4c (#2291) ([#2291](https://github.com/hrzlgnm/mdns-browser/pull/2291))
-
 - *(deps)* Update dtolnay/rust-toolchain digest to 4cda84d (#2290) ([#2290](https://github.com/hrzlgnm/mdns-browser/pull/2290))
 
 - *(deps)* Update rust crate mdns-sd to v0.20.2 (#2292) ([#2292](https://github.com/hrzlgnm/mdns-browser/pull/2292))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to d4a3e88 (#2293) ([#2293](https://github.com/hrzlgnm/mdns-browser/pull/2293))
 
 - *(deps)* Update rust crate tokio to v1.53.0 (#2294) ([#2294](https://github.com/hrzlgnm/mdns-browser/pull/2294))
 
@@ -95,19 +79,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency cargo-nextest to v0.9.140 (#2258) ([#2258](https://github.com/hrzlgnm/mdns-browser/pull/2258))
 
-- *(deps)* Update archlinux:base-devel docker digest to b21289e (#2260) ([#2260](https://github.com/hrzlgnm/mdns-browser/pull/2260))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 6258dc8 (#2261) ([#2261](https://github.com/hrzlgnm/mdns-browser/pull/2261))
-
 - *(deps)* Update actions/setup-java digest to 0f481fc (#2262) ([#2262](https://github.com/hrzlgnm/mdns-browser/pull/2262))
 
 - *(deps)* Update actions/labeler action to v6.2.0 (#2263) ([#2263](https://github.com/hrzlgnm/mdns-browser/pull/2263))
 
 - Apply clippy fixes (#2268) ([#2268](https://github.com/hrzlgnm/mdns-browser/pull/2268))
-
-- *(deps)* Update archlinux:base-devel docker digest to 212b1e5 (#2270) ([#2270](https://github.com/hrzlgnm/mdns-browser/pull/2270))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 00160eb (#2272) ([#2272](https://github.com/hrzlgnm/mdns-browser/pull/2272))
 
 - *(deps)* Update softprops/action-gh-release digest to 3d0d988 (#2269) ([#2269](https://github.com/hrzlgnm/mdns-browser/pull/2269))
 
@@ -153,31 +129,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency tauri-cli to v2.11.4 (#2237) ([#2237](https://github.com/hrzlgnm/mdns-browser/pull/2237))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 4913e93 (#2238) ([#2238](https://github.com/hrzlgnm/mdns-browser/pull/2238))
-
 - *(deps)* Update dependency cargo-auditable to v0.7.5 (#2239) ([#2239](https://github.com/hrzlgnm/mdns-browser/pull/2239))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 9899634 (#2240) ([#2240](https://github.com/hrzlgnm/mdns-browser/pull/2240))
-
 - *(deps)* Update tauri-apps/tauri-action action to v1 (#2242) ([#2242](https://github.com/hrzlgnm/mdns-browser/pull/2242))
-
-- *(deps)* Update archlinux:base-devel docker digest to 5fb487a (#2243) ([#2243](https://github.com/hrzlgnm/mdns-browser/pull/2243))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 6b22aa4 (#2244) ([#2244](https://github.com/hrzlgnm/mdns-browser/pull/2244))
 
 - *(deps)* Update dtolnay/rust-toolchain digest to 4be7066 (#2245) ([#2245](https://github.com/hrzlgnm/mdns-browser/pull/2245))
 
 - *(deps)* Update rust crate tauri to v2.11.4 (#2246) ([#2246](https://github.com/hrzlgnm/mdns-browser/pull/2246))
 
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 4fe0986 (#2247) ([#2247](https://github.com/hrzlgnm/mdns-browser/pull/2247))
-
 - *(deps)* Update rust crate tauri to v2.11.5 (#2248) ([#2248](https://github.com/hrzlgnm/mdns-browser/pull/2248))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 21ce90d (#2249) ([#2249](https://github.com/hrzlgnm/mdns-browser/pull/2249))
-
-- *(deps)* Update ubuntu:latest docker digest to b7f4819 (#2250) ([#2250](https://github.com/hrzlgnm/mdns-browser/pull/2250))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 75d0b43 (#2251) ([#2251](https://github.com/hrzlgnm/mdns-browser/pull/2251))
 
 - *(deps)* Update dorny/paths-filter action to v4.0.2 (#2252) ([#2252](https://github.com/hrzlgnm/mdns-browser/pull/2252))
 
@@ -187,25 +147,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update actions/checkout action to v7 (#2217) ([#2217](https://github.com/hrzlgnm/mdns-browser/pull/2217))
 
-- *(deps)* Update ubuntu:latest docker digest to e153663 (#2218) ([#2218](https://github.com/hrzlgnm/mdns-browser/pull/2218))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to d4b31d2 (#2219) ([#2219](https://github.com/hrzlgnm/mdns-browser/pull/2219))
-
 - *(deps)* Update softprops/action-gh-release digest to 718ea10 (#2220) ([#2220](https://github.com/hrzlgnm/mdns-browser/pull/2220))
-
-- *(deps)* Update ubuntu:latest docker digest to 53958ec (#2221) ([#2221](https://github.com/hrzlgnm/mdns-browser/pull/2221))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 5365f02 (#2222) ([#2222](https://github.com/hrzlgnm/mdns-browser/pull/2222))
 
 - *(deps)* Update mikepenz/action-junit-report digest to d9f48fc (#2223) ([#2223](https://github.com/hrzlgnm/mdns-browser/pull/2223))
 
 - *(deps)* Update rust crate log to v0.4.33 (#2224) ([#2224](https://github.com/hrzlgnm/mdns-browser/pull/2224))
 
 - *(deps)* Update dependency cargo-nextest to v0.9.138 (#2225) ([#2225](https://github.com/hrzlgnm/mdns-browser/pull/2225))
-
-- *(deps)* Update archlinux:base-devel docker digest to cf028ae (#2227) ([#2227](https://github.com/hrzlgnm/mdns-browser/pull/2227))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to cce7644 (#2228) ([#2228](https://github.com/hrzlgnm/mdns-browser/pull/2228))
 
 - *(deps)* Update release-drafter/release-drafter action to v7.5.0 (#2229) ([#2229](https://github.com/hrzlgnm/mdns-browser/pull/2229))
 
@@ -223,20 +171,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update hrzlgnm/actions action to v2.1.6 (#2201) ([#2201](https://github.com/hrzlgnm/mdns-browser/pull/2201))
 
-- *(deps)* Update archlinux:base-devel docker digest to dd60dfc (#2203) ([#2203](https://github.com/hrzlgnm/mdns-browser/pull/2203))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to d73dfab (#2204) ([#2204](https://github.com/hrzlgnm/mdns-browser/pull/2204))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 40985c0 (#2206) ([#2206](https://github.com/hrzlgnm/mdns-browser/pull/2206))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to e8cdbc0 (#2207) ([#2207](https://github.com/hrzlgnm/mdns-browser/pull/2207))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 2d973b5 (#2208) ([#2208](https://github.com/hrzlgnm/mdns-browser/pull/2208))
-
-- *(deps)* Update archlinux:base-devel docker digest to 0cf5eb7 (#2209) ([#2209](https://github.com/hrzlgnm/mdns-browser/pull/2209))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 5011ed4 (#2210) ([#2210](https://github.com/hrzlgnm/mdns-browser/pull/2210))
-
 - *(deps)* Update release-drafter/release-drafter action to v7.4.0 (#2211) ([#2211](https://github.com/hrzlgnm/mdns-browser/pull/2211))
 
 - *(deps)* Update actions/setup-java digest to ad2b381 (#2212) ([#2212](https://github.com/hrzlgnm/mdns-browser/pull/2212))
@@ -245,15 +179,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency tauri-cli to v2.11.3 (#2213) ([#2213](https://github.com/hrzlgnm/mdns-browser/pull/2213))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 18bd5b1 (#2215) ([#2215](https://github.com/hrzlgnm/mdns-browser/pull/2215))
-
 ## [1.9.9] - 2026-06-04
 
 ### Changed
-
-- *(deps)* Update archlinux:base-devel docker digest to 6db772f (#2178) ([#2178](https://github.com/hrzlgnm/mdns-browser/pull/2178))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to b50db3b (#2179) ([#2179](https://github.com/hrzlgnm/mdns-browser/pull/2179))
 
 - *(deps)* Update rust crate serde_json to v1.0.150 (#2180) ([#2180](https://github.com/hrzlgnm/mdns-browser/pull/2180))
 
@@ -265,19 +193,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update release-drafter/release-drafter action to v7.3.1 (#2184) ([#2184](https://github.com/hrzlgnm/mdns-browser/pull/2184))
 
-- *(deps)* Update archlinux:base-devel docker digest to 2507482 (#2185) ([#2185](https://github.com/hrzlgnm/mdns-browser/pull/2185))
-
 - *(deps)* Update dependency cargo-nextest to v0.9.137 (#2186) ([#2186](https://github.com/hrzlgnm/mdns-browser/pull/2186))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to c326515 (#2187) ([#2187](https://github.com/hrzlgnm/mdns-browser/pull/2187))
 
 - *(deps)* Update dependency cargo-edit to v0.13.11 (#2188) ([#2188](https://github.com/hrzlgnm/mdns-browser/pull/2188))
 
 - *(deps)* Update hrzlgnm/actions action to v2.1.5 (#2189) ([#2189](https://github.com/hrzlgnm/mdns-browser/pull/2189))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 1a429bd (#2190) ([#2190](https://github.com/hrzlgnm/mdns-browser/pull/2190))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to fa3fba2 (#2191) ([#2191](https://github.com/hrzlgnm/mdns-browser/pull/2191))
 
 - *(deps)* Update rust crate log to v0.4.31 (#2193) ([#2193](https://github.com/hrzlgnm/mdns-browser/pull/2193))
 
@@ -289,17 +209,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update AUR builder Docker image to use libsoup3 (#2197) ([#2197](https://github.com/hrzlgnm/mdns-browser/pull/2197))
 
-- *(deps)* Update archlinux:base-devel docker digest to c84ad63 (#2192) ([#2192](https://github.com/hrzlgnm/mdns-browser/pull/2192))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 4dea06f (#2199) ([#2199](https://github.com/hrzlgnm/mdns-browser/pull/2199))
-
 - *(deps)* Update rust crate serde_with to v3.21.0 (#2200) ([#2200](https://github.com/hrzlgnm/mdns-browser/pull/2200))
 
 ## [1.9.8] - 2026-05-18
 
 ### Changed
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 88792fc (#2160) ([#2160](https://github.com/hrzlgnm/mdns-browser/pull/2160))
 
 - *(deps)* Update release-drafter/release-drafter action to v7.3.0 (#2161) ([#2161](https://github.com/hrzlgnm/mdns-browser/pull/2161))
 
@@ -309,21 +223,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate serde_with to v3.20.0 (#2164) ([#2164](https://github.com/hrzlgnm/mdns-browser/pull/2164))
 
-- *(deps)* Update archlinux:base-devel docker digest to 6ec1f50 (#2166) ([#2166](https://github.com/hrzlgnm/mdns-browser/pull/2166))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 4becbbb (#2167) ([#2167](https://github.com/hrzlgnm/mdns-browser/pull/2167))
-
 - *(deps)* Update dependency cargo-nextest to v0.9.135 (#2168) ([#2168](https://github.com/hrzlgnm/mdns-browser/pull/2168))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 4e372d5 (#2169) ([#2169](https://github.com/hrzlgnm/mdns-browser/pull/2169))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to b367006 (#2170) ([#2170](https://github.com/hrzlgnm/mdns-browser/pull/2170))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to f47cd7e (#2171) ([#2171](https://github.com/hrzlgnm/mdns-browser/pull/2171))
-
 - *(deps)* Update tauri monorepo (#2172) ([#2172](https://github.com/hrzlgnm/mdns-browser/pull/2172))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to a8ca1b3 (#2173) ([#2173](https://github.com/hrzlgnm/mdns-browser/pull/2173))
 
 - *(deps)* Update dependency cargo-nextest to v0.9.136 (#2174) ([#2174](https://github.com/hrzlgnm/mdns-browser/pull/2174))
 
@@ -332,10 +234,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update rust crate mdns-sd to v0.19.2 (#2176) ([#2176](https://github.com/hrzlgnm/mdns-browser/pull/2176))
 
 ## [1.9.7] - 2026-05-08
-
-### Changed
-
-- *(deps)* Update archlinux:base-devel docker digest to fdff15f (#2159) ([#2159](https://github.com/hrzlgnm/mdns-browser/pull/2159))
 
 ### Fixed
 
@@ -349,15 +247,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(deps)* Update ubuntu:latest docker digest to f3d2860 (#2149) ([#2149](https://github.com/hrzlgnm/mdns-browser/pull/2149))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 6dba25f (#2150) ([#2150](https://github.com/hrzlgnm/mdns-browser/pull/2150))
-
 - *(deps)* Update actions/labeler action to v6.1.0 (#2151) ([#2151](https://github.com/hrzlgnm/mdns-browser/pull/2151))
 
 - *(deps)* Update tauri monorepo (#2152) ([#2152](https://github.com/hrzlgnm/mdns-browser/pull/2152))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 1f662ea (#2153) ([#2153](https://github.com/hrzlgnm/mdns-browser/pull/2153))
 
 ### Fixed
 
@@ -372,10 +264,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.9.4] - 2026-05-03
 
 ### Changed
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 7df0a47 (#2142) ([#2142](https://github.com/hrzlgnm/mdns-browser/pull/2142))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to f89af55 (#2143) ([#2143](https://github.com/hrzlgnm/mdns-browser/pull/2143))
 
 - *(deps)* Update rust crate tauri-plugin-opener to v2.5.4 (#2144) ([#2144](https://github.com/hrzlgnm/mdns-browser/pull/2144))
 
@@ -393,17 +281,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update tauri monorepo (#2139) ([#2139](https://github.com/hrzlgnm/mdns-browser/pull/2139))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 24a5bf9 (#2140) ([#2140](https://github.com/hrzlgnm/mdns-browser/pull/2140))
-
 ## [1.9.2] - 2026-04-24
 
 ### Changed
 
 - *(deps)* Update robinraju/release-downloader action to v1.13 (#2130) ([#2130](https://github.com/hrzlgnm/mdns-browser/pull/2130))
-
-- *(deps)* Update archlinux:base-devel docker digest to f15064b (#2131) ([#2131](https://github.com/hrzlgnm/mdns-browser/pull/2131))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to aa2b8b5 (#2132) ([#2132](https://github.com/hrzlgnm/mdns-browser/pull/2132))
 
 - *(deps)* Update mozilla-actions/sccache-action action to v0.0.10 (#2133) ([#2133](https://github.com/hrzlgnm/mdns-browser/pull/2133))
 
@@ -423,15 +305,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(deps)* Update archlinux:base-devel docker digest to c528201 (#2118) ([#2118](https://github.com/hrzlgnm/mdns-browser/pull/2118))
-
-- *(deps)* Update ubuntu:latest docker digest to c4a8d55 (#2119) ([#2119](https://github.com/hrzlgnm/mdns-browser/pull/2119))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 9380162 (#2120) ([#2120](https://github.com/hrzlgnm/mdns-browser/pull/2120))
-
 - Simplify ResolvedServiceItem by deriving memos from single try_get (#2122) ([#2122](https://github.com/hrzlgnm/mdns-browser/pull/2122))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to ec6faf0 (#2121) ([#2121](https://github.com/hrzlgnm/mdns-browser/pull/2121))
 
 - *(deps)* Update rust crate leptos to v0.8.19 (#2123) ([#2123](https://github.com/hrzlgnm/mdns-browser/pull/2123))
 
@@ -448,12 +322,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update rust crate tokio to v1.52.0 (#2108) ([#2108](https://github.com/hrzlgnm/mdns-browser/pull/2108))
 
 - *(deps)* Update dependency cargo-nextest to v0.9.133 (#2109) ([#2109](https://github.com/hrzlgnm/mdns-browser/pull/2109))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 75337d6 (#2110) ([#2110](https://github.com/hrzlgnm/mdns-browser/pull/2110))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 7d70f2d (#2111) ([#2111](https://github.com/hrzlgnm/mdns-browser/pull/2111))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to d2ccc41 (#2112) ([#2112](https://github.com/hrzlgnm/mdns-browser/pull/2112))
 
 - *(deps)* Update rust crate clap to v4.6.1 (#2115) ([#2115](https://github.com/hrzlgnm/mdns-browser/pull/2115))
 
@@ -479,8 +347,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update actions/upload-artifact action to v7.0.1 (#2093) ([#2093](https://github.com/hrzlgnm/mdns-browser/pull/2093))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to be72b19 (#2096) ([#2096](https://github.com/hrzlgnm/mdns-browser/pull/2096))
-
 - Switch to actionlint from hrzlgnm/actions (#2097) ([#2097](https://github.com/hrzlgnm/mdns-browser/pull/2097))
 
 - *(deps)* Update hrzlgnm/actions action to v2.1.0 (#2098) ([#2098](https://github.com/hrzlgnm/mdns-browser/pull/2098))
@@ -492,10 +358,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update softprops/action-gh-release action to v3 (#2101) ([#2101](https://github.com/hrzlgnm/mdns-browser/pull/2101))
 
 - *(deps)* Update hrzlgnm/actions action to v2.1.1 (#2103) ([#2103](https://github.com/hrzlgnm/mdns-browser/pull/2103))
-
-- *(deps)* Update archlinux:base-devel docker digest to 01bd0ee (#2104) ([#2104](https://github.com/hrzlgnm/mdns-browser/pull/2104))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to d9bd9c7 (#2105) ([#2105](https://github.com/hrzlgnm/mdns-browser/pull/2105))
 
 ### Fixed
 
@@ -509,10 +371,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use sysfs instead of udev for GPU detection (#2083) ([#2083](https://github.com/hrzlgnm/mdns-browser/pull/2083))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 001c948 (#2085) ([#2085](https://github.com/hrzlgnm/mdns-browser/pull/2085))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to dc56c02 (#2084) ([#2084](https://github.com/hrzlgnm/mdns-browser/pull/2084))
-
 ## [1.8.1] - 2026-04-07
 
 ### Added
@@ -521,21 +379,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(deps)* Update archlinux:base-devel docker digest to 4a48384 (#2071) ([#2071](https://github.com/hrzlgnm/mdns-browser/pull/2071))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to efcda21 (#2072) ([#2072](https://github.com/hrzlgnm/mdns-browser/pull/2072))
-
 - Add libudev-dev dependencies to docker containers (#2073) ([#2073](https://github.com/hrzlgnm/mdns-browser/pull/2073))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 36341fe (#2074) ([#2074](https://github.com/hrzlgnm/mdns-browser/pull/2074))
-
 - Add eudev libudev devel to void package builder (#2075) ([#2075](https://github.com/hrzlgnm/mdns-browser/pull/2075))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 61e37a9 (#2076) ([#2076](https://github.com/hrzlgnm/mdns-browser/pull/2076))
-
-- *(deps)* Update ubuntu:latest docker digest to 84e77de (#2077) ([#2077](https://github.com/hrzlgnm/mdns-browser/pull/2077))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 5fa741c (#2078) ([#2078](https://github.com/hrzlgnm/mdns-browser/pull/2078))
 
 ### Fixed
 
@@ -595,15 +441,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(deps)* Update archlinux:base-devel docker digest to 0cce2e4 (#2042) ([#2042](https://github.com/hrzlgnm/mdns-browser/pull/2042))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to b11278a (#2043) ([#2043](https://github.com/hrzlgnm/mdns-browser/pull/2043))
-
 - *(deps)* Update hrzlgnm/actions action to v2.0.5 (#2045) ([#2045](https://github.com/hrzlgnm/mdns-browser/pull/2045))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 56c1ad4 (#2044) ([#2044](https://github.com/hrzlgnm/mdns-browser/pull/2044))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 3c91822 (#2046) ([#2046](https://github.com/hrzlgnm/mdns-browser/pull/2046))
 
 - *(deps)* Update hrzlgnm/actions action to v2.0.6 (#2047) ([#2047](https://github.com/hrzlgnm/mdns-browser/pull/2047))
 
@@ -631,29 +469,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dorny/paths-filter action to v4.0.1 (#2010) ([#2010](https://github.com/hrzlgnm/mdns-browser/pull/2010))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 405a8aa (#2011) ([#2011](https://github.com/hrzlgnm/mdns-browser/pull/2011))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to b8ab6fb (#2012) ([#2012](https://github.com/hrzlgnm/mdns-browser/pull/2012))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 3a2fdc6 (#2013) ([#2013](https://github.com/hrzlgnm/mdns-browser/pull/2013))
-
 - *(deps)* Update softprops/action-gh-release digest to b25b93d (#2014) ([#2014](https://github.com/hrzlgnm/mdns-browser/pull/2014))
 
 - *(deps)* Update tauri-apps/tauri-action action to v0.6.2 (#2015) ([#2015](https://github.com/hrzlgnm/mdns-browser/pull/2015))
 
 - *(deps)* Update softprops/action-gh-release digest to 153bb8e (#2016) ([#2016](https://github.com/hrzlgnm/mdns-browser/pull/2016))
-
-- *(deps)* Update archlinux:base-devel docker digest to 87c122f (#2018) ([#2018](https://github.com/hrzlgnm/mdns-browser/pull/2018))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 0d86f89 (#2019) ([#2019](https://github.com/hrzlgnm/mdns-browser/pull/2019))
-
-- *(deps)* Update ubuntu:latest docker digest to 9d6e6f7 (#2020) ([#2020](https://github.com/hrzlgnm/mdns-browser/pull/2020))
-
-- *(deps)* Update ubuntu:latest docker digest to 0d39fcc (#2022) ([#2022](https://github.com/hrzlgnm/mdns-browser/pull/2022))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to cb26790 (#2021) ([#2021](https://github.com/hrzlgnm/mdns-browser/pull/2021))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to a51e2e1 (#2023) ([#2023](https://github.com/hrzlgnm/mdns-browser/pull/2023))
 
 - *(deps)* Update release-drafter/release-drafter action to v7.1.0 (#2024) ([#2024](https://github.com/hrzlgnm/mdns-browser/pull/2024))
 
@@ -661,19 +481,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency cargo-nextest to v0.9.131 (#2025) ([#2025](https://github.com/hrzlgnm/mdns-browser/pull/2025))
 
-- *(deps)* Update ubuntu:latest docker digest to 186072b (#2027) ([#2027](https://github.com/hrzlgnm/mdns-browser/pull/2027))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 3d1f37d (#2028) ([#2028](https://github.com/hrzlgnm/mdns-browser/pull/2028))
-
 - *(deps)* Update anchore/scan-action action to v7.4.0 (#2030) ([#2030](https://github.com/hrzlgnm/mdns-browser/pull/2030))
 
 - *(deps)* Update anchore/sbom-action digest to e22c389 (#2029) ([#2029](https://github.com/hrzlgnm/mdns-browser/pull/2029))
 
 - *(deps)* Update dependency cargo-nextest to v0.9.132 (#2031) ([#2031](https://github.com/hrzlgnm/mdns-browser/pull/2031))
-
-- *(deps)* Update archlinux:base-devel docker digest to 233f521 (#2032) ([#2032](https://github.com/hrzlgnm/mdns-browser/pull/2032))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 0483b22 (#2033) ([#2033](https://github.com/hrzlgnm/mdns-browser/pull/2033))
 
 - *(deps)* Update rust crate ipconfig to v0.3.3 (#2034) ([#2034](https://github.com/hrzlgnm/mdns-browser/pull/2034))
 
@@ -703,8 +515,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Temporary disable sscache to debug #1964 (#1965) ([#1964](https://github.com/hrzlgnm/mdns-browser/pull/1964)) ([#1965](https://github.com/hrzlgnm/mdns-browser/pull/1965))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to f83d313 (#1967) ([#1967](https://github.com/hrzlgnm/mdns-browser/pull/1967))
-
 - Cached install komac using cargo-install (#1973) ([#1973](https://github.com/hrzlgnm/mdns-browser/pull/1973))
 
 - Pass winget token via env to komac (#1976) ([#1976](https://github.com/hrzlgnm/mdns-browser/pull/1976))
@@ -725,15 +535,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add actionlint and shellcheck to arch aur builder (#1991) ([#1991](https://github.com/hrzlgnm/mdns-browser/pull/1991))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 6bb7b3e (#1992) ([#1992](https://github.com/hrzlgnm/mdns-browser/pull/1992))
-
 - Don't allow skipping actionlint job (#1994) ([#1994](https://github.com/hrzlgnm/mdns-browser/pull/1994))
 
-- *(deps)* Update archlinux:base-devel docker digest to b3c1ff7 (#1997) ([#1997](https://github.com/hrzlgnm/mdns-browser/pull/1997))
-
 - *(deps)* Update anchore/sbom-action digest to 57aae52 (#1996) ([#1996](https://github.com/hrzlgnm/mdns-browser/pull/1996))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 0d1a4ba (#1998) ([#1998](https://github.com/hrzlgnm/mdns-browser/pull/1998))
 
 - *(deps)* Update dependency cargo-nextest to v0.9.130 (#1999) ([#1999](https://github.com/hrzlgnm/mdns-browser/pull/1999))
 
@@ -751,12 +555,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add actionlint validation step to CI workflow (#1990) ([#1990](https://github.com/hrzlgnm/mdns-browser/pull/1990))
 
-## [1.5.11] - 2026-03-04
-
-### Changed
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to e110288 (#1962) ([#1962](https://github.com/hrzlgnm/mdns-browser/pull/1962))
-
 ## [1.5.10] - 2026-03-04
 
 ### Changed
@@ -764,8 +562,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consolidate winget jobs to install komac only once (#1957) ([#1957](https://github.com/hrzlgnm/mdns-browser/pull/1957))
 
 - *(deps)* Update dependency cargo-auditable to v0.7.3 (#1958) ([#1958](https://github.com/hrzlgnm/mdns-browser/pull/1958))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to bfdb24f (#1959) ([#1959](https://github.com/hrzlgnm/mdns-browser/pull/1959))
 
 - *(deps)* Update hrzlgnm/actions action to v2.0.3 (#1960) ([#1960](https://github.com/hrzlgnm/mdns-browser/pull/1960))
 
@@ -781,10 +577,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency cargo-edit to v0.13.9 (#1953) ([#1953](https://github.com/hrzlgnm/mdns-browser/pull/1953))
 
-- *(deps)* Update archlinux:base-devel docker digest to a4e49d3 (#1952) ([#1952](https://github.com/hrzlgnm/mdns-browser/pull/1952))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to d06a3c6 (#1954) ([#1954](https://github.com/hrzlgnm/mdns-browser/pull/1954))
-
 - Self sign macOS bundle (#1955) ([#1955](https://github.com/hrzlgnm/mdns-browser/pull/1955))
 
 - *(deps)* Update rust crate tokio to v1.50.0 (#1956) ([#1956](https://github.com/hrzlgnm/mdns-browser/pull/1956))
@@ -795,11 +587,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to v0.18.1 (#1942) ([#1942](https://github.com/hrzlgnm/mdns-browser/pull/1942))
 
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 1770b94 (#1944) ([#1944](https://github.com/hrzlgnm/mdns-browser/pull/1944))
-
 - *(deps)* Update rust crate leptos to v0.8.17 (#1945) ([#1945](https://github.com/hrzlgnm/mdns-browser/pull/1945))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to f1c91f3 (#1946) ([#1946](https://github.com/hrzlgnm/mdns-browser/pull/1946))
 
 ## [1.5.7] - 2026-02-28
 
@@ -814,10 +602,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update baptiste0928/cargo-install digest to f204293 (#1928) ([#1928](https://github.com/hrzlgnm/mdns-browser/pull/1928))
 
 - *(deps)* Update rust crate chrono to v0.4.44 (#1929) ([#1929](https://github.com/hrzlgnm/mdns-browser/pull/1929))
-
-- *(deps)* Update archlinux:base-devel docker digest to f7227ef (#1930) ([#1930](https://github.com/hrzlgnm/mdns-browser/pull/1930))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 738111f (#1931) ([#1931](https://github.com/hrzlgnm/mdns-browser/pull/1931))
 
 - *(deps)* Update mikepenz/action-junit-report digest to 5e05ac0 (#1933) ([#1933](https://github.com/hrzlgnm/mdns-browser/pull/1933))
 
@@ -903,8 +687,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 8534b6a (#1899) ([#1899](https://github.com/hrzlgnm/mdns-browser/pull/1899))
-
 - Update aur templates to remove stripping (#1902) ([#1902](https://github.com/hrzlgnm/mdns-browser/pull/1902))
 
 - *(deps)* Update dependency tauri-cli to v2.10.0 (#1903) ([#1903](https://github.com/hrzlgnm/mdns-browser/pull/1903))
@@ -919,16 +701,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate leptos to v0.8.16 (#1890) ([#1890](https://github.com/hrzlgnm/mdns-browser/pull/1890))
 
-- *(deps)* Update archlinux:base-devel docker digest to 839e930 (#1893) ([#1893](https://github.com/hrzlgnm/mdns-browser/pull/1893))
-
-- *(deps)* Update ubuntu:latest docker digest to 25f3726 (#1894) ([#1894](https://github.com/hrzlgnm/mdns-browser/pull/1894))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to d5b1842 (#1895) ([#1895](https://github.com/hrzlgnm/mdns-browser/pull/1895))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 9c8532d (#1896) ([#1896](https://github.com/hrzlgnm/mdns-browser/pull/1896))
-
-- *(deps)* Update ubuntu:latest docker digest to d1e2e92 (#1897) ([#1897](https://github.com/hrzlgnm/mdns-browser/pull/1897))
-
 - *(deps)* Update rust crate leptos to v0.8.16 (#1898) ([#1898](https://github.com/hrzlgnm/mdns-browser/pull/1898))
 
 ## [1.4.1] - 2026-02-15
@@ -936,12 +708,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - *(deps)* Update dependency cargo-nextest to v0.9.127 (#1882) ([#1882](https://github.com/hrzlgnm/mdns-browser/pull/1882))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to ee97f53 (#1883) ([#1883](https://github.com/hrzlgnm/mdns-browser/pull/1883))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 3a00381 (#1884) ([#1884](https://github.com/hrzlgnm/mdns-browser/pull/1884))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 7a1cffc (#1885) ([#1885](https://github.com/hrzlgnm/mdns-browser/pull/1885))
 
 - *(deps)* Update rust crate futures to v0.3.32 (#1886) ([#1886](https://github.com/hrzlgnm/mdns-browser/pull/1886))
 
@@ -957,19 +723,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update hrzlgnm/actions action to v1.6.7 (#1869) ([#1869](https://github.com/hrzlgnm/mdns-browser/pull/1869))
 
-- *(deps)* Update archlinux:base-devel docker digest to 7c81df5 (#1868) ([#1868](https://github.com/hrzlgnm/mdns-browser/pull/1868))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 1912107 (#1870) ([#1870](https://github.com/hrzlgnm/mdns-browser/pull/1870))
-
 - *(deps)* Update hrzlgnm/actions action to v2 (#1871) ([#1871](https://github.com/hrzlgnm/mdns-browser/pull/1871))
 
 - Add link to terminal based app (#1872) ([#1872](https://github.com/hrzlgnm/mdns-browser/pull/1872))
 
 - Fix wording and indentation (#1874) ([#1874](https://github.com/hrzlgnm/mdns-browser/pull/1874))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 2a907be (#1873) ([#1873](https://github.com/hrzlgnm/mdns-browser/pull/1873))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 3176c6b (#1876) ([#1876](https://github.com/hrzlgnm/mdns-browser/pull/1876))
 
 - *(deps)* Update rust crate clap to v4.5.58 (#1877) ([#1877](https://github.com/hrzlgnm/mdns-browser/pull/1877))
 
@@ -1035,11 +793,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update mikepenz/action-junit-report digest to 74626db (#1843) ([#1843](https://github.com/hrzlgnm/mdns-browser/pull/1843))
 
-- *(deps)* Update archlinux:base-devel docker digest to 9387492 (#1841) ([#1841](https://github.com/hrzlgnm/mdns-browser/pull/1841))
-
 - *(deps)* Update dependency cargo-nextest to v0.9.125 (#1845) ([#1845](https://github.com/hrzlgnm/mdns-browser/pull/1845))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 28fdbec (#1842) ([#1842](https://github.com/hrzlgnm/mdns-browser/pull/1842))
 
 - *(deps)* Update anchore/sbom-action digest to deef08a (#1840) ([#1840](https://github.com/hrzlgnm/mdns-browser/pull/1840))
 
@@ -1049,13 +803,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update anchore/scan-action action to v7.3.1 (#1844) ([#1844](https://github.com/hrzlgnm/mdns-browser/pull/1844))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 6f471f9 (#1850) ([#1850](https://github.com/hrzlgnm/mdns-browser/pull/1850))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to ae41dd8 (#1849) ([#1849](https://github.com/hrzlgnm/mdns-browser/pull/1849))
-
 - *(deps)* Update dependency tauri-cli to v2.10.0 (#1848) ([#1848](https://github.com/hrzlgnm/mdns-browser/pull/1848))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 5c4ee0a (#1851) ([#1851](https://github.com/hrzlgnm/mdns-browser/pull/1851))
 
 - Add 'enhancement' label to minor version changes (#1852) ([#1852](https://github.com/hrzlgnm/mdns-browser/pull/1852))
 
@@ -1097,21 +845,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate thiserror to v2.0.18 (#1808) ([#1808](https://github.com/hrzlgnm/mdns-browser/pull/1808))
 
-- *(deps)* Update ubuntu:latest docker digest to cd1dba6 (#1809) ([#1809](https://github.com/hrzlgnm/mdns-browser/pull/1809))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 651fd6a (#1810) ([#1810](https://github.com/hrzlgnm/mdns-browser/pull/1810))
-
 - *(deps)* Update hrzlgnm/actions action to v1.6.2 (#1811) ([#1811](https://github.com/hrzlgnm/mdns-browser/pull/1811))
 
 - *(deps)* Update release-drafter/release-drafter action to v6.1.1 (#1812) ([#1812](https://github.com/hrzlgnm/mdns-browser/pull/1812))
-
-- *(deps)* Update archlinux:base-devel docker digest to d2bd09b (#1813) ([#1813](https://github.com/hrzlgnm/mdns-browser/pull/1813))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 2a774f7 (#1814) ([#1814](https://github.com/hrzlgnm/mdns-browser/pull/1814))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 4241b9d (#1815) ([#1815](https://github.com/hrzlgnm/mdns-browser/pull/1815))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 650f432 (#1816) ([#1816](https://github.com/hrzlgnm/mdns-browser/pull/1816))
 
 - *(deps)* Update anchore/sbom-action digest to 62ad528 (#1817) ([#1817](https://github.com/hrzlgnm/mdns-browser/pull/1817))
 
@@ -1135,27 +871,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to e115fa3 (#1794) ([#1794](https://github.com/hrzlgnm/mdns-browser/pull/1794))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to c54bcb7 (#1795) ([#1795](https://github.com/hrzlgnm/mdns-browser/pull/1795))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to a974cb8 (#1796) ([#1796](https://github.com/hrzlgnm/mdns-browser/pull/1796))
-
 - *(deps)* Update rust crate chrono to v0.4.43 (#1797) ([#1797](https://github.com/hrzlgnm/mdns-browser/pull/1797))
-
-- *(deps)* Update ubuntu:latest docker digest to 7a39814 (#1799) ([#1799](https://github.com/hrzlgnm/mdns-browser/pull/1799))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 355deb4 (#1800) ([#1800](https://github.com/hrzlgnm/mdns-browser/pull/1800))
 
 ## [1.0.8] - 2026-01-14
 
 ### Changed
 
 - *(deps)* Update dependency cargo-nextest to v0.9.118 (#1779) ([#1779](https://github.com/hrzlgnm/mdns-browser/pull/1779))
-
-- *(deps)* Update archlinux:base-devel docker digest to ebcaeca (#1780) ([#1780](https://github.com/hrzlgnm/mdns-browser/pull/1780))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 675f6b3 (#1781) ([#1781](https://github.com/hrzlgnm/mdns-browser/pull/1781))
 
 - *(deps)* Update rust crate serde_json to v1.0.149 (#1782) ([#1782](https://github.com/hrzlgnm/mdns-browser/pull/1782))
 
@@ -1173,10 +895,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency cargo-nextest to v0.9.121 (#1789) ([#1789](https://github.com/hrzlgnm/mdns-browser/pull/1789))
 
-- *(deps)* Update archlinux:base-devel docker digest to 84c36fa (#1790) ([#1790](https://github.com/hrzlgnm/mdns-browser/pull/1790))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 3596d1a (#1791) ([#1791](https://github.com/hrzlgnm/mdns-browser/pull/1791))
-
 - *(deps)* Update dependency cargo-nextest to v0.9.122 (#1792) ([#1792](https://github.com/hrzlgnm/mdns-browser/pull/1792))
 
 ## [1.0.7] - 2026-01-04
@@ -1189,11 +907,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update anchore/sbom-action digest to a930d0a (#1759) ([#1759](https://github.com/hrzlgnm/mdns-browser/pull/1759))
 
-- *(deps)* Update archlinux:base-devel docker digest to 0a03ad5 (#1760) ([#1760](https://github.com/hrzlgnm/mdns-browser/pull/1760))
-
 - *(deps)* Update rust crate serde_json to v1.0.147 (#1761) ([#1761](https://github.com/hrzlgnm/mdns-browser/pull/1761))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 9d818bf (#1762) ([#1762](https://github.com/hrzlgnm/mdns-browser/pull/1762))
 
 - *(zed)* Extend zed tasks (#1764) ([#1764](https://github.com/hrzlgnm/mdns-browser/pull/1764))
 
@@ -1201,17 +915,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate serde_json to v1.0.148 (#1766) ([#1766](https://github.com/hrzlgnm/mdns-browser/pull/1766))
 
-- *(deps)* Update archlinux:base-devel docker digest to f6b259c (#1767) ([#1767](https://github.com/hrzlgnm/mdns-browser/pull/1767))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 142b950 (#1768) ([#1768](https://github.com/hrzlgnm/mdns-browser/pull/1768))
-
 - *(deps)* Update mikepenz/action-junit-report digest to a294a61 (#1769) ([#1769](https://github.com/hrzlgnm/mdns-browser/pull/1769))
 
 - *(deps)* Update hrzlgnm/actions action to v1.5.8 (#1770) ([#1770](https://github.com/hrzlgnm/mdns-browser/pull/1770))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to a1c486c (#1771) ([#1771](https://github.com/hrzlgnm/mdns-browser/pull/1771))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 6137e47 (#1772) ([#1772](https://github.com/hrzlgnm/mdns-browser/pull/1772))
 
 - *(deps)* Update hrzlgnm/actions action to v1.6.0 (#1774) ([#1774](https://github.com/hrzlgnm/mdns-browser/pull/1774))
 
@@ -1235,10 +941,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Make latest releases links, too (#1749) ([#1749](https://github.com/hrzlgnm/mdns-browser/pull/1749))
 
-- *(deps)* Update archlinux:base-devel docker digest to 9414f5b (#1750) ([#1750](https://github.com/hrzlgnm/mdns-browser/pull/1750))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 068aaec (#1751) ([#1751](https://github.com/hrzlgnm/mdns-browser/pull/1751))
-
 - *(deps)* Update actions/attest-build-provenance action to v3.1.0 (#1752) ([#1752](https://github.com/hrzlgnm/mdns-browser/pull/1752))
 
 - Fix spacing in acknowledgment section of README (#1753) ([#1753](https://github.com/hrzlgnm/mdns-browser/pull/1753))
@@ -1251,17 +953,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Draft releases with latest tag reflected in tauri config (#1738) ([#1738](https://github.com/hrzlgnm/mdns-browser/pull/1738))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 2498279 (#1739) ([#1739](https://github.com/hrzlgnm/mdns-browser/pull/1739))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 8b37b98 (#1740) ([#1740](https://github.com/hrzlgnm/mdns-browser/pull/1740))
-
 - *(deps)* Update dependency cargo-nextest to v0.9.115 (#1742) ([#1742](https://github.com/hrzlgnm/mdns-browser/pull/1742))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to f0d8065 (#1741) ([#1741](https://github.com/hrzlgnm/mdns-browser/pull/1741))
-
-- *(deps)* Update archlinux:base-devel docker digest to 1635f38 (#1744) ([#1744](https://github.com/hrzlgnm/mdns-browser/pull/1744))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 8babd70 (#1746) ([#1746](https://github.com/hrzlgnm/mdns-browser/pull/1746))
 
 ### Fixed
 
@@ -1301,8 +993,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update tauri monorepo (#1728) ([#1728](https://github.com/hrzlgnm/mdns-browser/pull/1728))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to ed6cc8a (#1729) ([#1729](https://github.com/hrzlgnm/mdns-browser/pull/1729))
-
 - *(deps)* Update anchore/scan-action action to v7.2.2 (#1731) ([#1731](https://github.com/hrzlgnm/mdns-browser/pull/1731))
 
 - *(deps)* Update anchore/sbom-action digest to 43a17d6 (#1730) ([#1730](https://github.com/hrzlgnm/mdns-browser/pull/1730))
@@ -1316,16 +1006,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Add winget version badge (#1705) ([#1705](https://github.com/hrzlgnm/mdns-browser/pull/1705))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 6450668 (#1706) ([#1706](https://github.com/hrzlgnm/mdns-browser/pull/1706))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 17b99ea (#1707) ([#1707](https://github.com/hrzlgnm/mdns-browser/pull/1707))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to ce0efdf (#1708) ([#1708](https://github.com/hrzlgnm/mdns-browser/pull/1708))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to f5d88ca (#1709) ([#1709](https://github.com/hrzlgnm/mdns-browser/pull/1709))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 415895b (#1710) ([#1710](https://github.com/hrzlgnm/mdns-browser/pull/1710))
 
 - *(ci)* Update schedule to rerun CI to the middle of the month (#1712) ([#1712](https://github.com/hrzlgnm/mdns-browser/pull/1712))
 
@@ -1359,15 +1039,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update tauri monorepo (#1688) ([#1688](https://github.com/hrzlgnm/mdns-browser/pull/1688))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 1dbe9e1 (#1692) ([#1692](https://github.com/hrzlgnm/mdns-browser/pull/1692))
-
 - *(copyright)* Add license headers (#1691) ([#1691](https://github.com/hrzlgnm/mdns-browser/pull/1691))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 561cb55 (#1693) ([#1693](https://github.com/hrzlgnm/mdns-browser/pull/1693))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 0a6535c (#1695) ([#1695](https://github.com/hrzlgnm/mdns-browser/pull/1695))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 8bc5efb (#1694) ([#1694](https://github.com/hrzlgnm/mdns-browser/pull/1694))
 
 - *(deps)* Update hrzlgnm/actions action to v1.4.0 (#1696) ([#1696](https://github.com/hrzlgnm/mdns-browser/pull/1696))
 
@@ -1461,12 +1133,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Fix tagging of docker builds and add job names (#1649) ([#1649](https://github.com/hrzlgnm/mdns-browser/pull/1649))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 91adfd6 (#1650) ([#1650](https://github.com/hrzlgnm/mdns-browser/pull/1650))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 15ee614 (#1652) ([#1652](https://github.com/hrzlgnm/mdns-browser/pull/1652))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to f863756 (#1651) ([#1651](https://github.com/hrzlgnm/mdns-browser/pull/1651))
-
 - *(ci)* Slimify workflows (#1653) ([#1653](https://github.com/hrzlgnm/mdns-browser/pull/1653))
 
 - *(ci)* Refactor to use re-actors/all-green (#1655) ([#1655](https://github.com/hrzlgnm/mdns-browser/pull/1655))
@@ -1499,13 +1165,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update anchore/scan-action action to v7.2.0 (#1627) ([#1627](https://github.com/hrzlgnm/mdns-browser/pull/1627))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 7a17003 (#1629) ([#1629](https://github.com/hrzlgnm/mdns-browser/pull/1629))
-
 - *(deps)* Update dependency cargo-nextest to v0.9.114 (#1631) ([#1631](https://github.com/hrzlgnm/mdns-browser/pull/1631))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 55d821f (#1628) ([#1628](https://github.com/hrzlgnm/mdns-browser/pull/1628))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 86a96fe (#1630) ([#1630](https://github.com/hrzlgnm/mdns-browser/pull/1630))
 
 - *(ci)* Run CI workflow once per month (#1634) ([#1634](https://github.com/hrzlgnm/mdns-browser/pull/1634))
 
@@ -1540,8 +1200,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(ci)* Rename workflow file for better maintainability (#1592) ([#1592](https://github.com/hrzlgnm/mdns-browser/pull/1592))
 
 - *(ci)* Consolidate release logic with composite action (#1593) ([#1593](https://github.com/hrzlgnm/mdns-browser/pull/1593))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to bff59e7 (#1596) ([#1596](https://github.com/hrzlgnm/mdns-browser/pull/1596))
 
 - *(ci)* Create sbom for android (#1598) ([#1598](https://github.com/hrzlgnm/mdns-browser/pull/1598))
 
@@ -1579,15 +1237,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Only build changed dockerfiles in pull requests (#1577) ([#1577](https://github.com/hrzlgnm/mdns-browser/pull/1577))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 5f85072 (#1576) ([#1576](https://github.com/hrzlgnm/mdns-browser/pull/1576))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 6752f84 (#1578) ([#1578](https://github.com/hrzlgnm/mdns-browser/pull/1578))
-
 ## [0.26.2] - 2025-11-15
 
 ### Changed
-
-- *(deps)* Update ubuntu:latest docker digest to c35e29c (#1573) ([#1573](https://github.com/hrzlgnm/mdns-browser/pull/1573))
 
 - *(aur)* Enable default binary stripping in mdns-browser-bin package (#1574) ([#1574](https://github.com/hrzlgnm/mdns-browser/pull/1574))
 
@@ -1606,10 +1258,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update crate-ci/typos action to v1.39.2 (#1566) ([#1566](https://github.com/hrzlgnm/mdns-browser/pull/1566))
 
 - *(deps)* Update tauri monorepo (#1567) ([#1567](https://github.com/hrzlgnm/mdns-browser/pull/1567))
-
-- *(deps)* Update ubuntu:latest docker digest to e96e81f (#1568) ([#1568](https://github.com/hrzlgnm/mdns-browser/pull/1568))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 1cc911e (#1569) ([#1569](https://github.com/hrzlgnm/mdns-browser/pull/1569))
 
 - *(deps)* Update rust crate serde_with to v3.16.0 (#1570) ([#1570](https://github.com/hrzlgnm/mdns-browser/pull/1570))
 
@@ -1645,8 +1293,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency tauri-cli to v2.9.4 (#1546) ([#1546](https://github.com/hrzlgnm/mdns-browser/pull/1546))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 2291d7e (#1547) ([#1547](https://github.com/hrzlgnm/mdns-browser/pull/1547))
-
 - *(ci)* Refactor CI into a single workflow (#1550) ([#1550](https://github.com/hrzlgnm/mdns-browser/pull/1550))
 
 - *(deps)* Update actions/checkout action to v5 (#1554) ([#1554](https://github.com/hrzlgnm/mdns-browser/pull/1554))
@@ -1673,8 +1319,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency tauri-cli to v2.9.3 (#1522) ([#1522](https://github.com/hrzlgnm/mdns-browser/pull/1522))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 6574041 (#1523) ([#1523](https://github.com/hrzlgnm/mdns-browser/pull/1523))
-
 - *(ci)* Use composite actions to deduplicate workflows (#1525) ([#1525](https://github.com/hrzlgnm/mdns-browser/pull/1525))
 
 - *(ci)* Run in bash shell (#1530) ([#1530](https://github.com/hrzlgnm/mdns-browser/pull/1530))
@@ -1693,17 +1337,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update crate-ci/typos action to v1.39.0 (#1510) ([#1510](https://github.com/hrzlgnm/mdns-browser/pull/1510))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to c188270 (#1511) ([#1511](https://github.com/hrzlgnm/mdns-browser/pull/1511))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 41b291e (#1512) ([#1512](https://github.com/hrzlgnm/mdns-browser/pull/1512))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 59ee625 (#1514) ([#1514](https://github.com/hrzlgnm/mdns-browser/pull/1514))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to ec0b505 (#1513) ([#1513](https://github.com/hrzlgnm/mdns-browser/pull/1513))
-
 - Create tasks for zed (#1515) ([#1515](https://github.com/hrzlgnm/mdns-browser/pull/1515))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to bf51a3b (#1516) ([#1516](https://github.com/hrzlgnm/mdns-browser/pull/1516))
 
 - *(ci)* Run tests in separate job (#1517) ([#1517](https://github.com/hrzlgnm/mdns-browser/pull/1517))
 
@@ -1719,8 +1353,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Add unzip to ubuntu builder dependencies (#1507) ([#1507](https://github.com/hrzlgnm/mdns-browser/pull/1507))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 06bb8f7 (#1508) ([#1508](https://github.com/hrzlgnm/mdns-browser/pull/1508))
-
 ## [0.25.0] - 2025-10-30
 
 ### Changed
@@ -1730,12 +1362,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(ci)* Winget: Fix url generation after artifact name change (#1474) ([#1474](https://github.com/hrzlgnm/mdns-browser/pull/1474))
 
 - *(aur)* Fixup artifact names in AUR update workflow (#1475) ([#1475](https://github.com/hrzlgnm/mdns-browser/pull/1475))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 893e7ef (#1477) ([#1477](https://github.com/hrzlgnm/mdns-browser/pull/1477))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to ba36980 (#1478) ([#1478](https://github.com/hrzlgnm/mdns-browser/pull/1478))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to a6886bd (#1479) ([#1479](https://github.com/hrzlgnm/mdns-browser/pull/1479))
 
 - *(ci)* Update workflows from ubuntu-24.04 to use ubuntu-latest (#1480) ([#1480](https://github.com/hrzlgnm/mdns-browser/pull/1480))
 
@@ -1775,8 +1401,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.51 (#1503) ([#1503](https://github.com/hrzlgnm/mdns-browser/pull/1503))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 2dd8706 (#1505) ([#1505](https://github.com/hrzlgnm/mdns-browser/pull/1505))
-
 ### Fixed
 
 - *(deps)* Update rust crate mdns-sd to 0.16 (#1506) ([#1506](https://github.com/hrzlgnm/mdns-browser/pull/1506))
@@ -1793,19 +1417,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency cargo-auditable to v0.7.1 (#1455) ([#1455](https://github.com/hrzlgnm/mdns-browser/pull/1455))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 5c4d66b (#1456) ([#1456](https://github.com/hrzlgnm/mdns-browser/pull/1456))
-
 - *(deps)* Update rust crate clap to v4.5.50 (#1458) ([#1458](https://github.com/hrzlgnm/mdns-browser/pull/1458))
-
-- *(deps)* Update archlinux:base-devel docker digest to 943bdad (#1460) ([#1460](https://github.com/hrzlgnm/mdns-browser/pull/1460))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to d96ab51 (#1461) ([#1461](https://github.com/hrzlgnm/mdns-browser/pull/1461))
 
 - *(deps)* Update rust crate serde_with to v3.15.1 (#1462) ([#1462](https://github.com/hrzlgnm/mdns-browser/pull/1462))
 
 - *(deps)* Update tauri monorepo (#1459) ([#1459](https://github.com/hrzlgnm/mdns-browser/pull/1459))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 06475a2 (#1463) ([#1463](https://github.com/hrzlgnm/mdns-browser/pull/1463))
 
 - *(deps)* Update anchore/sbom-action digest to 8e94d75 (#1464) ([#1464](https://github.com/hrzlgnm/mdns-browser/pull/1464))
 
@@ -1835,8 +1451,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 950538e (#1447) ([#1447](https://github.com/hrzlgnm/mdns-browser/pull/1447))
-
 - *(aur)* Add cargo tests and uncomment CFLAGS export (#1449) ([#1449](https://github.com/hrzlgnm/mdns-browser/pull/1449))
 
 - *(aur)* Disable fail-fast option (#1450) ([#1450](https://github.com/hrzlgnm/mdns-browser/pull/1450))
@@ -1861,10 +1475,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.5.49 (#1439) ([#1439](https://github.com/hrzlgnm/mdns-browser/pull/1439))
 
-- *(deps)* Update archlinux:base-devel docker digest to 87a967f (#1441) ([#1441](https://github.com/hrzlgnm/mdns-browser/pull/1441))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to dae2f6b (#1442) ([#1442](https://github.com/hrzlgnm/mdns-browser/pull/1442))
-
 - *(deps)* Update rust crate tokio to v1.48.0 (#1443) ([#1443](https://github.com/hrzlgnm/mdns-browser/pull/1443))
 
 - *(deps)* Update anchore/sbom-action digest to d8a2c01 (#1444) ([#1444](https://github.com/hrzlgnm/mdns-browser/pull/1444))
@@ -1883,37 +1493,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update crate-ci/typos action to v1.36.3 (#1411) ([#1411](https://github.com/hrzlgnm/mdns-browser/pull/1411))
 
-- *(deps)* Update archlinux:base-devel docker digest to 5d95edc (#1412) ([#1412](https://github.com/hrzlgnm/mdns-browser/pull/1412))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 4aa2b44 (#1413) ([#1413](https://github.com/hrzlgnm/mdns-browser/pull/1413))
-
 - *(deps)* Update crate-ci/typos action to v1.37.0 (#1414) ([#1414](https://github.com/hrzlgnm/mdns-browser/pull/1414))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to d39c60f (#1415) ([#1415](https://github.com/hrzlgnm/mdns-browser/pull/1415))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 0c79c04 (#1416) ([#1416](https://github.com/hrzlgnm/mdns-browser/pull/1416))
 
 - *(deps)* Update crate-ci/typos action to v1.37.1 (#1418) ([#1418](https://github.com/hrzlgnm/mdns-browser/pull/1418))
 
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to e85211c (#1417) ([#1417](https://github.com/hrzlgnm/mdns-browser/pull/1417))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 5199629 (#1419) ([#1419](https://github.com/hrzlgnm/mdns-browser/pull/1419))
-
 - *(deps)* Update crate-ci/typos action to v1.37.2 (#1420) ([#1420](https://github.com/hrzlgnm/mdns-browser/pull/1420))
-
-- *(deps)* Update archlinux:base-devel docker digest to b380991 (#1421) ([#1421](https://github.com/hrzlgnm/mdns-browser/pull/1421))
 
 - *(deps)* Update crate-ci/typos action to v1.38.0 (#1422) ([#1422](https://github.com/hrzlgnm/mdns-browser/pull/1422))
 
 - *(deps)* Update softprops/action-gh-release digest to aec2ec5 (#1424) ([#1424](https://github.com/hrzlgnm/mdns-browser/pull/1424))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 6078a61 (#1423) ([#1423](https://github.com/hrzlgnm/mdns-browser/pull/1423))
-
 - *(deps)* Update crate-ci/typos action to v1.38.1 (#1426) ([#1426](https://github.com/hrzlgnm/mdns-browser/pull/1426))
-
-- *(deps)* Update archlinux:base-devel docker digest to 06ab929 (#1427) ([#1427](https://github.com/hrzlgnm/mdns-browser/pull/1427))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 449af96 (#1428) ([#1428](https://github.com/hrzlgnm/mdns-browser/pull/1428))
 
 - *(deps)* Update rust crate regex to v1.11.3 (#1430) ([#1430](https://github.com/hrzlgnm/mdns-browser/pull/1430))
 
@@ -1939,17 +1529,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update anchore/sbom-action digest to f8bdd1d (#1398) ([#1398](https://github.com/hrzlgnm/mdns-browser/pull/1398))
 
-- *(deps)* Update archlinux:base-devel docker digest to 9019fd8 (#1399) ([#1399](https://github.com/hrzlgnm/mdns-browser/pull/1399))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to d5c6d20 (#1400) ([#1400](https://github.com/hrzlgnm/mdns-browser/pull/1400))
-
 - *(deps)* Update rust crate serde to v1.0.225 (#1401) ([#1401](https://github.com/hrzlgnm/mdns-browser/pull/1401))
 
 - *(deps)* Update rust crate serde to v1.0.226 (#1405) ([#1405](https://github.com/hrzlgnm/mdns-browser/pull/1405))
-
-- *(deps)* Update archlinux:base-devel docker digest to 0589aa8 (#1407) ([#1407](https://github.com/hrzlgnm/mdns-browser/pull/1407))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 5d1f45d (#1408) ([#1408](https://github.com/hrzlgnm/mdns-browser/pull/1408))
 
 ### Fixed
 
@@ -1970,12 +1552,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Increase mDNS-Browser window width to 1615 (#1392) ([#1392](https://github.com/hrzlgnm/mdns-browser/pull/1392))
-
-### Changed
-
-- *(deps)* Update archlinux:base-devel docker digest to 52caef7 (#1390) ([#1390](https://github.com/hrzlgnm/mdns-browser/pull/1390))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 393a4f4 (#1391) ([#1391](https://github.com/hrzlgnm/mdns-browser/pull/1391))
 
 ## [0.23.1] - 2025-09-08
 
@@ -2019,13 +1595,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(deps)* Update archlinux:base-devel docker digest to 925a18f (#1339) ([#1339](https://github.com/hrzlgnm/mdns-browser/pull/1339))
-
 - *(deps)* Update crate-ci/typos action to v1.35.5 (#1341) ([#1341](https://github.com/hrzlgnm/mdns-browser/pull/1341))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 05267a7 (#1342) ([#1342](https://github.com/hrzlgnm/mdns-browser/pull/1342))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 3648ac5 (#1343) ([#1343](https://github.com/hrzlgnm/mdns-browser/pull/1343))
 
 - *(deps)* Update rust crate thiserror to v2.0.16 (#1346) ([#1346](https://github.com/hrzlgnm/mdns-browser/pull/1346))
 
@@ -2033,15 +1603,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update baptiste0928/cargo-install digest to b687c65 (#1350) ([#1350](https://github.com/hrzlgnm/mdns-browser/pull/1350))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 6829a82 (#1353) ([#1353](https://github.com/hrzlgnm/mdns-browser/pull/1353))
-
 - *(deps)* Update tauri-apps/tauri-action action to v0.5.23 (#1356) ([#1356](https://github.com/hrzlgnm/mdns-browser/pull/1356))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to c9eb74f (#1358) ([#1358](https://github.com/hrzlgnm/mdns-browser/pull/1358))
-
-- *(deps)* Update archlinux:base-devel docker digest to 8ccc930 (#1359) ([#1359](https://github.com/hrzlgnm/mdns-browser/pull/1359))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to b626009 (#1361) ([#1361](https://github.com/hrzlgnm/mdns-browser/pull/1361))
 
 - *(deps)* Update crate-ci/typos action to v1.35.6 (#1364) ([#1364](https://github.com/hrzlgnm/mdns-browser/pull/1364))
 
@@ -2050,14 +1612,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update actions/attest-sbom action to v3 (#1366) ([#1366](https://github.com/hrzlgnm/mdns-browser/pull/1366))
 
 - *(deps)* Update crate-ci/typos action to v1.35.7 (#1367) ([#1367](https://github.com/hrzlgnm/mdns-browser/pull/1367))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 01a1ace (#1369) ([#1369](https://github.com/hrzlgnm/mdns-browser/pull/1369))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to dac640d (#1368) ([#1368](https://github.com/hrzlgnm/mdns-browser/pull/1368))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 801b119 (#1371) ([#1371](https://github.com/hrzlgnm/mdns-browser/pull/1371))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to a3625dd (#1374) ([#1374](https://github.com/hrzlgnm/mdns-browser/pull/1374))
 
 ### Fixed
 
@@ -2149,11 +1703,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update actions/checkout action to v5 (#1314) ([#1314](https://github.com/hrzlgnm/mdns-browser/pull/1314))
 
-- *(deps)* Update archlinux:base-devel docker digest to 92a0740 (#1317) ([#1317](https://github.com/hrzlgnm/mdns-browser/pull/1317))
-
 - *(deps)* Update rust crate thiserror to v2.0.13 (#1320) ([#1320](https://github.com/hrzlgnm/mdns-browser/pull/1320))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 3e11dc3 (#1321) ([#1321](https://github.com/hrzlgnm/mdns-browser/pull/1321))
 
 ### Fixed
 
@@ -2167,21 +1717,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 2b8e6a2 (#1295) ([#1295](https://github.com/hrzlgnm/mdns-browser/pull/1295))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 4995b89 (#1294) ([#1294](https://github.com/hrzlgnm/mdns-browser/pull/1294))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 4553217 (#1296) ([#1296](https://github.com/hrzlgnm/mdns-browser/pull/1296))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to b2b2c47 (#1297) ([#1297](https://github.com/hrzlgnm/mdns-browser/pull/1297))
-
 - *(deps)* Update rust crate tokio to v1.47.1 (#1298) ([#1298](https://github.com/hrzlgnm/mdns-browser/pull/1298))
 
 - *(deps)* Update crate-ci/typos action to v1.35.1 (#1301) ([#1301](https://github.com/hrzlgnm/mdns-browser/pull/1301))
-
-- *(deps)* Update archlinux:base-devel docker digest to 15d3106 (#1302) ([#1302](https://github.com/hrzlgnm/mdns-browser/pull/1302))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to d10a4e7 (#1303) ([#1303](https://github.com/hrzlgnm/mdns-browser/pull/1303))
 
 - *(deps)* Update actions/download-artifact action to v5 (#1304) ([#1304](https://github.com/hrzlgnm/mdns-browser/pull/1304))
 
@@ -2217,10 +1755,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update hugo19941994/delete-draft-releases action to v2 (#1282) ([#1282](https://github.com/hrzlgnm/mdns-browser/pull/1282))
 
-- *(deps)* Update archlinux:base-devel docker digest to af82cf8 (#1285) ([#1285](https://github.com/hrzlgnm/mdns-browser/pull/1285))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 80b189b (#1287) ([#1287](https://github.com/hrzlgnm/mdns-browser/pull/1287))
-
 ### Fixed
 
 - *(deps)* Update rust crate leptos to v0.8.6 (#1281) ([#1281](https://github.com/hrzlgnm/mdns-browser/pull/1281))
@@ -2233,13 +1767,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update anchore/sbom-action digest to 7b36ad6 (#1272) ([#1272](https://github.com/hrzlgnm/mdns-browser/pull/1272))
 
-- *(deps)* Update archlinux:base-devel docker digest to 210f84b (#1273) ([#1273](https://github.com/hrzlgnm/mdns-browser/pull/1273))
-
 - *(deps)* Update dependency tauri-cli to v2.7.1 (#1274) ([#1274](https://github.com/hrzlgnm/mdns-browser/pull/1274))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 3efd7c7 (#1275) ([#1275](https://github.com/hrzlgnm/mdns-browser/pull/1275))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 4664bbd (#1276) ([#1276](https://github.com/hrzlgnm/mdns-browser/pull/1276))
 
 ## [0.21.4] - 2025-07-21
 
@@ -2256,8 +1784,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.21.2] - 2025-07-21
 
 ### Changed
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to e76eee3 (#1267) ([#1267](https://github.com/hrzlgnm/mdns-browser/pull/1267))
 
 - *(deps)* Update rust crate reactive_stores to v0.2.5 (#1268) ([#1268](https://github.com/hrzlgnm/mdns-browser/pull/1268))
 
@@ -2283,12 +1809,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add sorting by port, and IP to service browsing UI and logic (#1264) ([#1264](https://github.com/hrzlgnm/mdns-browser/pull/1264))
 
-### Changed
-
-- *(deps)* Update archlinux:base-devel docker digest to ae06553 (#1259) ([#1259](https://github.com/hrzlgnm/mdns-browser/pull/1259))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 7570720 (#1260) ([#1260](https://github.com/hrzlgnm/mdns-browser/pull/1260))
-
 ### Fixed
 
 - *(deps)* Update rust crate serde_json to v1.0.141 (#1263) ([#1263](https://github.com/hrzlgnm/mdns-browser/pull/1263))
@@ -2298,12 +1818,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Disable mDNS incapable interfaces on `ServiceDaemon` (#1258) ([#1258](https://github.com/hrzlgnm/mdns-browser/pull/1258))
-
-### Changed
-
-- *(deps)* Update archlinux:base-devel docker digest to 10b7661 (#1256) ([#1256](https://github.com/hrzlgnm/mdns-browser/pull/1256))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to bb45a80 (#1257) ([#1257](https://github.com/hrzlgnm/mdns-browser/pull/1257))
 
 ## [0.20.3] - 2025-07-14
 
@@ -2329,11 +1843,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(deps)* Update archlinux:base-devel docker digest to 5b87f50 (#1183) ([#1183](https://github.com/hrzlgnm/mdns-browser/pull/1183))
-
 - *(deps)* Update softprops/action-gh-release digest to d5382d3 (#1184) ([#1184](https://github.com/hrzlgnm/mdns-browser/pull/1184))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 8410f1c (#1185) ([#1185](https://github.com/hrzlgnm/mdns-browser/pull/1185))
 
 - Update Renovate config to use automerge preset extends and remove explicit settings (#1187) ([#1187](https://github.com/hrzlgnm/mdns-browser/pull/1187))
 
@@ -2351,29 +1861,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update anchore/sbom-action digest to 9246b90 (#1195) ([#1195](https://github.com/hrzlgnm/mdns-browser/pull/1195))
 
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to b922884 (#1197) ([#1197](https://github.com/hrzlgnm/mdns-browser/pull/1197))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to aa150d5 (#1198) ([#1198](https://github.com/hrzlgnm/mdns-browser/pull/1198))
-
-- *(deps)* Update archlinux:base-devel docker digest to 3f808d4 (#1199) ([#1199](https://github.com/hrzlgnm/mdns-browser/pull/1199))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 3d775cc (#1203) ([#1203](https://github.com/hrzlgnm/mdns-browser/pull/1203))
-
 - *(deps)* Update baptiste0928/cargo-install digest to e38323e (#1205) ([#1205](https://github.com/hrzlgnm/mdns-browser/pull/1205))
 
-- *(deps)* Update archlinux:base-devel docker digest to bb4464b (#1209) ([#1209](https://github.com/hrzlgnm/mdns-browser/pull/1209))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to dd5a368 (#1210) ([#1210](https://github.com/hrzlgnm/mdns-browser/pull/1210))
-
 - *(deps)* Update dependency tauri-cli to v2.6.0 (#1211) ([#1211](https://github.com/hrzlgnm/mdns-browser/pull/1211))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 8163ffc (#1216) ([#1216](https://github.com/hrzlgnm/mdns-browser/pull/1216))
 
 - *(deps)* Update swatinem/rust-cache digest to 98c8021 (#1217) ([#1217](https://github.com/hrzlgnm/mdns-browser/pull/1217))
 
 - Update string formatting to use Rust inline variable interpolation syntax (#1225) ([#1225](https://github.com/hrzlgnm/mdns-browser/pull/1225))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 1c62e89 (#1223) ([#1223](https://github.com/hrzlgnm/mdns-browser/pull/1223))
 
 - *(deps)* Update tauri-apps/tauri-action action to v0.5.21 (#1226) 10 ([#1226](https://github.com/hrzlgnm/mdns-browser/pull/1226))
 
@@ -2381,19 +1875,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update tauri-apps/tauri-action action to v0.5.22 (#1229) ([#1229](https://github.com/hrzlgnm/mdns-browser/pull/1229))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to f3c97d4 (#1228) ([#1228](https://github.com/hrzlgnm/mdns-browser/pull/1228))
-
 - *(deps)* Update crate-ci/typos action to v1.34.0 (#1230) ([#1230](https://github.com/hrzlgnm/mdns-browser/pull/1230))
-
-- *(deps)* Update archlinux:base-devel docker digest to 16c85e5 (#1232) ([#1232](https://github.com/hrzlgnm/mdns-browser/pull/1232))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to d26bbe1 (#1234) ([#1234](https://github.com/hrzlgnm/mdns-browser/pull/1234))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to ad47064 (#1233) ([#1233](https://github.com/hrzlgnm/mdns-browser/pull/1233))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 3f1babb (#1235) ([#1235](https://github.com/hrzlgnm/mdns-browser/pull/1235))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 5c8cbc3 (#1236) ([#1236](https://github.com/hrzlgnm/mdns-browser/pull/1236))
 
 - *(deps)* Update rust crate tokio to v1.46.0 (#1237) ([#1237](https://github.com/hrzlgnm/mdns-browser/pull/1237))
 
@@ -2401,13 +1883,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update dependency cargo-auditable to v0.7.0 (#1239) ([#1239](https://github.com/hrzlgnm/mdns-browser/pull/1239))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to e08d9b9 (#1240) ([#1240](https://github.com/hrzlgnm/mdns-browser/pull/1240))
-
 - *(deps)* Update rust crate tokio to v1.46.1 (#1241) ([#1241](https://github.com/hrzlgnm/mdns-browser/pull/1241))
-
-- *(deps)* Update archlinux:base-devel docker digest to 7beca11 (#1242) ([#1242](https://github.com/hrzlgnm/mdns-browser/pull/1242))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 4584074 (#1244) ([#1244](https://github.com/hrzlgnm/mdns-browser/pull/1244))
 
 - *(deps)* Update rust crate reactive_stores to v0.2.3 (#1246) ([#1246](https://github.com/hrzlgnm/mdns-browser/pull/1246))
 
@@ -2529,27 +2005,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Document `--enable-devtools` cli option (#1141) ([#1141](https://github.com/hrzlgnm/mdns-browser/pull/1141))
 
-- *(deps)* Update archlinux:base-devel docker digest to cc583ad (#1142) ([#1142](https://github.com/hrzlgnm/mdns-browser/pull/1142))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 5a9a49a (#1143) ([#1143](https://github.com/hrzlgnm/mdns-browser/pull/1143))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to f5bda9f (#1144) ([#1144](https://github.com/hrzlgnm/mdns-browser/pull/1144))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to ebdf265 (#1145) ([#1145](https://github.com/hrzlgnm/mdns-browser/pull/1145))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 2a4a2c1 (#1146) ([#1146](https://github.com/hrzlgnm/mdns-browser/pull/1146))
-
 - *(deps)* Update crate-ci/typos action to v1.33.1 (#1147) ([#1147](https://github.com/hrzlgnm/mdns-browser/pull/1147))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to c6e7319 (#1148) ([#1148](https://github.com/hrzlgnm/mdns-browser/pull/1148))
-
-- *(deps)* Update archlinux:base-devel docker digest to 3f7f6e4 (#1151) ([#1151](https://github.com/hrzlgnm/mdns-browser/pull/1151))
 
 - Event listening system and helpers (#1149) ([#1149](https://github.com/hrzlgnm/mdns-browser/pull/1149))
 
 - Change glob import to specific component import (#1152) ([#1152](https://github.com/hrzlgnm/mdns-browser/pull/1152))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 4b0ca29 (#1154) ([#1154](https://github.com/hrzlgnm/mdns-browser/pull/1154))
 
 ### Fixed
 
@@ -2566,10 +2026,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - *(deps)* Update rust crate tokio to v1.45.1 (#1131) ([#1131](https://github.com/hrzlgnm/mdns-browser/pull/1131))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 6ddd6c7 (#1132) ([#1132](https://github.com/hrzlgnm/mdns-browser/pull/1132))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 8897189 (#1134) ([#1134](https://github.com/hrzlgnm/mdns-browser/pull/1134))
 
 - Centralize protocol flag management in a ProtocolFlags component (#1135) ([#1135](https://github.com/hrzlgnm/mdns-browser/pull/1135))
 
@@ -2625,10 +2081,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(deps)* Update archlinux:base-devel docker digest to f44a86a (#1107) ([#1107](https://github.com/hrzlgnm/mdns-browser/pull/1107))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 22df7d1 (#1108) ([#1108](https://github.com/hrzlgnm/mdns-browser/pull/1108))
-
 - Disable lock file maintenance in renovate config
 
 - Add coderabbit configuration file
@@ -2652,12 +2104,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.17.1] - 2025-05-19
 
 ### Changed
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 08b8824 (#1099) ([#1099](https://github.com/hrzlgnm/mdns-browser/pull/1099))
-
-- *(deps)* Update archlinux:base-devel docker digest to 880766d (#1101) ([#1101](https://github.com/hrzlgnm/mdns-browser/pull/1101))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 1f275a2 (#1102) ([#1102](https://github.com/hrzlgnm/mdns-browser/pull/1102))
 
 - *(deps)* Update anchore/sbom-action digest to e11c554 (#1104) ([#1104](https://github.com/hrzlgnm/mdns-browser/pull/1104))
 
@@ -2721,10 +2167,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Reorganize tauri commands (#1083) ([#1083](https://github.com/hrzlgnm/mdns-browser/pull/1083))
 
-- *(deps)* Update archlinux:base-devel docker digest to 39c081e (#1084) ([#1084](https://github.com/hrzlgnm/mdns-browser/pull/1084))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 8924114 (#1086) ([#1086](https://github.com/hrzlgnm/mdns-browser/pull/1086))
-
 ## [0.15.3] - 2025-05-04
 
 ### Changed
@@ -2733,10 +2175,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update crate-ci/typos action to v1.31.2 (#1053) ([#1053](https://github.com/hrzlgnm/mdns-browser/pull/1053))
 
-- *(deps)* Update archlinux:base-devel docker digest to d53a6f8 (#1055) ([#1055](https://github.com/hrzlgnm/mdns-browser/pull/1055))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 21d02a6 (#1056) ([#1056](https://github.com/hrzlgnm/mdns-browser/pull/1056))
-
 - Disable trunk version check (#1059) ([#1059](https://github.com/hrzlgnm/mdns-browser/pull/1059))
 
 - Add bug report issue template (#1060) ([#1060](https://github.com/hrzlgnm/mdns-browser/pull/1060))
@@ -2744,14 +2182,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix bug report template
 
 - Add screenshot sectio to bug report issue template
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to e8290ad (#1063) ([#1063](https://github.com/hrzlgnm/mdns-browser/pull/1063))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 7816cc9 (#1064) ([#1064](https://github.com/hrzlgnm/mdns-browser/pull/1064))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to a673de5 (#1062) ([#1062](https://github.com/hrzlgnm/mdns-browser/pull/1062))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to df0b9dc (#1068) ([#1068](https://github.com/hrzlgnm/mdns-browser/pull/1068))
 
 - Exclude sonar coverage
 
@@ -2762,8 +2192,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove unused dependency leptos_meta (#1070) ([#1070](https://github.com/hrzlgnm/mdns-browser/pull/1070))
 
 - *(deps)* Update dependency cargo-auditable to v0.6.7 (#1073) ([#1073](https://github.com/hrzlgnm/mdns-browser/pull/1073))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to b35edf6 (#1075) ([#1075](https://github.com/hrzlgnm/mdns-browser/pull/1075))
 
 ### Fixed
 
@@ -2808,12 +2236,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update rust crate tauri to v2.5.1 (#1035) ([#1035](https://github.com/hrzlgnm/mdns-browser/pull/1035))
 
 ## [0.15.0] - 2025-04-23
-
-### Changed
-
-- *(deps)* Update archlinux:base-devel docker digest to ef9c9e8 (#1030) ([#1030](https://github.com/hrzlgnm/mdns-browser/pull/1030))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to f19d580 (#1031) ([#1031](https://github.com/hrzlgnm/mdns-browser/pull/1031))
 
 ### Fixed
 
@@ -2873,8 +2295,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Install komac in winget publish release action (#1018) ([#1018](https://github.com/hrzlgnm/mdns-browser/pull/1018))
 
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to fbea29a (#1019) ([#1019](https://github.com/hrzlgnm/mdns-browser/pull/1019))
-
 - Add sonarqube scanning (#1020) ([#1020](https://github.com/hrzlgnm/mdns-browser/pull/1020))
 
 ## [0.13.2] - 2025-04-16
@@ -2905,11 +2325,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Rename sbom artifacts and use platform names (#1001) ([#1001](https://github.com/hrzlgnm/mdns-browser/pull/1001))
 
-- *(deps)* Update archlinux:base-devel docker digest to 6c2b425 (#1000) ([#1000](https://github.com/hrzlgnm/mdns-browser/pull/1000))
-
 - *(ci)* Only checksum binaries and source tar balls (#1003) ([#1003](https://github.com/hrzlgnm/mdns-browser/pull/1003))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to fcd57e0 (#1004) ([#1004](https://github.com/hrzlgnm/mdns-browser/pull/1004))
 
 ## [0.13.0] - 2025-04-13
 
@@ -2946,8 +2362,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix publishing new versions to AUR (#980) ([#980](https://github.com/hrzlgnm/mdns-browser/pull/980))
 
 - *(actions)* Use specific version of michidk/run-komac (#983) ([#983](https://github.com/hrzlgnm/mdns-browser/pull/983))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 91bbc1e (#985) ([#985](https://github.com/hrzlgnm/mdns-browser/pull/985))
 
 ### Fixed
 
@@ -3044,8 +2458,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - *(deps)* Update crate-ci/typos action to v1.31.1 (#908) ([#908](https://github.com/hrzlgnm/mdns-browser/pull/908))
-
-- *(deps)* Update ghcr.io/void-linux/void-glibc docker digest to 32363ee (#909) ([#909](https://github.com/hrzlgnm/mdns-browser/pull/909))
 
 - Add section about installing on void linux (#913) ([#913](https://github.com/hrzlgnm/mdns-browser/pull/913))
 
@@ -4774,8 +4186,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.5.13]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.12...mdns-browser-v1.5.13
 
 [1.5.12]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.11...mdns-browser-v1.5.12
-
-[1.5.11]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.10...mdns-browser-v1.5.11
 
 [1.5.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.9...mdns-browser-v1.5.10
 

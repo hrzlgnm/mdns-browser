@@ -15,6 +15,8 @@ This changelog is auto-generated from commits that modify this crate.
 
 - Add CHANGELOG.md with automated maintenance (#2308) ([#2308](https://github.com/hrzlgnm/mdns-browser/pull/2308))
 
+- Add typo corrections to git-cliff postprocessors
+
 ## [1.3.0] - 2026-04-08
 
 ### Changed
