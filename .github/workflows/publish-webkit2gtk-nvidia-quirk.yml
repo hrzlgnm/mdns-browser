@@ -48,7 +48,7 @@ jobs:
       - name: 🔄 Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: 🛡️ Verify RULESET_ID secret is configured
         run: |
@@ -128,6 +128,20 @@ jobs:
           -H "Accept: application/vnd.github+json" \
           "${RULESET}" \
           --input -
+
+      - name: 🔧 Install git-cliff
+        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
+        with:
+          crate: git-cliff
+          version: 2.13.1
+          locked: true
+
+      - name: 📝 Update CHANGELOG.md
+        if: ${{ !inputs.dry-run }}
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git-cliff --config cliff-webkit2gtk.toml --tag "webkit2gtk-nvidia-quirk-v${VERSION}" --output crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
 
       - name: 💾🏷️⬆️ Commit, tag and push
         if: (!inputs.dry-run)

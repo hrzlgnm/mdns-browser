@@ -1,0 +1,122 @@
+[changelog]
+# changelog header
+header = """
+# Changelog\n
+All notable changes to `webkit2gtk-nvidia-quirk` will be documented in this file.\n
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+This changelog is auto-generated from commits that modify this crate.\n
+"""
+# template for the changelog body
+body = """
+{% if version -%}\
+    ## [{{ version | trim_start_matches(pat="webkit2gtk-nvidia-quirk-v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}\n
+{% else -%}\
+    ## [Unreleased]\n
+{% endif -%}\
+{% for group, commits in commits | group_by(attribute="group") %}\
+    {% if group == "Added" -%}\
+        ### Added\n
+    {% elif group == "Fixed" -%}\
+        ### Fixed\n
+    {% elif group == "Changed" -%}\
+        ### Changed\n
+    {% elif group == "Security" -%}\
+        ### Security\n
+    {% elif group == "Miscellaneous" -%}\
+        ### Miscellaneous\n
+    {% endif -%}\
+    {% for commit in commits -%}\
+        - {% if commit.scope %}*({{ commit.scope }})* {% endif -%}\
+            {{ commit.message | upper_first | trim }}\
+            {% for link in commit.links %} ([{{ link.text }}]({{ link.href }})){% endfor %}\n
+    {% endfor -%}\
+{% endfor %}\
+"""
+# remove the leading and trailing whitespace from the template
+trim = true
+# changelog footer
+footer = """
+{% for release in releases -%}\
+    {% if release.version and release.previous and release.previous.version -%}\
+        [{{ release.version | trim_start_matches(pat="webkit2gtk-nvidia-quirk-v") }}]: https://github.com/hrzlgnm/mdns-browser/compare/{{ release.previous.version }}...{{ release.version }}\n
+    {% endif -%}\
+{% endfor -%}\
+{% for release in releases -%}\
+    {% if release.version -%}\
+        [Unreleased]: https://github.com/hrzlgnm/mdns-browser/compare/{{ release.version }}...HEAD\n
+        {% break -%}\
+    {% endif -%}\
+{% endfor %}\
+"""
+# postprocessors to apply to the changelog
+postprocessors = [
+    { pattern = 'Simlify', replace = 'Simplify' },
+    { pattern = 'hanlding', replace = 'handling' },
+    { pattern = 'verision', replace = 'version' },
+    { pattern = 'compileable', replace = 'compilable' },
+    { pattern = 'thouroughly', replace = 'thoroughly' },
+]
+
+[git]
+# parse the commits based on Conventional Commits
+conventional_commits = true
+# filter out unconventional commits
+filter_unconventional = true
+# process each line of a commit as an individual commit
+split_commits = false
+# regex for parsing and grouping commits
+commit_parsers = [
+    { message = "^feat", group = "Added" },
+    { message = "^fix\\(deps\\): update", group = "Fixed" },
+    { message = "^fix\\(deps\\)", skip = true },
+    { message = "^fix\\(ci\\)", skip = true },
+    { message = "^fix", group = "Fixed" },
+    { message = "^doc", group = "Changed" },
+    { message = "^perf", group = "Changed" },
+    { message = "^refactor", group = "Changed" },
+    { message = "^style", group = "Changed" },
+    { message = "^test", group = "Changed" },
+    { message = "^ci", group = "Miscellaneous" },
+    { message = "^build", group = "Miscellaneous" },
+    { message = "^chore\\(deps\\): update", group = "Changed" },
+    { message = "^chore\\(deps\\): lock file maintenance", skip = true },
+    { message = "^chore\\(deps\\)", skip = true },
+    { message = "^chore\\(renovate", skip = true },
+    { message = "^chore\\(arch-aur", skip = true },
+    { message = "^chore\\(void", skip = true },
+    { message = "^chore\\(winget", skip = true },
+    { message = "^chore\\(homebrew", skip = true },
+    { message = "^chore\\(sbom", skip = true },
+    { message = "^chore\\(signing", skip = true },
+    { message = "^chore\\(bundler", skip = true },
+    { message = "^chore\\(publish", skip = true },
+    { message = "^chore\\(version", skip = true },
+    { message = "^chore\\(android", skip = true },
+    { message = "^chore\\(test", skip = true },
+    { message = "^chore", group = "Changed" },
+    { message = "^security", group = "Security" },
+    { message = "^GHSA-", group = "Security" },
+    { message = "^Bump version", skip = true },
+]
+# protect breaking commits from being skipped
+protect_breaking_commits = true
+# filter out commits that are not matched by a commit_parsers
+filter_commits = true
+# regex for matching tags
+tag_pattern = "webkit2gtk-nvidia-quirk-v[0-9].*"
+# skip processing the matched tags
+skip_tags = ""
+# ignore processing the matched tags
+ignore_tags = ""
+# sort the tags topologically
+topo_order = false
+# sort the commits inside sections by oldest/newest order
+sort_commits = "oldest"
+# regex for extracting issue references
+link_parsers = [
+    { pattern = "#(\\d+)", text = "#${1}", href = "https://github.com/hrzlgnm/mdns-browser/pull/${1}" },
+]
+# glob patterns to include in the changelog
+include_paths = ["crates/webkit2gtk-nvidia-quirk/**"]
+# glob patterns to exclude from the changelog
+exclude_paths = []
