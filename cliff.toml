@@ -55,6 +55,21 @@ postprocessors = [
     { pattern = 'verision', replace = 'version' },
     { pattern = 'compileable', replace = 'compilable' },
     { pattern = 'thouroughly', replace = 'thoroughly' },
+    { pattern = 'maitained', replace = 'maintained' },
+    { pattern = 'maintainance', replace = 'maintenance' },
+    { pattern = 'maitenance', replace = 'maintenance' },
+    { pattern = 'resovled', replace = 'resolved' },
+    { pattern = 'manully', replace = 'manually' },
+    { pattern = 'manualy', replace = 'manually' },
+    { pattern = 'worflow', replace = 'workflow' },
+    { pattern = 'workfow', replace = 'workflow' },
+    { pattern = 'constanst', replace = 'constants' },
+    { pattern = 'selectin', replace = 'selecting' },
+    { pattern = 'plaforms', replace = 'platforms' },
+    { pattern = 'issuse', replace = 'issues' },
+    { pattern = 'warnins', replace = 'warnings' },
+    { pattern = 'Workaound', replace = 'Workaround' },
+    { pattern = 'bundel', replace = 'bundle' },
 ]
 
 [git]

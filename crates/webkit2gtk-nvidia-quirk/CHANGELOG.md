@@ -7,6 +7,10 @@ This changelog is auto-generated from commits that modify this crate.
 
 ## [Unreleased]
 
+### Added
+
+- Replace generate_changelog.py with git-cliff
+
 ### Changed
 
 - Add CHANGELOG.md with automated maintenance (#2308) ([#2308](https://github.com/hrzlgnm/mdns-browser/pull/2308))

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Replace generate_changelog.py with git-cliff
+
 ### Changed
 
 - *(deps)* Update rust crate futures to v0.3.33 (#2296) ([#2296](https://github.com/hrzlgnm/mdns-browser/pull/2296))
@@ -1293,7 +1297,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update hrzlgnm/actions action to v1.5.5 (#1724) ([#1724](https://github.com/hrzlgnm/mdns-browser/pull/1724))
 
-- *(ci)* Migrate to maitained actions/labeler (#1726) ([#1726](https://github.com/hrzlgnm/mdns-browser/pull/1726))
+- *(ci)* Migrate to maintained actions/labeler (#1726) ([#1726](https://github.com/hrzlgnm/mdns-browser/pull/1726))
 
 - *(deps)* Update tauri monorepo (#1728) ([#1728](https://github.com/hrzlgnm/mdns-browser/pull/1728))
 
@@ -1675,7 +1679,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Run in bash shell (#1530) ([#1530](https://github.com/hrzlgnm/mdns-browser/pull/1530))
 
-- *(ci)* Temporarily disable weekly lockfile maintainance (#1531) ([#1531](https://github.com/hrzlgnm/mdns-browser/pull/1531))
+- *(ci)* Temporarily disable weekly lockfile maintenance (#1531) ([#1531](https://github.com/hrzlgnm/mdns-browser/pull/1531))
 
 - *(ci)* Remove publish only from step extract android signing key (#1536) ([#1536](https://github.com/hrzlgnm/mdns-browser/pull/1536))
 
@@ -2557,7 +2561,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add enable_devtools CLI argument to enable devtools at startup (#1136) ([#1136](https://github.com/hrzlgnm/mdns-browser/pull/1136))
 
-- Disable Verify button of resovled services when not browsing anymore  (#1138) ([#1138](https://github.com/hrzlgnm/mdns-browser/pull/1138))
+- Disable Verify button of resolved services when not browsing anymore  (#1138) ([#1138](https://github.com/hrzlgnm/mdns-browser/pull/1138))
 
 ### Changed
 
@@ -2625,7 +2629,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 22df7d1 (#1108) ([#1108](https://github.com/hrzlgnm/mdns-browser/pull/1108))
 
-- Disable lock file maitenance in renovate config
+- Disable lock file maintenance in renovate config
 
 - Add coderabbit configuration file
 
@@ -2957,7 +2961,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Add manully triggered bump version workflow (#958) ([#958](https://github.com/hrzlgnm/mdns-browser/pull/958))
+- Add manually triggered bump version workflow (#958) ([#958](https://github.com/hrzlgnm/mdns-browser/pull/958))
 
 - Fix Cargo.toml path (#961) ([#961](https://github.com/hrzlgnm/mdns-browser/pull/961))
 
@@ -2965,13 +2969,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Set dry-run to true and create-release to false
 
-- *(ci)* Migrate to manualy triggered bumping workflow
+- *(ci)* Migrate to manually triggered bumping workflow
 
 - *(deps)* Update actions/checkout action to v4 (#959) ([#959](https://github.com/hrzlgnm/mdns-browser/pull/959))
 
-- *(ci)* Version bump worflow: allow creating pull requests
+- *(ci)* Version bump workflow: allow creating pull requests
 
-- *(ci)* Fix updating shared constanst in Cargo.lock
+- *(ci)* Fix updating shared constants in Cargo.lock
 
 ### Fixed
 
@@ -3035,7 +3039,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Start browsing after selectin a service type and pressing enter (#923) ([#923](https://github.com/hrzlgnm/mdns-browser/pull/923))
+- Start browsing after selecting a service type and pressing enter (#923) ([#923](https://github.com/hrzlgnm/mdns-browser/pull/923))
 
 ### Changed
 
@@ -3547,7 +3551,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add toast when text is copied to clipboard and use default cursor (#625) ([#625](https://github.com/hrzlgnm/mdns-browser/pull/625))
 
-- Only show toast about copied text on desktop plaforms (#627) ([#627](https://github.com/hrzlgnm/mdns-browser/pull/627))
+- Only show toast about copied text on desktop platforms (#627) ([#627](https://github.com/hrzlgnm/mdns-browser/pull/627))
 
 ### Changed
 
@@ -3723,7 +3727,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Drop rust caches as those cause building issuse (#534) ([#534](https://github.com/hrzlgnm/mdns-browser/pull/534))
+- Drop rust caches as those cause building issues (#534) ([#534](https://github.com/hrzlgnm/mdns-browser/pull/534))
 
 - Sign windows bundle with a self signed cert (#538) ([#538](https://github.com/hrzlgnm/mdns-browser/pull/538))
 
@@ -3821,7 +3825,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update softprops/action-gh-release digest to e7a8f85 (#478) ([#478](https://github.com/hrzlgnm/mdns-browser/pull/478))
 
-- Treat warnins as errors, remove unused crate, fix warning about unused import (#480) ([#480](https://github.com/hrzlgnm/mdns-browser/pull/480))
+- Treat warnings as errors, remove unused crate, fix warning about unused import (#480) ([#480](https://github.com/hrzlgnm/mdns-browser/pull/480))
 
 - Use typos-action for checking spelling mistakes (#481) ([#481](https://github.com/hrzlgnm/mdns-browser/pull/481))
 
@@ -3885,7 +3889,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Workaound  window sometimes only showing a white background (#459) ([#459](https://github.com/hrzlgnm/mdns-browser/pull/459))
+- Workaround  window sometimes only showing a white background (#459) ([#459](https://github.com/hrzlgnm/mdns-browser/pull/459))
 
 ## [0.9.1] - 2024-10-23
 
@@ -3987,7 +3991,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(snap)* Fix typo when building the bundle
 
-- *(snap)* Build the bundel for real this time
+- *(snap)* Build the bundle for real this time
 
 - *(snap)* Pick up the deb from the correct directory
 
@@ -4135,7 +4139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Only save cache if running on main branch (#325) ([#325](https://github.com/hrzlgnm/mdns-browser/pull/325))
 
-- *(ci)* Add apk signing and android publish workfow (#328) ([#328](https://github.com/hrzlgnm/mdns-browser/pull/328))
+- *(ci)* Add apk signing and android publish workflow (#328) ([#328](https://github.com/hrzlgnm/mdns-browser/pull/328))
 
 ### Fixed
 
