@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Replace generate_changelog.py with git-cliff
+- Replace generate_changelog.py with git-cliff (#2311) ([#2311](https://github.com/hrzlgnm/mdns-browser/pull/2311))
+
+- Add workflow to keep Unreleased changelog sections up to date (#2312) ([#2312](https://github.com/hrzlgnm/mdns-browser/pull/2312))
 
 ### Changed
 
@@ -38,8 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update actions/setup-python action to v7 (#2309) ([#2309](https://github.com/hrzlgnm/mdns-browser/pull/2309))
 
 - Add GH_TOKEN to changelog generation steps in workflow (#2310) ([#2310](https://github.com/hrzlgnm/mdns-browser/pull/2310))
-
-- Add typo corrections to git-cliff postprocessors
 
 ## [1.9.18] - 2026-07-17
 
