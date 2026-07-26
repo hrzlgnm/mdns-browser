@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.9.20] - 2026-07-26
 
 ### Added
 
@@ -4135,6 +4135,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updater kung-foo (#54) ([#54](https://github.com/hrzlgnm/mdns-browser/pull/54))
 
+[1.9.20]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.19...mdns-browser-v1.9.20
+
 [1.9.18]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.17...mdns-browser-v1.9.18
 
 [1.9.16]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.15...mdns-browser-v1.9.16
@@ -4629,6 +4631,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [0.1.10]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.1.9...mdns-browser-v0.1.10
 
-[Unreleased]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.18...HEAD
+[Unreleased]: https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.20...HEAD
 
 
