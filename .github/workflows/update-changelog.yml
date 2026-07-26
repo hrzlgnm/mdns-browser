@@ -70,7 +70,7 @@ jobs:
 
           This PR is created automatically on every push to \`main\`
           by running \`git-cliff\` without a version tag." \
-              --label chore
+              --label ignore
           fi
 
           gh pr merge "$BRANCH" --auto --squash
