@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 # template for the changelog body
 body = """
 {% if version -%}\
-    ## [{{ version | trim_start_matches(pat="mdns-browser-v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}\n
+    ## [{{ version | trim_start_matches(pat="mdns-browser-v") }}] - {{ timestamp | date(format="%Y-%m-%d") }} {%- if previous and previous.version %} [compare](https://github.com/hrzlgnm/mdns-browser/compare/{{ previous.version }}...{{ version }}){% endif %}\n
 {% else -%}\
-    ## [Unreleased]\n
+    ## [Unreleased] {%- if commits and previous and previous.version %} [compare](https://github.com/hrzlgnm/mdns-browser/compare/{{ previous.version }}...HEAD){% endif %}\n
 {% endif -%}\
 {% for group, commits in commits | group_by(attribute="group") %}\
     {% if group == "Added" -%}\
@@ -35,19 +35,7 @@ body = """
 # remove the leading and trailing whitespace from the template
 trim = true
 # changelog footer
-footer = """
-{% for release in releases -%}\
-    {% if release.version and release.previous and release.previous.version -%}\
-        [{{ release.version | trim_start_matches(pat="mdns-browser-v") }}]: https://github.com/hrzlgnm/mdns-browser/compare/{{ release.previous.version }}...{{ release.version }}\n
-    {% endif -%}\
-{% endfor -%}\
-{% for release in releases -%}\
-    {% if release.version -%}\
-        [Unreleased]: https://github.com/hrzlgnm/mdns-browser/compare/{{ release.version }}...HEAD\n
-        {% break -%}\
-    {% endif -%}\
-{% endfor %}\
-"""
+footer = ""
 # postprocessors to apply to the changelog
 postprocessors = [
     { pattern = 'Simlify', replace = 'Simplify' },
