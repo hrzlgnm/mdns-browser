@@ -76,6 +76,7 @@ jobs:
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
 
       - name: 🛠️🚀
+        if: runner.os != 'Windows'
         uses: ./.github/actions/setup-sccache
 
       - name: 📎 Run clippy and fail if any warnings
