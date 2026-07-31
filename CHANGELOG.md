@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update release-drafter/release-drafter action to v7.7.0 (#2332) ([#2332](https://github.com/hrzlgnm/mdns-browser/pull/2332))
 
+- *(deps)* Update actions/setup-java digest to b6effb0 (#2337) ([#2337](https://github.com/hrzlgnm/mdns-browser/pull/2337))
+
 ## [1.9.21] - 2026-07-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.20...mdns-browser-v1.9.21)
 
 ### Changed
