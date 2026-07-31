@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update actions/attest digest to 508db95 (#2334) ([#2334](https://github.com/hrzlgnm/mdns-browser/pull/2334))
 
+- *(deps)* Update mozilla-actions/sccache-action action to v0.0.11 (#2331) ([#2331](https://github.com/hrzlgnm/mdns-browser/pull/2331))
+
 ## [1.9.21] - 2026-07-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.20...mdns-browser-v1.9.21)
 
 ### Changed
