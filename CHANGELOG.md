@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Disable sccache for windows (#2336) ([#2336](https://github.com/hrzlgnm/mdns-browser/pull/2336))
 
+- *(deps)* Update actions/attest digest to 508db95 (#2334) ([#2334](https://github.com/hrzlgnm/mdns-browser/pull/2334))
+
 ## [1.9.21] - 2026-07-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.20...mdns-browser-v1.9.21)
 
 ### Changed
