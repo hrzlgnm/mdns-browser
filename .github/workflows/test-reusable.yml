@@ -43,6 +43,7 @@ jobs:
           locked: true
 
       - name: 🛠️🚀
+        if: runner.os != 'Windows'
         uses: ./.github/actions/setup-sccache
 
       - name: ✅ Run tests with nextest

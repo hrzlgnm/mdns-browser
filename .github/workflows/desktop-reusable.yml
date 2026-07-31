@@ -87,7 +87,7 @@ jobs:
         uses: ./.github/actions/setup-tauri
 
       - name: 🛠️🚀
-        if: (!inputs.tagName)
+        if: (!inputs.tagName && runner.os != 'Windows')
         uses: ./.github/actions/setup-sccache
 
       - name: 🔑 Import windows signing certificate (windows only)
