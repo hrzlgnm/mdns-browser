@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update actions/setup-java digest to b6effb0 (#2337) ([#2337](https://github.com/hrzlgnm/mdns-browser/pull/2337))
 
+- *(ci)* Disable sccache for windows (#2336) ([#2336](https://github.com/hrzlgnm/mdns-browser/pull/2336))
+
 ## [1.9.21] - 2026-07-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.20...mdns-browser-v1.9.21)
 
 ### Changed
