@@ -79,6 +79,8 @@ jobs:
 
       - name: 🤖 Setup Android SDK
         uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4
+        with:
+          cmdline-tools-version: 15859902
 
       - name: 🛠️ Install NDK
         run: sdkmanager "ndk;29.0.14206865"
