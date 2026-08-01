@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.core.content.FileProvider
+import app.tauri.Logger
 import app.tauri.annotation.Command
 import app.tauri.annotation.TauriPlugin
 import app.tauri.plugin.Invoke
@@ -69,7 +70,7 @@ class AndroidUpdaterPlugin(private val activity: Activity) : Plugin(activity) {
                 invoke.resolveObject(false)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.error("android-updater", "failed to install apk", e)
             invoke.reject(e.message, e, null)
         }
     }

@@ -1091,7 +1091,6 @@ pub fn run_mobile() {
 #[cfg(mobile)]
 mod autoupdate {
     use models::UpdateMetadata;
-    use serde::Serialize;
     use std::sync::Mutex;
     use tauri::{AppHandle, Manager, State};
     use tauri_plugin_android_updater::AndroidUpdater;
@@ -1100,29 +1099,6 @@ mod autoupdate {
     const LATEST_JSON_URL: &str =
         "https://github.com/hrzlgnm/mdns-browser/releases/latest/download/latest.json";
     const GITHUB_BASE_URL: &str = "https://github.com/hrzlgnm/mdns-browser";
-
-    #[derive(Debug, thiserror::Error)]
-    pub enum Error {
-        #[error(transparent)]
-        Network(#[from] reqwest::Error),
-        #[error(transparent)]
-        Json(#[from] serde_json::Error),
-        #[error(transparent)]
-        Tauri(#[from] tauri::Error),
-        #[error("{0}")]
-        Message(String),
-    }
-
-    impl Serialize for Error {
-        fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
-        {
-            serializer.serialize_str(self.to_string().as_str())
-        }
-    }
-
-    type Result<T> = std::result::Result<T, Error>;
 
     #[derive(Clone)]
     pub struct PendingUpdate {
@@ -1141,9 +1117,23 @@ mod autoupdate {
     pub async fn fetch_update(
         app: AppHandle,
         pending_update: State<'_, PendingUpdateInfo>,
-    ) -> Result<Option<UpdateMetadata>> {
-        let body = reqwest::get(LATEST_JSON_URL).await?.text().await?;
-        let latest_json: LatestJson = serde_json::from_str(&body)?;
+    ) -> Result<Option<UpdateMetadata>, String> {
+        let body = reqwest::get(LATEST_JSON_URL)
+            .await
+            .map_err(|e| {
+                log::error!("failed to fetch latest release info: {e}");
+                format!("failed to fetch latest release info: {e}")
+            })?
+            .text()
+            .await
+            .map_err(|e| {
+                log::error!("failed to read latest release info: {e}");
+                format!("failed to read latest release info: {e}")
+            })?;
+        let latest_json: LatestJson = serde_json::from_str(&body).map_err(|e| {
+            log::error!("failed to parse latest release info: {e}");
+            format!("failed to parse latest release info: {e}")
+        })?;
         let latest_version = latest_json.version.trim_start_matches('v').to_string();
         let current_version = app.package_info().version.to_string();
 
@@ -1172,34 +1162,43 @@ mod autoupdate {
     pub async fn install_update(
         app: AppHandle,
         pending_update: State<'_, PendingUpdateInfo>,
-    ) -> Result<()> {
-        let Some(pending) = pending_update.0.lock().expect("To lock").take() else {
-            return Err(Error::Message("there is no pending update".to_string()));
-        };
+    ) -> Result<(), String> {
+        let pending = pending_update
+            .0
+            .lock()
+            .expect("To lock")
+            .as_ref()
+            .cloned()
+            .ok_or_else(|| "there is no pending update".to_string())?;
 
         let updater = app.state::<AndroidUpdater<tauri::Wry>>();
 
-        let install_permission = updater
-            .check_install_permission()
-            .await
-            .map_err(|e| Error::Message(format!("failed to check install permission: {e}")))?;
+        let install_permission = updater.check_install_permission().await.map_err(|e| {
+            log::error!("failed to check install permission: {e}");
+            format!("failed to check install permission: {e}")
+        })?;
         if !install_permission {
             log::info!("install permission not granted, requesting it");
             updater.request_install_permission().await.map_err(|e| {
-                Error::Message(format!("failed to request install permission: {e}"))
+                log::error!("failed to request install permission: {e}");
+                format!("failed to request install permission: {e}")
             })?;
-            return Err(Error::Message(
+            return Err(
                 "allow installing apps from this source in the settings, then press install again"
                     .to_string(),
-            ));
+            );
         }
 
         log::info!("downloading and installing update {}", pending.version);
         updater
             .download_and_install(&app, pending.download_url, pending.version)
             .await
-            .map_err(|e| Error::Message(e.to_string()))?;
+            .map_err(|e| {
+                log::error!("failed to download and install update: {e}");
+                format!("failed to download and install update: {e}")
+            })?;
 
+        *pending_update.0.lock().expect("To lock") = None;
         log::info!("update installed");
         Ok(())
     }
