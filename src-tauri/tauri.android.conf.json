@@ -8,7 +8,7 @@
     "bundle": {
         "active": true,
         "android": {
-            "debugApplicationIdSuffix": "debug"
+            "debugApplicationIdSuffix": ".debug"
         }
     },
     "productName": "mDNS Browser",
