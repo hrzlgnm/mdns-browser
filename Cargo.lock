@@ -3122,7 +3122,6 @@ dependencies = [
  "shared_constants",
  "tauri",
  "tauri-build",
- "tauri-plugin-android-updater",
  "tauri-plugin-clipboard-manager",
  "tauri-plugin-http",
  "tauri-plugin-log",
@@ -5629,21 +5628,6 @@ dependencies = [
  "serde_json",
  "tauri-utils",
  "walkdir",
-]
-
-[[package]]
-name = "tauri-plugin-android-updater"
-version = "0.1.0"
-dependencies = [
- "log",
- "models",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin",
- "tauri-plugin-http",
- "thiserror 2.0.19",
 ]
 
 [[package]]

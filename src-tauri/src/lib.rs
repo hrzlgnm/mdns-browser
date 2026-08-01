@@ -1055,7 +1055,6 @@ pub fn run_mobile() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_http::init())
-        .plugin(tauri_plugin_android_updater::init())
         .manage(ManagedState::new())
         .manage(autoupdate::PendingUpdateInfo(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
@@ -1085,18 +1084,17 @@ pub fn run_mobile() {
 mod autoupdate {
     use models::UpdateMetadata;
     use std::sync::Mutex;
-    use tauri::{AppHandle, Manager, State};
-    use tauri_plugin_android_updater::AndroidUpdater;
+    use tauri::{AppHandle, State};
     use tauri_plugin_http::reqwest;
+    use tauri_plugin_opener::OpenerExt;
 
     const LATEST_JSON_URL: &str =
         "https://github.com/hrzlgnm/mdns-browser/releases/latest/download/latest.json";
-    const GITHUB_BASE_URL: &str = "https://github.com/hrzlgnm/mdns-browser";
+    const GITHUB_RELEASES_URL: &str = "https://github.com/hrzlgnm/mdns-browser/releases/latest";
 
     #[derive(Clone)]
     pub struct PendingUpdate {
         pub version: String,
-        pub download_url: String,
     }
 
     pub struct PendingUpdateInfo(pub Mutex<Option<PendingUpdate>>);
@@ -1132,17 +1130,14 @@ mod autoupdate {
 
         if latest_version == current_version {
             log::info!("App is up to date ({current_version})");
+            *pending_update.0.lock().expect("To lock") = None;
             return Ok(None);
         }
 
-        let download_url = format!(
-            "{GITHUB_BASE_URL}/releases/download/mdns-browser-v{latest_version}/mdns-browser_{latest_version}.apk"
-        );
-        log::info!("Update {latest_version} found, downloading from {download_url}");
+        log::info!("Update {latest_version} found");
 
         *pending_update.0.lock().expect("To lock") = Some(PendingUpdate {
             version: latest_version.clone(),
-            download_url,
         });
 
         Ok(Some(UpdateMetadata {
@@ -1164,35 +1159,20 @@ mod autoupdate {
             .cloned()
             .ok_or_else(|| "there is no pending update".to_string())?;
 
-        let updater = app.state::<AndroidUpdater<tauri::Wry>>();
-
-        let install_permission = updater.check_install_permission().await.map_err(|e| {
-            log::error!("failed to check install permission: {e}");
-            format!("failed to check install permission: {e}")
-        })?;
-        if !install_permission {
-            log::info!("install permission not granted, requesting it");
-            updater.request_install_permission().await.map_err(|e| {
-                log::error!("failed to request install permission: {e}");
-                format!("failed to request install permission: {e}")
-            })?;
-            return Err(
-                "allow installing apps from this source in the settings, then press install again"
-                    .to_string(),
-            );
-        }
-
-        log::info!("downloading and installing update {}", pending.version);
-        updater
-            .download_and_install(&app, pending.download_url, pending.version)
-            .await
+        let releases_url = GITHUB_RELEASES_URL;
+        log::info!(
+            "opening releases page for update {}: {}",
+            pending.version,
+            releases_url
+        );
+        app.opener()
+            .open_url(releases_url.to_string(), None::<String>)
             .map_err(|e| {
-                log::error!("failed to download and install update: {e}");
-                format!("failed to download and install update: {e}")
+                log::error!("failed to open releases page: {e:?}");
+                format!("failed to open releases page: {e:?}")
             })?;
 
-        *pending_update.0.lock().expect("To lock") = None;
-        log::info!("update installed");
+        log::info!("releases page opened, user can download APK manually");
         Ok(())
     }
 

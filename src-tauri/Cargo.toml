@@ -27,7 +27,6 @@ tauri-plugin-clipboard-manager = { workspace = true }
 tauri-plugin-log = { workspace = true }
 tauri-plugin-opener = { workspace = true }
 tauri-plugin-http = { workspace = true }
-tauri-plugin-android-updater = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 

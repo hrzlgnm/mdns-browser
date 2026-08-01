@@ -8,9 +8,7 @@
     "permissions": [
         "core:default",
         "clipboard-manager:allow-write-text",
-        "opener:allow-open-url",
-        "android-updater:allow-check-install-permission",
-        "android-updater:allow-request-install-permission"
+        "opener:allow-open-url"
     ],
     "platforms": [
         "android"
