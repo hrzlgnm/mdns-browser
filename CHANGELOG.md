@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(aur)* Clarify why we install a separate unbundled binary (#2345) ([#2345](https://github.com/hrzlgnm/mdns-browser/pull/2345))
 
+- *(rpm)* Add installation of the license to the rpm bundle (#2343) ([#2343](https://github.com/hrzlgnm/mdns-browser/pull/2343))
+
+- *(deb)* Install the copyright to the correct location (#2344) ([#2344](https://github.com/hrzlgnm/mdns-browser/pull/2344))
+
 ## [1.9.21] - 2026-07-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.20...mdns-browser-v1.9.21)
 
 ### Changed
