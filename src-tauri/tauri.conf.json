@@ -28,7 +28,7 @@
         "linux": {
             "deb": {
                 "files": {
-                    "/usr/share/licenses/mdns-browser/LICENSE": "../LICENSE",
+                    "/usr/share/doc/mdns-browser/copyright": "../LICENSE",
                     "/usr/share/doc/mdns-browser/changelog": "../CHANGELOG.md",
                     "/usr/share/man/man1/mdns-browser.1": "../docs/mdns-browser.1"
                 }
