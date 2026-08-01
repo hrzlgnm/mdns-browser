@@ -1130,6 +1130,7 @@ mod autoupdate {
 
         if latest_version == current_version {
             log::info!("App is up to date ({current_version})");
+            *pending_update.0.lock().expect("To lock") = None;
             return Ok(None);
         }
 
@@ -1166,9 +1167,11 @@ mod autoupdate {
         );
         app.opener()
             .open_url(releases_url.to_string(), None::<String>)
-            .map_err(|e| format!("failed to open releases page: {e:?}"))?;
+            .map_err(|e| {
+                log::error!("failed to open releases page: {e:?}");
+                format!("failed to open releases page: {e:?}")
+            })?;
 
-        *pending_update.0.lock().expect("To lock") = None;
         log::info!("releases page opened, user can download APK manually");
         Ok(())
     }
