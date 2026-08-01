@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.21...HEAD)
+## [1.10.0] - 2026-08-01 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.21...mdns-browser-v1.10.0)
+
+### Added
+
+- *(webkit2gtk-nvidia-quirk)* Skip wayland workaround when egl-wayland2 is active (#2350) ([#2350](https://github.com/hrzlgnm/mdns-browser/pull/2350))
 
 ### Changed
 
@@ -28,6 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(rpm)* Add installation of the license to the rpm bundle (#2343) ([#2343](https://github.com/hrzlgnm/mdns-browser/pull/2343))
 
 - *(deb)* Install the copyright to the correct location (#2344) ([#2344](https://github.com/hrzlgnm/mdns-browser/pull/2344))
+
+- *(ci)* Run changelog update on a nightly schedule (#2349) ([#2349](https://github.com/hrzlgnm/mdns-browser/pull/2349))
+
+- Create pull requests proactively after pushing commits (#2351) ([#2351](https://github.com/hrzlgnm/mdns-browser/pull/2351))
 
 ## [1.9.21] - 2026-07-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.20...mdns-browser-v1.9.21)
 
