@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate clap to v4.6.5 (#2335) ([#2335](https://github.com/hrzlgnm/mdns-browser/pull/2335))
 
+- *(aur)* Clarify why we install a separate unbundled binary (#2345) ([#2345](https://github.com/hrzlgnm/mdns-browser/pull/2345))
+
 ## [1.9.21] - 2026-07-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.20...mdns-browser-v1.9.21)
 
 ### Changed
