@@ -622,13 +622,6 @@ fn open_url(app: AppHandle, url: String) -> Result<(), String> {
     Ok(())
 }
 
-#[cfg(desktop)]
-#[tauri::command]
-fn version() -> String {
-    env!("CARGO_PKG_VERSION").to_string()
-}
-
-#[cfg(mobile)]
 #[tauri::command]
 fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
