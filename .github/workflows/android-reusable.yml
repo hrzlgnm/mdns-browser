@@ -3,6 +3,9 @@
 
 name: "Reusable android workflow"
 
+env:
+  NDK_VERSION: 29.0.14206865
+
 on:
   workflow_call:
     inputs:
@@ -83,7 +86,7 @@ jobs:
           cmdline-tools-version: 15859902
 
       - name: 🛠️ Install NDK
-        run: sdkmanager "ndk;29.0.14206865"
+        run: sdkmanager "ndk;$NDK_VERSION"
 
       - name: 🔨 Build app bundle
         run: |
@@ -91,7 +94,7 @@ jobs:
           cp -a src-tauri/icons/android/mipmap-* src-tauri/gen/android/app/src/main/res/
           cargo --locked auditable tauri android build
         env:
-          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.0.11902837
+          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
           RUSTFLAGS: "-D warnings"
 
       - name: 🔑 Extract android signing key
