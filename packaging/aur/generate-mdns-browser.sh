@@ -57,6 +57,6 @@ package() {
     install -Dm644 usr/share/icons/hicolor/128x128/apps/mdns-browser.png "\$pkgdir"/usr/share/icons/hicolor/128x128/apps/mdns-browser.png
     install -Dm644 usr/share/icons/hicolor/256x256@2/apps/mdns-browser.png "\$pkgdir"/usr/share/icons/hicolor/256x256@2/apps/mdns-browser.png
     install -Dm644 usr/share/icons/hicolor/32x32/apps/mdns-browser.png "\$pkgdir"/usr/share/icons/hicolor/32x32/apps/mdns-browser.png
-    install -Dm644 usr/share/licenses/mdns-browser/LICENSE "\$pkgdir"/usr/share/licenses/mdns-browser/LICENSE
+    install -Dm644 usr/share/doc/mdns-browser/copyright "\$pkgdir"/usr/share/licenses/mdns-browser/LICENSE
 }
 EOF
