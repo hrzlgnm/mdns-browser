@@ -5,6 +5,11 @@
 
 Session-aware workarounds for WebKitGTK rendering issues on Linux with NVIDIA driver.
 
+The Wayland workaround (disabling NVIDIA explicit sync) is only applied when the
+old EGLStreams-based `egl-wayland` library is in use. On systems with a NVIDIA
+driver 560 or newer and the dma-buf based `egl-wayland2` library, the workaround
+is skipped automatically, since it would degrade rendering performance.
+
 ## Quick Start
 
 ```rust,no_run
