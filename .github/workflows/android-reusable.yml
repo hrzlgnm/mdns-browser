@@ -86,7 +86,7 @@ jobs:
           cmdline-tools-version: 15859902
 
       - name: 🛠️ Install NDK
-        run: android sdk "ndk;$NDK_VERSION"
+        run: android sdk install "ndk;$NDK_VERSION"
 
       - name: 🔨 Build app bundle
         run: |
