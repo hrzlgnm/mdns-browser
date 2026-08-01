@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-install-apk"
+description = "Enables the install_apk command without any pre-configured scope."
+commands.allow = ["install_apk"]
+
+[[permission]]
+identifier = "deny-install-apk"
+description = "Denies the install_apk command without any pre-configured scope."
+commands.deny = ["install_apk"]

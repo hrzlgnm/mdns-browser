@@ -14,7 +14,6 @@ tauri-build = { version = "2.2", features = [] }
 [target.'cfg(not(any(target_os="android",target_os="ios")))'.dependencies]
 clap = { workspace = true }
 tauri-plugin-updater = { workspace = true }
-thiserror = { workspace = true }
 chrono = { workspace = true }
 
 [dependencies]
@@ -27,6 +26,9 @@ tauri = { workspace = true }
 tauri-plugin-clipboard-manager = { workspace = true }
 tauri-plugin-log = { workspace = true }
 tauri-plugin-opener = { workspace = true }
+tauri-plugin-http = { workspace = true }
+tauri-plugin-android-updater = { workspace = true }
+thiserror = { workspace = true }
 tokio = { workspace = true }
 
 # local
