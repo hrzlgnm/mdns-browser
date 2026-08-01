@@ -6,7 +6,10 @@
         "devUrl": "http://localhost:1420"
     },
     "bundle": {
-        "active": false
+        "active": true,
+        "android": {
+            "debugApplicationIdSuffix": ".debug"
+        }
     },
     "productName": "mDNS Browser",
     "version": "1.12.0",
