@@ -628,6 +628,12 @@ fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
 
+#[cfg(mobile)]
+#[tauri::command]
+fn version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
+}
+
 #[tauri::command]
 fn get_protocol_flags(state: State<ManagedState>) -> ProtocolFlags {
     let ipv4_enabled = state.ipv4_enabled.load(Ordering::SeqCst);
@@ -1056,13 +1062,13 @@ pub fn run_mobile() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_http::init())
-        .plugin(tauri_plugin_android_updater::Builder::new().build())
+        .plugin(tauri_plugin_android_updater::init())
         .manage(ManagedState::new())
-        .manage(android_autoupdate::PendingUpdateInfo(std::sync::Mutex::new(None)))
+        .manage(autoupdate::PendingUpdateInfo(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
-            android_autoupdate::check_install_permission,
-            android_autoupdate::request_install_permission,
-            android_autoupdate::download_and_install_apk,
+            autoupdate::can_auto_update,
+            autoupdate::fetch_update,
+            autoupdate::install_update,
             browse_many,
             browse_types,
             close_splashscreen,
@@ -1076,36 +1082,35 @@ pub fn run_mobile() {
             stop_browse,
             theme,
             verify,
+            version,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
-mod android_autoupdate {
+#[cfg(mobile)]
+mod autoupdate {
     use models::UpdateMetadata;
-    use serde::{Deserialize, Serialize};
-    use std::path::PathBuf;
-    use tauri::{AppHandle, Runtime, State};
+    use serde::Serialize;
+    use std::sync::Mutex;
+    use tauri::{AppHandle, Manager, State};
+    use tauri_plugin_android_updater::AndroidUpdater;
     use tauri_plugin_http::reqwest;
 
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct UpdateInfo {
-        pub version: String,
-        pub current_version: String,
-        pub download_url: String,
-    }
+    const LATEST_JSON_URL: &str =
+        "https://github.com/hrzlgnm/mdns-browser/releases/latest/download/latest.json";
+    const GITHUB_BASE_URL: &str = "https://github.com/hrzlgnm/mdns-browser";
 
     #[derive(Debug, thiserror::Error)]
     pub enum Error {
-        #[error("Network error: {0}")]
+        #[error(transparent)]
         Network(#[from] reqwest::Error),
-        #[error("IO error: {0}")]
-        Io(#[from] std::io::Error),
-        #[error("Permission denied: {0}")]
-        Permission(String),
-        #[error("Android error: {0}")]
-        Android(String),
+        #[error(transparent)]
+        Json(#[from] serde_json::Error),
+        #[error(transparent)]
+        Tauri(#[from] tauri::Error),
+        #[error("{0}")]
+        Message(String),
     }
 
     impl Serialize for Error {
@@ -1119,94 +1124,88 @@ mod android_autoupdate {
 
     type Result<T> = std::result::Result<T, Error>;
 
-    pub struct PendingUpdateInfo(pub std::sync::Mutex<Option<UpdateInfo>>);
-
-    #[tauri::command]
-    pub async fn check_install_permission<R: Runtime>(app: AppHandle<R>) -> Result<bool> {
-        #[cfg(target_os = "android")]
-        {
-            let result: Result<bool> = app
-                .try_state::<tauri::PluginHandle<R>>()
-                .ok_or_else(|| Error::Android("Plugin not found".to_string()))?
-                .invoke("checkInstallPermission", ())
-                .await
-                .map_err(|e| Error::Android(e.to_string()));
-            return result;
-        }
-        #[cfg(not(target_os = "android"))]
-        {
-            let _ = app;
-            Ok(false)
-        }
+    #[derive(Clone)]
+    pub struct PendingUpdate {
+        pub version: String,
+        pub download_url: String,
     }
 
-    #[tauri::command]
-    pub async fn request_install_permission<R: Runtime>(app: AppHandle<R>) -> Result<()> {
-        #[cfg(target_os = "android")]
-        {
-            app.try_state::<tauri::PluginHandle<R>>()
-                .ok_or_else(|| Error::Android("Plugin not found".to_string()))?
-                .invoke("requestInstallPermission", ())
-                .await
-                .map_err(|e| Error::Android(e.to_string()))?;
-            Ok(())
-        }
-        #[cfg(not(target_os = "android"))]
-        {
-            let _ = app;
-            Err(Error::Permission(
-                "Not on Android".to_string(),
-            ))
-        }
-    }
+    pub struct PendingUpdateInfo(pub Mutex<Option<PendingUpdate>>);
 
-    #[tauri::command]
-    pub async fn download_and_install_apk(
-        app: AppHandle,
-        url: String,
-        pending_update: State<'_, PendingUpdateInfo>,
+    #[derive(serde::Deserialize)]
+    struct LatestJson {
         version: String,
-    ) -> Result<UpdateMetadata> {
-        let current_version = app
-            .config()
-            .version
-            .clone()
-            .unwrap_or_else(|| "1.0.0".to_string());
+    }
 
-        let cache_dir = app
-            .path()
-            .app_cache_dir()
-            .map_err(|e| Error::Io(std::io::Error::new(std::io::ErrorKind::NotFound, e.to_string())))?;
+    #[tauri::command]
+    pub async fn fetch_update(
+        app: AppHandle,
+        pending_update: State<'_, PendingUpdateInfo>,
+    ) -> Result<Option<UpdateMetadata>> {
+        let body = reqwest::get(LATEST_JSON_URL).await?.text().await?;
+        let latest_json: LatestJson = serde_json::from_str(&body)?;
+        let latest_version = latest_json.version.trim_start_matches('v').to_string();
+        let current_version = app.package_info().version.to_string();
 
-        std::fs::create_dir_all(&cache_dir)?;
-        let apk_path: PathBuf = cache_dir.join(format!("update_{}.apk", version));
-
-        log::info!("Downloading update from: {}", url);
-
-        let response = reqwest::get(&url).await?;
-        let bytes = response.bytes().await?;
-
-        std::fs::write(&apk_path, &bytes)?;
-        log::info!("Downloaded {} bytes to {:?}", bytes.len(), apk_path);
-
-        #[cfg(target_os = "android")]
-        {
-            app.try_state::<tauri::PluginHandle<tauri::Wry>>()
-                .ok_or_else(|| Error::Android("Plugin not found".to_string()))?
-                .invoke::<bool>("installApk", apk_path.to_string_lossy().to_string())
-                .await
-                .map_err(|e| Error::Android(e.to_string()))?;
+        if latest_version == current_version {
+            log::info!("App is up to date ({current_version})");
+            return Ok(None);
         }
 
-        *pending_update.0.lock().expect("To lock") = Some(UpdateInfo {
-            version: version.clone(),
-            current_version: current_version.clone(),
-            download_url: url,
+        let download_url = format!(
+            "{GITHUB_BASE_URL}/releases/download/mdns-browser-v{latest_version}/mdns-browser_{latest_version}.apk"
+        );
+        log::info!("Update {latest_version} found, downloading from {download_url}");
+
+        *pending_update.0.lock().expect("To lock") = Some(PendingUpdate {
+            version: latest_version.clone(),
+            download_url,
         });
 
-        Ok(UpdateMetadata {
-            version,
+        Ok(Some(UpdateMetadata {
+            version: latest_version,
             current_version,
-        })
+        }))
+    }
+
+    #[tauri::command]
+    pub async fn install_update(
+        app: AppHandle,
+        pending_update: State<'_, PendingUpdateInfo>,
+    ) -> Result<()> {
+        let Some(pending) = pending_update.0.lock().expect("To lock").take() else {
+            return Err(Error::Message("there is no pending update".to_string()));
+        };
+
+        let updater = app.state::<AndroidUpdater<tauri::Wry>>();
+
+        let install_permission = updater
+            .check_install_permission()
+            .await
+            .map_err(|e| Error::Message(format!("failed to check install permission: {e}")))?;
+        if !install_permission {
+            log::info!("install permission not granted, requesting it");
+            updater.request_install_permission().await.map_err(|e| {
+                Error::Message(format!("failed to request install permission: {e}"))
+            })?;
+            return Err(Error::Message(
+                "allow installing apps from this source in the settings, then press install again"
+                    .to_string(),
+            ));
+        }
+
+        log::info!("downloading and installing update {}", pending.version);
+        updater
+            .download_and_install(&app, pending.download_url, pending.version)
+            .await
+            .map_err(|e| Error::Message(e.to_string()))?;
+
+        log::info!("update installed");
+        Ok(())
+    }
+
+    #[tauri::command]
+    pub fn can_auto_update() -> bool {
+        true
     }
 }

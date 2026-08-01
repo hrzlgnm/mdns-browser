@@ -4,3 +4,7 @@
 /dist/
 /target/
 /.idea
+
+# Gradle build output inside Tauri plugin android modules
+**/android/build/
+**/android/.tauri/

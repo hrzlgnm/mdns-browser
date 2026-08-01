@@ -57,6 +57,7 @@ models = { path = "./crates/models" }
 members = [
     "crates/models",
     "crates/shared_constants",
+    "crates/tauri-plugin-android-updater",
     "crates/webkit2gtk-nvidia-quirk",
     "src-tauri",
 ]
@@ -77,7 +78,8 @@ tauri-plugin-clipboard-manager = "2.2"
 tauri-plugin-log = { version = "2.4", features = ["colored"] }
 tauri-plugin-opener = "2.2"
 tauri-plugin-updater = "2.0"
-tauri-plugin-http = { version = "2.2", features = ["native-tls"] }
+tauri-plugin-http = { version = "2.2", default-features = false, features = ["rustls-tls"] }
+tauri-plugin-android-updater = { path = "crates/tauri-plugin-android-updater" }
 pnet = "0.35"
 ipconfig = "0.3"
 clap = { version = "4.5", features = ["derive"] }

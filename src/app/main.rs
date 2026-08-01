@@ -109,12 +109,7 @@ pub fn Main() -> impl IntoView {
                     <Suspense fallback=|| view! { <Text>"Loading"</Text> }>
                         <Grid cols=2>
                             <GridItem column=0>
-                                <Show
-                                    when=move || { is_desktop.get() }
-                                    fallback=|| view! { <div class="hidden" /> }
-                                >
-                                    <About />
-                                </Show>
+                                <About />
                             </GridItem>
                             <GridItem column=1>
                                 <Flex justify=FlexJustify::End>

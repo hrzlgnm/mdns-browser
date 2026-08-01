@@ -5,20 +5,29 @@ use leptos::prelude::*;
 use models::*;
 use serde::{Deserialize, Serialize};
 use shared_constants::{GITHUB_BASE_URL, SHOW_NO_UPDATE_DURATION};
-use tauri_sys::core::invoke;
+use tauri_sys::core::{invoke, invoke_result};
 use thaw::{
     Accordion, AccordionHeader, AccordionItem, Button, ButtonAppearance, ButtonSize, Flex, Layout,
-    Text,
+    Text, Toast, ToastBody, ToastTitle, ToasterInjection,
 };
 
-use super::invoke::invoke_no_args;
+use super::is_desktop::IsDesktopInjection;
 
-async fn fetch_update() -> Option<UpdateMetadata> {
-    invoke::<Option<UpdateMetadata>>("fetch_update", &()).await
+async fn fetch_update() -> Result<Option<UpdateMetadata>, String> {
+    invoke_result::<Option<UpdateMetadata>, String>("fetch_update", &()).await
 }
 
-async fn install_update() {
-    invoke_no_args("install_update").await;
+async fn install_update() -> Result<(), String> {
+    invoke_result::<(), String>("install_update", &()).await
+}
+
+fn create_update_error_toast(message: String) -> impl IntoView {
+    view! {
+        <Toast>
+            <ToastTitle>"Update failed"</ToastTitle>
+            <ToastBody>{message}</ToastBody>
+        </Toast>
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -46,6 +55,7 @@ pub fn About() -> impl IntoView {
     let (version, set_version) = signal(String::new());
     let (update, set_update) = signal(None);
     let (can_auto_update, set_can_auto_update) = signal(false);
+    let is_desktop = IsDesktopInjection::expect_context();
     LocalResource::new(move || get_version(set_version));
     LocalResource::new(move || get_can_auto_update(set_can_auto_update));
 
@@ -60,16 +70,28 @@ pub fn About() -> impl IntoView {
         );
     };
 
+    let toaster = ToasterInjection::expect_context();
+
     let fetch_update_action = Action::new_local(move |_: &()| async move {
-        let update = fetch_update().await;
-        if update.is_none() {
-            show_no_update_with_timeout();
+        match fetch_update().await {
+            Ok(update) => {
+                if update.is_none() {
+                    show_no_update_with_timeout();
+                }
+                set_update.set(update);
+            }
+            Err(e) => {
+                log::error!("failed to check for updates: {e}");
+                toaster.dispatch_toast(move || create_update_error_toast(e), Default::default());
+            }
         }
-        set_update.set(update);
     });
 
     let install_update_action = Action::new_local(move |_: &()| async move {
-        install_update().await;
+        if let Err(e) = install_update().await {
+            log::error!("failed to install update: {e}");
+            toaster.dispatch_toast(move || create_update_error_toast(e), Default::default());
+        }
     });
 
     let update_available = Signal::derive(move || update.get().is_some());
@@ -121,38 +143,45 @@ pub fn About() -> impl IntoView {
                     <AccordionHeader slot>"About"</AccordionHeader>
                     <Flex>
                         <Text>"Version "{move || version.get()}</Text>
-                        <Button
-                            appearance=ButtonAppearance::Primary
-                            size=ButtonSize::Small
-                            on_click=on_release_notes_click
-                            icon=icondata::MdiGithub
+                        <Show
+                            when=move || { is_desktop.get() }
+                            fallback=move || {
+                                view! { <div class="hidden" /> }
+                            }
                         >
-                            "Release Notes"
-                        </Button>
-                        <Button
-                            appearance=ButtonAppearance::Primary
-                            size=ButtonSize::Small
-                            on_click=on_report_issue_click
-                            icon=icondata::MdiGithub
-                        >
-                            "Report an Issue"
-                        </Button>
-                        <Button
-                            appearance=ButtonAppearance::Primary
-                            size=ButtonSize::Small
-                            on_click=on_issues_click
-                            icon=icondata::MdiGithub
-                        >
-                            "Known Issues"
-                        </Button>
-                        <Button
-                            appearance=ButtonAppearance::Primary
-                            size=ButtonSize::Small
-                            on_click=on_releases_click
-                            icon=icondata::MdiGithub
-                        >
-                            "Releases"
-                        </Button>
+                            <Button
+                                appearance=ButtonAppearance::Primary
+                                size=ButtonSize::Small
+                                on_click=on_release_notes_click
+                                icon=icondata::MdiGithub
+                            >
+                                "Release Notes"
+                            </Button>
+                            <Button
+                                appearance=ButtonAppearance::Primary
+                                size=ButtonSize::Small
+                                on_click=on_report_issue_click
+                                icon=icondata::MdiGithub
+                            >
+                                "Report an Issue"
+                            </Button>
+                            <Button
+                                appearance=ButtonAppearance::Primary
+                                size=ButtonSize::Small
+                                on_click=on_issues_click
+                                icon=icondata::MdiGithub
+                            >
+                                "Known Issues"
+                            </Button>
+                            <Button
+                                appearance=ButtonAppearance::Primary
+                                size=ButtonSize::Small
+                                on_click=on_releases_click
+                                icon=icondata::MdiGithub
+                            >
+                                "Releases"
+                            </Button>
+                        </Show>
                         <Show
                             when=move || { !show_no_update.get() }
                             fallback=move || {
