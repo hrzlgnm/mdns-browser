@@ -3108,7 +3108,7 @@ dependencies = [
 
 [[package]]
 name = "mdns-browser"
-version = "1.10.0"
+version = "1.11.0"
 dependencies = [
  "chrono",
  "clap",
@@ -3135,7 +3135,7 @@ dependencies = [
 
 [[package]]
 name = "mdns-browser-ui"
-version = "1.10.0"
+version = "1.11.0"
 dependencies = [
  "chrono",
  "console_error_panic_hook",
@@ -3224,7 +3224,7 @@ dependencies = [
 
 [[package]]
 name = "models"
-version = "1.10.0"
+version = "1.11.0"
 dependencies = [
  "reactive_stores 0.3.1",
  "serde",
@@ -5127,7 +5127,7 @@ dependencies = [
 
 [[package]]
 name = "shared_constants"
-version = "1.10.0"
+version = "1.11.0"
 
 [[package]]
 name = "shlex"
@@ -5681,7 +5681,7 @@ dependencies = [
  "tauri-plugin",
  "tauri-utils",
  "thiserror 2.0.19",
- "toml 1.1.3+spec-1.1.0",
+ "toml 1.1.4+spec-1.1.0",
  "url",
 ]
 
