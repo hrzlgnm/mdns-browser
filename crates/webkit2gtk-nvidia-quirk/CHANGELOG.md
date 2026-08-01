@@ -5,11 +5,13 @@ All notable changes to `webkit2gtk-nvidia-quirk` will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This changelog is auto-generated from commits that modify this crate.
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v1.3.0...HEAD)
+## [1.4.0] - 2026-08-01 [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v1.3.0...webkit2gtk-nvidia-quirk-v1.4.0)
 
 ### Added
 
 - Replace generate_changelog.py with git-cliff (#2311) ([#2311](https://github.com/hrzlgnm/mdns-browser/pull/2311))
+
+- *(webkit2gtk-nvidia-quirk)* Skip wayland workaround when egl-wayland2 is active (#2350) ([#2350](https://github.com/hrzlgnm/mdns-browser/pull/2350))
 
 ### Changed
 
