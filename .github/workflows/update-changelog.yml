@@ -4,9 +4,9 @@
 name: "📝 Update Changelog"
 
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write # Needed to push to the update branch
@@ -68,7 +68,7 @@ jobs:
               --title "chore: update unreleased changelog" \
               --body "Automated update of the \`[Unreleased]\` section in \`CHANGELOG.md\`.
 
-          This PR is created automatically on every push to \`main\`
+          This PR is created automatically on a nightly schedule
           by running \`git-cliff\` without a version tag." \
               --label ignore
           fi
