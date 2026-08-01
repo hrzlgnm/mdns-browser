@@ -26,7 +26,10 @@ conflicts=('mdns-browser')
 source_x86_64=("https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v\$pkgver/mdns-browser_\${pkgver}_amd64.deb" "https://github.com/hrzlgnm/mdns-browser/releases/download/mdns-browser-v\$pkgver/mdns-browser_linux_x64")
 sha256sums_x86_64=('$sha256sum' '$sha256sum_exe')
 package() {
+    # The .deb contains the icons, .desktop file and other files installed to shared.
     tar -xz -f data.tar.gz -C "\${pkgdir}"
+    # The .deb contains a binary that has auto updates enabled for the .deb.
+    # We install a unbundled version of the binary to have auto updates disabled.
     install -Dm755 mdns-browser_linux_x64 "\${pkgdir}/usr/bin/mdns-browser"
 }
 EOF
