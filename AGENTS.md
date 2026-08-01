@@ -99,7 +99,7 @@ cargo tauri dev -- --log-level debug --enable-devtools
 9. Run renovate config validator if `.github/renovate.json5` was modified
 10. If README.md was updated, update the manpage (`docs/mdns-browser.1`)
 11. Commit only when all checks pass
-12. After committing, push to the repository and create a pull request if applicable
+12. After committing and pushing, immediately create a pull request using `gh pr create` - do not wait for a prompt
 13. Use conventional commit format (e.g., feat:, fix:, chore:, refactor:, docs:) for commit messages
 
 # Code Style Guidelines
@@ -219,7 +219,7 @@ actionlint .github/workflows/*.yml
 After all checks pass and changes are committed:
 
 1. **Push changes** to the repository
-2. **Create a pull request** with a descriptive title using conventional commit format
+2. **Create a pull request** immediately after pushing - do not wait for a prompt. Open PRs proactively for any pushed commit that does not already have one.
 3. **Include in PR description**:
    - Summary of changes made
    - Any relevant issue numbers (e.g., "Closes #123")
