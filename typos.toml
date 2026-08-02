@@ -1,14 +1,8 @@
 [files]
 ignore-files = true
 ignore-hidden = false
-extend-exclude = [
-    ".git/",
-    "cliff.toml",
-    "cliff-webkit2gtk.toml"
-]
+extend-exclude = [".git/", "cliff.toml", "cliff-webkit2gtk.toml"]
 
 [default]
 check-filename = true
-extend-ignore-re = [
-    "docker digest to \\b[0-9a-f]{7,}\\b",
-]
+extend-ignore-re = ["digest to \\b[0-9a-f]{7,}\\b"]
