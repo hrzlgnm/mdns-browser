@@ -38,15 +38,15 @@ jobs:
           git-cliff --output CHANGELOG.md
           git-cliff --config cliff-webkit2gtk.toml --output crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
 
-      - name: ⚙️ Set up SSH signing key
+      - name: 🔑 Set up SSH signing key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/id_ed25519_signing
           chmod 600 ~/.ssh/id_ed25519_signing
           git config --global gpg.format ssh
           git config --global user.signingKey ~/.ssh/id_ed25519_signing
-          git config --global user.name "hrzlgnm"
-          git config --global user.email "hrzlgnm@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: 🔁 Create or update Pull Request
         env:

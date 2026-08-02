@@ -53,7 +53,7 @@ jobs:
           fi
           echo "DMG_CHECKSUM=$CHECKSUM" >> "$GITHUB_ENV"
 
-      - name: 🔑 Configure SSH Signing
+      - name: 🔑 Set up SSH signing key
         env:
           SSH_SIGNING_KEY: ${{ secrets.SSH_SIGNING_KEY }}
         run: |
@@ -62,8 +62,8 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519_signing
           git config --global gpg.format ssh
           git config --global user.signingKey ~/.ssh/id_ed25519_signing
-          git config --global user.name "hrzlgnm"
-          git config --global user.email "hrzlgnm@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: 🔄 Update Cask Version & SHA256
         shell: bash
