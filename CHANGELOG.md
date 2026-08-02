@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.1] - 2026-08-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.13.0...mdns-browser-v1.13.1)
+
+### Fixed
+
+- *(release)* Replace draft input with publish in release-drafter config (#2374) ([#2374](https://github.com/hrzlgnm/mdns-browser/pull/2374))
+
+- *(release)* Replace draft input with publish and rename job (#2377) ([#2377](https://github.com/hrzlgnm/mdns-browser/pull/2377))
+
+- *(release)* Use gh release download for source tarball checksum in void workflow (#2376) ([#2376](https://github.com/hrzlgnm/mdns-browser/pull/2376))
+
+- *(release)* Set releaseDraft: true and add releaseName in desktop workflow (#2375) ([#2375](https://github.com/hrzlgnm/mdns-browser/pull/2375))
+
 ## [1.13.0] - 2026-08-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.12.0...mdns-browser-v1.13.0)
 
 ### Added
