@@ -60,13 +60,20 @@ jobs:
       - name: 🔢 Get Source Tarball Checksum
         id: get-checksum
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ steps.get-version.outputs.version }}"
           TAG="mdns-browser-v${VERSION}"
           FILENAME="${TAG}.tar.gz.sha256"
-          gh release download "$TAG" --pattern "$FILENAME" --output "$RUNNER_TEMP/$FILENAME"
-          SHA256SUM=$(cut -d ' ' -f1 "$RUNNER_TEMP/$FILENAME")
+          ASSET_URL=$(curl -sSL \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "${GITHUB_API_URL}/repos/${{ github.repository }}/releases/tags/$TAG" \
+            | jq -r ".assets[] | select(.name == \"$FILENAME\") | .url")
+          SHA256SUM=$(curl -sSL \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/octet-stream" \
+            "$ASSET_URL" | cut -d ' ' -f1)
           echo "checksum=$SHA256SUM" >> "$GITHUB_OUTPUT"
 
       - name: 🌀  Generate template
