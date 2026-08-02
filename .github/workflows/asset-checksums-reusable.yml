@@ -50,6 +50,8 @@ jobs:
         shell: bash
         env:
           TAG_NAME: ${{ needs.tag.outputs.tag }}
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release download "$TAG_NAME" -p "mdns?browser*" -D .
       - name: 🔢☑️
