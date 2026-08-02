@@ -22,6 +22,10 @@ jobs:
     container:
       image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:fd9d9fe063a4c9420de83afd578a39779e8ac03ff59c2b8360ab9bd4e6f78d75
     steps:
+      - name: 🔧 Configure Git safe directory
+        run: |
+          git config --global --add safe.directory /__w/mdns-browser/mdns-browser
+
       - name: 🔄 Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
