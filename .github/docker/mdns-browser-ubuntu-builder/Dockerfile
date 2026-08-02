@@ -9,6 +9,7 @@ RUN apt-get update \
     curl \
     file \
     git \
+    gh \
     jq \
     libayatana-appindicator3-dev \
     librsvg2-dev \
