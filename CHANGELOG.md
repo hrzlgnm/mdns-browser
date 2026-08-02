@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Tweak tauri config (#2361) ([#2361](https://github.com/hrzlgnm/mdns-browser/pull/2361))
 
+- Use github-actions bot for automated commits (#2365) ([#2365](https://github.com/hrzlgnm/mdns-browser/pull/2365))
+
 ## [1.12.0] - 2026-08-01 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.10.0...mdns-browser-v1.12.0)
 
 ### Added
