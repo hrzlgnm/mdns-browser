@@ -72,6 +72,7 @@ jobs:
               - 'src-tauri/capabilities/mobile.json'
               - 'src-tauri/icons/android/**'
               - 'src-tauri/tauri.android.conf.json'
+              - 'src-tauri/tauri.conf.json'
             aur:
               - '.github/workflows/aur-reusable.yml'
               - '.github/actions/latest-release-info/action.yml'
