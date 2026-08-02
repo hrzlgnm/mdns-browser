@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.3] - 2026-08-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.13.2...mdns-browser-v1.13.3)
+
+### Changed
+
+- Configure git safe directory (#2383) ([#2383](https://github.com/hrzlgnm/mdns-browser/pull/2383))
+
 ## [1.13.2] - 2026-08-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.13.1...mdns-browser-v1.13.2)
 
 ### Added
