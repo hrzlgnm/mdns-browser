@@ -40,7 +40,6 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       tagName: mdns-browser-v${{ steps.version.outputs.version}}
     env:
-      GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
       RULESET: repos/${{github.repository}}/rulesets/${{ secrets.RULESET_ID }}
     steps:
       - name: 🔄 Checkout
@@ -121,6 +120,8 @@ jobs:
           git config --global user.email "hrzlgnm@users.noreply.github.com"
 
       - name: ⏳ Temporary disable ruleset enforcement
+        env:
+          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         if: (!inputs.dry-run)
         run: |
           gh api \
@@ -155,6 +156,8 @@ jobs:
           git push --follow-tags
 
       - name: 👮 Re-enable enforcement of rules
+        env:
+          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
         if: (always() && !inputs.dry-run)
         run: |
           gh api \
@@ -173,8 +176,6 @@ jobs:
       contents: write # to create, update, and manage releases and drafts
     runs-on: ubuntu-slim
     name: 📝 Draft a new release
-    env:
-      GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
