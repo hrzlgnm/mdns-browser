@@ -131,8 +131,9 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           tagName: ${{ inputs.tagName }}
+          releaseName: "mDNS-Browser v${{ steps.get-version.outputs.current-version }}"
           releaseBody: ${{ steps.current-release.outputs.body }}
-          releaseDraft: false
+          releaseDraft: true
           prerelease: false
           tauriScript: cargo --locked auditable tauri
           args: ${{ matrix.args }} --no-bundle
@@ -149,8 +150,9 @@ jobs:
         with:
           updaterJsonPreferNsis: true
           tagName: ${{ inputs.tagName }}
+          releaseName: "mDNS-Browser v${{ steps.get-version.outputs.current-version }}"
           releaseBody: ${{ steps.current-release.outputs.body }}
-          releaseDraft: false
+          releaseDraft: true
           prerelease: false
           tauriScript: cargo --locked auditable tauri
           args: ${{ matrix.args }}
