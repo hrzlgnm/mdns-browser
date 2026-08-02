@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write # Needed to push to the update branch
+  contents: write # Needed to commit and push to the update branch
   pull-requests: write # Needed to create/update the pull request
 
 concurrency:
@@ -38,31 +38,36 @@ jobs:
           git-cliff --output CHANGELOG.md
           git-cliff --config cliff-webkit2gtk.toml --output crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
 
-      - name: ⚙️ Set up SSH signing key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/id_ed25519_signing
-          chmod 600 ~/.ssh/id_ed25519_signing
-          git config --global gpg.format ssh
-          git config --global user.signingKey ~/.ssh/id_ed25519_signing
-          git config --global user.name "hrzlgnm"
-          git config --global user.email "hrzlgnm@users.noreply.github.com"
-
-      - name: 🔁 Create or update Pull Request
-        env:
-          GH_TOKEN: ${{ secrets.GH_CONTENT_WRITE }}
+      - name: 🔍 Check for changes
+        id: changes
+        shell: bash
         run: |
           if git diff --quiet CHANGELOG.md crates/webkit2gtk-nvidia-quirk/CHANGELOG.md; then
             echo "No changes to changelog"
-            exit 0
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-          BRANCH="chore/update-changelog"
-          git checkout -B "$BRANCH"
-          git add CHANGELOG.md crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
-          git commit -S -m "chore(version): update unreleased changelog"
-          git push --force-with-lease origin "$BRANCH"
+      - name: 🖋️ Commit changelog as github-actions[bot]
+        if: steps.changes.outputs.changed == 'true'
+        uses: ryancyq/github-signed-commit@cb9b21ee83578fe8e26a9eda530015aedf0c7c5b # v1.4.1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            CHANGELOG.md
+            crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
+          commit-message: "chore(version): update unreleased changelog"
+          branch-name: chore/update-changelog
+          branch-push-force: true
 
+      - name: 🔁 Create or update Pull Request
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="chore/update-changelog"
           if [ "$(gh pr list --head "$BRANCH" --state open --json number --jq 'length')" = "0" ]; then
             gh pr create \
               --title "chore: update unreleased changelog" \
@@ -74,7 +79,3 @@ jobs:
           fi
 
           gh pr merge "$BRANCH" --auto --squash
-
-      - name: 🧹 Cleanup SSH signing key
-        if: always()
-        run: rm -f ~/.ssh/id_ed25519_signing
