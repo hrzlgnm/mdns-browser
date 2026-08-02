@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.12.0...HEAD)
+## [1.13.0] - 2026-08-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.12.0...mdns-browser-v1.13.0)
+
+### Added
+
+- *(release)* Use immutable releases with draft workflow (#2354) (#2373) ([#2354](https://github.com/hrzlgnm/mdns-browser/pull/2354)) ([#2373](https://github.com/hrzlgnm/mdns-browser/pull/2373))
 
 ### Changed
 
@@ -20,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create changelog PR as verified github-actions bot (#2368) ([#2368](https://github.com/hrzlgnm/mdns-browser/pull/2368))
 
 - Include dependencies in changelog (#2370) ([#2370](https://github.com/hrzlgnm/mdns-browser/pull/2370))
+
+- Make the typos digest ignore pattern more broader (#2372) ([#2372](https://github.com/hrzlgnm/mdns-browser/pull/2372))
 
 ## [1.12.0] - 2026-08-01 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.10.0...mdns-browser-v1.12.0)
 
