@@ -20,7 +20,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:7463eb4ced50c6508ef695c4922f353281205168d756bd178b9f99c8106b496d
+      image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:fd9d9fe063a4c9420de83afd578a39779e8ac03ff59c2b8360ab9bd4e6f78d75
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -65,15 +65,7 @@ jobs:
           VERSION="${{ steps.get-version.outputs.version }}"
           TAG="mdns-browser-v${VERSION}"
           FILENAME="${TAG}.tar.gz.sha256"
-          ASSET_URL=$(curl -sSL \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "${GITHUB_API_URL}/repos/${{ github.repository }}/releases/tags/$TAG" \
-            | jq -r ".assets[] | select(.name == \"$FILENAME\") | .url")
-          SHA256SUM=$(curl -sSL \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/octet-stream" \
-            "$ASSET_URL" | cut -d ' ' -f1)
+          SHA256SUM=$(gh release download "$TAG" -p "$FILENAME" -O - | cut -d ' ' -f1)
           echo "checksum=$SHA256SUM" >> "$GITHUB_OUTPUT"
 
       - name: 🌀  Generate template
