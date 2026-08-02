@@ -47,11 +47,13 @@ jobs:
         algorithm: [sha256]
     steps:
       - name: 📥 assets
-        uses: robinraju/release-downloader@28fc21f50d76778e7023361aa1f863e717d3d56f # v1.13
-        with:
-          repository: ${{ github.repository }}
-          tag: ${{ needs.tag.outputs.tag }}
-          fileName: "mdns?browser*"
+        shell: bash
+        env:
+          TAG_NAME: ${{ needs.tag.outputs.tag }}
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download "$TAG_NAME" -p "mdns?browser*" -D .
       - name: 🔢☑️
         shell: bash
         env:
