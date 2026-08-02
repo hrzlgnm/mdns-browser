@@ -169,7 +169,7 @@ jobs:
           "${RULESET}" \
           --input -
 
-  create_prerelease:
+  create_release_draft:
     needs: [bump_version]
     if: (inputs.create-release && !inputs.dry-run)
     permissions:
@@ -200,7 +200,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   source_checksums:
-    needs: [bump_version, create_prerelease]
+    needs: [bump_version, create_release_draft]
     if: (inputs.create-release && !inputs.dry-run)
     permissions:
       contents: write # to upload source checksums to release
@@ -212,7 +212,7 @@ jobs:
       tagName: ${{ needs.bump_version.outputs.tagName }}
 
   build_android:
-    needs: [bump_version, create_prerelease]
+    needs: [bump_version, create_release_draft]
     if: (inputs.create-release && !inputs.dry-run)
     permissions:
       id-token: write # needed for OIDC token for attestation
@@ -226,7 +226,7 @@ jobs:
       tagName: ${{ needs.bump_version.outputs.tagName }}
 
   build_desktop:
-    needs: [bump_version, create_prerelease]
+    needs: [bump_version, create_release_draft]
     if: (inputs.create-release && !inputs.dry-run)
     permissions:
       id-token: write # needed for OIDC token for attestation
@@ -240,7 +240,7 @@ jobs:
       tagName: ${{ needs.bump_version.outputs.tagName }}
 
   build_void:
-    needs: [bump_version, create_prerelease, source_checksums]
+    needs: [bump_version, create_release_draft, source_checksums]
     if: (inputs.create-release && !inputs.dry-run)
     permissions:
       id-token: write # needed for OIDC token for attestation
@@ -258,7 +258,7 @@ jobs:
       [
         bump_version,
         source_checksums,
-        create_prerelease,
+        create_release_draft,
         build_android,
         build_desktop,
         build_void,
@@ -282,7 +282,7 @@ jobs:
       [
         bump_version,
         source_checksums,
-        create_prerelease,
+        create_release_draft,
         build_android,
         build_desktop,
         build_void,
