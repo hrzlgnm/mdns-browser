@@ -13,6 +13,7 @@ RUN xbps-install -Syu xbps \
     curl \
     findutils \
     git \
+    github-cli \
     jq \
     rustup \
     util-linux \
