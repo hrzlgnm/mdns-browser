@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.2] - 2026-08-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.13.1...mdns-browser-v1.13.2)
+
+### Added
+
+- Add gh to ubuntu-package-builder image (#2381) ([#2381](https://github.com/hrzlgnm/mdns-browser/pull/2381))
+
+### Dependencies
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to a2788ba (#2382) ([#2382](https://github.com/hrzlgnm/mdns-browser/pull/2382))
+
+### Fixed
+
+- *(release)* Use gh release download for source checksum in void workflow (#2380) ([#2380](https://github.com/hrzlgnm/mdns-browser/pull/2380))
+
 ## [1.13.1] - 2026-08-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.13.0...mdns-browser-v1.13.1)
 
 ### Fixed
