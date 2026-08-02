@@ -131,15 +131,18 @@ jobs:
 
       - name: 🚀 Publish (publish only)
         if: inputs.tagName
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3
-        with:
-          name: mDNS-Browser Release v${{ steps.get-version.outputs.current-version }}
-          tag_name: ${{ inputs.tagName }}
-          append_body: true
-          make_latest: false
-          generate_release_notes: false
-          files: |
-            src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ inputs.tagName }}
+          APK_FILE: src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
+        run: |
+          if [[ -n "$APK_FILE" && -f "$APK_FILE" ]]; then
+            gh release upload "$TAG_NAME" "$APK_FILE" --clobber
+          else
+            echo "No release assets to upload for this platform"
+            exit 1
+          fi
 
       - name: 🛡️ Attest build provenance (publish only)
         if: inputs.tagName

@@ -14,6 +14,9 @@ on:
         type: string
         required: false
 
+permissions:
+  contents: write # Needed to upload checksums and publish release assets
+
 jobs:
   tag:
     name: Tag
@@ -67,17 +70,26 @@ jobs:
       - tag
       - generate_checksums
     steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
       - name: 📥 artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
 
       - name: 📰🔢☑️
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ needs.tag.outputs.tag }}
-          append_body: true
-          make_latest: false
-          generate_release_notes: false
-          files: |
-            **/*.sha*
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.tag.outputs.tag }}
+        run: |
+          CHECKSUMS=()
+          while IFS= read -r -d '' file; do
+            CHECKSUMS+=("$file")
+          done < <(find . -type f -name '*.sha*' -not -path './.git/*' -print0)
+          if [ "${#CHECKSUMS[@]}" -eq 0 ]; then
+            echo "No checksum files to upload"
+            exit 1
+          fi
+          gh release upload "$TAG_NAME" "${CHECKSUMS[@]}" --clobber
