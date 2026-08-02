@@ -73,7 +73,7 @@ jobs:
         run: |
           git add Casks/mdns-browser.rb
           if ! git diff --cached --quiet; then
-            git commit -m "Update mdns-browser to v${{ needs.release-info.outputs.version }}"
+            git commit -m "chore: update mdns-browser to v${{ needs.release-info.outputs.version }}"
             git push
           else
             echo "No changes to commit"
