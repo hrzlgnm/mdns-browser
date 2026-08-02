@@ -36,10 +36,10 @@ jobs:
         with:
           ref: ${{ inputs.tagName || github.ref }}
           fetch-depth: ${{ inputs.tagName && '0' || '1' }}
-      - name: 📝 Extract version from tauri.android.conf.json
+      - name: 📝 Extract version from tauri.conf.json
         id: get-version
         run: |
-          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.android.conf.json)
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
           echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 🛡️ Verify tag matches version in tauri config (publish only)
