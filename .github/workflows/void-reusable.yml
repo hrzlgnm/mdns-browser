@@ -108,16 +108,23 @@ jobs:
 
       - name: 🚀 Publish
         if: inputs.tagName
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          name: mDNS-Browser Release v${{ steps.get-version.outputs.version }}
-          tag_name: ${{ inputs.tagName }}
-          append_body: true
-          make_latest: false
-          generate_release_notes: false
-          files: |
-            /github/home/void-packages/hostdir/binpkgs/mdns-browser-${{ steps.get-version.outputs.version }}_1.x86_64.xbps
-            /github/home/void-packages/hostdir/binpkgs/mdns-browser-${{ steps.get-version.outputs.version }}_1.x86_64.xbps.sig2
-            /github/home/void-packages/hostdir/binpkgs/x86_64-repodata
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ inputs.tagName }}
+          VERSION: ${{ steps.get-version.outputs.version }}
+        run: |
+          ASSETS=()
+          for file in \
+            "/github/home/void-packages/hostdir/binpkgs/mdns-browser-${VERSION}_1.x86_64.xbps" \
+            "/github/home/void-packages/hostdir/binpkgs/mdns-browser-${VERSION}_1.x86_64.xbps.sig2" \
+            "/github/home/void-packages/hostdir/binpkgs/x86_64-repodata"; do
+            if [ -n "$file" ] && [ -f "$file" ]; then
+              ASSETS+=("$file")
+            fi
+          done
+          if [ "${#ASSETS[@]}" -eq 0 ]; then
+            echo "No release assets to upload for this platform"
+            exit 1
+          fi
+          gh release upload "$TAG_NAME" "${ASSETS[@]}" --clobber

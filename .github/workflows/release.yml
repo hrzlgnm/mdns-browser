@@ -151,7 +151,7 @@ jobs:
         run: |
           git add -A
           git commit -S -m "Bump version to ${{ steps.version.outputs.version }}"
-          git tag -s -a mdns-browser-v${{ steps.version.outputs.version }} -m "mDNS-Browser Release v${{ steps.version.outputs.version }}"
+          git tag -s -a mdns-browser-v${{ steps.version.outputs.version }} -m "mDNS-Browser v${{ steps.version.outputs.version }}"
           git push --follow-tags
 
       - name: 👮 Re-enable enforcement of rules
@@ -172,20 +172,28 @@ jobs:
     permissions:
       contents: write # to create, update, and manage releases and drafts
     runs-on: ubuntu-slim
-    name: 🚀 Create Pre-release
+    name: 📝 Draft a new release
+    env:
+      GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
 
-      - name: 🗒️ Create pre-release
+      - name: 🧹 Delete pre-existing draft releases
+        if: ${{ !inputs.dry-run && needs.bump_version.outputs.version != '' }}
+        uses: hugo19941994/delete-draft-releases@3f19a25abf2ce87850c2268938f98f14e4d3d1f1 # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🗒️ Generate release notes with release-drafter
+        if: ${{ !inputs.dry-run && needs.bump_version.outputs.version != '' }}
         uses: release-drafter/release-drafter@34d80673e067bdc0c24568d3af899c216adcfaa9 # v7.7.0
         with:
+          draft: true
           latest: false
-          name: "mDNS-Browser Release v${{ needs.bump_version.outputs.version }}"
-          prerelease: true
-          publish: true
+          name: "mDNS-Browser v${{ needs.bump_version.outputs.version }}"
           tag: mdns-browser-v${{ needs.bump_version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -4,7 +4,7 @@
 change-template: "- $TITLE @$AUTHOR #$NUMBER"
 sort-direction: ascending
 
-name-template: "mDNS-Browser Release v$RESOLVED_VERSION"
+name-template: "mDNS-Browser v$RESOLVED_VERSION"
 tag-template: "mdns-browser-v$RESOLVED_VERSION"
 tag-prefix: mdns-browser-v
 

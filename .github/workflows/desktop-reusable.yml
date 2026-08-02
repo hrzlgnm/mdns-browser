@@ -230,13 +230,27 @@ jobs:
 
       - name: 📤 Publish debug symbols to release
         if: inputs.tagName
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3
-        with:
-          tag_name: ${{ inputs.tagName }}
-          files: |
-            ${{ steps.debug-symbols.outputs.paths }}
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ inputs.tagName }}
+          VERSION: ${{ steps.get-version.outputs.current-version }}
+        run: |
+          ASSETS=()
+          for file in \
+            "target/release/mdns-browser-$VERSION-debug-symbols-windows.zip" \
+            "target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz" \
+            "target/x86_64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-x86_64.tar.gz" \
+            "target/aarch64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-aarch64.tar.gz"; do
+            if [[ -n "$file" && -f "$file" ]]; then
+              ASSETS+=("$file")
+            fi
+          done
+          if [ "${#ASSETS[@]}" -eq 0 ]; then
+            echo "No release assets to upload for this platform"
+            exit 1
+          fi
+          gh release upload "$TAG_NAME" "${ASSETS[@]}" --clobber
 
       - name: 🛡️ Attest build provenance (publish release only)
         if: inputs.tagName
