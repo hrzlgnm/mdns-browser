@@ -20,6 +20,8 @@ body = """
         ### Fixed\n
     {% elif group == "Changed" -%}\
         ### Changed\n
+    {% elif group == "Dependencies" -%}\
+        ### Dependencies\n
     {% elif group == "Security" -%}\
         ### Security\n
     {% elif group == "Miscellaneous" -%}\
@@ -70,8 +72,7 @@ split_commits = false
 # regex for parsing and grouping commits
 commit_parsers = [
     { message = "^feat", group = "Added" },
-    { message = "^fix\\(deps\\): update", group = "Fixed" },
-    { message = "^fix\\(deps\\)", skip = true },
+    { message = "^fix\\(deps\\)", group = "Dependencies" },
     { message = "^fix\\(ci\\)", skip = true },
     { message = "^fix", group = "Fixed" },
     { message = "^doc", group = "Changed" },
@@ -81,10 +82,7 @@ commit_parsers = [
     { message = "^test", group = "Changed" },
     { message = "^ci", group = "Miscellaneous" },
     { message = "^build", group = "Miscellaneous" },
-    { message = "^chore\\(deps\\): update.*docker digest", skip = true },
-    { message = "^chore\\(deps\\): update", group = "Changed" },
-    { message = "^chore\\(deps\\): lock file maintenance", skip = true },
-    { message = "^chore\\(deps\\)", skip = true },
+    { message = "^chore\\(deps\\)", group = "Dependencies" },
     { message = "^chore\\(renovate", skip = true },
     { message = "^chore\\(arch-aur", skip = true },
     { message = "^chore\\(void", skip = true },

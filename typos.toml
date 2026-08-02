@@ -9,3 +9,6 @@ extend-exclude = [
 
 [default]
 check-filename = true
+extend-ignore-re = [
+    "docker digest to \\b[0-9a-f]{7,}\\b",
+]
