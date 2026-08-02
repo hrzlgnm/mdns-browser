@@ -53,17 +53,10 @@ jobs:
           fi
           echo "DMG_CHECKSUM=$CHECKSUM" >> "$GITHUB_ENV"
 
-      - name: 🔑 Configure SSH Signing
-        env:
-          SSH_SIGNING_KEY: ${{ secrets.SSH_SIGNING_KEY }}
+      - name: 🔑 Configure Git Identity
         run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_SIGNING_KEY" > ~/.ssh/id_ed25519_signing
-          chmod 600 ~/.ssh/id_ed25519_signing
-          git config --global gpg.format ssh
-          git config --global user.signingKey ~/.ssh/id_ed25519_signing
-          git config --global user.name "hrzlgnm"
-          git config --global user.email "hrzlgnm@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: 🔄 Update Cask Version & SHA256
         shell: bash
@@ -80,7 +73,7 @@ jobs:
         run: |
           git add Casks/mdns-browser.rb
           if ! git diff --cached --quiet; then
-            git commit -S -m "Update mdns-browser to v${{ needs.release-info.outputs.version }}"
+            git commit -m "Update mdns-browser to v${{ needs.release-info.outputs.version }}"
             git push
           else
             echo "No changes to commit"
