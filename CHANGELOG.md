@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.13.4...HEAD)
+
+### Dependencies
+
+- *(deps)* Lock file maintenance (#2387) ([#2387](https://github.com/hrzlgnm/mdns-browser/pull/2387))
+
+### Fixed
+
+- Use github-actions[bot] identity for homebrew-tap commits (#2385) ([#2385](https://github.com/hrzlgnm/mdns-browser/pull/2385))
+
 ## [1.13.4] - 2026-08-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.13.3...mdns-browser-v1.13.4)
 
 ### Fixed
