@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Lock file maintenance (#2387) ([#2387](https://github.com/hrzlgnm/mdns-browser/pull/2387))
 
+- *(deps)* Update hrzlgnm/actions action to v2.5.5 (#2389) ([#2389](https://github.com/hrzlgnm/mdns-browser/pull/2389))
+
+- *(deps)* Update archlinux:base-devel docker digest to c1829f3 (#2390) ([#2390](https://github.com/hrzlgnm/mdns-browser/pull/2390))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 2e59a58 (#2391) ([#2391](https://github.com/hrzlgnm/mdns-browser/pull/2391))
+
 ### Fixed
 
 - Use github-actions[bot] identity for homebrew-tap commits (#2385) ([#2385](https://github.com/hrzlgnm/mdns-browser/pull/2385))
