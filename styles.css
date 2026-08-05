@@ -72,6 +72,9 @@ body {
 .mobile-metrics-layout {
     border: 0;
 }
+.mobile-interfaces-layout {
+    border: 0;
+}
 .mobile-browse-layout {
     padding-top: 0px;
 }
@@ -108,6 +111,9 @@ body {
     padding-top: 10px;
 }
 .desktop-metrics-layout {
+    border: 0;
+}
+.desktop-interfaces-layout {
     border: 0;
 }
 .desktop-resolved-service-card {

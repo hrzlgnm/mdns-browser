@@ -187,6 +187,18 @@ fn byte_array_hexlified(byte_array: &[u8]) -> String {
         .join("")
 }
 
+#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug, Store)]
+pub struct NetworkInterface {
+    pub name: String,
+    pub addresses: Vec<String>,
+    pub enabled: bool,
+}
+
+#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug)]
+pub struct InterfacesChangedEvent {
+    pub interfaces: Vec<NetworkInterface>,
+}
+
 #[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug)]
 pub struct MetricsChangedEvent {
     pub metrics: HashMap<String, i64>,

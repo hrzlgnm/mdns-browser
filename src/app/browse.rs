@@ -31,6 +31,16 @@ use super::{
     values_table::ValuesTable,
 };
 
+#[derive(Clone, Debug)]
+pub struct BrowsingInjection(pub RwSignal<bool>);
+
+impl BrowsingInjection {
+    #[track_caller]
+    pub fn expect_context() -> RwSignal<bool> {
+        expect_context::<Self>().0
+    }
+}
+
 /// Initiates browsing for available network service types asynchronously.
 ///
 /// Invokes the `"browse_types"` command to start discovering service types on the network.
@@ -879,7 +889,7 @@ pub fn Browse() -> impl IntoView {
         false,
     );
 
-    let browsing = RwSignal::new(false);
+    let browsing = BrowsingInjection::expect_context();
     let service_type = RwSignal::new(String::new());
     let not_browsing = Signal::derive(move || !browsing.get());
     let service_type_invalid = Signal::derive(move || {

@@ -9,8 +9,8 @@ use mdns_sd::{IfKind, ServiceDaemon, ServiceEvent};
 use models::check_service_type_fully_qualified;
 use models::*;
 use shared_constants::{
-    INTERFACES_CAN_BROWSE_CHECK_INTERVAL, MDNS_SD_IP_CHECK_INTERVAL, MDNS_SD_META_SERVICE,
-    METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT,
+    INTERFACES_CAN_BROWSE_CHECK_INTERVAL, INTERFACES_LIST_CHECK_INTERVAL,
+    MDNS_SD_IP_CHECK_INTERVAL, MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT,
 };
 use std::{
     collections::{BTreeSet, HashMap, HashSet},
@@ -33,8 +33,10 @@ struct ManagedState {
     queriers: Arc<Mutex<HashSet<String>>>,
     metrics_subscribed: AtomicBool,
     can_browse_subscribed: AtomicBool,
+    interfaces_subscribed: AtomicBool,
     ipv4_enabled: AtomicBool,
     ipv6_enabled: AtomicBool,
+    disabled_interfaces: Arc<Mutex<HashSet<String>>>,
     #[cfg(desktop)]
     dev_tools_enabled: bool,
 }
@@ -47,8 +49,10 @@ impl ManagedState {
             queriers: Arc::new(Mutex::new(HashSet::new())),
             metrics_subscribed: AtomicBool::new(false),
             can_browse_subscribed: AtomicBool::new(false),
+            interfaces_subscribed: AtomicBool::new(false),
             ipv4_enabled: AtomicBool::new(true),
             ipv6_enabled: AtomicBool::new(true),
+            disabled_interfaces: Arc::new(Mutex::new(HashSet::new())),
             dev_tools_enabled: dev_tools_requested,
         }
     }
@@ -60,8 +64,10 @@ impl ManagedState {
             queriers: Arc::new(Mutex::new(HashSet::new())),
             metrics_subscribed: AtomicBool::new(false),
             can_browse_subscribed: AtomicBool::new(false),
+            interfaces_subscribed: AtomicBool::new(false),
             ipv4_enabled: AtomicBool::new(true),
             ipv6_enabled: AtomicBool::new(true),
+            disabled_interfaces: Arc::new(Mutex::new(HashSet::new())),
         }
     }
 }
@@ -157,6 +163,52 @@ mod convert_to_scoped_addr_tests {
         let result = convert_to_scoped_addr(&scoped_ip);
 
         assert_eq!(result.addr, IpAddr::V6(ipv6_addr));
+    }
+}
+
+#[cfg(test)]
+mod interface_selection_tests {
+    use super::*;
+
+    fn sample_interfaces() -> Vec<NetworkInterface> {
+        vec![
+            NetworkInterface {
+                name: "en0".to_string(),
+                addresses: vec!["192.168.1.1".to_string()],
+                enabled: true,
+            },
+            NetworkInterface {
+                name: "en1".to_string(),
+                addresses: vec![],
+                enabled: true,
+            },
+        ]
+    }
+
+    #[test]
+    fn test_set_interface_enabled_flags_keeps_all_enabled_when_nothing_disabled() {
+        let result = set_interface_enabled_flags(sample_interfaces(), &HashSet::new());
+        assert!(result.iter().all(|interface| interface.enabled));
+    }
+
+    #[test]
+    fn test_set_interface_enabled_flags_disables_matching_interfaces() {
+        let disabled = HashSet::from(["en0".to_string()]);
+        let result = set_interface_enabled_flags(sample_interfaces(), &disabled);
+        assert!(
+            !result
+                .iter()
+                .find(|interface| interface.name == "en0")
+                .expect("To contain en0")
+                .enabled
+        );
+        assert!(
+            result
+                .iter()
+                .find(|interface| interface.name == "en1")
+                .expect("To contain en1")
+                .enabled
+        );
     }
 }
 
@@ -365,33 +417,53 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
 }
 
 #[cfg(not(windows))]
+/// Checks whether a network interface is capable of mDNS discovery.
+///
+/// mDNS capable interfaces must have at least one IP address, must not be loopback or point to
+/// point, must be running and support multicast and broadcast. On Android there are some `rmnet`
+/// (remote network virtual) interfaces for cellular modems without a broadcast capability like
+/// ethernet or wifi interfaces, and sometimes a `dummy0` interface without multicast capability,
+/// both of which are therefore considered incapable.
+fn is_mdns_capable_pnet(interface: &pnet::datalink::NetworkInterface) -> bool {
+    !interface.ips.is_empty()
+        && !interface.is_loopback()
+        && !interface.is_point_to_point()
+        && interface.is_multicast()
+        && interface.is_broadcast()
+        && interface.is_running()
+}
+
+#[cfg(not(windows))]
 fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
     use pnet::datalink;
     let interfaces = datalink::interfaces();
     interfaces
         .iter()
-        .filter_map(|interface| {
-            // Skip loopback and point to point outright as those are disabled by
-            // default.
-            if interface.is_loopback() || interface.is_point_to_point() {
-                return None;
-            }
-            // On android there are some `rmnet` = remote network virtual interfaces which are
-            // cellular modem data interfaces. Those do not have a broadcast capability like
-            // ethernet or wifi interface, so we disable those, too.
-            // Sometimes there is also a dummy0 interface without a multicast capability which
-            // we disable as well.
-            let incapable = interface.ips.is_empty()
-                || !interface.is_running()
-                || !interface.is_multicast()
-                || !interface.is_broadcast();
-            if incapable {
-                Some(IfKind::from(interface.name.as_str()))
-            } else {
-                None
-            }
+        .filter(|interface| {
+            // Skip loopback and point to point outright as those are disabled by default and
+            // never part of the mDNS interface selection.
+            !interface.is_loopback()
+                && !interface.is_point_to_point()
+                && !is_mdns_capable_pnet(interface)
         })
+        .map(|interface| IfKind::from(interface.name.as_str()))
         .collect()
+}
+
+#[cfg(not(windows))]
+fn enumerate_mdns_capable_interfaces() -> Vec<NetworkInterface> {
+    use pnet::datalink;
+    let mut interfaces: Vec<NetworkInterface> = datalink::interfaces()
+        .iter()
+        .filter(|interface| is_mdns_capable_pnet(interface))
+        .map(|interface| NetworkInterface {
+            name: interface.name.clone(),
+            addresses: interface.ips.iter().map(|ip| ip.ip().to_string()).collect(),
+            enabled: true,
+        })
+        .collect();
+    interfaces.sort_by(|a, b| a.name.cmp(&b.name));
+    interfaces
 }
 
 #[cfg(not(windows))]
@@ -425,11 +497,48 @@ mod tests {
             loopback_names
         );
     }
+
+    #[test]
+    fn test_loopback_not_included_in_mdns_capable_interfaces() {
+        let result = enumerate_mdns_capable_interfaces();
+        // Gather actual loopback interface names on this system.
+        let loopback_names: std::collections::HashSet<String> = {
+            datalink::interfaces()
+                .into_iter()
+                .filter(|iface| iface.is_loopback())
+                .map(|iface| iface.name)
+                .collect()
+        };
+        assert!(
+            !loopback_names.is_empty(),
+            "No loopback interfaces detected on this host; test cannot validate exclusion"
+        );
+        let any_loopback_found = result
+            .iter()
+            .any(|interface| loopback_names.contains(&interface.name));
+        assert!(
+            !any_loopback_found,
+            "Loopback interfaces {:?} should not be included in mdns-capable interfaces",
+            loopback_names
+        );
+    }
+}
+
+#[cfg(windows)]
+/// Checks whether a network adapter is capable of mDNS discovery.
+///
+/// mDNS capable adapters must have at least one IP address, must be up and must be of type
+/// ethernet or IEEE 802.11 (WiFi).
+fn is_mdns_capable_ipconfig(adapter: &ipconfig::Adapter) -> bool {
+    !adapter.ip_addresses().is_empty()
+        && adapter.oper_status() == ipconfig::OperStatus::IfOperStatusUp
+        && (adapter.if_type() == ipconfig::IfType::EthernetCsmacd
+            || adapter.if_type() == ipconfig::IfType::Ieee80211)
 }
 
 #[cfg(windows)]
 fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
-    use ipconfig::{IfType, OperStatus};
+    use ipconfig::IfType;
 
     if let Ok(adapters) = ipconfig::get_adapters() {
         adapters
@@ -443,11 +552,7 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
                 ) {
                     return None;
                 }
-                if adapter.ip_addresses().is_empty()
-                    || adapter.oper_status() != OperStatus::IfOperStatusUp
-                    || (adapter.if_type() != IfType::EthernetCsmacd
-                        && adapter.if_type() != IfType::Ieee80211)
-                {
+                if !is_mdns_capable_ipconfig(adapter) {
                     Some(IfKind::from(adapter.friendly_name()))
                 } else {
                     None
@@ -457,6 +562,29 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
     } else {
         vec![]
     }
+}
+
+#[cfg(windows)]
+fn enumerate_mdns_capable_interfaces() -> Vec<NetworkInterface> {
+    let mut interfaces: Vec<NetworkInterface> = ipconfig::get_adapters()
+        .map(|adapters| {
+            adapters
+                .iter()
+                .filter(|adapter| is_mdns_capable_ipconfig(adapter))
+                .map(|adapter| NetworkInterface {
+                    name: adapter.friendly_name().to_string(),
+                    addresses: adapter
+                        .ip_addresses()
+                        .iter()
+                        .map(|ip| ip.to_string())
+                        .collect(),
+                    enabled: true,
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    interfaces.sort_by(|a, b| a.name.cmp(&b.name));
+    interfaces
 }
 
 #[cfg(windows)]
@@ -491,6 +619,32 @@ mod tests {
             loopback_names
         );
     }
+
+    #[test]
+    fn test_loopback_not_included_in_mdns_capable_interfaces() {
+        let result = enumerate_mdns_capable_interfaces();
+        let loopback_names: std::collections::HashSet<String> = ipconfig::get_adapters()
+            .map(|adapters| {
+                adapters
+                    .into_iter()
+                    .filter(|a| a.if_type() == IfType::SoftwareLoopback)
+                    .map(|a| a.friendly_name().to_string())
+                    .collect()
+            })
+            .unwrap_or_default();
+        assert!(
+            !loopback_names.is_empty(),
+            "No loopback interfaces detected on this host; test cannot validate exclusion"
+        );
+        let loopback_present = result
+            .iter()
+            .any(|interface| loopback_names.contains(&interface.name));
+        assert!(
+            !loopback_present,
+            "Software loopback adapters {:?} should not be included in mdns-capable interfaces",
+            loopback_names
+        );
+    }
 }
 
 #[cfg(not(windows))]
@@ -509,15 +663,8 @@ fn has_mdns_capable_interfaces() -> bool {
 
 #[cfg(windows)]
 fn has_mdns_capable_interfaces() -> bool {
-    use ipconfig::{IfType, OperStatus};
-
     if let Ok(adapters) = ipconfig::get_adapters() {
-        adapters.iter().any(|adapter| {
-            !adapter.ip_addresses().is_empty()
-                && adapter.oper_status() == OperStatus::IfOperStatusUp
-                && (adapter.if_type() == IfType::EthernetCsmacd
-                    || adapter.if_type() == IfType::Ieee80211)
-        })
+        adapters.iter().any(is_mdns_capable_ipconfig)
     } else {
         log::warn!("Unable to determine whether we have mDNS capable network adapters, assuming no network is present");
         false
@@ -564,6 +711,56 @@ fn subscribe_can_browse(window: Window, state: State<ManagedState>) {
             &CanBrowseChangedEvent {
                 can_browse: has_mdns_capable_interfaces(),
             },
+        );
+    }
+}
+
+async fn poll_interfaces(window: Window, disabled_interfaces: Arc<Mutex<HashSet<String>>>) {
+    let mut current: Vec<NetworkInterface> = Vec::new();
+    loop {
+        let disabled = match disabled_interfaces.lock() {
+            Ok(disabled) => disabled.clone(),
+            Err(err) => {
+                log::error!("Failed to lock disabled interfaces: {err:?}");
+                return;
+            }
+        };
+        let interfaces =
+            set_interface_enabled_flags(enumerate_mdns_capable_interfaces(), &disabled);
+        if interfaces != current {
+            current = interfaces.clone();
+            emit_event(
+                &window,
+                "interfaces-changed",
+                &InterfacesChangedEvent { interfaces },
+            );
+        }
+        tokio::time::sleep(INTERFACES_LIST_CHECK_INTERVAL).await;
+    }
+}
+
+#[tauri::command]
+fn subscribe_interfaces(window: Window, state: State<ManagedState>) {
+    if state
+        .interfaces_subscribed
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .is_ok()
+    {
+        tauri::async_runtime::spawn(poll_interfaces(window, state.disabled_interfaces.clone()));
+    } else {
+        let disabled = match state.disabled_interfaces.lock() {
+            Ok(disabled) => disabled.clone(),
+            Err(err) => {
+                log::error!("Failed to lock disabled interfaces: {err:?}");
+                return;
+            }
+        };
+        let interfaces =
+            set_interface_enabled_flags(enumerate_mdns_capable_interfaces(), &disabled);
+        emit_event(
+            &window,
+            "interfaces-changed",
+            &InterfacesChangedEvent { interfaces },
         );
     }
 }
@@ -637,27 +834,38 @@ fn get_protocol_flags(state: State<ManagedState>) -> ProtocolFlags {
     }
 }
 
-fn update_interface(
-    current_flag: bool,
-    new_flag: bool,
-    state_flag: &std::sync::atomic::AtomicBool,
+/// Applies the configured interface selections to the mDNS daemon.
+///
+/// The daemon applies selections in order with later selections taking precedence, so we first
+/// disable all interfaces, then re-enable the IPv4/IPv6 families based on the protocol flags,
+/// then disable the interfaces the user has unselected, and finally re-disable the interfaces
+/// that are not capable of mDNS.
+fn apply_interface_selections(
     daemon: &std::sync::MutexGuard<ServiceDaemon>,
-    if_kind: &IfKind,
+    disabled_interfaces: &HashSet<String>,
+    ipv4_enabled: bool,
+    ipv6_enabled: bool,
 ) -> Result<(), String> {
-    if current_flag != new_flag {
-        if new_flag {
-            daemon
-                .enable_interface(if_kind.clone())
-                .map_err(|e| format!("Failed to enable {if_kind:?} interface: {e:?}"))?;
-        } else {
-            daemon
-                .disable_interface(if_kind.clone())
-                .map_err(|e| format!("Failed to disable {if_kind:?} interface: {e:?}"))?;
-        }
-        state_flag.store(new_flag, Ordering::SeqCst);
+    daemon
+        .disable_interface(IfKind::All)
+        .map_err(|e| format!("Failed to disable all interfaces: {e:?}"))?;
+    if ipv4_enabled {
+        daemon
+            .enable_interface(IfKind::IPv4)
+            .map_err(|e| format!("Failed to enable IPv4 interfaces: {e:?}"))?;
     }
-    // We have to disable interfaces that are not needed anymore, as enabling IPv4 or IPv6 may also
-    // enable those interfaces.
+    if ipv6_enabled {
+        daemon
+            .enable_interface(IfKind::IPv6)
+            .map_err(|e| format!("Failed to enable IPv6 interfaces: {e:?}"))?;
+    }
+    for name in disabled_interfaces {
+        daemon
+            .disable_interface(IfKind::Name(name.clone()))
+            .map_err(|e| format!("Failed to disable {name} interface: {e:?}"))?;
+    }
+    // We have to disable interfaces that are not capable of mDNS, as enabling IPv4 or IPv6 may
+    // also enable those interfaces.
     if let Err(err) = daemon.disable_interface(enumerate_mdns_incapable_interfaces()) {
         // Log the error but continue, as this is not critical.
         log::warn!("Failed to disable interfaces: {err:?}, continuing anyway");
@@ -665,31 +873,63 @@ fn update_interface(
     Ok(())
 }
 
+/// Marks the given interfaces as enabled based on the provided set of disabled interface names.
+fn set_interface_enabled_flags(
+    mut interfaces: Vec<NetworkInterface>,
+    disabled: &HashSet<String>,
+) -> Vec<NetworkInterface> {
+    for interface in &mut interfaces {
+        interface.enabled = !disabled.contains(&interface.name);
+    }
+    interfaces
+}
+
 #[tauri::command]
 fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Result<(), String> {
+    state.ipv4_enabled.store(flags.ipv4, Ordering::SeqCst);
+    state.ipv6_enabled.store(flags.ipv6, Ordering::SeqCst);
+    let disabled_interfaces = state
+        .disabled_interfaces
+        .lock()
+        .map_err(|e| format!("Failed to lock disabled interfaces: {e:?}"))?
+        .clone();
     let daemon = state
         .daemon
         .lock()
         .map_err(|e| format!("Failed to lock daemon: {e:?}"))?;
-    let current_ipv4 = state.ipv4_enabled.load(Ordering::SeqCst);
-    update_interface(
-        current_ipv4,
-        flags.ipv4,
-        &state.ipv4_enabled,
-        &daemon,
-        &IfKind::IPv4,
-    )?;
+    apply_interface_selections(&daemon, &disabled_interfaces, flags.ipv4, flags.ipv6)
+}
 
-    let current_ipv6 = state.ipv6_enabled.load(Ordering::SeqCst);
-    update_interface(
-        current_ipv6,
-        flags.ipv6,
-        &state.ipv6_enabled,
-        &daemon,
-        &IfKind::IPv6,
-    )?;
+#[tauri::command]
+fn set_interfaces(state: State<ManagedState>, enabled: Vec<String>) -> Result<(), String> {
+    let enabled: HashSet<String> = enabled.into_iter().collect();
+    let capable_names: HashSet<String> = enumerate_mdns_capable_interfaces()
+        .into_iter()
+        .map(|interface| interface.name)
+        .collect();
+    let new_disabled = capable_names
+        .difference(&enabled)
+        .cloned()
+        .collect::<HashSet<_>>();
 
-    Ok(())
+    let mut disabled_interfaces = state
+        .disabled_interfaces
+        .lock()
+        .map_err(|e| format!("Failed to lock disabled interfaces: {e:?}"))?;
+    if *disabled_interfaces == new_disabled {
+        return Ok(());
+    }
+    *disabled_interfaces = new_disabled;
+    let disabled = disabled_interfaces.clone();
+    drop(disabled_interfaces);
+
+    let daemon = state
+        .daemon
+        .lock()
+        .map_err(|e| format!("Failed to lock daemon: {e:?}"))?;
+    let ipv4_enabled = state.ipv4_enabled.load(Ordering::SeqCst);
+    let ipv6_enabled = state.ipv6_enabled.load(Ordering::SeqCst);
+    apply_interface_selections(&daemon, &disabled, ipv4_enabled, ipv6_enabled)
 }
 
 #[tauri::command]
@@ -1025,8 +1265,10 @@ pub fn run() {
             get_protocol_flags,
             is_desktop,
             open_url,
+            set_interfaces,
             set_protocol_flags,
             subscribe_can_browse,
+            subscribe_interfaces,
             subscribe_metrics,
             stop_browse,
             theme,
@@ -1068,8 +1310,10 @@ pub fn run_mobile() {
             get_protocol_flags,
             is_desktop,
             open_url,
+            set_interfaces,
             set_protocol_flags,
             subscribe_can_browse,
+            subscribe_interfaces,
             subscribe_metrics,
             stop_browse,
             theme,

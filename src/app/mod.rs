@@ -11,6 +11,7 @@ mod is_desktop;
 mod listen;
 pub mod main;
 mod metrics;
+mod network_interfaces;
 mod protocol_flags;
 mod theme_switcher;
 mod values_table;
