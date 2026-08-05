@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to d73d5ba (#2394) ([#2394](https://github.com/hrzlgnm/mdns-browser/pull/2394))
 
+- *(deps)* Update dependency cargo-nextest to v0.9.143 (#2397) ([#2397](https://github.com/hrzlgnm/mdns-browser/pull/2397))
+
+- *(deps)* Update actions/attest digest to 1e69f48 (#2396) ([#2396](https://github.com/hrzlgnm/mdns-browser/pull/2396))
+
 ### Fixed
 
 - Use github-actions[bot] identity for homebrew-tap commits (#2385) ([#2385](https://github.com/hrzlgnm/mdns-browser/pull/2385))
