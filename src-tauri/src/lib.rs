@@ -455,7 +455,12 @@ fn enumerate_mdns_capable_interfaces() -> Vec<NetworkInterface> {
     use pnet::datalink;
     let mut interfaces: Vec<NetworkInterface> = datalink::interfaces()
         .iter()
-        .filter(|interface| is_mdns_capable_pnet(interface))
+        .filter(|interface| {
+            // The loopback interface is offered as a selection even though it is not multicast
+            // capable, as it allows browsing mDNS services that are only advertised on loopback.
+            is_mdns_capable_pnet(interface)
+                || (interface.is_loopback() && !interface.ips.is_empty())
+        })
         .map(|interface| NetworkInterface {
             name: interface.name.clone(),
             addresses: interface.ips.iter().map(|ip| ip.ip().to_string()).collect(),
@@ -499,26 +504,26 @@ mod tests {
     }
 
     #[test]
-    fn test_loopback_not_included_in_mdns_capable_interfaces() {
+    fn test_loopback_included_in_mdns_capable_interfaces() {
         let result = enumerate_mdns_capable_interfaces();
         // Gather actual loopback interface names on this system.
         let loopback_names: std::collections::HashSet<String> = {
             datalink::interfaces()
                 .into_iter()
-                .filter(|iface| iface.is_loopback())
+                .filter(|iface| iface.is_loopback() && !iface.ips.is_empty())
                 .map(|iface| iface.name)
                 .collect()
         };
         assert!(
             !loopback_names.is_empty(),
-            "No loopback interfaces detected on this host; test cannot validate exclusion"
+            "No loopback interfaces detected on this host; test cannot validate inclusion"
         );
         let any_loopback_found = result
             .iter()
             .any(|interface| loopback_names.contains(&interface.name));
         assert!(
-            !any_loopback_found,
-            "Loopback interfaces {:?} should not be included in mdns-capable interfaces",
+            any_loopback_found,
+            "Loopback interfaces {:?} should be included in mdns-capable interfaces",
             loopback_names
         );
     }
@@ -566,11 +571,19 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
 
 #[cfg(windows)]
 fn enumerate_mdns_capable_interfaces() -> Vec<NetworkInterface> {
+    use ipconfig::IfType;
     let mut interfaces: Vec<NetworkInterface> = ipconfig::get_adapters()
         .map(|adapters| {
             adapters
                 .iter()
-                .filter(|adapter| is_mdns_capable_ipconfig(adapter))
+                .filter(|adapter| {
+                    // The loopback adapter is offered as a selection even though it is not
+                    // multicast capable, as it allows browsing mDNS services that are only
+                    // advertised on loopback.
+                    is_mdns_capable_ipconfig(adapter)
+                        || (adapter.if_type() == IfType::SoftwareLoopback
+                            && !adapter.ip_addresses().is_empty())
+                })
                 .map(|adapter| NetworkInterface {
                     name: adapter.friendly_name().to_string(),
                     addresses: adapter
@@ -621,7 +634,7 @@ mod tests {
     }
 
     #[test]
-    fn test_loopback_not_included_in_mdns_capable_interfaces() {
+    fn test_loopback_included_in_mdns_capable_interfaces() {
         let result = enumerate_mdns_capable_interfaces();
         let loopback_names: std::collections::HashSet<String> = ipconfig::get_adapters()
             .map(|adapters| {
@@ -634,14 +647,14 @@ mod tests {
             .unwrap_or_default();
         assert!(
             !loopback_names.is_empty(),
-            "No loopback interfaces detected on this host; test cannot validate exclusion"
+            "No loopback interfaces detected on this host; test cannot validate inclusion"
         );
         let loopback_present = result
             .iter()
             .any(|interface| loopback_names.contains(&interface.name));
         assert!(
-            !loopback_present,
-            "Software loopback adapters {:?} should not be included in mdns-capable interfaces",
+            loopback_present,
+            "Software loopback adapters {:?} should be included in mdns-capable interfaces",
             loopback_names
         );
     }
@@ -650,21 +663,19 @@ mod tests {
 #[cfg(not(windows))]
 fn has_mdns_capable_interfaces() -> bool {
     use pnet::datalink;
-    let interfaces = datalink::interfaces();
-    interfaces.iter().any(|interface| {
-        !interface.ips.is_empty()
-            && !interface.is_loopback()
-            && !interface.is_point_to_point()
-            && interface.is_multicast()
-            && interface.is_broadcast()
-            && interface.is_running()
+    datalink::interfaces().iter().any(|interface| {
+        is_mdns_capable_pnet(interface) || (interface.is_loopback() && !interface.ips.is_empty())
     })
 }
 
 #[cfg(windows)]
 fn has_mdns_capable_interfaces() -> bool {
     if let Ok(adapters) = ipconfig::get_adapters() {
-        adapters.iter().any(is_mdns_capable_ipconfig)
+        adapters.iter().any(|adapter| {
+            is_mdns_capable_ipconfig(adapter)
+                || (adapter.if_type() == ipconfig::IfType::SoftwareLoopback
+                    && !adapter.ip_addresses().is_empty())
+        })
     } else {
         log::warn!("Unable to determine whether we have mDNS capable network adapters, assuming no network is present");
         false
