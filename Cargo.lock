@@ -3102,7 +3102,7 @@ dependencies = [
 
 [[package]]
 name = "mdns-browser"
-version = "1.13.4"
+version = "1.14.0"
 dependencies = [
  "chrono",
  "clap",
@@ -3128,7 +3128,7 @@ dependencies = [
 
 [[package]]
 name = "mdns-browser-ui"
-version = "1.13.4"
+version = "1.14.0"
 dependencies = [
  "chrono",
  "console_error_panic_hook",
@@ -3217,7 +3217,7 @@ dependencies = [
 
 [[package]]
 name = "models"
-version = "1.13.4"
+version = "1.14.0"
 dependencies = [
  "reactive_stores 0.3.1",
  "serde",
@@ -5069,7 +5069,7 @@ dependencies = [
 
 [[package]]
 name = "shared_constants"
-version = "1.13.4"
+version = "1.14.0"
 
 [[package]]
 name = "shlex"

@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.13.4...HEAD)
+## [1.14.0] - 2026-08-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.13.4...mdns-browser-v1.14.0)
+
+### Added
+
+- Add selectable network interfaces (#2403) ([#2403](https://github.com/hrzlgnm/mdns-browser/pull/2403))
 
 ### Dependencies
 
@@ -24,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update dependency cargo-nextest to v0.9.143 (#2397) ([#2397](https://github.com/hrzlgnm/mdns-browser/pull/2397))
 
 - *(deps)* Update actions/attest digest to 1e69f48 (#2396) ([#2396](https://github.com/hrzlgnm/mdns-browser/pull/2396))
+
+- *(deps)* Update dtolnay/rust-toolchain digest to 4360b52 (#2399) ([#2399](https://github.com/hrzlgnm/mdns-browser/pull/2399))
+
+- *(deps)* Update dorny/paths-filter action to v4.0.3 (#2402) ([#2402](https://github.com/hrzlgnm/mdns-browser/pull/2402))
 
 ### Fixed
 
