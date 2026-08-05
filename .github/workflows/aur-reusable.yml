@@ -38,12 +38,10 @@ jobs:
       matrix:
         package:
           - name: mdns-browser-bin
-            checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/${{ needs.release-info.outputs.tagName }}/mdns-browser_${{ needs.release-info.outputs.version }}_amd64.deb.sha256"
-            checksum_url_exe: "https://github.com/hrzlgnm/mdns-browser/releases/download/${{ needs.release-info.outputs.tagName }}/mdns-browser_linux_x64.sha256"
+            needs_exe: "true"
             generate_script: "./packaging/aur/generate-mdns-browser-bin.sh"
           - name: mdns-browser
-            checksum_url: "https://github.com/hrzlgnm/mdns-browser/releases/download/${{ needs.release-info.outputs.tagName }}/mdns-browser-v${{ needs.release-info.outputs.version }}.tar.gz.sha256"
-            checksum_url_exe: ""
+            needs_exe: "false"
             generate_script: "./packaging/aur/generate-mdns-browser.sh"
     steps:
       - name: 🔄 Checkout
@@ -54,16 +52,31 @@ jobs:
       - name: 🔢 Get sha256sums
         id: sha256sums
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.release-info.outputs.tagName }}
         run: |
-          URL="${{ matrix.package.checksum_url }}"
-          echo "getting $URL"
-          SUM=$(curl -LfsS "$URL" | cut -f1 -d ' ')
-          echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
-          if [[ -n "${{ matrix.package.checksum_url_exe }}" ]]; then
-            URL_EXE="${{ matrix.package.checksum_url_exe }}"
-            echo "getting $URL_EXE"
-            SUM_EXE=$(curl -LfsS "$URL_EXE" | cut -f1 -d ' ')
-            echo "sha256_exe=$SUM_EXE" >> "$GITHUB_OUTPUT"
+          if [[ "${{ matrix.package.name }}" == "mdns-browser-bin" ]]; then
+            ASSETS=$(gh release view "$TAG_NAME" --repo hrzlgnm/mdns-browser --json assets --jq '.assets | map(select(.name | test("\\.sha256$") | not))')
+            SUM=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_${{ needs.release-info.outputs.version }}_amd64.deb" '.[] | select(.name == $name) | .digest')
+            if [[ -z "$SUM" ]]; then
+              echo "Error: Failed to get checksum from GitHub API for release $TAG_NAME"
+              exit 1
+            fi
+            echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
+            if [[ "${{ matrix.package.needs_exe }}" == "true" ]]; then
+              SUM_EXE=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_linux_x64" '.[] | select(.name == $name) | .digest')
+              if [[ -z "$SUM_EXE" ]]; then
+                echo "Error: Failed to get exe checksum from GitHub API for release $TAG_NAME"
+                exit 1
+              fi
+              echo "sha256_exe=$SUM_EXE" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            URL="https://github.com/hrzlgnm/mdns-browser/releases/download/$TAG_NAME/mdns-browser-v${{ needs.release-info.outputs.version }}.tar.gz.sha256"
+            echo "getting $URL"
+            SUM=$(curl -LfsS "$URL" | cut -d' ' -f1)
+            echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
           fi
 
       - name: 📐 Lint generated PKGBUILD

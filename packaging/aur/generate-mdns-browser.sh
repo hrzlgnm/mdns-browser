@@ -10,6 +10,8 @@ if [[ -z "$version" || -z "$sha256sum" ]]; then
     exit 1
 fi
 
+sha256sum="${sha256sum#sha256:}"
+
 cat <<EOF
 # Maintainer: Valentin Batz <valentin.batz+archlinux@posteo.de>
 
