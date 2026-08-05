@@ -12,7 +12,6 @@ RUN pacman -Syu --noconfirm \
     gdk-pixbuf2 \
     git \
     glib2 \
-    github-cli \
     gtk3 \
     jq \
     libappindicator-gtk3 \
