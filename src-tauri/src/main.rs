@@ -3,5 +3,6 @@
 // SPDX-License-Identifier: MIT-0
 
 fn main() {
+    #[cfg(desktop)]
     mdns_browser_lib::run();
 }
