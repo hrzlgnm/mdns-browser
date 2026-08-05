@@ -1357,6 +1357,19 @@ pub fn run_mobile() {
         .expect("error while running tauri application");
 }
 
+#[cfg(any(mobile, test))]
+fn compare_versions(fetched: &str, current: &str) -> Result<std::cmp::Ordering, String> {
+    let fetched = semver::Version::parse(fetched.trim_start_matches('v')).map_err(|e| {
+        log::error!("failed to parse latest release version: {e}");
+        format!("failed to parse latest release version: {e}")
+    })?;
+    let current = semver::Version::parse(current).map_err(|e| {
+        log::error!("failed to parse current app version: {e}");
+        format!("failed to parse current app version: {e}")
+    })?;
+    Ok(fetched.cmp(&current))
+}
+
 #[cfg(mobile)]
 mod autoupdate {
     use models::UpdateMetadata;
@@ -1364,6 +1377,8 @@ mod autoupdate {
     use tauri::{AppHandle, State};
     use tauri_plugin_http::reqwest;
     use tauri_plugin_opener::OpenerExt;
+
+    use crate::compare_versions;
 
     const LATEST_JSON_URL: &str =
         "https://github.com/hrzlgnm/mdns-browser/releases/latest/download/latest.json";
@@ -1405,22 +1420,23 @@ mod autoupdate {
         let latest_version = latest_json.version.trim_start_matches('v').to_string();
         let current_version = app.package_info().version.to_string();
 
-        if latest_version == current_version {
-            log::info!("App is up to date ({current_version})");
-            *pending_update.0.lock().expect("To lock") = None;
-            return Ok(None);
+        match compare_versions(&latest_json.version, &current_version)? {
+            std::cmp::Ordering::Greater => {
+                log::info!("Update {latest_version} found");
+                *pending_update.0.lock().expect("To lock") = Some(PendingUpdate {
+                    version: latest_version.clone(),
+                });
+                Ok(Some(UpdateMetadata {
+                    version: latest_version,
+                    current_version,
+                }))
+            }
+            _ => {
+                log::info!("App is up to date ({current_version})");
+                *pending_update.0.lock().expect("To lock") = None;
+                Ok(None)
+            }
         }
-
-        log::info!("Update {latest_version} found");
-
-        *pending_update.0.lock().expect("To lock") = Some(PendingUpdate {
-            version: latest_version.clone(),
-        });
-
-        Ok(Some(UpdateMetadata {
-            version: latest_version,
-            current_version,
-        }))
     }
 
     #[tauri::command]
@@ -1456,5 +1472,32 @@ mod autoupdate {
     #[tauri::command]
     pub fn can_auto_update() -> bool {
         true
+    }
+}
+
+#[cfg(test)]
+mod compare_versions_tests {
+    use super::compare_versions;
+    use std::cmp::Ordering;
+
+    #[test]
+    fn fetched_version_older_than_installed_is_not_an_update() {
+        assert_eq!(compare_versions("1.9.0", "2.0.0"), Ok(Ordering::Less));
+    }
+
+    #[test]
+    fn fetched_version_equal_to_installed_is_not_an_update() {
+        assert_eq!(compare_versions("2.0.0", "2.0.0"), Ok(Ordering::Equal));
+    }
+
+    #[test]
+    fn fetched_version_newer_than_installed_is_an_update() {
+        assert_eq!(compare_versions("2.0.1", "2.0.0"), Ok(Ordering::Greater));
+        assert_eq!(compare_versions("v2.0.1", "2.0.0"), Ok(Ordering::Greater));
+    }
+
+    #[test]
+    fn fetched_version_malformed_is_rejected() {
+        assert!(compare_versions("not-a-version", "2.0.0").is_err());
     }
 }

@@ -22,6 +22,7 @@ log = { workspace = true }
 mdns-sd = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+semver = { workspace = true }
 tauri = { workspace = true }
 tauri-plugin-clipboard-manager = { workspace = true }
 tauri-plugin-log = { workspace = true }
