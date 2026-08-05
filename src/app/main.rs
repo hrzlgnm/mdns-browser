@@ -8,7 +8,7 @@ use super::{
     invoke::invoke_no_args,
     is_desktop::{IsDesktopInjection, get_is_desktop},
     metrics::Metrics,
-    network_interfaces::NetworkInterfaces,
+    network_interfaces::{HasEnabledInterfacesInjection, NetworkInterfaces},
     theme_switcher::ThemeSwitcher,
 };
 use js_sys::{
@@ -105,6 +105,8 @@ pub fn Main() -> impl IntoView {
     provide_context(IsDesktopInjection(is_desktop));
     let browsing = RwSignal::new(false);
     provide_context(BrowsingInjection(browsing));
+    let has_enabled_interfaces = RwSignal::new(false);
+    provide_context(HasEnabledInterfacesInjection(has_enabled_interfaces));
     view! {
         <ConfigProvider theme>
             <ToasterProvider>

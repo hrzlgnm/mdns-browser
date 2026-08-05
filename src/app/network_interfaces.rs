@@ -13,6 +13,16 @@ use thaw::{
 
 use super::{css::get_class, is_desktop::IsDesktopInjection, listen::listen_to_named_event};
 
+#[derive(Clone, Debug)]
+pub struct HasEnabledInterfacesInjection(pub RwSignal<bool>);
+
+impl HasEnabledInterfacesInjection {
+    #[track_caller]
+    pub fn expect_context() -> RwSignal<bool> {
+        expect_context::<Self>().0
+    }
+}
+
 #[derive(Store, Default)]
 struct InterfacesState {
     #[store(key: String = |interface| interface.name.clone())]
@@ -106,6 +116,20 @@ pub fn NetworkInterfaces(#[prop(optional, into)] disabled: Signal<bool>) -> impl
 
     let is_desktop = IsDesktopInjection::expect_context();
     let layout_class = get_class(&is_desktop, "interfaces-layout");
+    let has_enabled_interfaces = HasEnabledInterfacesInjection::expect_context();
+    Effect::watch(
+        move || {
+            store
+                .interfaces()
+                .iter_unkeyed()
+                .map(|interface| interface.enabled().get())
+                .collect::<Vec<_>>()
+        },
+        move |enabled_flags, _, _| {
+            has_enabled_interfaces.set(enabled_flags.iter().any(|enabled| *enabled));
+        },
+        false,
+    );
 
     view! {
         <Layout class=layout_class>

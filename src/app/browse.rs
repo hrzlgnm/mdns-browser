@@ -27,6 +27,7 @@ use super::{
     invoke::invoke_no_args,
     is_desktop::IsDesktopInjection,
     listen::{listen_add_remove, listen_events, listen_to_named_event},
+    network_interfaces::HasEnabledInterfacesInjection,
     protocol_flags::ProtocolFlags,
     values_table::ValuesTable,
 };
@@ -900,8 +901,13 @@ pub fn Browse() -> impl IntoView {
 
     let browsing_or_cannot_browse = Signal::derive(move || browsing.get() || !can_browse.get());
 
-    let browsing_or_service_type_invalid_or_cannot_browse =
-        Signal::derive(move || !can_browse.get() || browsing.get() || service_type_invalid.get());
+    let has_enabled_interfaces = HasEnabledInterfacesInjection::expect_context();
+    let browse_disabled = Signal::derive(move || {
+        !can_browse.get()
+            || browsing.get()
+            || service_type_invalid.get()
+            || !has_enabled_interfaces.get()
+    });
 
     let browse_all_action = Action::new_local(|input: &ServiceTypes| {
         let input = input.clone();
@@ -1052,7 +1058,7 @@ pub fn Browse() -> impl IntoView {
                     <Button
                         appearance=ButtonAppearance::Primary
                         on_click=on_browse_click
-                        disabled=browsing_or_service_type_invalid_or_cannot_browse
+                        disabled=browse_disabled
                     >
                         "Browse"
                     </Button>
