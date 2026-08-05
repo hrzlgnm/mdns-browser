@@ -3,11 +3,12 @@
 
 use super::{
     about::About,
-    browse::Browse,
+    browse::{Browse, BrowsingInjection},
     css::get_class,
     invoke::invoke_no_args,
     is_desktop::{IsDesktopInjection, get_is_desktop},
     metrics::Metrics,
+    network_interfaces::{HasEnabledInterfacesInjection, NetworkInterfaces},
     theme_switcher::ThemeSwitcher,
 };
 use js_sys::{
@@ -102,6 +103,10 @@ pub fn Main() -> impl IntoView {
     LocalResource::new(close_splashscreen);
     let layout_class = get_class(&is_desktop, "outer-layout");
     provide_context(IsDesktopInjection(is_desktop));
+    let browsing = RwSignal::new(false);
+    provide_context(BrowsingInjection(browsing));
+    let has_enabled_interfaces = RwSignal::new(false);
+    provide_context(HasEnabledInterfacesInjection(has_enabled_interfaces));
     view! {
         <ConfigProvider theme>
             <ToasterProvider>
@@ -118,6 +123,7 @@ pub fn Main() -> impl IntoView {
                             </GridItem>
                         </Grid>
                         <Metrics />
+                        <NetworkInterfaces disabled=browsing />
                         <Browse />
                     </Suspense>
                 </Layout>

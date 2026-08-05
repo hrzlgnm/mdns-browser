@@ -27,9 +27,23 @@ use super::{
     invoke::invoke_no_args,
     is_desktop::IsDesktopInjection,
     listen::{listen_add_remove, listen_events, listen_to_named_event},
+    network_interfaces::HasEnabledInterfacesInjection,
     protocol_flags::ProtocolFlags,
     values_table::ValuesTable,
 };
+
+/// Injection providing a signal that tracks whether a browse is currently active.
+///
+/// Other components use this signal to disable controls while browsing is running.
+#[derive(Clone, Debug)]
+pub struct BrowsingInjection(pub RwSignal<bool>);
+
+impl BrowsingInjection {
+    #[track_caller]
+    pub fn expect_context() -> RwSignal<bool> {
+        expect_context::<Self>().0
+    }
+}
 
 /// Initiates browsing for available network service types asynchronously.
 ///
@@ -879,7 +893,7 @@ pub fn Browse() -> impl IntoView {
         false,
     );
 
-    let browsing = RwSignal::new(false);
+    let browsing = BrowsingInjection::expect_context();
     let service_type = RwSignal::new(String::new());
     let not_browsing = Signal::derive(move || !browsing.get());
     let service_type_invalid = Signal::derive(move || {
@@ -890,8 +904,13 @@ pub fn Browse() -> impl IntoView {
 
     let browsing_or_cannot_browse = Signal::derive(move || browsing.get() || !can_browse.get());
 
-    let browsing_or_service_type_invalid_or_cannot_browse =
-        Signal::derive(move || !can_browse.get() || browsing.get() || service_type_invalid.get());
+    let has_enabled_interfaces = HasEnabledInterfacesInjection::expect_context();
+    let browse_disabled = Signal::derive(move || {
+        !can_browse.get()
+            || browsing.get()
+            || service_type_invalid.get()
+            || !has_enabled_interfaces.get()
+    });
 
     let browse_all_action = Action::new_local(|input: &ServiceTypes| {
         let input = input.clone();
@@ -1042,7 +1061,7 @@ pub fn Browse() -> impl IntoView {
                     <Button
                         appearance=ButtonAppearance::Primary
                         on_click=on_browse_click
-                        disabled=browsing_or_service_type_invalid_or_cannot_browse
+                        disabled=browse_disabled
                     >
                         "Browse"
                     </Button>

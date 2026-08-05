@@ -187,6 +187,22 @@ fn byte_array_hexlified(byte_array: &[u8]) -> String {
         .join("")
 }
 
+/// A network interface that can be selected for mDNS browsing.
+#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug, Store)]
+#[serde(rename_all = "camelCase")]
+pub struct NetworkInterface {
+    pub name: String,
+    pub addresses: Vec<String>,
+    pub enabled: bool,
+}
+
+/// Event emitted when the set of mDNS-capable network interfaces changes.
+#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct InterfacesChangedEvent {
+    pub interfaces: Vec<NetworkInterface>,
+}
+
 #[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug)]
 pub struct MetricsChangedEvent {
     pub metrics: HashMap<String, i64>,
