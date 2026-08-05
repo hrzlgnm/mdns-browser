@@ -5,9 +5,13 @@
 use clap::builder::TypedValueParser as _;
 #[cfg(desktop)]
 use clap::Parser;
+#[cfg(windows)]
+use ipconfig::IfType;
 use mdns_sd::{IfKind, ServiceDaemon, ServiceEvent};
 use models::check_service_type_fully_qualified;
 use models::*;
+#[cfg(not(windows))]
+use pnet::datalink;
 use shared_constants::{
     INTERFACES_CAN_BROWSE_CHECK_INTERVAL, INTERFACES_LIST_CHECK_INTERVAL,
     MDNS_SD_IP_CHECK_INTERVAL, MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT,
@@ -435,7 +439,6 @@ fn is_mdns_capable_pnet(interface: &pnet::datalink::NetworkInterface) -> bool {
 
 #[cfg(not(windows))]
 fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
-    use pnet::datalink;
     let interfaces = datalink::interfaces();
     interfaces
         .iter()
@@ -452,7 +455,6 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
 
 #[cfg(not(windows))]
 fn enumerate_mdns_capable_interfaces() -> Vec<NetworkInterface> {
-    use pnet::datalink;
     let mut interfaces: Vec<NetworkInterface> = datalink::interfaces()
         .iter()
         .filter(|interface| {
@@ -543,8 +545,6 @@ fn is_mdns_capable_ipconfig(adapter: &ipconfig::Adapter) -> bool {
 
 #[cfg(windows)]
 fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
-    use ipconfig::IfType;
-
     if let Ok(adapters) = ipconfig::get_adapters() {
         adapters
             .iter()
@@ -571,31 +571,33 @@ fn enumerate_mdns_incapable_interfaces() -> Vec<IfKind> {
 
 #[cfg(windows)]
 fn enumerate_mdns_capable_interfaces() -> Vec<NetworkInterface> {
-    use ipconfig::IfType;
-    let mut interfaces: Vec<NetworkInterface> = ipconfig::get_adapters()
-        .map(|adapters| {
-            adapters
-                .iter()
-                .filter(|adapter| {
-                    // The loopback adapter is offered as a selection even though it is not
-                    // multicast capable, as it allows browsing mDNS services that are only
-                    // advertised on loopback.
-                    is_mdns_capable_ipconfig(adapter)
-                        || (adapter.if_type() == IfType::SoftwareLoopback
-                            && !adapter.ip_addresses().is_empty())
-                })
-                .map(|adapter| NetworkInterface {
-                    name: adapter.friendly_name().to_string(),
-                    addresses: adapter
-                        .ip_addresses()
-                        .iter()
-                        .map(|ip| ip.to_string())
-                        .collect(),
-                    enabled: true,
-                })
-                .collect()
+    let adapters = match ipconfig::get_adapters() {
+        Ok(adapters) => adapters,
+        Err(err) => {
+            log::error!("Failed to get network adapters: {err:?}");
+            return vec![];
+        }
+    };
+    let mut interfaces: Vec<NetworkInterface> = adapters
+        .iter()
+        .filter(|adapter| {
+            // The loopback adapter is offered as a selection even though it is not
+            // multicast capable, as it allows browsing mDNS services that are only
+            // advertised on loopback.
+            is_mdns_capable_ipconfig(adapter)
+                || (adapter.if_type() == IfType::SoftwareLoopback
+                    && !adapter.ip_addresses().is_empty())
         })
-        .unwrap_or_default();
+        .map(|adapter| NetworkInterface {
+            name: adapter.friendly_name().to_string(),
+            addresses: adapter
+                .ip_addresses()
+                .iter()
+                .map(|ip| ip.to_string())
+                .collect(),
+            enabled: true,
+        })
+        .collect();
     interfaces.sort_by(|a, b| a.name.cmp(&b.name));
     interfaces
 }
@@ -662,7 +664,6 @@ mod tests {
 
 #[cfg(not(windows))]
 fn has_mdns_capable_interfaces() -> bool {
-    use pnet::datalink;
     datalink::interfaces().iter().any(|interface| {
         is_mdns_capable_pnet(interface) || (interface.is_loopback() && !interface.ips.is_empty())
     })
@@ -707,6 +708,11 @@ async fn poll_can_browse(window: Window) {
     }
 }
 
+/// Subscribes to updates of the mDNS browsing capability.
+///
+/// Starts a background task that polls whether mDNS-capable interfaces are available at regular
+/// intervals, or emits the current state immediately if a subscription is already active. Emits
+/// `"can-browse-changed"` events to the Tauri window.
 #[tauri::command]
 fn subscribe_can_browse(window: Window, state: State<ManagedState>) {
     if state
@@ -750,20 +756,26 @@ async fn poll_interfaces(window: Window, disabled_interfaces: Arc<Mutex<HashSet<
     }
 }
 
+/// Subscribes to periodic updates of the available mDNS network interfaces.
+///
+/// Starts a background task that polls the system for mDNS-capable network interfaces at regular
+/// intervals, or emits the current list immediately if a subscription is already active. Emits
+/// `"interfaces-changed"` events to the Tauri window.
 #[tauri::command]
-fn subscribe_interfaces(window: Window, state: State<ManagedState>) {
+fn subscribe_interfaces(window: Window, state: State<ManagedState>) -> Result<(), String> {
     if state
         .interfaces_subscribed
         .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
         .is_ok()
     {
         tauri::async_runtime::spawn(poll_interfaces(window, state.disabled_interfaces.clone()));
+        Ok(())
     } else {
         let disabled = match state.disabled_interfaces.lock() {
             Ok(disabled) => disabled.clone(),
             Err(err) => {
                 log::error!("Failed to lock disabled interfaces: {err:?}");
-                return;
+                return Err(format!("Failed to lock disabled interfaces: {err:?}"));
             }
         };
         let interfaces =
@@ -773,6 +785,7 @@ fn subscribe_interfaces(window: Window, state: State<ManagedState>) {
             "interfaces-changed",
             &InterfacesChangedEvent { interfaces },
         );
+        Ok(())
     }
 }
 
@@ -897,8 +910,6 @@ fn set_interface_enabled_flags(
 
 #[tauri::command]
 fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Result<(), String> {
-    state.ipv4_enabled.store(flags.ipv4, Ordering::SeqCst);
-    state.ipv6_enabled.store(flags.ipv6, Ordering::SeqCst);
     let disabled_interfaces = state
         .disabled_interfaces
         .lock()
@@ -908,7 +919,15 @@ fn set_protocol_flags(state: State<ManagedState>, flags: ProtocolFlags) -> Resul
         .daemon
         .lock()
         .map_err(|e| format!("Failed to lock daemon: {e:?}"))?;
-    apply_interface_selections(&daemon, &disabled_interfaces, flags.ipv4, flags.ipv6)
+    if let Err(err) =
+        apply_interface_selections(&daemon, &disabled_interfaces, flags.ipv4, flags.ipv6)
+    {
+        log::error!("Failed to apply interface selections: {err}");
+        return Err(err);
+    }
+    state.ipv4_enabled.store(flags.ipv4, Ordering::SeqCst);
+    state.ipv6_enabled.store(flags.ipv6, Ordering::SeqCst);
+    Ok(())
 }
 
 #[tauri::command]
@@ -930,9 +949,6 @@ fn set_interfaces(state: State<ManagedState>, enabled: Vec<String>) -> Result<()
     if *disabled_interfaces == new_disabled {
         return Ok(());
     }
-    *disabled_interfaces = new_disabled;
-    let disabled = disabled_interfaces.clone();
-    drop(disabled_interfaces);
 
     let daemon = state
         .daemon
@@ -940,7 +956,13 @@ fn set_interfaces(state: State<ManagedState>, enabled: Vec<String>) -> Result<()
         .map_err(|e| format!("Failed to lock daemon: {e:?}"))?;
     let ipv4_enabled = state.ipv4_enabled.load(Ordering::SeqCst);
     let ipv6_enabled = state.ipv6_enabled.load(Ordering::SeqCst);
-    apply_interface_selections(&daemon, &disabled, ipv4_enabled, ipv6_enabled)
+    if let Err(err) = apply_interface_selections(&daemon, &new_disabled, ipv4_enabled, ipv6_enabled)
+    {
+        log::error!("Failed to apply interface selections: {err}");
+        return Err(err);
+    }
+    *disabled_interfaces = new_disabled;
+    Ok(())
 }
 
 #[tauri::command]

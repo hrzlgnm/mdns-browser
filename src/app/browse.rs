@@ -32,6 +32,9 @@ use super::{
     values_table::ValuesTable,
 };
 
+/// Injection providing a signal that tracks whether a browse is currently active.
+///
+/// Other components use this signal to disable controls while browsing is running.
 #[derive(Clone, Debug)]
 pub struct BrowsingInjection(pub RwSignal<bool>);
 

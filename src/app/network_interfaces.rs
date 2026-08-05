@@ -5,14 +5,18 @@ use leptos::prelude::*;
 use models::*;
 use reactive_stores::{Field, Store, StoreFieldIterator};
 use serde::{Deserialize, Serialize};
-use tauri_sys::core::invoke;
+use tauri_sys::core::invoke_result;
 use thaw::{
     Accordion, AccordionHeader, AccordionItem, Checkbox, Flex, FlexAlign, FlexGap, FlexJustify,
-    Layout,
+    Layout, Toast, ToastBody, ToastTitle, ToasterInjection,
 };
 
 use super::{css::get_class, is_desktop::IsDesktopInjection, listen::listen_to_named_event};
 
+/// Injection providing a signal that tracks whether any network interface is currently enabled.
+///
+/// The browse button uses this signal to disable itself when no mDNS-capable interface is
+/// enabled.
 #[derive(Clone, Debug)]
 pub struct HasEnabledInterfacesInjection(pub RwSignal<bool>);
 
@@ -51,13 +55,23 @@ async fn listen_to_interfaces_events(
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 #[allow(non_snake_case)]
 struct SetInterfacesArgs {
     enabled: Vec<String>,
 }
 
-async fn set_interfaces(enabled: Vec<String>) {
-    let _ = invoke::<()>("set_interfaces", &SetInterfacesArgs { enabled }).await;
+async fn set_interfaces(enabled: Vec<String>) -> Result<(), String> {
+    invoke_result::<(), String>("set_interfaces", &SetInterfacesArgs { enabled }).await
+}
+
+fn create_set_interfaces_error_toast(message: String) -> impl IntoView {
+    view! {
+        <Toast>
+            <ToastTitle>"Failed to set interfaces"</ToastTitle>
+            <ToastBody>{message}</ToastBody>
+        </Toast>
+    }
 }
 
 /// Renders a single network interface as a checkbox with its name and IP addresses as label.
@@ -88,9 +102,18 @@ pub fn NetworkInterfaces(#[prop(optional, into)] disabled: Signal<bool>) -> impl
     let last_backend_selection: StoredValue<Vec<String>> = StoredValue::new(Vec::new());
     LocalResource::new(move || listen_to_interfaces_events(store, last_backend_selection));
 
-    let set_interfaces_action = Action::new_local(|enabled: &Vec<String>| {
+    let toaster = ToasterInjection::expect_context();
+    let set_interfaces_action = Action::new_local(move |enabled: &Vec<String>| {
         let enabled = enabled.clone();
-        async move { set_interfaces(enabled).await }
+        async move {
+            if let Err(e) = set_interfaces(enabled).await {
+                log::error!("failed to set interfaces: {e}");
+                toaster.dispatch_toast(
+                    move || create_set_interfaces_error_toast(e),
+                    Default::default(),
+                );
+            }
+        }
     });
 
     Effect::watch(
