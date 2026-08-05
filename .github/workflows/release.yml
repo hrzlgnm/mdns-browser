@@ -15,12 +15,12 @@ on:
           - minor
           - major
       dry-run:
-        description: Dry run (no commits/tags/releases)
+        description: Dry run (no commits/tags/draft releases)
         required: true
         type: boolean
         default: false
-      create-release:
-        description: Create pre-release after version bump
+      draft-release:
+        description: Draft a release after version bump
         required: true
         type: boolean
         default: true
@@ -171,7 +171,7 @@ jobs:
 
   create_release_draft:
     needs: [bump_version]
-    if: (inputs.create-release && !inputs.dry-run)
+    if: (inputs.draft-release && !inputs.dry-run)
     permissions:
       contents: write # to create, update, and manage releases and drafts
     runs-on: ubuntu-slim
@@ -201,7 +201,7 @@ jobs:
 
   source_checksums:
     needs: [bump_version, create_release_draft]
-    if: (inputs.create-release && !inputs.dry-run)
+    if: (inputs.draft-release && !inputs.dry-run)
     permissions:
       contents: write # to upload source checksums to release
       actions: read # to access workflow run information and secrets
@@ -213,7 +213,7 @@ jobs:
 
   build_android:
     needs: [bump_version, create_release_draft]
-    if: (inputs.create-release && !inputs.dry-run)
+    if: (inputs.draft-release && !inputs.dry-run)
     permissions:
       id-token: write # needed for OIDC token for attestation
       attestations: write # needed to create build attestations
@@ -227,7 +227,7 @@ jobs:
 
   build_desktop:
     needs: [bump_version, create_release_draft]
-    if: (inputs.create-release && !inputs.dry-run)
+    if: (inputs.draft-release && !inputs.dry-run)
     permissions:
       id-token: write # needed for OIDC token for attestation
       attestations: write # needed to create build attestations
@@ -241,7 +241,7 @@ jobs:
 
   build_void:
     needs: [bump_version, create_release_draft, source_checksums]
-    if: (inputs.create-release && !inputs.dry-run)
+    if: (inputs.draft-release && !inputs.dry-run)
     permissions:
       id-token: write # needed for OIDC token for attestation
       attestations: write # needed to create build attestations
@@ -263,7 +263,7 @@ jobs:
         build_desktop,
         build_void,
       ]
-    if: (inputs.create-release && !inputs.dry-run)
+    if: (inputs.draft-release && !inputs.dry-run)
     permissions:
       contents: write # to update release with sboms
       actions: read # to download workflow artifacts
