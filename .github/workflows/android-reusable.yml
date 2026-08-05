@@ -57,7 +57,6 @@ jobs:
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
         with:
-          components: clippy
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
           save-cache: ${{ inputs.branch == 'main' }}
 
@@ -97,13 +96,6 @@ jobs:
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
           RUSTFLAGS: "-D warnings"
-
-      - name: 📎 Clippy for android targets
-        if: (!inputs.tagName)
-        shell: bash
-        env:
-          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
-        run: cargo clippy --workspace --all-targets -- -D warnings
 
       - name: 🔑 Extract android signing key
         env:

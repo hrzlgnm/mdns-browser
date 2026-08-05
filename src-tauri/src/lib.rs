@@ -1357,6 +1357,20 @@ pub fn run_mobile() {
         .expect("error while running tauri application");
 }
 
+#[cfg(any(mobile, test))]
+fn compare_versions(fetched: &str, current: &str) -> Result<std::cmp::Ordering, String> {
+    let fetched =
+        semver::Version::parse(fetched.strip_prefix('v').unwrap_or(fetched)).map_err(|e| {
+            log::error!("failed to parse latest release version: {e}");
+            format!("failed to parse latest release version: {e}")
+        })?;
+    let current = semver::Version::parse(current).map_err(|e| {
+        log::error!("failed to parse current app version: {e}");
+        format!("failed to parse current app version: {e}")
+    })?;
+    Ok(fetched.cmp(&current))
+}
+
 #[cfg(mobile)]
 mod autoupdate {
     use models::UpdateMetadata;
@@ -1364,6 +1378,8 @@ mod autoupdate {
     use tauri::{AppHandle, State};
     use tauri_plugin_http::reqwest;
     use tauri_plugin_opener::OpenerExt;
+
+    use crate::compare_versions;
 
     const LATEST_JSON_URL: &str =
         "https://github.com/hrzlgnm/mdns-browser/releases/latest/download/latest.json";
@@ -1379,19 +1395,6 @@ mod autoupdate {
     #[derive(serde::Deserialize)]
     struct LatestJson {
         version: String,
-    }
-
-    fn compare_versions(fetched: &str, current: &str) -> Result<std::cmp::Ordering, String> {
-        let fetched = semver::Version::parse(fetched.strip_prefix('v').unwrap_or(fetched))
-            .map_err(|e| {
-                log::error!("failed to parse latest release version: {e}");
-                format!("failed to parse latest release version: {e}")
-            })?;
-        let current = semver::Version::parse(current).map_err(|e| {
-            log::error!("failed to parse current app version: {e}");
-            format!("failed to parse current app version: {e}")
-        })?;
-        Ok(fetched.cmp(&current))
     }
 
     #[tauri::command]
@@ -1478,36 +1481,36 @@ mod autoupdate {
     pub fn can_auto_update() -> bool {
         true
     }
+}
 
-    #[cfg(test)]
-    mod tests {
-        use super::compare_versions;
-        use std::cmp::Ordering;
+#[cfg(test)]
+mod compare_versions_tests {
+    use super::compare_versions;
+    use std::cmp::Ordering;
 
-        #[test]
-        fn test_compare_versions_older_than_installed_is_not_an_update() {
-            assert_eq!(compare_versions("1.9.0", "2.0.0"), Ok(Ordering::Less));
-        }
+    #[test]
+    fn test_compare_versions_older_than_installed_is_not_an_update() {
+        assert_eq!(compare_versions("1.9.0", "2.0.0"), Ok(Ordering::Less));
+    }
 
-        #[test]
-        fn test_compare_versions_equal_to_installed_is_not_an_update() {
-            assert_eq!(compare_versions("2.0.0", "2.0.0"), Ok(Ordering::Equal));
-        }
+    #[test]
+    fn test_compare_versions_equal_to_installed_is_not_an_update() {
+        assert_eq!(compare_versions("2.0.0", "2.0.0"), Ok(Ordering::Equal));
+    }
 
-        #[test]
-        fn test_compare_versions_newer_than_installed_is_an_update() {
-            assert_eq!(compare_versions("2.0.1", "2.0.0"), Ok(Ordering::Greater));
-            assert_eq!(compare_versions("v2.0.1", "2.0.0"), Ok(Ordering::Greater));
-        }
+    #[test]
+    fn test_compare_versions_newer_than_installed_is_an_update() {
+        assert_eq!(compare_versions("2.0.1", "2.0.0"), Ok(Ordering::Greater));
+        assert_eq!(compare_versions("v2.0.1", "2.0.0"), Ok(Ordering::Greater));
+    }
 
-        #[test]
-        fn test_compare_versions_malformed_is_rejected() {
-            assert!(compare_versions("not-a-version", "2.0.0").is_err());
-        }
+    #[test]
+    fn test_compare_versions_malformed_is_rejected() {
+        assert!(compare_versions("not-a-version", "2.0.0").is_err());
+    }
 
-        #[test]
-        fn test_compare_versions_double_v_prefix_is_rejected() {
-            assert!(compare_versions("vv2.0.1", "2.0.0").is_err());
-        }
+    #[test]
+    fn test_compare_versions_double_v_prefix_is_rejected() {
+        assert!(compare_versions("vv2.0.1", "2.0.0").is_err());
     }
 }
