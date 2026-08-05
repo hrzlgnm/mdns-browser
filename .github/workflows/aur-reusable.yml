@@ -57,10 +57,18 @@ jobs:
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}
         run: |
           ASSETS=$(gh release view "$TAG_NAME" --repo hrzlgnm/mdns-browser --json assets --jq '.assets | map(select(.name | test("\\.sha256$") | not))')
-          SUM=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_${{ needs.release-info.outputs.version }}_amd64.deb" '.[] | select(.name == $name) | .digest')
-          if [[ -z "$SUM" ]]; then
-            echo "Error: Failed to get checksum from GitHub API for release $TAG_NAME"
-            exit 1
+          if [[ "${{ matrix.package.name }}" == "mdns-browser-bin" ]]; then
+            SUM=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_${{ needs.release-info.outputs.version }}_amd64.deb" '.[] | select(.name == $name) | .digest')
+            if [[ -z "$SUM" ]]; then
+              echo "Error: Failed to get checksum from GitHub API for release $TAG_NAME"
+              exit 1
+            fi
+          else
+            SUM=$(echo "$ASSETS" | jq -r --arg name "mdns-browser-v${{ needs.release-info.outputs.version }}.tar.gz" '.[] | select(.name == $name) | .digest')
+            if [[ -z "$SUM" ]]; then
+              echo "Error: Failed to get checksum from GitHub API for release $TAG_NAME"
+              exit 1
+            fi
           fi
           echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
           if [[ "${{ matrix.package.needs_exe }}" == "true" ]]; then
