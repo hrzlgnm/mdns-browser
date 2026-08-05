@@ -3111,6 +3111,7 @@ dependencies = [
  "mdns-sd",
  "models",
  "pnet",
+ "semver",
  "serde",
  "serde_json",
  "shared_constants",
