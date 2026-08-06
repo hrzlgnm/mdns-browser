@@ -224,7 +224,13 @@ pub fn About() -> impl IntoView {
                                         on_click=on_install_update_click
                                         icon=icondata::MdiInboxArrowDown
                                     >
-                                        "Open release page "
+                                        {move || {
+                                            if is_desktop.get() {
+                                                "Download and Install "
+                                            } else {
+                                                "Open release page "
+                                            }
+                                        }}
                                         {{ installable_version }}
                                     </Button>
                                 </Show>
