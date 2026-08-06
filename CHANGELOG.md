@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.14.0...HEAD)
+## [1.14.1] - 2026-08-06 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.14.0...mdns-browser-v1.14.1)
 
 ### Changed
 
@@ -19,9 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to de0c834 (#2407) ([#2407](https://github.com/hrzlgnm/mdns-browser/pull/2407))
 
+- *(deps)* Update swatinem/rust-cache digest to 6323deb (#2412) ([#2412](https://github.com/hrzlgnm/mdns-browser/pull/2412))
+
 ### Fixed
 
 - Prevent mobile update prompts for older releases (#2404) ([#2404](https://github.com/hrzlgnm/mdns-browser/pull/2404))
+
+- Restore desktop download-and-install update label (#2411) ([#2411](https://github.com/hrzlgnm/mdns-browser/pull/2411))
 
 ## [1.14.0] - 2026-08-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.13.4...mdns-browser-v1.14.0)
 
