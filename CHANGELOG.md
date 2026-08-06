@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.14.0...HEAD)
+
+### Changed
+
+- Add github-cli to AUR builder Dockerfile (#2406) ([#2406](https://github.com/hrzlgnm/mdns-browser/pull/2406))
+
+- Use GitHub API checksums for release assets (#2405) ([#2405](https://github.com/hrzlgnm/mdns-browser/pull/2405))
+
+- Update release workflow input description (#2408) ([#2408](https://github.com/hrzlgnm/mdns-browser/pull/2408))
+
+### Dependencies
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to de0c834 (#2407) ([#2407](https://github.com/hrzlgnm/mdns-browser/pull/2407))
+
+### Fixed
+
+- Prevent mobile update prompts for older releases (#2404) ([#2404](https://github.com/hrzlgnm/mdns-browser/pull/2404))
+
 ## [1.14.0] - 2026-08-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.13.4...mdns-browser-v1.14.0)
 
 ### Added
