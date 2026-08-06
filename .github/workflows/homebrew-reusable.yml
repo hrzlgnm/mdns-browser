@@ -50,6 +50,7 @@ jobs:
             echo "Error: No checksum found for universal.dmg in release $TAG"
             exit 1
           fi
+          CHECKSUM="${CHECKSUM#sha256:}"
           echo "DMG_CHECKSUM=$CHECKSUM" >> "$GITHUB_ENV"
 
       - name: 🔑 Configure Git Identity
