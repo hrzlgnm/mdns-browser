@@ -40,9 +40,16 @@ jobs:
               if (!prNumber) continue;
               const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
               if (pr.state !== 'open') continue;
-              const { data: files } = await github.rest.pulls.listFiles({ owner, repo, pull_number: prNumber });
-              if (files.some((f) => f.filename.startsWith('.github/workflows/'))) {
-                core.warning(`Skipping run ${run.id}: PR #${prNumber} modifies workflow files`);
+              const files = await github.paginate(github.rest.pulls.listFiles, {
+                owner, repo, pull_number: prNumber, per_page: 100,
+              });
+              if (
+                files.length === 3000 ||
+                files.some((f) => f.filename.startsWith('.github/workflows/'))
+              ) {
+                core.warning(`Skipping run ${run.id}: PR #${prNumber} has unverified or modified workflow files`);
+                continue;
+              }
                 continue;
               }
               try {
