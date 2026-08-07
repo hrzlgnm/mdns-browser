@@ -1,38 +1,35 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+# git-cliff configuration for generating GitHub release notes in the same
+# format the previous release-drafter setup produced.
+
 [changelog]
 # changelog header
-header = """
-# Changelog\n
-All notable changes to this project will be documented in this file.\n
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n
-"""
+header = ""
 # template for the changelog body
 body = """
 {% if version -%}\
-    ## [{{ version | trim_start_matches(pat="mdns-browser-v") | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }} {%- if previous and previous.version %} [compare](https://github.com/hrzlgnm/mdns-browser/compare/{{ previous.version }}...{{ version }}){% endif %}\n
-{% else -%}\
-    ## [Unreleased] {%- if commits and previous and previous.version %} [compare](https://github.com/hrzlgnm/mdns-browser/compare/{{ previous.version }}...HEAD){% endif %}\n
-{% endif -%}\
+    ## What's Changed\n
 {% for group, commits in commits | group_by(attribute="group") %}\
-    {% if group == "Added" -%}\
-        ### Added\n
-    {% elif group == "Fixed" -%}\
-        ### Fixed\n
-    {% elif group == "Changed" -%}\
-        ### Changed\n
-    {% elif group == "Dependencies" -%}\
-        ### Dependencies\n
-    {% elif group == "Security" -%}\
-        ### Security\n
-    {% elif group == "Miscellaneous" -%}\
-        ### Miscellaneous\n
+    {% if group == "Breaking" -%}### :boom: Breaking Changes\n
+    {% elif group == "Added" -%}### :sparkles: New Features\n
+    {% elif group == "Fixed" -%}### :bug: Bug Fixes\n
+    {% elif group == "Changed" -%}### 🧰 Maintenance\n
+    {% elif group == "Performance" -%}### :zap: Performance\n
+    {% elif group == "Refactor" -%}### :recycle: Refactor\n
+    {% elif group == "Documentation" -%}### :scroll: Documentation\n
+    {% elif group == "Test" -%}### :white_check_mark: Test\n
+    {% elif group == "Dependencies" -%}### :arrow_up: Dependency Updates\n
+    {% else -%}### Other Changes\n
     {% endif -%}\
     {% for commit in commits -%}\
-        - {% if commit.scope %}*({{ commit.scope }})* {% endif -%}\
-            {{ commit.message | upper_first | trim }}\
-            {% for link in commit.links %} ([{{ link.text }}]({{ link.href }})){% endfor %}\n
+        - {{ commit.message | upper_first | trim }} @{{ commit.author.name }}{% for link in commit.links %} ([{{ link.text }}]({{ link.href }})){% endfor %}\n
     {% endfor -%}\
-{% endfor %}\
+{% endfor -%}\
+{% if previous and previous.version -%}\n### Full Changelog\n[{{ previous.version }}...{{ version }}](https://github.com/hrzlgnm/mdns-browser/compare/{{ previous.version }}...{{ version }})\n
+{% endif -%}\
+{% endif -%}
 """
 # remove the leading and trailing whitespace from the template
 trim = true
@@ -40,6 +37,7 @@ trim = true
 footer = ""
 # postprocessors to apply to the changelog
 postprocessors = [
+    { pattern = '\s\(#\d+\)\s@', replace = ' @' },
     { pattern = 'Simlify', replace = 'Simplify' },
     { pattern = 'hanlding', replace = 'handling' },
     { pattern = 'verision', replace = 'version' },
@@ -71,17 +69,22 @@ filter_unconventional = true
 split_commits = false
 # regex for parsing and grouping commits
 commit_parsers = [
+    { message = "^feat!", group = "Breaking" },
+    { message = "^fix!", group = "Breaking" },
+    { message = "^refactor!", group = "Breaking" },
+    { message = "^perf!", group = "Breaking" },
+    { message = "^chore!", group = "Breaking" },
     { message = "^feat", group = "Added" },
     { message = "^fix\\(deps\\)", group = "Dependencies" },
     { message = "^fix\\(ci\\)", skip = true },
     { message = "^fix", group = "Fixed" },
-    { message = "^doc", group = "Changed" },
-    { message = "^perf", group = "Changed" },
-    { message = "^refactor", group = "Changed" },
-    { message = "^style", group = "Changed" },
-    { message = "^test", group = "Changed" },
-    { message = "^ci", group = "Miscellaneous" },
-    { message = "^build", group = "Miscellaneous" },
+    { message = "^doc", group = "Documentation" },
+    { message = "^perf", group = "Performance" },
+    { message = "^refactor", group = "Refactor" },
+    { message = "^style", group = "Refactor" },
+    { message = "^test", group = "Test" },
+    { message = "^ci", group = "Other" },
+    { message = "^build", group = "Other" },
     { message = "^chore\\(deps\\)", group = "Dependencies" },
     { message = "^chore\\(renovate", skip = true },
     { message = "^chore\\(arch-aur", skip = true },
@@ -97,9 +100,10 @@ commit_parsers = [
     { message = "^chore\\(android", skip = true },
     { message = "^chore\\(test", skip = true },
     { message = "^chore", group = "Changed" },
-    { message = "^security", group = "Security" },
-    { message = "^GHSA-", group = "Security" },
+    { message = "^security", group = "Other" },
+    { message = "^GHSA-", group = "Other" },
     { message = "^Bump version", skip = true },
+    { message = ".*", group = "Other" },
 ]
 # protect breaking commits from being skipped
 protect_breaking_commits = true

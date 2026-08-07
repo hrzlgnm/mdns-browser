@@ -55,16 +55,19 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}
+          PACKAGE_NAME: ${{ matrix.package.name }}
+          RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
+          NEEDS_EXE: ${{ matrix.package.needs_exe }}
         run: |
-          if [[ "${{ matrix.package.name }}" == "mdns-browser-bin" ]]; then
+          if [[ "$PACKAGE_NAME" == "mdns-browser-bin" ]]; then
             ASSETS=$(gh release view "$TAG_NAME" --repo hrzlgnm/mdns-browser --json assets --jq '.assets | map(select(.name | test("\\.sha256$") | not))')
-            SUM=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_${{ needs.release-info.outputs.version }}_amd64.deb" '.[] | select(.name == $name) | .digest')
+            SUM=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_${RELEASE_VERSION}_amd64.deb" '.[] | select(.name == $name) | .digest')
             if [[ -z "$SUM" ]]; then
               echo "Error: Failed to get checksum from GitHub API for release $TAG_NAME"
               exit 1
             fi
             echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
-            if [[ "${{ matrix.package.needs_exe }}" == "true" ]]; then
+            if [[ "$NEEDS_EXE" == "true" ]]; then
               SUM_EXE=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_linux_x64" '.[] | select(.name == $name) | .digest')
               if [[ -z "$SUM_EXE" ]]; then
                 echo "Error: Failed to get exe checksum from GitHub API for release $TAG_NAME"
@@ -73,7 +76,7 @@ jobs:
               echo "sha256_exe=$SUM_EXE" >> "$GITHUB_OUTPUT"
             fi
           else
-            URL="https://github.com/hrzlgnm/mdns-browser/releases/download/$TAG_NAME/mdns-browser-v${{ needs.release-info.outputs.version }}.tar.gz.sha256"
+            URL="https://github.com/hrzlgnm/mdns-browser/releases/download/$TAG_NAME/$TAG_NAME.tar.gz.sha256"
             echo "getting $URL"
             SUM=$(curl -LfsS "$URL" | cut -d' ' -f1)
             echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
@@ -81,13 +84,23 @@ jobs:
 
       - name: 📐 Lint generated PKGBUILD
         shell: bash
+        env:
+          SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
+          TAG_NAME: ${{ needs.release-info.outputs.tagName }}
+          NEEDS_EXE: ${{ matrix.package.needs_exe }}
+          GENERATE_SCRIPT: ${{ matrix.package.generate_script }}
+          RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
+          SHA256: ${{ steps.sha256sums.outputs.sha256 }}
         run: |
           su runner -c "
             set -o errexit
             mkdir -p ~/lint
             o=\$(pwd)
-            EXE_CHECKSUM=\"${{ steps.sha256sums.outputs.sha256_exe }}\"
-            ${{ matrix.package.generate_script }} \"${{ needs.release-info.outputs.version }}\" \"${{ steps.sha256sums.outputs.sha256 }}\" \"\${EXE_CHECKSUM:-}\" > ~/lint/PKGBUILD
+            if [[ \"\$NEEDS_EXE\" == \"true\" ]]; then
+              \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$SHA256_EXE\" \"\$TAG_NAME\" > ~/lint/PKGBUILD
+            else
+              \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$TAG_NAME\" > ~/lint/PKGBUILD
+            fi
             cd ~/lint
             \"\$o/packaging/aur/makepkg-lint.sh\"
           "
@@ -112,23 +125,27 @@ jobs:
       - name: 🔄 Clone AUR Repo
         if: github.event.release.tag_name
         shell: bash
+        env:
+          PACKAGE_NAME: ${{ matrix.package.name }}
         run: |
           su runner -c "
             set -o errexit
-            git clone --depth=1 \"ssh://aur@aur.archlinux.org/${{ matrix.package.name }}.git\" ~/aur
+            git clone --depth=1 \"ssh://aur@aur.archlinux.org/\$PACKAGE_NAME.git\" ~/aur
           "
 
       - name: 🔍 Check version
         if: github.event.release.tag_name
         shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
         run: |
           su runner -c "
             set -o errexit
             cd ~/aur
             if [[ -f PKGBUILD ]]; then
               CURRENT_VERSION=\$(source PKGBUILD && echo \$pkgver)
-              if [[ \"\$(printf \"%s\n%s\" \"\$CURRENT_VERSION\" \"${{ needs.release-info.outputs.version }}\" | sort -V | head -n1)\" != \"\$CURRENT_VERSION\" ]] || [[ \"\$CURRENT_VERSION\" == \"${{ needs.release-info.outputs.version }}\" ]]; then
-                echo \"New version (${{ needs.release-info.outputs.version }}) is not higher than the current version (\$CURRENT_VERSION). Exiting.\"
+              if [[ \"\$(printf \"%s\n%s\" \"\$CURRENT_VERSION\" \"\$RELEASE_VERSION\" | sort -V | head -n1)\" != \"\$CURRENT_VERSION\" ]] || [[ \"\$CURRENT_VERSION\" == \"\$RELEASE_VERSION\" ]]; then
+                echo \"New version (\$RELEASE_VERSION) is not higher than the current version (\$CURRENT_VERSION). Exiting.\"
                 exit 1
               fi
             fi
@@ -136,11 +153,22 @@ jobs:
 
       - name: 🌀 Generate PKGBUILD update and publish
         if: github.event.release.tag_name
+        shell: bash
+        env:
+          SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
+          TAG_NAME: ${{ needs.release-info.outputs.tagName }}
+          NEEDS_EXE: ${{ matrix.package.needs_exe }}
+          GENERATE_SCRIPT: ${{ matrix.package.generate_script }}
+          RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
+          SHA256: ${{ steps.sha256sums.outputs.sha256 }}
         run: |
           su runner -c "
             set -o errexit
-            EXE_CHECKSUM=\"${{ steps.sha256sums.outputs.sha256_exe }}\"
-            ${{ matrix.package.generate_script }} \"${{ needs.release-info.outputs.version }}\" \"${{ steps.sha256sums.outputs.sha256 }}\" \"\${EXE_CHECKSUM:-}\" > ~/aur/PKGBUILD
+            if [[ \"\$NEEDS_EXE\" == \"true\" ]]; then
+              \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$SHA256_EXE\" \"\$TAG_NAME\" > ~/aur/PKGBUILD
+            else
+              \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$TAG_NAME\" > ~/aur/PKGBUILD
+            fi
             cd ~/aur
             if [[ -z \$(git status --porcelain) ]]; then
               echo \"No changes\"
@@ -152,6 +180,6 @@ jobs:
             git config user.name \"hrzlgnm\"
             git config user.email \"hrzlgnm@users.noreply.github.com\"
             git add PKGBUILD .SRCINFO
-            git commit -m \"New upstream release ${{ needs.release-info.outputs.version }}\"
+            git commit -m \"New upstream release \$RELEASE_VERSION\"
             git push origin master
           "

@@ -19,6 +19,7 @@ runs:
       id: latest_release_tag
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
       with:
+        result-encoding: string
         script: |
           const [owner, repo] = '${{ github.repository }}'.split('/');
           try {
@@ -32,9 +33,14 @@ runs:
     - name: Semantic Version
       id: semantic_version
       shell: bash
+      env:
+        LATEST_TAG: ${{ steps.latest_release_tag.outputs.result }}
       run: |
-        TAG_NAME=${{ steps.latest_release_tag.outputs.result }}
-        SEMANTIC_VERSION=${TAG_NAME#*-v}
+        TAG_NAME=$LATEST_TAG
+        SEMANTIC_VERSION="${TAG_NAME#mdns-browser-v}"
+        if [ "$SEMANTIC_VERSION" = "$TAG_NAME" ]; then
+          SEMANTIC_VERSION="${TAG_NAME#v}"
+        fi
         echo "Tag name: ${TAG_NAME}"
         echo "Semantic version: ${SEMANTIC_VERSION}"
         echo "tagName=$TAG_NAME" >> $GITHUB_OUTPUT

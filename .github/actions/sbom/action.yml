@@ -36,11 +36,15 @@ runs:
     - name: 🔍 Inspect SARIF report
       if: ${{ runner.os != 'Windows' }}
       shell: bash
+      env:
+        SARIF: ${{ steps.scan.outputs.sarif }}
       run: |
-        jq . ${{ steps.scan.outputs.sarif }}
+        jq . "$SARIF"
 
     - name: 🔍 Inspect SARIF report
       if: ${{ runner.os == 'Windows' }}
       shell: pwsh
+      env:
+        SARIF: ${{ steps.scan.outputs.sarif }}
       run: |
-        jq . ${{ steps.scan.outputs.sarif }}
+        jq . "$env:SARIF"

@@ -117,7 +117,7 @@ jobs:
       - name: Output branch name
         id: branch
         run: |
-          echo "branch=${{ env.BRANCH_NAME }}" >> "$GITHUB_OUTPUT"
+          echo "branch=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
   typos:
     name: 📝 Check typos

@@ -4,9 +4,10 @@
 
 version=$1
 sha256sum=$2
+tag=$3
 
-if [[ -z "$version" || -z "$sha256sum" ]]; then
-    echo "Usage: $0 <version> <sha256sum>" >&2
+if [[ -z "$version" || -z "$sha256sum" || -z "$tag" ]]; then
+    echo "Usage: $0 <version> <sha256sum> <tag>" >&2
     exit 1
 fi
 
@@ -26,9 +27,9 @@ depends=('cairo' 'desktop-file-utils' 'gdk-pixbuf2' 'glib2' 'gtk3' 'hicolor-icon
 conflicts=('mdns-browser-bin')
 makedepends=('cargo' 'cargo-auditable' 'git' 'file' 'appmenu-gtk-module' 'libappindicator-gtk3' 'librsvg' 'base-devel' 'curl' 'wget' 'rust' 'rust-wasm' 'trunk')
 options=('!strip' '!emptydirs')
-source=("\$pkgname-v\$pkgver.tar.gz::https://github.com/hrzlgnm/\$pkgname/archive/refs/tags/\$pkgname-v\$pkgver.tar.gz")
+source=("$tag.tar.gz::https://github.com/hrzlgnm/\$pkgname/archive/refs/tags/$tag.tar.gz")
 sha256sums=('$sha256sum')
-_builddir="\$pkgname-\$pkgname-v\$pkgver"
+_builddir="\$pkgname-$tag"
 prepare() {
     cd "\$srcdir/\$_builddir" || exit 1
     cargo --locked install tauri-cli@2.11.4

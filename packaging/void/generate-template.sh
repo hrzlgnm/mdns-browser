@@ -4,11 +4,14 @@
 
 version=$1
 sha256sum=$2
+tag=$3
 
-if [[ -z "$version" || -z "$sha256sum" ]]; then
-    echo "Usage: $0 <version> <sha256sum>" >&2
+if [[ -z "$version" || -z "$sha256sum" || -z "$tag" ]]; then
+    echo "Usage: $0 <version> <sha256sum> <tag>" >&2
     exit 1
 fi
+
+tag_prefix="${tag%"$version"}"
 
 cat <<EOF
 # Template file for 'mdns-browser'
@@ -24,13 +27,22 @@ short_desc="Cross platform mDNS browsing app written in rust using tauri and lep
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="MIT"
 homepage="https://github.com/hrzlgnm/mdns-browser"
-distfiles="https://github.com/hrzlgnm/mdns-browser/archive/\${pkgname}-v\${version}.tar.gz"
+distfiles="https://github.com/hrzlgnm/mdns-browser/archive/${tag_prefix}\${version}.tar.gz"
 checksum=$sha256sum
 
 do_build() {
 	ln -s /host/.cargo /tmp
 	ln -s /host/.rustup /tmp
 	. /tmp/.cargo/env
+	cargo install cargo-edit@0.13.13 --locked
+	cargo set-version --package mdns-browser-ui "\$version"
+	cargo set-version --package mdns-browser "\$version"
+	cargo set-version --package models "\$version"
+	cargo set-version --package shared_constants "\$version"
+	sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"\$version\"/" src-tauri/tauri.conf.json
+	if [ -f /host/CHANGELOG.md ]; then
+		cp /host/CHANGELOG.md ./CHANGELOG.md
+	fi
 	cargo fetch --locked --target "\$(rustc -vV | sed -n 's/host: //p')"
 	cargo fetch --locked --target wasm32-unknown-unknown
 	cargo --locked auditable tauri build -b deb --no-sign

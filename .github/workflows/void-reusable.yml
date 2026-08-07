@@ -43,41 +43,67 @@ jobs:
           mv /root/.cargo hostdir/
           mv /root/.rustup hostdir/
 
+      - name: 📥 Download versioned changelog
+        if: inputs.tagName
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: changelog
+          path: changelog-artifact
+
+      - name: 📝 Copy versioned changelog into hostdir
+        if: inputs.tagName
+        shell: bash
+        run: |
+          cp changelog-artifact/CHANGELOG.md ~/void-packages/hostdir/CHANGELOG.md
+
       - name: 📝 Extract version from latest release
         if: (!inputs.tagName)
         id: get-version-release
         uses: ./.github/actions/latest-release-info
 
-      - name: 📝 Extract version from tauri config
+      - name: 📝 Extract version from tag
         if: inputs.tagName
-        id: get-version-config
+        id: get-version-tag
+        shell: bash
+        env:
+          TAG_NAME: ${{ inputs.tagName }}
         run: |
-          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
-          echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+          VERSION="${TAG_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 📝 Normalize version output
         id: get-version
+        env:
+          VERSION_FROM_TAG: ${{ steps.get-version-tag.outputs.version }}
+          VERSION_FROM_RELEASE: ${{ steps.get-version-release.outputs.version }}
+          TAG_NAME: ${{ inputs.tagName }}
+          TAG_NAME_FROM_RELEASE: ${{ steps.get-version-release.outputs.tagName }}
         run: |
-          VERSION="${{ steps.get-version-config.outputs.version || steps.get-version-release.outputs.version }}"
+          VERSION="${VERSION_FROM_TAG:-$VERSION_FROM_RELEASE}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG_NAME:-$TAG_NAME_FROM_RELEASE}" >> "$GITHUB_OUTPUT"
 
       - name: 🔢 Get Source Tarball Checksum
         id: get-checksum
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.get-version.outputs.tag }}
         run: |
-          VERSION="${{ steps.get-version.outputs.version }}"
-          TAG="mdns-browser-v${VERSION}"
           FILENAME="${TAG}.tar.gz.sha256"
           SHA256SUM=$(gh release download "$TAG" -p "$FILENAME" -O - | cut -d ' ' -f1)
           echo "checksum=$SHA256SUM" >> "$GITHUB_OUTPUT"
 
       - name: 🌀  Generate template
+        env:
+          VERSION: ${{ steps.get-version.outputs.version }}
+          CHECKSUM: ${{ steps.get-checksum.outputs.checksum }}
+          TAG: ${{ steps.get-version.outputs.tag }}
         run: |
           mkdir -p ~/void-packages/srcpkgs/mdns-browser
           packaging/void/generate-template.sh \
-            "${{ steps.get-version.outputs.version }}" \
-            "${{ steps.get-checksum.outputs.checksum }}" \
+            "$VERSION" \
+            "$CHECKSUM" \
+            "$TAG" \
             > ~/void-packages/srcpkgs/mdns-browser/template
 
       - name: 📐 Lint generated template

@@ -1,0 +1,42 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+name: Sync version from tag
+description: Derives the release version from a tag and syncs it into the workspace Cargo.toml files, the Tauri config and the Cargo.lock. Does not commit anything.
+inputs:
+  tagName:
+    description: "The tag name of the release, e.g. v1.2.3"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install cargo-edit
+      uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
+      with:
+        crate: cargo-edit
+        version: 0.13.13
+        locked: true
+
+    - name: Sync versions from tag
+      shell: bash
+      env:
+        TAG_NAME: ${{ inputs.tagName }}
+      run: |
+        set -euo pipefail
+
+        VERSION="${TAG_NAME#v}"
+        if [[ "$VERSION" == "$TAG_NAME" ]]; then
+          echo "Error: tag name '${TAG_NAME}' does not match the 'v*' pattern" >&2
+          exit 1
+        fi
+
+        cargo set-version --package mdns-browser-ui "$VERSION"
+        cargo set-version --package mdns-browser "$VERSION"
+        cargo set-version --package models "$VERSION"
+        cargo set-version --package shared_constants "$VERSION"
+
+        jq --indent 4 ".version=\"$VERSION\"" src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.new
+        mv src-tauri/tauri.conf.json.new src-tauri/tauri.conf.json
+
+        echo "Synced version ${VERSION} from tag ${TAG_NAME}"

@@ -36,29 +36,23 @@ jobs:
         with:
           ref: ${{ inputs.tagName || github.ref }}
           fetch-depth: ${{ inputs.tagName && '0' || '1' }}
-      - name: 📝 Extract version from tauri.conf.json
-        id: get-version
-        run: |
-          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
-          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: 🛡️ Verify tag matches version in tauri config (publish only)
-        if: inputs.tagName
-        shell: bash
-        run: |
-          CURRENT_VERSION=${{ steps.get-version.outputs.current-version }}
-          TAG=${{ inputs.tagName }}
-          if [[ "$TAG" != *"$CURRENT_VERSION" ]]
-          then
-            echo "The tag name ${TAG} does not match the version ${CURRENT_VERSION} from tauri config"
-            exit 1
-          fi
-
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
           save-cache: ${{ inputs.branch == 'main' }}
+
+      - name: 🎯 Sync version from tag
+        if: inputs.tagName
+        uses: ./.github/actions/sync-version
+        with:
+          tagName: ${{ inputs.tagName }}
+
+      - name: 📝 Extract version from tauri.conf.json
+        id: get-version
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 📜 Create and 🔍 scan SBOM for vulnerabilities
         if: inputs.tagName
@@ -106,11 +100,12 @@ jobs:
 
       - name: 🔏 Sign APK
         env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
           ANDROID_RELEASE_KEY: ${{ secrets.ANDROID_RELEASE_KEY }}
           ANDROID_RELEASE_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
           ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
         run: |
-          "${{ env.ANDROID_HOME }}/build-tools/34.0.0/apksigner" sign --ks src-tauri/gen/android/release.decrypted.jks \
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign --ks src-tauri/gen/android/release.decrypted.jks \
             --ks-key-alias "$ANDROID_RELEASE_KEY" \
             --ks-pass "pass:$ANDROID_RELEASE_KEYSTORE_PASSWORD" \
             --key-pass "pass:$ANDROID_RELEASE_KEY_PASSWORD" \
@@ -126,8 +121,10 @@ jobs:
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk
 
       - name: ✏️ Rename APK file
+        env:
+          CURRENT_VERSION: ${{ steps.get-version.outputs.current-version }}
         run: |
-          mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
+          mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk "./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${CURRENT_VERSION}.apk"
 
       - name: 🚀 Publish (publish only)
         if: inputs.tagName
