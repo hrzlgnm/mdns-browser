@@ -4,176 +4,19 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: Version to bump
-        required: true
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-      dry-run:
-        description: Dry run (no commits/tags/draft releases)
-        required: true
-        type: boolean
-        default: false
-      draft-release:
-        description: Draft a release after version bump
-        required: true
-        type: boolean
-        default: true
+  push:
+    tags:
+      - "mdns-browser-v*"
 
 concurrency:
-  group: ruleset-modification
+  group: release
   cancel-in-progress: false
 
 jobs:
-  bump_version:
-    permissions:
-      actions: write # to trigger other workflows and read workflow run status
-      contents: write # to update version files, create commits, and push tags
-    runs-on: ubuntu-latest
-    name: ⬆️ Bump version
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-      tagName: mdns-browser-v${{ steps.version.outputs.version}}
-    env:
-      RULESET: repos/${{github.repository}}/rulesets/${{ secrets.RULESET_ID }}
-    steps:
-      - name: 🔄 Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          fetch-depth: 0
-
-      - name: 🛡️ Verify RULESET_ID secret is configured
-        run: |
-          if [ -z "${{ secrets.RULESET_ID }}" ]; then
-            echo "Error: secrets.RULESET_ID is not set. Please configure the RULESET_ID secret in repository settings."
-            echo "This secret should contain the ID of the ruleset used to disable enforcement during version bump."
-            exit 1
-          fi
-          echo "RULESET_ID secret is configured"
-
-      - name: 🦀🚀
-        uses: ./.github/actions/setup-rust-cache
-        with:
-          save-cache: false
-
-      - name: 🔧 Install cargo-edit
-        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
-        with:
-          crate: cargo-edit
-          version: 0.13.13
-          locked: true
-
-      - name: 🔢 Bump semantic version
-        id: version
-        shell: bash
-        run: |
-          CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "mdns-browser-ui") | .version')
-          if [ "${{ inputs.dry-run }}" = "true" ]; then
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-            case "${{ inputs.version }}" in
-              "patch")
-                NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
-                ;;
-              "minor")
-                NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
-                ;;
-              "major")
-                NEW_VERSION="$((MAJOR + 1)).0.0"
-                ;;
-              *)
-                echo "Error: Invalid version bump type '${{ inputs.version }}'. Must be patch, minor, or major."
-                exit 1
-                ;;
-            esac
-            echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
-            echo "Dry run: would bump from $CURRENT_VERSION to $NEW_VERSION"
-          else
-            # Bump all workspace members except webkit2gtk-nvidia-quirk
-            cargo set-version --package mdns-browser-ui --bump "${{ inputs.version }}"
-            cargo set-version --package mdns-browser --bump "${{ inputs.version }}"
-            cargo set-version --package models --bump "${{ inputs.version }}"
-            cargo set-version --package shared_constants --bump "${{ inputs.version }}"
-            NEW_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "mdns-browser-ui") | .version')
-
-            # Update Tauri config files
-            jq --indent 4 ".version=\"$NEW_VERSION\"" src-tauri/tauri.conf.json > tauri.config.json.new && mv tauri.config.json.new src-tauri/tauri.conf.json
-            echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
-            echo "Bumped version from $CURRENT_VERSION to $NEW_VERSION"
-          fi
-
-      - name: 🔑 Set up SSH signing key
-        if: (!inputs.dry-run)
-        env:
-          SSH_SIGNING_KEY: ${{ secrets.SSH_SIGNING_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_SIGNING_KEY" > ~/.ssh/id_ed25519_signing
-          chmod 600 ~/.ssh/id_ed25519_signing
-          git config --global gpg.format ssh
-          git config --global user.signingKey ~/.ssh/id_ed25519_signing
-          git config --global user.name "hrzlgnm"
-          git config --global user.email "hrzlgnm@users.noreply.github.com"
-
-      - name: ⏳ Temporary disable ruleset enforcement
-        env:
-          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
-        if: (!inputs.dry-run)
-        run: |
-          gh api \
-          -H "Accept: application/vnd.github+json" \
-          "${RULESET}" | jq '.enforcement = "disabled"' | \
-          gh api \
-          --method PUT \
-          -H "Accept: application/vnd.github+json" \
-          "${RULESET}" \
-          --input -
-
-      - name: 🔧 Install git-cliff
-        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
-        with:
-          crate: git-cliff
-          version: 2.13.1
-          locked: true
-
-      - name: 📝 Update CHANGELOG.md
-        if: ${{ !inputs.dry-run }}
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          git-cliff --tag "mdns-browser-v${VERSION}" --output CHANGELOG.md
-
-      - name: 💾🏷️⬆️ Commit, tag and push
-        if: (!inputs.dry-run)
-        run: |
-          git add -A
-          git commit -S -m "Bump version to ${{ steps.version.outputs.version }}"
-          git tag -s -a mdns-browser-v${{ steps.version.outputs.version }} -m "mDNS-Browser v${{ steps.version.outputs.version }}"
-          git push --follow-tags
-
-      - name: 👮 Re-enable enforcement of rules
-        env:
-          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
-        if: (always() && !inputs.dry-run)
-        run: |
-          gh api \
-          -H "Accept: application/vnd.github+json" \
-          "${RULESET}" | jq '.enforcement = "active"' | \
-          gh api \
-          --method PUT \
-          -H "Accept: application/vnd.github+json" \
-          "${RULESET}" \
-          --input -
-
   create_release_draft:
-    needs: [bump_version]
-    if: (inputs.draft-release && !inputs.dry-run)
     permissions:
-      contents: write # to create, update, and manage releases and drafts
+      actions: write # to upload the generated changelog artifact
+      contents: write # to create and update releases and drafts
     runs-on: ubuntu-slim
     name: 📝 Draft a new release
     steps:
@@ -183,25 +26,49 @@ jobs:
           fetch-depth: 0
 
       - name: 🧹 Delete pre-existing draft releases
-        if: ${{ !inputs.dry-run && needs.bump_version.outputs.version != '' }}
         uses: hugo19941994/delete-draft-releases@3f19a25abf2ce87850c2268938f98f14e4d3d1f1 # v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🗒️ Generate release notes with release-drafter
-        if: ${{ !inputs.dry-run && needs.bump_version.outputs.version != '' }}
-        uses: release-drafter/release-drafter@34d80673e067bdc0c24568d3af899c216adcfaa9 # v7.7.0
+      - name: 🔧 Install git-cliff
+        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
         with:
-          publish: false
-          latest: false
-          name: "mDNS-Browser v${{ needs.bump_version.outputs.version }}"
-          tag: mdns-browser-v${{ needs.bump_version.outputs.version }}
+          crate: git-cliff
+          version: 2.13.1
+          locked: true
+
+      - name: 📝 Update CHANGELOG.md with the new version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          git-cliff --tag "${TAG_NAME}" --output CHANGELOG.md
+
+      - name: 📤 Upload versioned changelog artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: changelog
+          path: CHANGELOG.md
+
+      - name: 🗒️ Generate release notes with git-cliff
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          git-cliff --config .github/cliff-release.toml --current --output release-body.md
+
+      - name: 🚀 Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG_NAME#mdns-browser-v}"
+          gh release create "$TAG_NAME" \
+            --title "mDNS-Browser v${VERSION}" \
+            --notes-file release-body.md \
+            --draft \
+            --latest=false
 
   source_checksums:
-    needs: [bump_version, create_release_draft]
-    if: (inputs.draft-release && !inputs.dry-run)
+    needs: [create_release_draft]
     permissions:
       contents: write # to upload source checksums to release
       actions: read # to access workflow run information and secrets
@@ -209,11 +76,10 @@ jobs:
     uses: ./.github/workflows/source-checksums-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ needs.bump_version.outputs.tagName }}
+      tagName: ${{ github.ref_name }}
 
   build_android:
-    needs: [bump_version, create_release_draft]
-    if: (inputs.draft-release && !inputs.dry-run)
+    needs: [create_release_draft]
     permissions:
       id-token: write # needed for OIDC token for attestation
       attestations: write # needed to create build attestations
@@ -223,11 +89,10 @@ jobs:
     uses: ./.github/workflows/android-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ needs.bump_version.outputs.tagName }}
+      tagName: ${{ github.ref_name }}
 
   build_desktop:
-    needs: [bump_version, create_release_draft]
-    if: (inputs.draft-release && !inputs.dry-run)
+    needs: [create_release_draft]
     permissions:
       id-token: write # needed for OIDC token for attestation
       attestations: write # needed to create build attestations
@@ -237,11 +102,10 @@ jobs:
     uses: ./.github/workflows/desktop-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ needs.bump_version.outputs.tagName }}
+      tagName: ${{ github.ref_name }}
 
   build_void:
-    needs: [bump_version, create_release_draft, source_checksums]
-    if: (inputs.draft-release && !inputs.dry-run)
+    needs: [create_release_draft, source_checksums]
     permissions:
       id-token: write # needed for OIDC token for attestation
       attestations: write # needed to create build attestations
@@ -251,24 +115,4 @@ jobs:
     uses: ./.github/workflows/void-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ needs.bump_version.outputs.tagName }}
-
-  publish_sbom:
-    needs:
-      [
-        bump_version,
-        source_checksums,
-        create_release_draft,
-        build_android,
-        build_desktop,
-        build_void,
-      ]
-    if: (inputs.draft-release && !inputs.dry-run)
-    permissions:
-      contents: write # to update release with sboms
-      actions: read # to download workflow artifacts
-    name: 📰📜 Publish SBOM
-    uses: ./.github/workflows/publish-sbom-reusable.yml
-    secrets: inherit
-    with:
-      tagName: ${{ needs.bump_version.outputs.tagName }}
+      tagName: ${{ github.ref_name }}

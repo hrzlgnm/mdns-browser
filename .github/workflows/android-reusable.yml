@@ -36,29 +36,23 @@ jobs:
         with:
           ref: ${{ inputs.tagName || github.ref }}
           fetch-depth: ${{ inputs.tagName && '0' || '1' }}
-      - name: 📝 Extract version from tauri.conf.json
-        id: get-version
-        run: |
-          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
-          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: 🛡️ Verify tag matches version in tauri config (publish only)
-        if: inputs.tagName
-        shell: bash
-        run: |
-          CURRENT_VERSION=${{ steps.get-version.outputs.current-version }}
-          TAG=${{ inputs.tagName }}
-          if [[ "$TAG" != *"$CURRENT_VERSION" ]]
-          then
-            echo "The tag name ${TAG} does not match the version ${CURRENT_VERSION} from tauri config"
-            exit 1
-          fi
-
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
           save-cache: ${{ inputs.branch == 'main' }}
+
+      - name: 🎯 Sync version from tag
+        if: inputs.tagName
+        uses: ./.github/actions/sync-version
+        with:
+          tagName: ${{ inputs.tagName }}
+
+      - name: 📝 Extract version from tauri.conf.json
+        id: get-version
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 📜 Create and 🔍 scan SBOM for vulnerabilities
         if: inputs.tagName

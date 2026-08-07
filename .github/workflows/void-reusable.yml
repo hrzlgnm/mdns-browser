@@ -43,22 +43,38 @@ jobs:
           mv /root/.cargo hostdir/
           mv /root/.rustup hostdir/
 
+      - name: 📥 Download versioned changelog
+        if: inputs.tagName
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: changelog
+          path: changelog-artifact
+
+      - name: 📝 Copy versioned changelog into hostdir
+        if: inputs.tagName
+        shell: bash
+        run: |
+          cp changelog-artifact/CHANGELOG.md ~/void-packages/hostdir/CHANGELOG.md
+
       - name: 📝 Extract version from latest release
         if: (!inputs.tagName)
         id: get-version-release
         uses: ./.github/actions/latest-release-info
 
-      - name: 📝 Extract version from tauri config
+      - name: 📝 Extract version from tag
         if: inputs.tagName
-        id: get-version-config
+        id: get-version-tag
+        shell: bash
+        env:
+          TAG_NAME: ${{ inputs.tagName }}
         run: |
-          CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
-          echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+          VERSION="${TAG_NAME#mdns-browser-v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 📝 Normalize version output
         id: get-version
         run: |
-          VERSION="${{ steps.get-version-config.outputs.version || steps.get-version-release.outputs.version }}"
+          VERSION="${{ steps.get-version-tag.outputs.version || steps.get-version-release.outputs.version }}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 🔢 Get Source Tarball Checksum

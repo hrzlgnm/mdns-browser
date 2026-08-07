@@ -31,6 +31,15 @@ do_build() {
 	ln -s /host/.cargo /tmp
 	ln -s /host/.rustup /tmp
 	. /tmp/.cargo/env
+	cargo install cargo-edit@0.13.13 --locked
+	cargo set-version --package mdns-browser-ui "\$version"
+	cargo set-version --package mdns-browser "\$version"
+	cargo set-version --package models "\$version"
+	cargo set-version --package shared_constants "\$version"
+	sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"\$version\"/" src-tauri/tauri.conf.json
+	if [ -f /host/CHANGELOG.md ]; then
+		cp /host/CHANGELOG.md ./CHANGELOG.md
+	fi
 	cargo fetch --locked --target "\$(rustc -vV | sed -n 's/host: //p')"
 	cargo fetch --locked --target wasm32-unknown-unknown
 	cargo --locked auditable tauri build -b deb --no-sign
