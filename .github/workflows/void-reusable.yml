@@ -68,7 +68,7 @@ jobs:
         env:
           TAG_NAME: ${{ inputs.tagName }}
         run: |
-          VERSION="${TAG_NAME#mdns-browser-v}"
+          VERSION="${TAG_NAME#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 📝 Normalize version output
@@ -83,7 +83,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ steps.get-version.outputs.version }}"
-          TAG="mdns-browser-v${VERSION}"
+          TAG="v${VERSION}"
           FILENAME="${TAG}.tar.gz.sha256"
           SHA256SUM=$(gh release download "$TAG" -p "$FILENAME" -O - | cut -d ' ' -f1)
           echo "checksum=$SHA256SUM" >> "$GITHUB_OUTPUT"

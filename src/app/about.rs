@@ -113,7 +113,7 @@ pub fn About() -> impl IntoView {
 
     let on_release_notes_click = move |_| {
         github_action.dispatch(format!(
-            "{}/releases/tag/mdns-browser-v{}",
+            "{}/releases/tag/v{}",
             GITHUB_BASE_URL,
             version.get()
         ));

@@ -26,9 +26,9 @@ depends=('cairo' 'desktop-file-utils' 'gdk-pixbuf2' 'glib2' 'gtk3' 'hicolor-icon
 conflicts=('mdns-browser-bin')
 makedepends=('cargo' 'cargo-auditable' 'git' 'file' 'appmenu-gtk-module' 'libappindicator-gtk3' 'librsvg' 'base-devel' 'curl' 'wget' 'rust' 'rust-wasm' 'trunk')
 options=('!strip' '!emptydirs')
-source=("\$pkgname-v\$pkgver.tar.gz::https://github.com/hrzlgnm/\$pkgname/archive/refs/tags/\$pkgname-v\$pkgver.tar.gz")
+source=("v\$pkgver.tar.gz::https://github.com/hrzlgnm/\$pkgname/archive/refs/tags/v\$pkgver.tar.gz")
 sha256sums=('$sha256sum')
-_builddir="\$pkgname-\$pkgname-v\$pkgver"
+_builddir="\$pkgname-v\$pkgver"
 prepare() {
     cd "\$srcdir/\$_builddir" || exit 1
     cargo --locked install tauri-cli@2.11.4

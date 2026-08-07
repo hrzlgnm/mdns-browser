@@ -5,7 +5,7 @@ name: Sync version from tag
 description: Derives the release version from a tag and syncs it into the workspace Cargo.toml files, the Tauri config and the Cargo.lock. Does not commit anything.
 inputs:
   tagName:
-    description: "The tag name of the release, e.g. mdns-browser-v1.2.3"
+    description: "The tag name of the release, e.g. v1.2.3"
     required: true
 
 runs:
@@ -25,9 +25,9 @@ runs:
       run: |
         set -euo pipefail
 
-        VERSION="${TAG_NAME#mdns-browser-v}"
+        VERSION="${TAG_NAME#v}"
         if [[ "$VERSION" == "$TAG_NAME" ]]; then
-          echo "Error: tag name '${TAG_NAME}' does not match the 'mdns-browser-v*' pattern" >&2
+          echo "Error: tag name '${TAG_NAME}' does not match the 'v*' pattern" >&2
           exit 1
         fi
 

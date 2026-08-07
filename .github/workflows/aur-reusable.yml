@@ -73,7 +73,7 @@ jobs:
               echo "sha256_exe=$SUM_EXE" >> "$GITHUB_OUTPUT"
             fi
           else
-            URL="https://github.com/hrzlgnm/mdns-browser/releases/download/$TAG_NAME/mdns-browser-v${{ needs.release-info.outputs.version }}.tar.gz.sha256"
+            URL="https://github.com/hrzlgnm/mdns-browser/releases/download/$TAG_NAME/$TAG_NAME.tar.gz.sha256"
             echo "getting $URL"
             SUM=$(curl -LfsS "$URL" | cut -d' ' -f1)
             echo "sha256=$SUM" >> "$GITHUB_OUTPUT"

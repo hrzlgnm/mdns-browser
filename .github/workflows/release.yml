@@ -6,7 +6,7 @@ name: Release
 on:
   push:
     tags:
-      - "mdns-browser-v*"
+      - "v*"
 
 concurrency:
   group: release
@@ -60,7 +60,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ github.ref_name }}
         run: |
-          VERSION="${TAG_NAME#mdns-browser-v}"
+          VERSION="${TAG_NAME#v}"
           gh release create "$TAG_NAME" \
             --title "mDNS-Browser v${VERSION}" \
             --notes-file release-body.md \

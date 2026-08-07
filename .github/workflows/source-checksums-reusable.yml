@@ -32,7 +32,7 @@ jobs:
           elif [ -n "${{ github.event.release.tag_name }}" ]; then
             echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
           elif [ -n "${{ inputs.semver }}" ]; then
-            echo "tag=mdns-browser-v${{ inputs.semver }}" >> "$GITHUB_OUTPUT"
+            echo "tag=v${{ inputs.semver }}" >> "$GITHUB_OUTPUT"
           else
             echo "No tag provided" && exit 1
           fi

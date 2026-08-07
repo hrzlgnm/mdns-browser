@@ -24,7 +24,7 @@ short_desc="Cross platform mDNS browsing app written in rust using tauri and lep
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="MIT"
 homepage="https://github.com/hrzlgnm/mdns-browser"
-distfiles="https://github.com/hrzlgnm/mdns-browser/archive/\${pkgname}-v\${version}.tar.gz"
+distfiles="https://github.com/hrzlgnm/mdns-browser/archive/v\${version}.tar.gz"
 checksum=$sha256sum
 
 do_build() {

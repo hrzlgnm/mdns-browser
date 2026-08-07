@@ -34,7 +34,10 @@ runs:
       shell: bash
       run: |
         TAG_NAME=${{ steps.latest_release_tag.outputs.result }}
-        SEMANTIC_VERSION=${TAG_NAME#*-v}
+        SEMANTIC_VERSION="${TAG_NAME#mdns-browser-v}"
+        if [ "$SEMANTIC_VERSION" = "$TAG_NAME" ]; then
+          SEMANTIC_VERSION="${TAG_NAME#v}"
+        fi
         echo "Tag name: ${TAG_NAME}"
         echo "Semantic version: ${SEMANTIC_VERSION}"
         echo "tagName=$TAG_NAME" >> $GITHUB_OUTPUT
