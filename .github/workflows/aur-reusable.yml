@@ -87,7 +87,12 @@ jobs:
             mkdir -p ~/lint
             o=\$(pwd)
             EXE_CHECKSUM=\"${{ steps.sha256sums.outputs.sha256_exe }}\"
-            ${{ matrix.package.generate_script }} \"${{ needs.release-info.outputs.version }}\" \"${{ steps.sha256sums.outputs.sha256 }}\" \"\${EXE_CHECKSUM:-}\" > ~/lint/PKGBUILD
+            TAG_NAME=\"${{ needs.release-info.outputs.tagName }}\"
+            if [[ \"${{ matrix.package.needs_exe }}\" == \"true\" ]]; then
+              ${{ matrix.package.generate_script }} \"${{ needs.release-info.outputs.version }}\" \"${{ steps.sha256sums.outputs.sha256 }}\" \"\$EXE_CHECKSUM\" \"\$TAG_NAME\" > ~/lint/PKGBUILD
+            else
+              ${{ matrix.package.generate_script }} \"${{ needs.release-info.outputs.version }}\" \"${{ steps.sha256sums.outputs.sha256 }}\" \"\$TAG_NAME\" > ~/lint/PKGBUILD
+            fi
             cd ~/lint
             \"\$o/packaging/aur/makepkg-lint.sh\"
           "
@@ -140,7 +145,12 @@ jobs:
           su runner -c "
             set -o errexit
             EXE_CHECKSUM=\"${{ steps.sha256sums.outputs.sha256_exe }}\"
-            ${{ matrix.package.generate_script }} \"${{ needs.release-info.outputs.version }}\" \"${{ steps.sha256sums.outputs.sha256 }}\" \"\${EXE_CHECKSUM:-}\" > ~/aur/PKGBUILD
+            TAG_NAME=\"${{ needs.release-info.outputs.tagName }}\"
+            if [[ \"${{ matrix.package.needs_exe }}\" == \"true\" ]]; then
+              ${{ matrix.package.generate_script }} \"${{ needs.release-info.outputs.version }}\" \"${{ steps.sha256sums.outputs.sha256 }}\" \"\$EXE_CHECKSUM\" \"\$TAG_NAME\" > ~/aur/PKGBUILD
+            else
+              ${{ matrix.package.generate_script }} \"${{ needs.release-info.outputs.version }}\" \"${{ steps.sha256sums.outputs.sha256 }}\" \"\$TAG_NAME\" > ~/aur/PKGBUILD
+            fi
             cd ~/aur
             if [[ -z \$(git status --porcelain) ]]; then
               echo \"No changes\"

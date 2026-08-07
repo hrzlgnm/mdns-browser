@@ -4,9 +4,10 @@
 
 version=$1
 sha256sum=$2
+tag=$3
 
-if [[ -z "$version" || -z "$sha256sum" ]]; then
-    echo "Usage: $0 <version> <sha256sum>" >&2
+if [[ -z "$version" || -z "$sha256sum" || -z "$tag" ]]; then
+    echo "Usage: $0 <version> <sha256sum> <tag>" >&2
     exit 1
 fi
 
@@ -24,7 +25,7 @@ short_desc="Cross platform mDNS browsing app written in rust using tauri and lep
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="MIT"
 homepage="https://github.com/hrzlgnm/mdns-browser"
-distfiles="https://github.com/hrzlgnm/mdns-browser/archive/v\${version}.tar.gz"
+distfiles="https://github.com/hrzlgnm/mdns-browser/archive/$tag.tar.gz"
 checksum=$sha256sum
 
 do_build() {
