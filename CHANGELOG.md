@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.14.1...HEAD)
 
+### Added
+
+- *(ci)* Auto-approve workflow runs of github-actions[bot] PRs (#2417) ([#2417](https://github.com/hrzlgnm/mdns-browser/pull/2417))
+
 ### Dependencies
 
 - *(deps)* Update rust crate clap to v4.6.6 (#2413) ([#2413](https://github.com/hrzlgnm/mdns-browser/pull/2413))
