@@ -11,6 +11,8 @@ if [[ -z "$version" || -z "$sha256sum" || -z "$tag" ]]; then
     exit 1
 fi
 
+tag_prefix="${tag%"$version"}"
+
 cat <<EOF
 # Template file for 'mdns-browser'
 pkgname=mdns-browser
@@ -25,7 +27,7 @@ short_desc="Cross platform mDNS browsing app written in rust using tauri and lep
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="MIT"
 homepage="https://github.com/hrzlgnm/mdns-browser"
-distfiles="https://github.com/hrzlgnm/mdns-browser/archive/$tag.tar.gz"
+distfiles="https://github.com/hrzlgnm/mdns-browser/archive/${tag_prefix}\${version}.tar.gz"
 checksum=$sha256sum
 
 do_build() {
