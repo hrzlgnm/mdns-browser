@@ -265,7 +265,7 @@ When changing any GitHub Actions workflows (.github/workflows/*.yml) or actions 
        } >> "$GITHUB_OUTPUT"
    ```
 
-4. **Pass GitHub Actions context values (`inputs`, `secrets`, `env`) through the `env` block** instead of interpolating them directly in `run` scripts. Direct interpolation (e.g., `${{ inputs.foo }}` inside a `run:` block) creates a template-injection risk. Use an `env:` mapping and reference as a shell variable instead:
+4. **Never use `${{ }}` expansion inside `run` blocks** - it is strictly forbidden. This applies to all context values (`inputs`, `secrets`, `env`, `needs`, `steps`, `matrix`, `github`, etc.). Direct interpolation (e.g., `${{ inputs.foo }}` inside a `run:` block) creates a template-injection risk. Always pass values through the `env` block and reference them as shell variables instead:
    ```yaml
    - name: Example
      env:
