@@ -24,7 +24,7 @@ body = """
     {% else -%}### Other Changes\n
     {% endif -%}\
     {% for commit in commits -%}\
-        - {{ commit.message | upper_first | trim }} @{{ commit.author.name }}{% for link in commit.links %} ([{{ link.text }}]({{ link.href }})){% endfor %}\n
+        - {{ commit.message | upper_first | trim }} @{{ commit.remote.username | default(value=commit.author.name) }}{% for link in commit.links %} ([{{ link.text }}]({{ link.href }})){% endfor %}\n
     {% endfor -%}\
 {% endfor -%}\
 {% if previous and previous.version -%}\n### Full Changelog\n[{{ previous.version }}...{{ version }}](https://github.com/hrzlgnm/mdns-browser/compare/{{ previous.version }}...{{ version }})\n
