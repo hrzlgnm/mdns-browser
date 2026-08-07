@@ -16,6 +16,7 @@ body = """
     {% elif group == "Added" -%}### :sparkles: New Features\n
     {% elif group == "Fixed" -%}### :bug: Bug Fixes\n
     {% elif group == "Changed" -%}### 🧰 Maintenance\n
+    {% elif group == "Maintenance" -%}### :wrench: CI/CD\n
     {% elif group == "Performance" -%}### :zap: Performance\n
     {% elif group == "Refactor" -%}### :recycle: Refactor\n
     {% elif group == "Documentation" -%}### :scroll: Documentation\n
@@ -74,17 +75,17 @@ commit_parsers = [
     { message = "^refactor!", group = "Breaking" },
     { message = "^perf!", group = "Breaking" },
     { message = "^chore!", group = "Breaking" },
+    { message = "^\\w+\\(ci\\)", group = "Maintenance" },
     { message = "^feat", group = "Added" },
     { message = "^fix\\(deps\\)", group = "Dependencies" },
-    { message = "^fix\\(ci\\)", skip = true },
     { message = "^fix", group = "Fixed" },
     { message = "^doc", group = "Documentation" },
     { message = "^perf", group = "Performance" },
     { message = "^refactor", group = "Refactor" },
     { message = "^style", group = "Refactor" },
     { message = "^test", group = "Test" },
-    { message = "^ci", group = "Other" },
-    { message = "^build", group = "Other" },
+    { message = "^ci", group = "Maintenance" },
+    { message = "^build", group = "Maintenance" },
     { message = "^chore\\(deps\\)", group = "Dependencies" },
     { message = "^chore\\(renovate", skip = true },
     { message = "^chore\\(arch-aur", skip = true },

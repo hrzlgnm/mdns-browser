@@ -24,6 +24,8 @@ body = """
         ### Dependencies\n
     {% elif group == "Security" -%}\
         ### Security\n
+    {% elif group == "Maintenance" -%}\
+        ### Maintenance\n
     {% elif group == "Miscellaneous" -%}\
         ### Miscellaneous\n
     {% endif -%}\
@@ -71,17 +73,17 @@ filter_unconventional = true
 split_commits = false
 # regex for parsing and grouping commits
 commit_parsers = [
+    { message = "^\\w+\\(ci\\)", group = "Maintenance" },
     { message = "^feat", group = "Added" },
     { message = "^fix\\(deps\\)", group = "Dependencies" },
-    { message = "^fix\\(ci\\)", skip = true },
     { message = "^fix", group = "Fixed" },
     { message = "^doc", group = "Changed" },
     { message = "^perf", group = "Changed" },
     { message = "^refactor", group = "Changed" },
     { message = "^style", group = "Changed" },
     { message = "^test", group = "Changed" },
-    { message = "^ci", group = "Miscellaneous" },
-    { message = "^build", group = "Miscellaneous" },
+    { message = "^ci", group = "Maintenance" },
+    { message = "^build", group = "Maintenance" },
     { message = "^chore\\(deps\\)", group = "Dependencies" },
     { message = "^chore\\(renovate", skip = true },
     { message = "^chore\\(arch-aur", skip = true },
