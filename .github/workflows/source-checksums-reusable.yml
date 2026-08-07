@@ -26,13 +26,17 @@ jobs:
     steps:
       - name: 🏷️
         id: tag
+        env:
+          TAG_NAME: ${{ inputs.tagName }}
+          RELEASE_TAG_NAME: ${{ github.event.release.tag_name }}
+          SEMVER: ${{ inputs.semver }}
         run: |
-          if [ -n "${{ inputs.tagName }}" ]; then
-            echo "tag=${{ inputs.tagName }}" >> "$GITHUB_OUTPUT"
-          elif [ -n "${{ github.event.release.tag_name }}" ]; then
-            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
-          elif [ -n "${{ inputs.semver }}" ]; then
-            echo "tag=v${{ inputs.semver }}" >> "$GITHUB_OUTPUT"
+          if [ -n "$TAG_NAME" ]; then
+            echo "tag=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          elif [ -n "$RELEASE_TAG_NAME" ]; then
+            echo "tag=$RELEASE_TAG_NAME" >> "$GITHUB_OUTPUT"
+          elif [ -n "$SEMVER" ]; then
+            echo "tag=v$SEMVER" >> "$GITHUB_OUTPUT"
           else
             echo "No tag provided" && exit 1
           fi
@@ -47,14 +51,17 @@ jobs:
         algorithm: [sha256]
     steps:
       - name: 📥🔢☑️
+        env:
+          TAG: ${{ needs.tag.outputs.tag }}
+          ALGORITHM: ${{ matrix.algorithm }}
         run: |
           set -o errexit
           mkdir -p downloads && cd downloads
-          curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.tag.outputs.tag }}.tar.gz
-          curl -sLO https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${{ needs.tag.outputs.tag }}.zip
+          curl -sLO "https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${TAG}.tar.gz"
+          curl -sLO "https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${TAG}.zip"
           for file in *; do
             if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
-              ${{ matrix.algorithm }}sum "$file" > "$file.${{ matrix.algorithm }}"
+              "$ALGORITHM"sum "$file" > "$file.$ALGORITHM"
             fi
           done
       - name: 📤

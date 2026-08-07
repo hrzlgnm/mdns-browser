@@ -32,8 +32,10 @@ runs:
     - name: Semantic Version
       id: semantic_version
       shell: bash
+      env:
+        LATEST_TAG: ${{ steps.latest_release_tag.outputs.result }}
       run: |
-        TAG_NAME=${{ steps.latest_release_tag.outputs.result }}
+        TAG_NAME=$LATEST_TAG
         SEMANTIC_VERSION="${TAG_NAME#mdns-browser-v}"
         if [ "$SEMANTIC_VERSION" = "$TAG_NAME" ]; then
           SEMANTIC_VERSION="${TAG_NAME#v}"

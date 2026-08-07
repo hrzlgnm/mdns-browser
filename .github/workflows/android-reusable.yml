@@ -100,11 +100,12 @@ jobs:
 
       - name: 🔏 Sign APK
         env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
           ANDROID_RELEASE_KEY: ${{ secrets.ANDROID_RELEASE_KEY }}
           ANDROID_RELEASE_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
           ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
         run: |
-          "${{ env.ANDROID_HOME }}/build-tools/34.0.0/apksigner" sign --ks src-tauri/gen/android/release.decrypted.jks \
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign --ks src-tauri/gen/android/release.decrypted.jks \
             --ks-key-alias "$ANDROID_RELEASE_KEY" \
             --ks-pass "pass:$ANDROID_RELEASE_KEYSTORE_PASSWORD" \
             --key-pass "pass:$ANDROID_RELEASE_KEY_PASSWORD" \
@@ -120,8 +121,10 @@ jobs:
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk
 
       - name: ✏️ Rename APK file
+        env:
+          CURRENT_VERSION: ${{ steps.get-version.outputs.current-version }}
         run: |
-          mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk ./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${{ steps.get-version.outputs.current-version }}.apk
+          mv ./src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk "./src-tauri/gen/android/app/build/outputs/apk/universal/release/mdns-browser_${CURRENT_VERSION}.apk"
 
       - name: 🚀 Publish (publish only)
         if: inputs.tagName

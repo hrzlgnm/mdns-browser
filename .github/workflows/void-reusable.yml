@@ -73,28 +73,37 @@ jobs:
 
       - name: 📝 Normalize version output
         id: get-version
+        env:
+          VERSION_FROM_TAG: ${{ steps.get-version-tag.outputs.version }}
+          VERSION_FROM_RELEASE: ${{ steps.get-version-release.outputs.version }}
+          TAG_NAME: ${{ inputs.tagName }}
+          TAG_NAME_FROM_RELEASE: ${{ steps.get-version-release.outputs.tagName }}
         run: |
-          VERSION="${{ steps.get-version-tag.outputs.version || steps.get-version-release.outputs.version }}"
+          VERSION="${VERSION_FROM_TAG:-$VERSION_FROM_RELEASE}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "tag=${{ inputs.tagName || steps.get-version-release.outputs.tagName }}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG_NAME:-$TAG_NAME_FROM_RELEASE}" >> "$GITHUB_OUTPUT"
 
       - name: 🔢 Get Source Tarball Checksum
         id: get-checksum
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.get-version.outputs.tag }}
         run: |
-          TAG="${{ steps.get-version.outputs.tag }}"
           FILENAME="${TAG}.tar.gz.sha256"
           SHA256SUM=$(gh release download "$TAG" -p "$FILENAME" -O - | cut -d ' ' -f1)
           echo "checksum=$SHA256SUM" >> "$GITHUB_OUTPUT"
 
       - name: 🌀  Generate template
+        env:
+          VERSION: ${{ steps.get-version.outputs.version }}
+          CHECKSUM: ${{ steps.get-checksum.outputs.checksum }}
+          TAG: ${{ steps.get-version.outputs.tag }}
         run: |
           mkdir -p ~/void-packages/srcpkgs/mdns-browser
           packaging/void/generate-template.sh \
-            "${{ steps.get-version.outputs.version }}" \
-            "${{ steps.get-checksum.outputs.checksum }}" \
-            "${{ steps.get-version.outputs.tag }}" \
+            "$VERSION" \
+            "$CHECKSUM" \
+            "$TAG" \
             > ~/void-packages/srcpkgs/mdns-browser/template
 
       - name: 📐 Lint generated template
