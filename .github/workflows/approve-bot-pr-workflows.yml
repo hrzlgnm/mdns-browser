@@ -50,8 +50,6 @@ jobs:
                 core.warning(`Skipping run ${run.id}: PR #${prNumber} has unverified or modified workflow files`);
                 continue;
               }
-                continue;
-              }
               try {
                 await github.rest.actions.approveWorkflowRun({ owner, repo, run_id: run.id });
                 core.info(`Approved run ${run.id} for PR #${prNumber}`);
