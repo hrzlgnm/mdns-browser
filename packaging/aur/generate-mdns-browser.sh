@@ -29,7 +29,7 @@ makedepends=('cargo' 'cargo-auditable' 'cargo-edit' 'git' 'file' 'appmenu-gtk-mo
 options=('!strip' '!emptydirs')
 source=("$tag.tar.gz::https://github.com/hrzlgnm/\$pkgname/archive/refs/tags/$tag.tar.gz")
 sha256sums=('$sha256sum')
-_builddir="\$pkgname-$tag"
+_builddir="\$pkgname-$version"
 prepare() {
     cd "\$srcdir/\$_builddir" || exit 1
     cargo set-version --package mdns-browser-ui "$version"
