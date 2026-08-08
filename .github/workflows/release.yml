@@ -38,10 +38,8 @@ jobs:
           locked: true
 
       - name: 📝 Update CHANGELOG.md with the new version
-        env:
-          TAG_NAME: ${{ github.ref_name }}
         run: |
-          git-cliff --tag "${TAG_NAME}" --output CHANGELOG.md
+          git-cliff --output CHANGELOG.md
 
       - name: 📤 Upload versioned changelog artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -52,7 +50,6 @@ jobs:
       - name: 🗒️ Generate release notes with git-cliff
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_NAME: ${{ github.ref_name }}
         run: |
           git-cliff --offline --config .github/cliff-release.toml --current --output release-body.md
 
