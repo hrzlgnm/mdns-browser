@@ -7,7 +7,7 @@ use clap::builder::TypedValueParser as _;
 use clap::Parser;
 #[cfg(windows)]
 use ipconfig::IfType;
-use mdns_sd::{IfKind, ServiceDaemon, ServiceEvent};
+use mdns_sd::{Error, IfKind, ServiceDaemon, ServiceEvent};
 use models::check_service_type_fully_qualified;
 use models::*;
 #[cfg(not(windows))]
@@ -31,6 +31,34 @@ use tauri_plugin_opener::OpenerExt;
 use webkit2gtk_nvidia_quirk::{apply_workaround_with_options, ApplyWorkaroundOptions};
 
 type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
+
+const BROWSE_RETRY_DELAY: std::time::Duration = std::time::Duration::from_millis(20);
+const BROWSE_RETRY_ATTEMPTS: usize = 100;
+
+async fn browse_with_retry(
+    daemon: &ServiceDaemon,
+    service_type: &str,
+) -> Result<mdns_sd::Receiver<ServiceEvent>, Error> {
+    let mut attempts = 0;
+    loop {
+        match daemon.browse(service_type) {
+            Ok(rx) => return Ok(rx),
+            Err(Error::Again) if attempts < BROWSE_RETRY_ATTEMPTS => {
+                attempts += 1;
+                log::warn!(
+                    "Failed to start browsing for {service_type}, retrying ({attempts}/{BROWSE_RETRY_ATTEMPTS})"
+                );
+                tokio::time::sleep(BROWSE_RETRY_DELAY).await;
+            }
+            Err(e) => {
+                log::error!(
+                    "Giving up browsing for {service_type} after {attempts} retries: {e:?}"
+                );
+                return Err(e);
+            }
+        }
+    }
+}
 
 struct ManagedState {
     daemon: SharedServiceDaemon,
@@ -286,12 +314,9 @@ fn browse_types(window: Window, state: State<ManagedState>) -> Result<(), String
 
     let daemon = daemon.clone();
     tauri::async_runtime::spawn(async move {
-        let receiver = match daemon.browse(MDNS_SD_META_SERVICE) {
+        let receiver = match browse_with_retry(&daemon, MDNS_SD_META_SERVICE).await {
             Ok(receiver) => receiver,
-            Err(e) => {
-                log::error!("Failed to browse for service types: {e:?}");
-                return;
-            }
+            Err(_) => return,
         };
         while let Ok(event) = receiver.recv_async().await {
             match event {
@@ -364,7 +389,7 @@ fn verify(instance_fullname: String, state: State<ManagedState>) -> Result<(), S
 fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedState>) {
     for service_type in service_types {
         let daemon = match state.daemon.lock() {
-            Ok(daemon) => daemon,
+            Ok(daemon) => daemon.clone(),
             Err(err) => {
                 log::error!("Failed to lock daemon: {err:?}");
                 continue;
@@ -380,16 +405,21 @@ fn browse_many(service_types: Vec<String>, window: Window, state: State<ManagedS
         if !queriers.insert(service_type.clone()) {
             continue;
         }
-        let receiver = match daemon.browse(service_type.as_str()) {
-            Ok(receiver) => receiver,
-            Err(e) => {
-                log::error!("Failed to start browsing for {service_type} browse: {e:?}",);
-                continue;
-            }
-        };
+        drop(queriers);
 
+        let queriers = state.queriers.clone();
         let window = window.clone();
         tauri::async_runtime::spawn(async move {
+            let receiver = match browse_with_retry(&daemon, &service_type).await {
+                Ok(receiver) => receiver,
+                Err(_) => {
+                    if let Ok(mut queriers) = queriers.lock() {
+                        queriers.remove(&service_type);
+                    }
+                    return;
+                }
+            };
+
             while let Ok(event) = receiver.recv_async().await {
                 match event {
                     ServiceEvent::ServiceResolved(resolved) => emit_event(
