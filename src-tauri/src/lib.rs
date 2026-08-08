@@ -1359,7 +1359,6 @@ pub fn run_mobile() {
         )
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
-        .plugin(tauri_plugin_http::init())
         .manage(ManagedState::new())
         .manage(autoupdate::PendingUpdateInfo(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
@@ -1406,7 +1405,6 @@ mod autoupdate {
     use models::UpdateMetadata;
     use std::sync::Mutex;
     use tauri::{AppHandle, State};
-    use tauri_plugin_http::reqwest;
     use tauri_plugin_opener::OpenerExt;
 
     use crate::compare_versions;
