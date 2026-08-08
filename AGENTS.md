@@ -82,11 +82,11 @@ actionlint .github/workflows/*.yml
 ### AUR Packaging Tests
 ```bash
 # Test source and binary packages from the repository root
-./packaging/aur/test-aur-local.sh --variant=both
+~/.local/bin/test-aur-local --variant=both
 
 # Test one package variant
-./packaging/aur/test-aur-local.sh --variant=source
-./packaging/aur/test-aur-local.sh --variant=bin
+~/.local/bin/test-aur-local --variant=source
+~/.local/bin/test-aur-local --variant=bin
 ```
 
 - Use `--no-build` only for generator and lint smoke tests; omit it to test package creation and installation.
