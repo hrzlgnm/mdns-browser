@@ -55,7 +55,6 @@ jobs:
           echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 📜 Create and 🔍 scan SBOM for vulnerabilities
-        if: inputs.tagName
         uses: ./.github/actions/sbom
         with:
           artifact-name: "sbom.android.spdx.json"

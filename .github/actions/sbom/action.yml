@@ -31,7 +31,7 @@ runs:
       with:
         sbom: "sbom.spdx.json"
         severity-cutoff: medium
-        cache-db: true
+        cache-db: ${{ github.ref == 'refs/heads/main' }}
 
     - name: 🔍 Inspect SARIF report
       if: ${{ runner.os != 'Windows' }}
