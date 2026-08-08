@@ -16,6 +16,9 @@ clap = { workspace = true }
 tauri-plugin-updater = { workspace = true }
 chrono = { workspace = true }
 
+[target.'cfg(any(target_os="android",target_os="ios"))'.dependencies]
+reqwest = { workspace = true }
+
 [dependencies]
 # crates
 log = { workspace = true }
@@ -27,7 +30,6 @@ tauri = { workspace = true }
 tauri-plugin-clipboard-manager = { workspace = true }
 tauri-plugin-log = { workspace = true }
 tauri-plugin-opener = { workspace = true }
-tauri-plugin-http = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 
