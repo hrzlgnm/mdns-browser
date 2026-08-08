@@ -101,7 +101,12 @@ as_sudo() {
     elif sudo -n true 2>/dev/null; then
         sudo -E "$@"
     else
-        return 255
+        # No cached credentials; attempt interactive authentication.
+        if sudo -v; then
+            sudo -E "$@"
+        else
+            return 255
+        fi
     fi
 }
 
@@ -168,6 +173,7 @@ else
     # Normalize to "github.com/owner/repo" (handles ssh, git@, ssh://, https).
     remote="${remote#git@github.com:}"
     remote="${remote#ssh://git@github.com/}"
+    remote="${remote#ssh://github.com/}"
     remote="${remote#https://github.com/}"
     remote="${remote#http://github.com/}"
     remote="${remote#github.com:}"
