@@ -89,7 +89,6 @@ jobs:
           cp changelog-artifact/CHANGELOG.md CHANGELOG.md
 
       - name: 📜 Create and 🔍 scan SBOM for vulnerabilities
-        if: inputs.tagName
         uses: ./.github/actions/sbom
         with:
           artifact-name: "sbom.${{ matrix.platform }}.spdx.json"
