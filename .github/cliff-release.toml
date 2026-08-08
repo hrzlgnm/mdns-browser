@@ -59,6 +59,7 @@ postprocessors = [
     { pattern = 'warnins', replace = 'warnings' },
     { pattern = 'Workaound', replace = 'Workaround' },
     { pattern = 'bundel', replace = 'bundle' },
+    { pattern = 'artifcat', replace = 'artifact' },
 ]
 
 [git]
