@@ -39,6 +39,9 @@ footer = ""
 # postprocessors to apply to the changelog
 postprocessors = [
     { pattern = '\s\(#\d+\)\s@', replace = ' @' },
+    # escape [bot] brackets in bot mentions and link to the app profile,
+    # e.g. @renovate[bot] -> @[renovate\[bot\]](https://github.com/apps/renovate)
+    { pattern = '@([A-Za-z0-9._-]+)\[bot\]', replace = '@[$1\[bot\]](https://github.com/apps/$1)' },
     { pattern = 'Simlify', replace = 'Simplify' },
     { pattern = 'hanlding', replace = 'handling' },
     { pattern = 'verision', replace = 'version' },
