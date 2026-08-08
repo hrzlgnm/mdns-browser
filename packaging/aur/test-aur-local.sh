@@ -247,13 +247,14 @@ run_variant() {
         fi
 
         if [[ "$kind" = "bin" && "$DO_BUILD" = true && "$DO_INSTALL" = true ]]; then
-            log "[$kind] Installing (makepkg --install)..."
-            if as_sudo makepkg --install --noconfirm; then
+            if [[ -z "$pkg" ]]; then
+                die "[$kind] No built package artifact found; cannot install."
+            fi
+            log "[$kind] Installing $pkg (pacman -U)..."
+            if as_sudo pacman -U --noconfirm "$workdir/$pkg"; then
                 log "[$kind] Installed successfully."
-            elif [[ -n "$pkg" ]]; then
-                warn "[$kind] Install requires root. Built package is at:"
-                warn "$workdir/$pkg"
-                warn "Install manually with: sudo pacman -U '$pkg'"
+            else
+                die "[$kind] Failed to install $pkg (requires root). Install manually: sudo pacman -U '$workdir/$pkg'"
             fi
         fi
     )
@@ -265,14 +266,10 @@ run_variant() {
 mk_workdir() {
     local kind="$1"
     if [[ -n "$KEEP_DIR" ]]; then
-        local d="$KEEP_DIR/$kind"
-        rm -rf "$d"
-        mkdir -p "$d"
-        printf '%s' "$d"
+        mkdir -p "$KEEP_DIR"
+        mktemp -d -p "$KEEP_DIR" "${kind}.XXXXXX"
     else
-        local d
-        d=$(mktemp -d)
-        printf '%s' "$d"
+        mktemp -d
     fi
 }
 
