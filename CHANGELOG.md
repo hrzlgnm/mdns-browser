@@ -5,19 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.14.1...HEAD)
+## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.15.0...HEAD)
+
+### Changed
+
+- Update spelling error replacement (#2427) ([#2427](https://github.com/hrzlgnm/mdns-browser/pull/2427))
+
+## [1.15.0] - 2026-08-07 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.14.1...v1.15.0)
 
 ### Added
 
-- *(ci)* Auto-approve workflow runs of github-actions[bot] PRs (#2417) ([#2417](https://github.com/hrzlgnm/mdns-browser/pull/2417))
+- *(cliff)* Move CI-related commits into dedicated Maintenance group (#2424) ([#2424](https://github.com/hrzlgnm/mdns-browser/pull/2424))
+
+### Changed
+
+- Don't duplicate license file in bundling (#2420) ([#2420](https://github.com/hrzlgnm/mdns-browser/pull/2420))
 
 ### Dependencies
 
 - *(deps)* Update rust crate clap to v4.6.6 (#2413) ([#2413](https://github.com/hrzlgnm/mdns-browser/pull/2413))
 
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 97562a8 (#2423) ([#2423](https://github.com/hrzlgnm/mdns-browser/pull/2423))
+
 ### Fixed
 
 - Strip sha256: prefix from checksum (#2415) ([#2415](https://github.com/hrzlgnm/mdns-browser/pull/2415))
+
+### Maintenance
+
+- *(ci)* Auto-approve workflow runs of github-actions[bot] PRs (#2417) ([#2417](https://github.com/hrzlgnm/mdns-browser/pull/2417))
+
+- *(ci)* Remove stray lines causing github-script syntax error (#2418) ([#2418](https://github.com/hrzlgnm/mdns-browser/pull/2418))
+
+- *(ci)* Publish releases on tag push and switch to vX.Y.Z tags (#2421) ([#2421](https://github.com/hrzlgnm/mdns-browser/pull/2421))
+
+- *(ci)* Generate release notes using GitHub username (@hrzlgnm) (#2422) ([#2422](https://github.com/hrzlgnm/mdns-browser/pull/2422))
+
+- *(ci)* Resolve GitHub username from noreply email in release notes (#2425) ([#2425](https://github.com/hrzlgnm/mdns-browser/pull/2425))
 
 ## [1.14.1] - 2026-08-06 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.14.0...mdns-browser-v1.14.1)
 
@@ -141,13 +165,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(ci)* Update NDK version to 29 (#2358) ([#2358](https://github.com/hrzlgnm/mdns-browser/pull/2358))
-
 - Simplify mobile update to open release page in browser (#2359) ([#2359](https://github.com/hrzlgnm/mdns-browser/pull/2359))
 
 ### Fixed
 
 - *(aur)* Copy license from the new deb location (#2356) ([#2356](https://github.com/hrzlgnm/mdns-browser/pull/2356))
+
+### Maintenance
+
+- *(ci)* Update NDK version to 29 (#2358) ([#2358](https://github.com/hrzlgnm/mdns-browser/pull/2358))
 
 ## [1.10.0] - 2026-08-01 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.21...mdns-browser-v1.10.0)
 
@@ -157,15 +183,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(ci)* Disable sccache for windows (#2336) ([#2336](https://github.com/hrzlgnm/mdns-browser/pull/2336))
-
 - *(aur)* Clarify why we install a separate unbundled binary (#2345) ([#2345](https://github.com/hrzlgnm/mdns-browser/pull/2345))
 
 - *(rpm)* Add installation of the license to the rpm bundle (#2343) ([#2343](https://github.com/hrzlgnm/mdns-browser/pull/2343))
 
 - *(deb)* Install the copyright to the correct location (#2344) ([#2344](https://github.com/hrzlgnm/mdns-browser/pull/2344))
-
-- *(ci)* Run changelog update on a nightly schedule (#2349) ([#2349](https://github.com/hrzlgnm/mdns-browser/pull/2349))
 
 - Create pull requests proactively after pushing commits (#2351) ([#2351](https://github.com/hrzlgnm/mdns-browser/pull/2351))
 
@@ -192,6 +214,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 7463eb4 (#2352) ([#2352](https://github.com/hrzlgnm/mdns-browser/pull/2352))
 
 - *(deps)* Lock file maintenance (#2353) ([#2353](https://github.com/hrzlgnm/mdns-browser/pull/2353))
+
+### Maintenance
+
+- *(ci)* Disable sccache for windows (#2336) ([#2336](https://github.com/hrzlgnm/mdns-browser/pull/2336))
+
+- *(ci)* Run changelog update on a nightly schedule (#2349) ([#2349](https://github.com/hrzlgnm/mdns-browser/pull/2349))
 
 ## [1.9.21] - 2026-07-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.9.20...mdns-browser-v1.9.21)
 
@@ -729,8 +757,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(ci)* Blazingly fast actionlint (#2094) ([#2094](https://github.com/hrzlgnm/mdns-browser/pull/2094))
-
 - Switch to actionlint from hrzlgnm/actions (#2097) ([#2097](https://github.com/hrzlgnm/mdns-browser/pull/2097))
 
 - Add instructions how to validate renovate config (#2099) ([#2099](https://github.com/hrzlgnm/mdns-browser/pull/2099))
@@ -772,6 +798,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Ensure url memo tracks reactive field changes (#2107) ([#2107](https://github.com/hrzlgnm/mdns-browser/pull/2107))
+
+### Maintenance
+
+- *(ci)* Blazingly fast actionlint (#2094) ([#2094](https://github.com/hrzlgnm/mdns-browser/pull/2094))
 
 ## [1.8.2] - 2026-04-08 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.8.1...mdns-browser-v1.8.2)
 
@@ -983,10 +1013,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.12] - 2026-03-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.5.11...mdns-browser-v1.5.12)
 
-### Added
-
-- *(ci)* Extract cargo-edit installation into reusable workflow (#1969) ([#1969](https://github.com/hrzlgnm/mdns-browser/pull/1969))
-
 ### Changed
 
 - Temporary disable sscache to debug #1964 (#1965) ([#1964](https://github.com/hrzlgnm/mdns-browser/pull/1964)) ([#1965](https://github.com/hrzlgnm/mdns-browser/pull/1965))
@@ -1041,7 +1067,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Address issues reported by actionlint (#1988) ([#1988](https://github.com/hrzlgnm/mdns-browser/pull/1988))
 
-### Miscellaneous
+### Maintenance
+
+- *(ci)* Extract cargo-edit installation into reusable workflow (#1969) ([#1969](https://github.com/hrzlgnm/mdns-browser/pull/1969))
 
 - Add permission comments and remove redundant comments from workflows (#1985) ([#1985](https://github.com/hrzlgnm/mdns-browser/pull/1985))
 
@@ -1593,10 +1621,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.5] - 2025-12-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.4...mdns-browser-v1.0.5)
 
-### Changed
-
-- *(ci)* Draft releases with latest tag reflected in tauri config (#1738) ([#1738](https://github.com/hrzlgnm/mdns-browser/pull/1738))
-
 ### Dependencies
 
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 2498279 (#1739) ([#1739](https://github.com/hrzlgnm/mdns-browser/pull/1739))
@@ -1617,21 +1641,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(void)* Use correct version outputs after refactoring (#1745) ([#1745](https://github.com/hrzlgnm/mdns-browser/pull/1745))
 
+### Maintenance
+
+- *(ci)* Draft releases with latest tag reflected in tauri config (#1738) ([#1738](https://github.com/hrzlgnm/mdns-browser/pull/1738))
+
 ## [1.0.4] - 2025-12-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.3...mdns-browser-v1.0.4)
 
-### Changed
+### Maintenance
 
 - *(ci)* Add missing actions write permissions (#1737) ([#1737](https://github.com/hrzlgnm/mdns-browser/pull/1737))
 
 ## [1.0.3] - 2025-12-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.2...mdns-browser-v1.0.3)
 
-### Changed
+### Maintenance
 
 - *(ci)* Pass gh token to gh workflow run (#1736) ([#1736](https://github.com/hrzlgnm/mdns-browser/pull/1736))
 
 ## [1.0.2] - 2025-12-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v1.0.1...mdns-browser-v1.0.2)
 
-### Changed
+### Maintenance
 
 - *(ci)* Trigger release drafter run after bumping the version (#1735) ([#1735](https://github.com/hrzlgnm/mdns-browser/pull/1735))
 
@@ -1640,10 +1668,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Show additional IP addresses hint (#1734) ([#1734](https://github.com/hrzlgnm/mdns-browser/pull/1734))
-
-### Changed
-
-- *(ci)* Migrate to maintained actions/labeler (#1726) ([#1726](https://github.com/hrzlgnm/mdns-browser/pull/1726))
 
 ### Dependencies
 
@@ -1665,13 +1689,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update hrzlgnm/actions action to v1.5.6 (#1733) ([#1733](https://github.com/hrzlgnm/mdns-browser/pull/1733))
 
+### Maintenance
+
+- *(ci)* Migrate to maintained actions/labeler (#1726) ([#1726](https://github.com/hrzlgnm/mdns-browser/pull/1726))
+
 ## [1.0.0] - 2025-12-06 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.28.1...mdns-browser-v1.0.0)
 
 ### Changed
 
 - Add winget version badge (#1705) ([#1705](https://github.com/hrzlgnm/mdns-browser/pull/1705))
-
-- *(ci)* Update schedule to rerun CI to the middle of the month (#1712) ([#1712](https://github.com/hrzlgnm/mdns-browser/pull/1712))
 
 - Add AUR version badge (#1714) ([#1714](https://github.com/hrzlgnm/mdns-browser/pull/1714))
 
@@ -1705,15 +1731,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to v0.17.1 (#1722) ([#1722](https://github.com/hrzlgnm/mdns-browser/pull/1722))
 
+### Maintenance
+
+- *(ci)* Update schedule to rerun CI to the middle of the month (#1712) ([#1712](https://github.com/hrzlgnm/mdns-browser/pull/1712))
+
 ## [0.28.1] - 2025-12-01 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.28.0...mdns-browser-v0.28.1)
-
-### Changed
-
-- *(ci)* Fix missing sbom for android on publish (#1703) ([#1703](https://github.com/hrzlgnm/mdns-browser/pull/1703))
 
 ### Dependencies
 
 - *(deps)* Lock file maintenance (#1704) ([#1704](https://github.com/hrzlgnm/mdns-browser/pull/1704))
+
+### Maintenance
+
+- *(ci)* Fix missing sbom for android on publish (#1703) ([#1703](https://github.com/hrzlgnm/mdns-browser/pull/1703))
 
 ## [0.28.0] - 2025-11-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.8...mdns-browser-v0.28.0)
 
@@ -1724,8 +1754,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Move local crates into directory `crates` (#1697) ([#1697](https://github.com/hrzlgnm/mdns-browser/pull/1697))
 
 - Move packaging related directories to `packaging` (#1700) ([#1700](https://github.com/hrzlgnm/mdns-browser/pull/1700))
-
-- *(ci)* Don't create and scan SBOM when not publishing (#1699) ([#1699](https://github.com/hrzlgnm/mdns-browser/pull/1699))
 
 - Move screenshots to docs/assets (#1701) ([#1701](https://github.com/hrzlgnm/mdns-browser/pull/1701))
 
@@ -1747,6 +1775,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update hrzlgnm/actions action to v1.5.0 (#1698) ([#1698](https://github.com/hrzlgnm/mdns-browser/pull/1698))
 
+### Maintenance
+
+- *(ci)* Don't create and scan SBOM when not publishing (#1699) ([#1699](https://github.com/hrzlgnm/mdns-browser/pull/1699))
+
 ## [0.27.8] - 2025-11-29 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.7...mdns-browser-v0.27.8)
 
 ### Fixed
@@ -1757,21 +1789,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(ci)* Update release drafter template and pr-labeler settings (#1662) ([#1662](https://github.com/hrzlgnm/mdns-browser/pull/1662))
-
-- *(ci)* Demote full changelog heading in release-drafter template (#1663) ([#1663](https://github.com/hrzlgnm/mdns-browser/pull/1663))
-
-- *(ci)* Align release drafter template with tagging schema (#1664) ([#1664](https://github.com/hrzlgnm/mdns-browser/pull/1664))
-
-- *(ci)* Rename reusable workflows for better clarity (#1661) ([#1661](https://github.com/hrzlgnm/mdns-browser/pull/1661))
-
 - Add feature request issue template (#1665) ([#1665](https://github.com/hrzlgnm/mdns-browser/pull/1665))
-
-- *(ci)* Update rust-cache action configuration (#1666) ([#1666](https://github.com/hrzlgnm/mdns-browser/pull/1666))
-
-- *(ci)* Sync our winget-pkgs fork before updating (#1667) ([#1667](https://github.com/hrzlgnm/mdns-browser/pull/1667))
-
-- *(ci)* Refactor lint workflow into rustfmt and leptosfmt jobs (#1669) ([#1669](https://github.com/hrzlgnm/mdns-browser/pull/1669))
 
 - *(aur)* Disable signing when building the bundle artifacts (#1670) ([#1670](https://github.com/hrzlgnm/mdns-browser/pull/1670))
 
@@ -1779,13 +1797,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add license headers (#1674) ([#1674](https://github.com/hrzlgnm/mdns-browser/pull/1674))
 
-- *(ci)* Handle removed or renamed Dockerfiles properly (#1675) ([#1675](https://github.com/hrzlgnm/mdns-browser/pull/1675))
-
-- *(ci)* Externalize docker workflow (#1677) ([#1677](https://github.com/hrzlgnm/mdns-browser/pull/1677))
-
 - Tweak typos settings (#1679) ([#1679](https://github.com/hrzlgnm/mdns-browser/pull/1679))
-
-- *(ci)* Replace local typos workflow with external action (#1680) ([#1680](https://github.com/hrzlgnm/mdns-browser/pull/1680))
 
 - Hack to not ignore `.github/` directory (#1683) ([#1683](https://github.com/hrzlgnm/mdns-browser/pull/1683))
 
@@ -1809,25 +1821,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Lock file maintenance (#1686) ([#1686](https://github.com/hrzlgnm/mdns-browser/pull/1686))
 
+### Maintenance
+
+- *(ci)* Update release drafter template and pr-labeler settings (#1662) ([#1662](https://github.com/hrzlgnm/mdns-browser/pull/1662))
+
+- *(ci)* Demote full changelog heading in release-drafter template (#1663) ([#1663](https://github.com/hrzlgnm/mdns-browser/pull/1663))
+
+- *(ci)* Align release drafter template with tagging schema (#1664) ([#1664](https://github.com/hrzlgnm/mdns-browser/pull/1664))
+
+- *(ci)* Rename reusable workflows for better clarity (#1661) ([#1661](https://github.com/hrzlgnm/mdns-browser/pull/1661))
+
+- *(ci)* Update rust-cache action configuration (#1666) ([#1666](https://github.com/hrzlgnm/mdns-browser/pull/1666))
+
+- *(ci)* Sync our winget-pkgs fork before updating (#1667) ([#1667](https://github.com/hrzlgnm/mdns-browser/pull/1667))
+
+- *(ci)* Refactor lint workflow into rustfmt and leptosfmt jobs (#1669) ([#1669](https://github.com/hrzlgnm/mdns-browser/pull/1669))
+
+- *(ci)* Handle removed or renamed Dockerfiles properly (#1675) ([#1675](https://github.com/hrzlgnm/mdns-browser/pull/1675))
+
+- *(ci)* Externalize docker workflow (#1677) ([#1677](https://github.com/hrzlgnm/mdns-browser/pull/1677))
+
+- *(ci)* Replace local typos workflow with external action (#1680) ([#1680](https://github.com/hrzlgnm/mdns-browser/pull/1680))
+
 ## [0.27.6] - 2025-11-24 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.5...mdns-browser-v0.27.6)
 
 ### Changed
-
-- *(ci)* Enable caching of db when using anchore/scan-action (#1641) ([#1641](https://github.com/hrzlgnm/mdns-browser/pull/1641))
-
-- *(ci)* Ignore GHSA-wrw7-89jp-8q8g in grype scanning (#1642) ([#1642](https://github.com/hrzlgnm/mdns-browser/pull/1642))
-
-- *(ci)* Consolidate common sbom steps into a composite action (#1644) ([#1644](https://github.com/hrzlgnm/mdns-browser/pull/1644))
-
-- *(ci)* Rename desktop sbom step to align with android (#1645) ([#1645](https://github.com/hrzlgnm/mdns-browser/pull/1645))
-
-- *(ci)* Cleanup docker build workflow (#1646) ([#1646](https://github.com/hrzlgnm/mdns-browser/pull/1646))
-
-- *(ci)* Fix tagging of docker builds and add job names (#1649) ([#1649](https://github.com/hrzlgnm/mdns-browser/pull/1649))
-
-- *(ci)* Slimify workflows (#1653) ([#1653](https://github.com/hrzlgnm/mdns-browser/pull/1653))
-
-- *(ci)* Refactor to use re-actors/all-green (#1655) ([#1655](https://github.com/hrzlgnm/mdns-browser/pull/1655))
 
 - Add badges for license and build status (#1658) ([#1658](https://github.com/hrzlgnm/mdns-browser/pull/1658))
 
@@ -1849,6 +1867,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Lock file maintenance (#1659) ([#1659](https://github.com/hrzlgnm/mdns-browser/pull/1659))
 
+### Maintenance
+
+- *(ci)* Enable caching of db when using anchore/scan-action (#1641) ([#1641](https://github.com/hrzlgnm/mdns-browser/pull/1641))
+
+- *(ci)* Ignore GHSA-wrw7-89jp-8q8g in grype scanning (#1642) ([#1642](https://github.com/hrzlgnm/mdns-browser/pull/1642))
+
+- *(ci)* Consolidate common sbom steps into a composite action (#1644) ([#1644](https://github.com/hrzlgnm/mdns-browser/pull/1644))
+
+- *(ci)* Rename desktop sbom step to align with android (#1645) ([#1645](https://github.com/hrzlgnm/mdns-browser/pull/1645))
+
+- *(ci)* Cleanup docker build workflow (#1646) ([#1646](https://github.com/hrzlgnm/mdns-browser/pull/1646))
+
+- *(ci)* Fix tagging of docker builds and add job names (#1649) ([#1649](https://github.com/hrzlgnm/mdns-browser/pull/1649))
+
+- *(ci)* Slimify workflows (#1653) ([#1653](https://github.com/hrzlgnm/mdns-browser/pull/1653))
+
+- *(ci)* Refactor to use re-actors/all-green (#1655) ([#1655](https://github.com/hrzlgnm/mdns-browser/pull/1655))
+
 ## [0.27.5] - 2025-11-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.4...mdns-browser-v0.27.5)
 
 ### Changed
@@ -1859,15 +1895,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(ci)* Run tests with nextest runner (#1617) ([#1617](https://github.com/hrzlgnm/mdns-browser/pull/1617))
-
 - *(aur)* Install namcap for linting PKGBUILD (#1621) ([#1621](https://github.com/hrzlgnm/mdns-browser/pull/1621))
 
 - *(aur)* Only perform minimal checks in pull requests (#1622) ([#1622](https://github.com/hrzlgnm/mdns-browser/pull/1622))
-
-- *(ci)* Run CI workflow once per month (#1634) ([#1634](https://github.com/hrzlgnm/mdns-browser/pull/1634))
-
-- *(ci)* Optimize change detection to not trigger unrelated jobs (#1635) ([#1635](https://github.com/hrzlgnm/mdns-browser/pull/1635))
 
 ### Dependencies
 
@@ -1893,21 +1923,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Lock file maintenance (#1637) ([#1637](https://github.com/hrzlgnm/mdns-browser/pull/1637))
 
+### Maintenance
+
+- *(ci)* Run tests with nextest runner (#1617) ([#1617](https://github.com/hrzlgnm/mdns-browser/pull/1617))
+
+- *(ci)* Run CI workflow once per month (#1634) ([#1634](https://github.com/hrzlgnm/mdns-browser/pull/1634))
+
+- *(ci)* Optimize change detection to not trigger unrelated jobs (#1635) ([#1635](https://github.com/hrzlgnm/mdns-browser/pull/1635))
+
 ## [0.27.3] - 2025-11-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.2...mdns-browser-v0.27.3)
 
-### Changed
+### Maintenance
 
 - *(ci)* Create SBOM before building (#1611) ([#1611](https://github.com/hrzlgnm/mdns-browser/pull/1611))
 
 ## [0.27.2] - 2025-11-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.1...mdns-browser-v0.27.2)
 
-### Changed
-
-- *(ci)* Filter changes more granulary (#1610) ([#1610](https://github.com/hrzlgnm/mdns-browser/pull/1610))
-
 ### Dependencies
 
 - *(deps)* Pin anchore/scan-action action to 568b89d (#1609) ([#1609](https://github.com/hrzlgnm/mdns-browser/pull/1609))
+
+### Maintenance
+
+- *(ci)* Filter changes more granulary (#1610) ([#1610](https://github.com/hrzlgnm/mdns-browser/pull/1610))
 
 ## [0.27.1] - 2025-11-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.27.0...mdns-browser-v0.27.1)
 
@@ -1917,7 +1955,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.27.0] - 2025-11-16 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.8...mdns-browser-v0.27.0)
 
-### Changed
+### Dependencies
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to bff59e7 (#1596) ([#1596](https://github.com/hrzlgnm/mdns-browser/pull/1596))
+
+### Maintenance
 
 - *(ci)* Fix dependencies after name changes (#1591) ([#1591](https://github.com/hrzlgnm/mdns-browser/pull/1591))
 
@@ -1925,21 +1967,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Consolidate release logic with composite action (#1593) ([#1593](https://github.com/hrzlgnm/mdns-browser/pull/1593))
 
+- *(ci)* Only build platform specific if platform workflow changes (#1599) ([#1599](https://github.com/hrzlgnm/mdns-browser/pull/1599))
+
 - *(ci)* Create sbom for android (#1598) ([#1598](https://github.com/hrzlgnm/mdns-browser/pull/1598))
-
-### Dependencies
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to bff59e7 (#1596) ([#1596](https://github.com/hrzlgnm/mdns-browser/pull/1596))
 
 ## [0.26.8] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.7...mdns-browser-v0.26.8)
 
-### Changed
+### Maintenance
 
 - *(ci)* Resolve an artifact name collision (#1587) ([#1587](https://github.com/hrzlgnm/mdns-browser/pull/1587))
 
 ## [0.26.7] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.6...mdns-browser-v0.26.7)
 
-### Changed
+### Maintenance
 
 - *(ci)* Fix conflict of asset checksums with source checksums (#1586) ([#1586](https://github.com/hrzlgnm/mdns-browser/pull/1586))
 
@@ -1948,6 +1988,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - *(aur)* Fix package options (#1581) ([#1581](https://github.com/hrzlgnm/mdns-browser/pull/1581))
+
+### Maintenance
 
 - *(ci)* Build AUR package on AUR template changes (#1582) ([#1582](https://github.com/hrzlgnm/mdns-browser/pull/1582))
 
@@ -1961,15 +2003,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.26.3] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.2...mdns-browser-v0.26.3)
 
-### Changed
-
-- *(ci)* Only build changed dockerfiles in pull requests (#1577) ([#1577](https://github.com/hrzlgnm/mdns-browser/pull/1577))
-
 ### Dependencies
 
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 5f85072 (#1576) ([#1576](https://github.com/hrzlgnm/mdns-browser/pull/1576))
 
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to 6752f84 (#1578) ([#1578](https://github.com/hrzlgnm/mdns-browser/pull/1578))
+
+### Maintenance
+
+- *(ci)* Only build changed dockerfiles in pull requests (#1577) ([#1577](https://github.com/hrzlgnm/mdns-browser/pull/1577))
 
 ## [0.26.2] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.1...mdns-browser-v0.26.2)
 
@@ -1983,7 +2025,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.26.1] - 2025-11-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.26.0...mdns-browser-v0.26.1)
 
-### Changed
+### Maintenance
 
 - *(ci)* Move android specific steps after rust steps (#1572) ([#1572](https://github.com/hrzlgnm/mdns-browser/pull/1572))
 
@@ -2009,39 +2051,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.25.8] - 2025-11-12 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.7...mdns-browser-v0.25.8)
 
-### Changed
+### Maintenance
 
 - *(ci)* Fix conditional `sccache` (#1562) ([#1562](https://github.com/hrzlgnm/mdns-browser/pull/1562))
 
 ## [0.25.7] - 2025-11-12 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.6...mdns-browser-v0.25.7)
 
-### Changed
-
-- *(ci)* Fix passing caching flags (#1560) ([#1560](https://github.com/hrzlgnm/mdns-browser/pull/1560))
-
 ### Dependencies
 
 - *(deps)* Update tauri-apps/tauri-action action to v0.6.0 (#1561) ([#1561](https://github.com/hrzlgnm/mdns-browser/pull/1561))
 
+### Maintenance
+
+- *(ci)* Fix passing caching flags (#1560) ([#1560](https://github.com/hrzlgnm/mdns-browser/pull/1560))
+
 ## [0.25.6] - 2025-11-12 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.5...mdns-browser-v0.25.6)
 
-### Changed
+### Maintenance
 
 - *(ci)* Handle enabling `sccache` correctly (#1559) ([#1559](https://github.com/hrzlgnm/mdns-browser/pull/1559))
 
 ## [0.25.5] - 2025-11-12 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.4...mdns-browser-v0.25.5)
-
-### Changed
-
-- *(ci)* Refactor CI into a single workflow (#1550) ([#1550](https://github.com/hrzlgnm/mdns-browser/pull/1550))
-
-- *(ci)* Always run typos regardless of changes (#1555) ([#1555](https://github.com/hrzlgnm/mdns-browser/pull/1555))
-
-- *(ci)* Filter changes more explicitly and fix caching (#1556) ([#1556](https://github.com/hrzlgnm/mdns-browser/pull/1556))
-
-- *(ci)* Enable sccache when running clippy (#1557) ([#1557](https://github.com/hrzlgnm/mdns-browser/pull/1557))
-
-- *(ci)* Rename publish workflows for better clarity (#1558) ([#1558](https://github.com/hrzlgnm/mdns-browser/pull/1558))
 
 ### Dependencies
 
@@ -2059,25 +2089,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update actions/checkout action to v5 (#1554) ([#1554](https://github.com/hrzlgnm/mdns-browser/pull/1554))
 
+### Maintenance
+
+- *(ci)* Refactor CI into a single workflow (#1550) ([#1550](https://github.com/hrzlgnm/mdns-browser/pull/1550))
+
+- *(ci)* Always run typos regardless of changes (#1555) ([#1555](https://github.com/hrzlgnm/mdns-browser/pull/1555))
+
+- *(ci)* Filter changes more explicitly and fix caching (#1556) ([#1556](https://github.com/hrzlgnm/mdns-browser/pull/1556))
+
+- *(ci)* Enable sccache when running clippy (#1557) ([#1557](https://github.com/hrzlgnm/mdns-browser/pull/1557))
+
+- *(ci)* Rename publish workflows for better clarity (#1558) ([#1558](https://github.com/hrzlgnm/mdns-browser/pull/1558))
+
 ## [0.25.4] - 2025-11-07 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.3...mdns-browser-v0.25.4)
 
-### Changed
+### Maintenance
 
 - *(ci)* Update bump version workflow (#1541) ([#1541](https://github.com/hrzlgnm/mdns-browser/pull/1541))
 
 - *(ci)* Update bump version workflow (#1543) ([#1543](https://github.com/hrzlgnm/mdns-browser/pull/1543))
 
 ## [0.25.3] - 2025-11-07 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.2...mdns-browser-v0.25.3)
-
-### Changed
-
-- *(ci)* Use composite actions to deduplicate workflows (#1525) ([#1525](https://github.com/hrzlgnm/mdns-browser/pull/1525))
-
-- *(ci)* Run in bash shell (#1530) ([#1530](https://github.com/hrzlgnm/mdns-browser/pull/1530))
-
-- *(ci)* Temporarily disable weekly lockfile maintenance (#1531) ([#1531](https://github.com/hrzlgnm/mdns-browser/pull/1531))
-
-- *(ci)* Remove publish only from step extract android signing key (#1536) ([#1536](https://github.com/hrzlgnm/mdns-browser/pull/1536))
 
 ### Dependencies
 
@@ -2091,19 +2123,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to 0.17 (#1537) ([#1537](https://github.com/hrzlgnm/mdns-browser/pull/1537))
 
+### Maintenance
+
+- *(ci)* Use composite actions to deduplicate workflows (#1525) ([#1525](https://github.com/hrzlgnm/mdns-browser/pull/1525))
+
+- *(ci)* Run in bash shell (#1530) ([#1530](https://github.com/hrzlgnm/mdns-browser/pull/1530))
+
+- *(ci)* Temporarily disable weekly lockfile maintenance (#1531) ([#1531](https://github.com/hrzlgnm/mdns-browser/pull/1531))
+
+- *(ci)* Remove publish only from step extract android signing key (#1536) ([#1536](https://github.com/hrzlgnm/mdns-browser/pull/1536))
+
 ## [0.25.2] - 2025-11-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.1...mdns-browser-v0.25.2)
 
 ### Changed
 
 - Create tasks for zed (#1515) ([#1515](https://github.com/hrzlgnm/mdns-browser/pull/1515))
-
-- *(ci)* Run tests in separate job (#1517) ([#1517](https://github.com/hrzlgnm/mdns-browser/pull/1517))
-
-- *(ci)* Add comment to schedule (#1518) ([#1518](https://github.com/hrzlgnm/mdns-browser/pull/1518))
-
-- *(ci)* Run tests on push (#1519) ([#1519](https://github.com/hrzlgnm/mdns-browser/pull/1519))
-
-- *(ci)* Add building and publishing of un-bundled executables (#1521) ([#1521](https://github.com/hrzlgnm/mdns-browser/pull/1521))
 
 ### Dependencies
 
@@ -2119,45 +2153,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to bf51a3b (#1516) ([#1516](https://github.com/hrzlgnm/mdns-browser/pull/1516))
 
+### Maintenance
+
+- *(ci)* Run tests in separate job (#1517) ([#1517](https://github.com/hrzlgnm/mdns-browser/pull/1517))
+
+- *(ci)* Add comment to schedule (#1518) ([#1518](https://github.com/hrzlgnm/mdns-browser/pull/1518))
+
+- *(ci)* Run tests on push (#1519) ([#1519](https://github.com/hrzlgnm/mdns-browser/pull/1519))
+
+- *(ci)* Add building and publishing of un-bundled executables (#1521) ([#1521](https://github.com/hrzlgnm/mdns-browser/pull/1521))
+
 ## [0.25.1] - 2025-10-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.25.0...mdns-browser-v0.25.1)
-
-### Changed
-
-- *(ci)* Add unzip to ubuntu builder dependencies (#1507) ([#1507](https://github.com/hrzlgnm/mdns-browser/pull/1507))
 
 ### Dependencies
 
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 06bb8f7 (#1508) ([#1508](https://github.com/hrzlgnm/mdns-browser/pull/1508))
 
+### Maintenance
+
+- *(ci)* Add unzip to ubuntu builder dependencies (#1507) ([#1507](https://github.com/hrzlgnm/mdns-browser/pull/1507))
+
 ## [0.25.0] - 2025-10-30 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.10...mdns-browser-v0.25.0)
 
 ### Changed
 
-- *(ci)* Remove linting in publish workflow (#1473) ([#1473](https://github.com/hrzlgnm/mdns-browser/pull/1473))
-
-- *(ci)* Winget: Fix url generation after artifact name change (#1474) ([#1474](https://github.com/hrzlgnm/mdns-browser/pull/1474))
-
 - *(aur)* Fixup artifact names in AUR update workflow (#1475) ([#1475](https://github.com/hrzlgnm/mdns-browser/pull/1475))
-
-- *(ci)* Update workflows from ubuntu-24.04 to use ubuntu-latest (#1480) ([#1480](https://github.com/hrzlgnm/mdns-browser/pull/1480))
 
 - *(coderabbit)* Disable docstring check (#1481) ([#1481](https://github.com/hrzlgnm/mdns-browser/pull/1481))
 
-- *(ci)* Add ubuntu builder docker image (#1484) ([#1484](https://github.com/hrzlgnm/mdns-browser/pull/1484))
-
 - *(ubuntu-builder)* Add missing dependencies (#1487) ([#1487](https://github.com/hrzlgnm/mdns-browser/pull/1487))
-
-- *(ci)* Use ubuntu builder docker image for lint steps (#1486) ([#1486](https://github.com/hrzlgnm/mdns-browser/pull/1486))
-
-- *(ci)* Also build docker images in PR on updates (#1488) ([#1488](https://github.com/hrzlgnm/mdns-browser/pull/1488))
-
-- *(ci)* Also use ubuntu builder in desktop build workflow (#1489) ([#1489](https://github.com/hrzlgnm/mdns-browser/pull/1489))
-
-- *(ci)* Run clippy with multiple targets ([#1490](https://github.com/hrzlgnm/mdns-browser/pull/1490))
-
-- *(ci)* Run clippy with multiple targets (#1498) ([#1498](https://github.com/hrzlgnm/mdns-browser/pull/1498))
-
-- *(ci)* Consolidate rust caches (#1501) ([#1501](https://github.com/hrzlgnm/mdns-browser/pull/1501))
 
 - *(ocd)* Reorder matrix definitions and update job names (#1502) ([#1502](https://github.com/hrzlgnm/mdns-browser/pull/1502))
 
@@ -2193,17 +2217,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate mdns-sd to 0.16 (#1506) ([#1506](https://github.com/hrzlgnm/mdns-browser/pull/1506))
 
+### Maintenance
+
+- *(ci)* Remove linting in publish workflow (#1473) ([#1473](https://github.com/hrzlgnm/mdns-browser/pull/1473))
+
+- *(ci)* Winget: Fix url generation after artifact name change (#1474) ([#1474](https://github.com/hrzlgnm/mdns-browser/pull/1474))
+
+- *(ci)* Update workflows from ubuntu-24.04 to use ubuntu-latest (#1480) ([#1480](https://github.com/hrzlgnm/mdns-browser/pull/1480))
+
+- *(ci)* Add ubuntu builder docker image (#1484) ([#1484](https://github.com/hrzlgnm/mdns-browser/pull/1484))
+
+- *(ci)* Use ubuntu builder docker image for lint steps (#1486) ([#1486](https://github.com/hrzlgnm/mdns-browser/pull/1486))
+
+- *(ci)* Also build docker images in PR on updates (#1488) ([#1488](https://github.com/hrzlgnm/mdns-browser/pull/1488))
+
+- *(ci)* Also use ubuntu builder in desktop build workflow (#1489) ([#1489](https://github.com/hrzlgnm/mdns-browser/pull/1489))
+
+- *(ci)* Run clippy with multiple targets ([#1490](https://github.com/hrzlgnm/mdns-browser/pull/1490))
+
+- *(ci)* Run clippy with multiple targets (#1498) ([#1498](https://github.com/hrzlgnm/mdns-browser/pull/1498))
+
+- *(ci)* Consolidate rust caches (#1501) ([#1501](https://github.com/hrzlgnm/mdns-browser/pull/1501))
+
 ## [0.24.10] - 2025-10-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.9...mdns-browser-v0.24.10)
 
-### Changed
+### Maintenance
 
 - *(ci)* Tweak bump version workflow (#1472) ([#1472](https://github.com/hrzlgnm/mdns-browser/pull/1472))
 
 ## [0.24.9] - 2025-10-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.8...mdns-browser-v0.24.9)
-
-### Changed
-
-- *(ci)* Lint in own separate job (#1470) ([#1470](https://github.com/hrzlgnm/mdns-browser/pull/1470))
 
 ### Dependencies
 
@@ -2235,9 +2277,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update tauri-apps/tauri-action action to v0.5.24 (#1469) ([#1469](https://github.com/hrzlgnm/mdns-browser/pull/1469))
 
+### Maintenance
+
+- *(ci)* Lint in own separate job (#1470) ([#1470](https://github.com/hrzlgnm/mdns-browser/pull/1470))
+
 ## [0.24.8] - 2025-10-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.24.7...mdns-browser-v0.24.8)
 
-### Changed
+### Maintenance
 
 - *(ci)* Compress windows debug symbols (#1453) ([#1453](https://github.com/hrzlgnm/mdns-browser/pull/1453))
 
@@ -2641,10 +2687,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.21.6] - 2025-07-29 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.5...mdns-browser-v0.21.6)
 
-### Changed
-
-- *(ci)* Add paths-ignore filters to Android and Desktop GitHub Actions workflows (#1279) ([#1279](https://github.com/hrzlgnm/mdns-browser/pull/1279))
-
 ### Dependencies
 
 - *(deps)* Update rust crate tokio to v1.47.0 (#1280) ([#1280](https://github.com/hrzlgnm/mdns-browser/pull/1280))
@@ -2662,6 +2704,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 80b189b (#1287) ([#1287](https://github.com/hrzlgnm/mdns-browser/pull/1287))
 
 - *(deps)* Lock file maintenance (#1288) ([#1288](https://github.com/hrzlgnm/mdns-browser/pull/1288))
+
+### Maintenance
+
+- *(ci)* Add paths-ignore filters to Android and Desktop GitHub Actions workflows (#1279) ([#1279](https://github.com/hrzlgnm/mdns-browser/pull/1279))
 
 ## [0.21.5] - 2025-07-24 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.21.4...mdns-browser-v0.21.5)
 
@@ -2909,8 +2955,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(ci)* Enable sccache (#1171) ([#1171](https://github.com/hrzlgnm/mdns-browser/pull/1171))
-
 - Use SCCACHE_PATH env var to set RUSTC_WRAPPER (#1173) ([#1173](https://github.com/hrzlgnm/mdns-browser/pull/1173))
 
 - Update workflow to exclude sccache on Windows (#1174) ([#1174](https://github.com/hrzlgnm/mdns-browser/pull/1174))
@@ -2926,6 +2970,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Pin mozilla-actions/sccache-action action to 7d986dd (#1172) ([#1172](https://github.com/hrzlgnm/mdns-browser/pull/1172))
 
 - *(deps)* Update rust crate icondata to 0.6 (#1178) ([#1178](https://github.com/hrzlgnm/mdns-browser/pull/1178))
+
+### Maintenance
+
+- *(ci)* Enable sccache (#1171) ([#1171](https://github.com/hrzlgnm/mdns-browser/pull/1171))
 
 ## [0.19.4] - 2025-06-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.19.3...mdns-browser-v0.19.4)
 
@@ -3353,15 +3401,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(ci)* Don't ask for confirmation in CI (#991) ([#991](https://github.com/hrzlgnm/mdns-browser/pull/991))
-
-- *(ci)* Use correct tag_name property from the release event (#992) ([#992](https://github.com/hrzlgnm/mdns-browser/pull/992))
-
 - Document new command line options (#999) ([#999](https://github.com/hrzlgnm/mdns-browser/pull/999))
-
-- *(ci)* Rename sbom artifacts and use platform names (#1001) ([#1001](https://github.com/hrzlgnm/mdns-browser/pull/1001))
-
-- *(ci)* Only checksum binaries and source tar balls (#1003) ([#1003](https://github.com/hrzlgnm/mdns-browser/pull/1003))
 
 ### Dependencies
 
@@ -3373,6 +3413,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to fcd57e0 (#1004) ([#1004](https://github.com/hrzlgnm/mdns-browser/pull/1004))
 
+### Maintenance
+
+- *(ci)* Don't ask for confirmation in CI (#991) ([#991](https://github.com/hrzlgnm/mdns-browser/pull/991))
+
+- *(ci)* Use correct tag_name property from the release event (#992) ([#992](https://github.com/hrzlgnm/mdns-browser/pull/992))
+
+- *(ci)* Rename sbom artifacts and use platform names (#1001) ([#1001](https://github.com/hrzlgnm/mdns-browser/pull/1001))
+
+- *(ci)* Only checksum binaries and source tar balls (#1003) ([#1003](https://github.com/hrzlgnm/mdns-browser/pull/1003))
+
 ## [0.13.0] - 2025-04-13 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.12.0...mdns-browser-v0.13.0)
 
 ### Added
@@ -3382,6 +3432,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - *(attestation)* Use correct path in SBOM attestation (#965) ([#965](https://github.com/hrzlgnm/mdns-browser/pull/965))
+
+- Add checksums for tarball from tag archive (#979) ([#979](https://github.com/hrzlgnm/mdns-browser/pull/979))
+
+- Add docker image for testing and publishing to AUR (#981) ([#981](https://github.com/hrzlgnm/mdns-browser/pull/981))
+
+- Fix publishing new versions to AUR (#980) ([#980](https://github.com/hrzlgnm/mdns-browser/pull/980))
+
+- *(actions)* Use specific version of michidk/run-komac (#983) ([#983](https://github.com/hrzlgnm/mdns-browser/pull/983))
+
+### Dependencies
+
+- *(deps)* Update rust crate clap to v4.5.36 (#964) ([#964](https://github.com/hrzlgnm/mdns-browser/pull/964))
+
+- *(deps)* Pin dependencies (#984) ([#984](https://github.com/hrzlgnm/mdns-browser/pull/984))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 91bbc1e (#985) ([#985](https://github.com/hrzlgnm/mdns-browser/pull/985))
+
+### Maintenance
 
 - *(ci)* Publish release assets checksums (#967) ([#967](https://github.com/hrzlgnm/mdns-browser/pull/967))
 
@@ -3401,22 +3469,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ci)* Add workflow for publishing to AUR (#977) ([#977](https://github.com/hrzlgnm/mdns-browser/pull/977))
 
-- Add checksums for tarball from tag archive (#979) ([#979](https://github.com/hrzlgnm/mdns-browser/pull/979))
-
-- Add docker image for testing and publishing to AUR (#981) ([#981](https://github.com/hrzlgnm/mdns-browser/pull/981))
-
-- Fix publishing new versions to AUR (#980) ([#980](https://github.com/hrzlgnm/mdns-browser/pull/980))
-
-- *(actions)* Use specific version of michidk/run-komac (#983) ([#983](https://github.com/hrzlgnm/mdns-browser/pull/983))
-
-### Dependencies
-
-- *(deps)* Update rust crate clap to v4.5.36 (#964) ([#964](https://github.com/hrzlgnm/mdns-browser/pull/964))
-
-- *(deps)* Pin dependencies (#984) ([#984](https://github.com/hrzlgnm/mdns-browser/pull/984))
-
-- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 91bbc1e (#985) ([#985](https://github.com/hrzlgnm/mdns-browser/pull/985))
-
 ## [0.12.0] - 2025-04-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.34...mdns-browser-v0.12.0)
 
 ### Added
@@ -3431,14 +3483,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix setting up git config
 
-- *(ci)* Set dry-run to true and create-release to false
-
-- *(ci)* Migrate to manually triggered bumping workflow
-
-- *(ci)* Version bump workflow: allow creating pull requests
-
-- *(ci)* Fix updating shared constants in Cargo.lock
-
 ### Dependencies
 
 - *(deps)* Update actions/checkout action to v4 (#959) ([#959](https://github.com/hrzlgnm/mdns-browser/pull/959))
@@ -3446,6 +3490,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Improve nvidia detection (#956) ([#956](https://github.com/hrzlgnm/mdns-browser/pull/956))
+
+### Maintenance
+
+- *(ci)* Set dry-run to true and create-release to false
+
+- *(ci)* Migrate to manually triggered bumping workflow
+
+- *(ci)* Version bump workflow: allow creating pull requests
+
+- *(ci)* Fix updating shared constants in Cargo.lock
 
 ## [0.11.34] - 2025-04-10 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.33...mdns-browser-v0.11.34)
 
@@ -3503,11 +3557,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use Swatinem/rust-cache for caching (#928) ([#928](https://github.com/hrzlgnm/mdns-browser/pull/928))
 
-- *(ci)* Use correct git ref for save-if condition when caching
-
 ### Fixed
 
 - Filter out ipv6 link local addresses for opening `_http._tcp` like services  (#930) ([#930](https://github.com/hrzlgnm/mdns-browser/pull/930))
+
+### Maintenance
+
+- *(ci)* Use correct git ref for save-if condition when caching
 
 ## [0.11.29] - 2025-04-02 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.28...mdns-browser-v0.11.29)
 
@@ -3561,8 +3617,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(config)* Migrate renovate config (#879) ([#879](https://github.com/hrzlgnm/mdns-browser/pull/879))
 
-- *(ci)* Enable sscache (#881) ([#881](https://github.com/hrzlgnm/mdns-browser/pull/881))
-
 - Verify tag matches version in tauri conf on publish ([#335](https://github.com/hrzlgnm/mdns-browser/pull/335))
 
 ### Dependencies
@@ -3570,6 +3624,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update crate-ci/typos action to v1.31.0 (#878) ([#878](https://github.com/hrzlgnm/mdns-browser/pull/878))
 
 - *(deps)* Update dependency trunk to v0.21.12 (#880) ([#880](https://github.com/hrzlgnm/mdns-browser/pull/880))
+
+### Maintenance
+
+- *(ci)* Enable sscache (#881) ([#881](https://github.com/hrzlgnm/mdns-browser/pull/881))
 
 ## [0.11.10] - 2025-03-28 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.11.9...mdns-browser-v0.11.10)
 
@@ -4443,10 +4501,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(ci)* Allow dispatching auto bump pr workflow
-
-- *(ci)* Auto bump version on prerelease as releases are now drafte… (#424) ([#424](https://github.com/hrzlgnm/mdns-browser/pull/424))
-
 - *(snap)* Build from deb
 
 - *(snap)* Specify stage packages
@@ -4499,6 +4553,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add feedback to the user in case no update is available (#448) ([#448](https://github.com/hrzlgnm/mdns-browser/pull/448))
 
+### Maintenance
+
+- *(ci)* Allow dispatching auto bump pr workflow
+
+- *(ci)* Auto bump version on prerelease as releases are now drafte… (#424) ([#424](https://github.com/hrzlgnm/mdns-browser/pull/424))
+
 ## [0.9.0] - 2024-10-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.13...mdns-browser-v0.9.0)
 
 ### Added
@@ -4512,18 +4572,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Don show check for update if auto update is not supported (#414) ([#414](https://github.com/hrzlgnm/mdns-browser/pull/414))
 
 ### Changed
-
-- *(ci)* Add release drafter workflow (#398) ([#398](https://github.com/hrzlgnm/mdns-browser/pull/398))
-
-- *(ci)* Draft prereleases (#400) ([#400](https://github.com/hrzlgnm/mdns-browser/pull/400))
-
-- *(ci)* Release drafter things (#401) ([#401](https://github.com/hrzlgnm/mdns-browser/pull/401))
-
-- *(ci)* Fix release drafter permissions (#402) ([#402](https://github.com/hrzlgnm/mdns-browser/pull/402))
-
-- *(ci)* Remove include labels spec (#403) ([#403](https://github.com/hrzlgnm/mdns-browser/pull/403))
-
-- *(ci)* Pr-labeler
 
 - *(snap)* Add snapcraft.yaml
 
@@ -4545,20 +4593,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Tweak pr labeler and release drafter settings
 
-- *(ci)* Fix pr labeling and cleanup release drafting (#416) ([#416](https://github.com/hrzlgnm/mdns-browser/pull/416))
-
-- *(ci)* Use label "bug" for fixed bugs when drafting releases (#417) ([#417](https://github.com/hrzlgnm/mdns-browser/pull/417))
-
-- *(ci)* Tweak release drafter settings (#418) ([#418](https://github.com/hrzlgnm/mdns-browser/pull/418))
-
-- *(ci)* Add fixed sections to release draft (#419) ([#419](https://github.com/hrzlgnm/mdns-browser/pull/419))
-
-- *(ci)* Add escaping for fixed sections in release drafter (#420) ([#420](https://github.com/hrzlgnm/mdns-browser/pull/420))
-
-- *(ci)* Tweak release drafter (#421) ([#421](https://github.com/hrzlgnm/mdns-browser/pull/421))
-
-- *(ci)* Add missing new line to footer (#422) ([#422](https://github.com/hrzlgnm/mdns-browser/pull/422))
-
 ### Dependencies
 
 - *(deps)* Update rust crate serde_json to v1.0.130
@@ -4575,25 +4609,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate tauri to v2.0.5
 
+### Maintenance
+
+- *(ci)* Add release drafter workflow (#398) ([#398](https://github.com/hrzlgnm/mdns-browser/pull/398))
+
+- *(ci)* Draft prereleases (#400) ([#400](https://github.com/hrzlgnm/mdns-browser/pull/400))
+
+- *(ci)* Release drafter things (#401) ([#401](https://github.com/hrzlgnm/mdns-browser/pull/401))
+
+- *(ci)* Fix release drafter permissions (#402) ([#402](https://github.com/hrzlgnm/mdns-browser/pull/402))
+
+- *(ci)* Remove include labels spec (#403) ([#403](https://github.com/hrzlgnm/mdns-browser/pull/403))
+
+- *(ci)* Pr-labeler
+
+- *(ci)* Fix pr labeling and cleanup release drafting (#416) ([#416](https://github.com/hrzlgnm/mdns-browser/pull/416))
+
+- *(ci)* Use label "bug" for fixed bugs when drafting releases (#417) ([#417](https://github.com/hrzlgnm/mdns-browser/pull/417))
+
+- *(ci)* Tweak release drafter settings (#418) ([#418](https://github.com/hrzlgnm/mdns-browser/pull/418))
+
+- *(ci)* Add fixed sections to release draft (#419) ([#419](https://github.com/hrzlgnm/mdns-browser/pull/419))
+
+- *(ci)* Add escaping for fixed sections in release drafter (#420) ([#420](https://github.com/hrzlgnm/mdns-browser/pull/420))
+
+- *(ci)* Tweak release drafter (#421) ([#421](https://github.com/hrzlgnm/mdns-browser/pull/421))
+
+- *(ci)* Add missing new line to footer (#422) ([#422](https://github.com/hrzlgnm/mdns-browser/pull/422))
+
 ## [0.8.13] - 2024-10-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.12...mdns-browser-v0.8.13)
 
 ### Changed
 
 - *(templates)* Steal release drafter template  (#358) ([#358](https://github.com/hrzlgnm/mdns-browser/pull/358))
 
-- *(ci)* Set TAURI_ANDROID_PACKAGE_UNESCAPED (#364) ([#364](https://github.com/hrzlgnm/mdns-browser/pull/364))
-
-- *(ci)* Build android on pushes to main and upload apk artifact (#365) ([#365](https://github.com/hrzlgnm/mdns-browser/pull/365))
-
 - *(renovate)* Downgrade tauri-cli for testing whether renovate custom manager works
-
-- *(ci)* Binstall trunk on windows instead of building (#381) ([#381](https://github.com/hrzlgnm/mdns-browser/pull/381))
-
-- *(ci)* Install openssl via vpkg on windows (#384) ([#384](https://github.com/hrzlgnm/mdns-browser/pull/384))
-
-- *(ci)* Tweak job names to be more concise and add leptosfmt check (#385) ([#385](https://github.com/hrzlgnm/mdns-browser/pull/385))
-
-- *(ci)* Emojify step names (#388) ([#388](https://github.com/hrzlgnm/mdns-browser/pull/388))
 
 - *(trunk)* Address deprecation of serve.address in Trunk.toml (#393) ([#393](https://github.com/hrzlgnm/mdns-browser/pull/393))
 
@@ -4647,6 +4697,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ui)* Disable copy button for when a resolved record dies (#392) ([#392](https://github.com/hrzlgnm/mdns-browser/pull/392))
 
+### Maintenance
+
+- *(ci)* Set TAURI_ANDROID_PACKAGE_UNESCAPED (#364) ([#364](https://github.com/hrzlgnm/mdns-browser/pull/364))
+
+- *(ci)* Build android on pushes to main and upload apk artifact (#365) ([#365](https://github.com/hrzlgnm/mdns-browser/pull/365))
+
+- *(ci)* Always sign apk and upload as artifact if not publishing (#366) ([#366](https://github.com/hrzlgnm/mdns-browser/pull/366))
+
+- *(ci)* Binstall trunk on windows instead of building (#381) ([#381](https://github.com/hrzlgnm/mdns-browser/pull/381))
+
+- *(ci)* Install openssl via vpkg on windows (#384) ([#384](https://github.com/hrzlgnm/mdns-browser/pull/384))
+
+- *(ci)* Tweak job names to be more concise and add leptosfmt check (#385) ([#385](https://github.com/hrzlgnm/mdns-browser/pull/385))
+
+- *(ci)* Emojify step names (#388) ([#388](https://github.com/hrzlgnm/mdns-browser/pull/388))
+
 ## [0.8.12] - 2024-10-06 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.11...mdns-browser-v0.8.12)
 
 ### Added
@@ -4663,13 +4729,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.11] - 2024-10-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.10...mdns-browser-v0.8.11)
 
-### Added
-
-- *(ci)* Establish rust cache in android builds (#340) ([#340](https://github.com/hrzlgnm/mdns-browser/pull/340))
-
 ### Dependencies
 
 - *(deps)* Update rust crate futures to v0.3.31
+
+### Maintenance
+
+- *(ci)* Fix android app artifact naming (#339) ([#339](https://github.com/hrzlgnm/mdns-browser/pull/339))
+
+- *(ci)* Establish rust cache in android builds (#340) ([#340](https://github.com/hrzlgnm/mdns-browser/pull/340))
+
+## [0.8.10] - 2024-10-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.9...mdns-browser-v0.8.10)
+
+### Maintenance
+
+- *(ci)* Fix naming the android published artifact (#336) ([#336](https://github.com/hrzlgnm/mdns-browser/pull/336))
 
 ## [0.8.9] - 2024-10-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.8...mdns-browser-v0.8.9)
 
@@ -4677,7 +4751,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(open)* Use shell plugin with strict permissions for open (#333) ([#333](https://github.com/hrzlgnm/mdns-browser/pull/333))
 
-### Changed
+### Maintenance
 
 - *(ci)* Attest build provenance of android package (#331) ([#331](https://github.com/hrzlgnm/mdns-browser/pull/331))
 
@@ -4685,21 +4759,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- *(ci)* Fix SBOM attestation (#316) ([#316](https://github.com/hrzlgnm/mdns-browser/pull/316))
-
-- *(ci)* Cleanup naming in workflows (#317) ([#317](https://github.com/hrzlgnm/mdns-browser/pull/317))
-
-- *(ci)* Establish rust cache (#318) ([#318](https://github.com/hrzlgnm/mdns-browser/pull/318))
-
-- *(ci)* Drop dependabot (#320) ([#320](https://github.com/hrzlgnm/mdns-browser/pull/320))
-
 - *(icon)* Update icons using cargo tauri icon (#321) ([#321](https://github.com/hrzlgnm/mdns-browser/pull/321))
-
-- *(ci)* Add android build (#322) ([#322](https://github.com/hrzlgnm/mdns-browser/pull/322))
-
-- *(ci)* Only save cache if running on main branch (#325) ([#325](https://github.com/hrzlgnm/mdns-browser/pull/325))
-
-- *(ci)* Add apk signing and android publish workflow (#328) ([#328](https://github.com/hrzlgnm/mdns-browser/pull/328))
 
 ### Dependencies
 
@@ -4713,19 +4773,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(ui)* Fix layout issues on android (#326) ([#326](https://github.com/hrzlgnm/mdns-browser/pull/326))
 
+### Maintenance
+
+- *(ci)* Fix SBOM attestation (#316) ([#316](https://github.com/hrzlgnm/mdns-browser/pull/316))
+
+- *(ci)* Cleanup naming in workflows (#317) ([#317](https://github.com/hrzlgnm/mdns-browser/pull/317))
+
+- *(ci)* Establish rust cache (#318) ([#318](https://github.com/hrzlgnm/mdns-browser/pull/318))
+
+- *(ci)* Drop dependabot (#320) ([#320](https://github.com/hrzlgnm/mdns-browser/pull/320))
+
+- *(ci)* Add android build (#322) ([#322](https://github.com/hrzlgnm/mdns-browser/pull/322))
+
+- *(ci)* Only save cache if running on main branch (#325) ([#325](https://github.com/hrzlgnm/mdns-browser/pull/325))
+
+- *(ci)* Add apk signing and android publish workflow (#328) ([#328](https://github.com/hrzlgnm/mdns-browser/pull/328))
+
 ## [0.8.7] - 2024-10-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.6...mdns-browser-v0.8.7)
 
 ### Dependencies
 
 - *(deps)* Pin dependencies (#312) ([#312](https://github.com/hrzlgnm/mdns-browser/pull/312))
 
+### Maintenance
+
+- *(ci)* Pass releaseName in publish workflow (#314) ([#314](https://github.com/hrzlgnm/mdns-browser/pull/314))
+
+- *(ci)* Fix typo in reusable workflow
+
 ## [0.8.6] - 2024-10-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.5...mdns-browser-v0.8.6)
 
 ### Changed
 
+- *(attest)* Introduce signed sbom (#311) ([#311](https://github.com/hrzlgnm/mdns-browser/pull/311))
+
+### Maintenance
+
 - *(ci)* Introduce reusable workflows (#309) ([#309](https://github.com/hrzlgnm/mdns-browser/pull/309))
 
-- *(attest)* Introduce signed sbom (#311) ([#311](https://github.com/hrzlgnm/mdns-browser/pull/311))
+- *(ci)* Fix uploading pr artifacts (#310) ([#310](https://github.com/hrzlgnm/mdns-browser/pull/310))
 
 ## [0.8.5] - 2024-10-03 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.8.4...mdns-browser-v0.8.5)
 
@@ -4799,10 +4885,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add creation of sbom (#255) ([#255](https://github.com/hrzlgnm/mdns-browser/pull/255))
 
-- *(ci)* Auditable builds (#265) ([#265](https://github.com/hrzlgnm/mdns-browser/pull/265))
-
-- *(ci)* Eliminate direct usage of rustup (#266) ([#266](https://github.com/hrzlgnm/mdns-browser/pull/266))
-
 - *(renovate)* Enable custom manager for updating cached install tools (#271) ([#271](https://github.com/hrzlgnm/mdns-browser/pull/271))
 
 - *(attest)* Add attestation provenance to releases (#274) ([#274](https://github.com/hrzlgnm/mdns-browser/pull/274))
@@ -4810,12 +4892,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Maintain lock files (#264) ([#264](https://github.com/hrzlgnm/mdns-browser/pull/264))
-
-- *(ci)* Locked builds
-
-- *(ci)* Install cached cargo-auditable v0.6.4 (#270) ([#270](https://github.com/hrzlgnm/mdns-browser/pull/270))
-
-- *(ci)* Add package versions to tools (#272) ([#272](https://github.com/hrzlgnm/mdns-browser/pull/272))
 
 ### Dependencies
 
@@ -4830,6 +4906,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Lock file maintenance (#273) ([#273](https://github.com/hrzlgnm/mdns-browser/pull/273))
 
 - *(deps)* Pin actions/attest-build-provenance action to 1c608d1 (#276) ([#276](https://github.com/hrzlgnm/mdns-browser/pull/276))
+
+### Maintenance
+
+- *(ci)* Locked builds
+
+- *(ci)* Auditable builds (#265) ([#265](https://github.com/hrzlgnm/mdns-browser/pull/265))
+
+- *(ci)* Eliminate direct usage of rustup (#266) ([#266](https://github.com/hrzlgnm/mdns-browser/pull/266))
+
+- *(ci)* Install cached cargo-auditable v0.6.4 (#270) ([#270](https://github.com/hrzlgnm/mdns-browser/pull/270))
+
+- *(ci)* Add package versions to tools (#272) ([#272](https://github.com/hrzlgnm/mdns-browser/pull/272))
 
 ## [0.7.14] - 2024-09-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.13...mdns-browser-v0.7.14)
 
@@ -4933,11 +5021,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(docs)* Fix typo in readme (#196) ([#196](https://github.com/hrzlgnm/mdns-browser/pull/196))
 
-- *(ci)* Update workflows (#199) ([#199](https://github.com/hrzlgnm/mdns-browser/pull/199))
-
 ### Dependencies
 
 - *(deps)* Use mdns-sd by git rev (#203) ([#203](https://github.com/hrzlgnm/mdns-browser/pull/203))
+
+### Maintenance
+
+- *(ci)* Update workflows (#199) ([#199](https://github.com/hrzlgnm/mdns-browser/pull/199))
 
 ## [0.7.4] - 2024-08-06 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.7.3...mdns-browser-v0.7.4)
 
@@ -4979,8 +5069,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(winget)* Use short form
 
-- *(ci)* Add workflow to publish to WinGet (#178) ([#178](https://github.com/hrzlgnm/mdns-browser/pull/178))
-
 ### Dependencies
 
 - *(deps)* Update tauri-apps/tauri-action action to v0.5.7
@@ -4995,35 +5083,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update tauri-apps/tauri-action action to v0.5.11
 
+### Maintenance
+
+- *(ci)* Add workflow to publish to WinGet (#178) ([#178](https://github.com/hrzlgnm/mdns-browser/pull/178))
+
 ## [0.6.3] - 2024-06-26 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.6.2...mdns-browser-v0.6.3)
 
 ### Changed
 
-- *(ci)* Add auto bump action (#150) ([#150](https://github.com/hrzlgnm/mdns-browser/pull/150))
-
-- *(ci)* Auto bump via pr (#153) ([#153](https://github.com/hrzlgnm/mdns-browser/pull/153))
-
-- *(ci)* Set permission flags for auto bump pr workflow
-
-- *(ci)* Fix syntax of auto bump pr action
-
-- *(ci)* Update script action and pass output via env
-
-- *(ci)* Auto bump pr set base branch
-
-- *(ci)* Auto bump as pr attempt to fix
-
-- *(ci)* Skip local branch create and push
-
-- *(ci)* Auto bump pr - skip committing changes
-
-- *(ci)* Cleanup auto bump pr workflow
-
 - *(perf)* Increase send interval for metrics to 10s (#157) ([#157](https://github.com/hrzlgnm/mdns-browser/pull/157))
-
-- *(ci)* Codespell (#166) ([#166](https://github.com/hrzlgnm/mdns-browser/pull/166))
-
-- *(ci)* Drop cleanup caches workflow (#167) ([#167](https://github.com/hrzlgnm/mdns-browser/pull/167))
 
 ### Dependencies
 
@@ -5050,6 +5118,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(renovate)* Config (#165) ([#165](https://github.com/hrzlgnm/mdns-browser/pull/165))
 
 - Handle txt values properly (#170) ([#170](https://github.com/hrzlgnm/mdns-browser/pull/170)) ([#169](https://github.com/hrzlgnm/mdns-browser/pull/169))
+
+### Maintenance
+
+- *(ci)* Add auto bump action (#150) ([#150](https://github.com/hrzlgnm/mdns-browser/pull/150))
+
+- *(ci)* Auto bump via pr (#153) ([#153](https://github.com/hrzlgnm/mdns-browser/pull/153))
+
+- *(ci)* Set permission flags for auto bump pr workflow
+
+- *(ci)* Fix syntax of auto bump pr action
+
+- *(ci)* Update script action and pass output via env
+
+- *(ci)* Auto bump pr set base branch
+
+- *(ci)* Auto bump as pr attempt to fix
+
+- *(ci)* Skip local branch create and push
+
+- *(ci)* Auto bump pr - skip committing changes
+
+- *(ci)* Cleanup auto bump pr workflow
+
+- *(ci)* Codespell (#166) ([#166](https://github.com/hrzlgnm/mdns-browser/pull/166))
+
+- *(ci)* Drop cleanup caches workflow (#167) ([#167](https://github.com/hrzlgnm/mdns-browser/pull/167))
 
 ## [0.6.2] - 2024-05-14 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.6.1...mdns-browser-v0.6.2)
 
@@ -5087,13 +5181,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.1] - 2024-05-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.5.0...mdns-browser-v0.5.1)
 
-### Changed
-
-- *(ci)* Run rustfmt and clippy only once on macos (#136) ([#136](https://github.com/hrzlgnm/mdns-browser/pull/136))
-
 ### Fixed
 
 - Remove existing service instances before adding new ones (#137) ([#137](https://github.com/hrzlgnm/mdns-browser/pull/137))
+
+### Maintenance
+
+- *(ci)* Run rustfmt and clippy only once on macos (#136) ([#136](https://github.com/hrzlgnm/mdns-browser/pull/136))
 
 ## [0.5.0] - 2024-05-11 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.4.1...mdns-browser-v0.5.0)
 
@@ -5173,10 +5267,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(cleanup)* Remove some debug log leftovers (#103) ([#103](https://github.com/hrzlgnm/mdns-browser/pull/103))
 
-- *(ci)* Add action to refresh caches
-
-- *(ci)* Add cleanup of caches only used in pull requests
-
 - Bump version to 0.2.10
 
 ### Dependencies
@@ -5209,6 +5299,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate thaw to 0.3.1 (#114) ([#114](https://github.com/hrzlgnm/mdns-browser/pull/114))
 
+### Maintenance
+
+- *(ci)* Add action to refresh caches
+
+- *(ci)* Add cleanup of caches only used in pull requests
+
 ## [0.2.8] - 2024-04-04 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.7...mdns-browser-v0.2.8)
 
 ### Added
@@ -5221,10 +5317,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Adopt to changes of if_addrs
 
-### Changed
-
-- *(ci)* Run clippy and fmt  checks also in src-tauri (#81) ([#81](https://github.com/hrzlgnm/mdns-browser/pull/81))
-
 ### Dependencies
 
 - *(deps)* Update rust crate thaw to 0.2.6
@@ -5232,6 +5324,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update rust crate leptos_meta to 0.6.10
 
 - *(deps)* Update rust crate if-addrs to 0.12.0
+
+### Maintenance
+
+- *(ci)* Run clippy and fmt  checks also in src-tauri (#81) ([#81](https://github.com/hrzlgnm/mdns-browser/pull/81))
 
 ## [0.2.6] - 2024-03-29 [compare](https://github.com/hrzlgnm/mdns-browser/compare/mdns-browser-v0.2.5...mdns-browser-v0.2.6)
 
