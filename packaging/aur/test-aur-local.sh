@@ -185,7 +185,6 @@ log "Repo: $OWNER/$REPO"
 # Detect package name and bin-variant availability from the generators present
 # ---------------------------------------------------------------------------
 source_gen="$AUR_DIR/generate-${REPO}.sh"
-bin_gen="$AUR_DIR/generate-${REPO}-bin.sh"
 if [[ ! -f "$source_gen" ]]; then
     # Fallback: infer the package name from the first generate-*.sh that is not
     # a *-bin generator.
@@ -199,15 +198,19 @@ if [[ ! -f "$source_gen" ]]; then
     done
 fi
 
-PKG="$REPO"
+if [[ -z "$source_gen" ]]; then
+    die "No source generate-*.sh helper found in $AUR_DIR (expected generate-${REPO}.sh or similar)."
+fi
+
+# Derive PKG from the resolved source_gen filename.
+PKG=$(basename "$source_gen" .sh)
+PKG=${PKG#generate-}
+
+# Now recompute bin_gen using the resolved PKG.
+bin_gen="$AUR_DIR/generate-${PKG}-bin.sh"
 HAS_BIN=false
 if [[ -f "$bin_gen" ]]; then
     HAS_BIN=true
-elif [[ -z "$source_gen" ]]; then
-    die "No generate-*.sh helper found in $AUR_DIR (expected generate-${REPO}.sh or generate-${REPO}-bin.sh)."
-fi
-if [[ -z "$source_gen" ]]; then
-    die "No source generate-*.sh helper found in $AUR_DIR."
 fi
 
 log "Package: $PKG (bin variant: $HAS_BIN)"
@@ -318,15 +321,21 @@ run_variant() {
             log "[$kind] Build skipped (--no-build)."
         fi
 
-        local pkg
-        pkg=$(find . -maxdepth 1 -name '*.pkg.tar.*' -type f -printf '%f\n' 2>/dev/null | sort | tail -n1)
+        local pkg pkg_count
+        # Exclude -debug- packages and validate exactly one artifact for install.
+        pkg=$(find . -maxdepth 1 -name '*.pkg.tar.*' -type f -printf '%f\n' 2>/dev/null \
+            | grep -v -- '-debug-' | sort | tail -n1)
         if [[ -n "$pkg" ]]; then
             log "[$kind] Build artifact: $pkg"
         fi
 
         if [[ "$kind" = "bin" && "$DO_BUILD" = true && "$DO_INSTALL" = true ]]; then
-            if [[ -z "$pkg" ]]; then
+            pkg_count=$(find . -maxdepth 1 -name '*.pkg.tar.*' -type f -printf '%f\n' 2>/dev/null \
+                | grep -v -- '-debug-' | wc -l)
+            if [[ "$pkg_count" -eq 0 ]]; then
                 die "[$kind] No built package artifact found; cannot install."
+            elif [[ "$pkg_count" -gt 1 ]]; then
+                die "[$kind] Multiple non-debug package artifacts found; cannot determine which to install."
             fi
             log "[$kind] Installing $pkg (pacman -U)..."
             if as_sudo pacman -U --noconfirm "$workdir/$pkg"; then
@@ -385,6 +394,6 @@ for k in "${kinds[@]}"; do
 done
 
 log "All requested variants processed."
-if [[ "$DO_CLEANUP" = true ]]; then
+if [[ "${#CLEANUP_DIRS[@]}" -gt 0 ]]; then
     log "(Temporary build directories are removed on exit; use --no-cleanup to keep them.)"
 fi
