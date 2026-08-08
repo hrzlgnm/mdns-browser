@@ -25,13 +25,19 @@ url="https://github.com/hrzlgnm/mdns-browser"
 license=('MIT')
 depends=('cairo' 'desktop-file-utils' 'gdk-pixbuf2' 'glib2' 'gtk3' 'hicolor-icon-theme' 'libsoup3' 'pango' 'webkit2gtk-4.1' 'openssl')
 conflicts=('mdns-browser-bin')
-makedepends=('cargo' 'cargo-auditable' 'git' 'file' 'appmenu-gtk-module' 'libappindicator-gtk3' 'librsvg' 'base-devel' 'curl' 'wget' 'rust' 'rust-wasm' 'trunk')
+makedepends=('cargo' 'cargo-auditable' 'cargo-edit' 'git' 'file' 'appmenu-gtk-module' 'libappindicator-gtk3' 'librsvg' 'base-devel' 'curl' 'wget' 'rust' 'rust-wasm' 'trunk' 'jq')
 options=('!strip' '!emptydirs')
 source=("$tag.tar.gz::https://github.com/hrzlgnm/\$pkgname/archive/refs/tags/$tag.tar.gz")
 sha256sums=('$sha256sum')
 _builddir="\$pkgname-$tag"
 prepare() {
     cd "\$srcdir/\$_builddir" || exit 1
+    cargo set-version --package mdns-browser-ui "$version"
+    cargo set-version --package mdns-browser "$version"
+    cargo set-version --package models "$version"
+    cargo set-version --package shared_constants "$version"
+    jq --indent 4 ".version=\"$version\"" src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.new
+    mv src-tauri/tauri.conf.json.new src-tauri/tauri.conf.json
     cargo --locked install tauri-cli@2.11.4
     cargo fetch --locked --target "\$(rustc -vV | sed -n 's/host: //p')"
     cargo fetch --locked --target wasm32-unknown-unknown
