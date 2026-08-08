@@ -11,22 +11,25 @@ header = ""
 body = """
 {% if version -%}\
     ## What's Changed\n
-{% for group, commits in commits | group_by(attribute="group") %}\
-    {% if group == "Breaking" -%}### :boom: Breaking Changes\n
-    {% elif group == "Added" -%}### :sparkles: New Features\n
-    {% elif group == "Fixed" -%}### :bug: Bug Fixes\n
-    {% elif group == "Changed" -%}### 🧰 Maintenance\n
-    {% elif group == "Maintenance" -%}### :wrench: CI/CD\n
-    {% elif group == "Performance" -%}### :zap: Performance\n
-    {% elif group == "Refactor" -%}### :recycle: Refactor\n
-    {% elif group == "Documentation" -%}### :scroll: Documentation\n
-    {% elif group == "Test" -%}### :white_check_mark: Test\n
-    {% elif group == "Dependencies" -%}### :arrow_up: Dependency Updates\n
-    {% else -%}### Other Changes\n
+{% for group_name in ["Breaking", "Added", "Fixed", "Changed", "Maintenance", "Performance", "Refactor", "Documentation", "Test", "Dependencies", "Other"] %}\
+    {% set group_commits = commits | filter(attribute="group", value=group_name) %}\
+    {% if group_commits -%}\
+        {% if group_name == "Breaking" -%}### :boom: Breaking Changes\n
+        {% elif group_name == "Added" -%}### :sparkles: New Features\n
+        {% elif group_name == "Fixed" -%}### :bug: Bug Fixes\n
+        {% elif group_name == "Changed" -%}### 🧰 Maintenance\n
+        {% elif group_name == "Maintenance" -%}### :wrench: CI/CD\n
+        {% elif group_name == "Performance" -%}### :zap: Performance\n
+        {% elif group_name == "Refactor" -%}### :recycle: Refactor\n
+        {% elif group_name == "Documentation" -%}### :scroll: Documentation\n
+        {% elif group_name == "Test" -%}### :white_check_mark: Test\n
+        {% elif group_name == "Dependencies" -%}### :arrow_up: Dependency Updates\n
+        {% else -%}### Other Changes\n
+        {% endif -%}\
+        {% for commit in group_commits -%}\
+            - {{ commit.message | upper_first | trim }} @{{ commit.remote.username | default(value=commit.author.email | split(pat="@") | first | split(pat="+") | last) }}{% for link in commit.links %} ([{{ link.text }}]({{ link.href }})){% endfor %}\n
+        {% endfor -%}\
     {% endif -%}\
-    {% for commit in commits -%}\
-        - {{ commit.message | upper_first | trim }} @{{ commit.remote.username | default(value=commit.author.email | split(pat="@") | first | split(pat="+") | last) }}{% for link in commit.links %} ([{{ link.text }}]({{ link.href }})){% endfor %}\n
-    {% endfor -%}\
 {% endfor -%}\
 {% if previous and previous.version -%}\n### Full Changelog\n[{{ previous.version }}...{{ version }}](https://github.com/hrzlgnm/mdns-browser/compare/{{ previous.version }}...{{ version }})\n
 {% endif -%}\
