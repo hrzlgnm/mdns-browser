@@ -5,6 +5,12 @@ All notable changes to `webkit2gtk-nvidia-quirk` will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This changelog is auto-generated from commits that modify this crate.
 
+## [1.4.1] - 2026-08-09 [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v1.4.0...webkit2gtk-nvidia-quirk-v1.4.1)
+
+### Fixed
+
+- *(webkit2gtk-nvidia-quirk)* Detect NVIDIA driver without /sys/module or XDG_SESSION_TYPE (#2448) ([#2448](https://github.com/hrzlgnm/mdns-browser/pull/2448))
+
 ## [1.4.0] - 2026-08-01 [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v1.3.0...webkit2gtk-nvidia-quirk-v1.4.0)
 
 ### Added

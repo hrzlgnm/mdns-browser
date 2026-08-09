@@ -6694,7 +6694,7 @@ dependencies = [
 
 [[package]]
 name = "webkit2gtk-nvidia-quirk"
-version = "1.4.0"
+version = "1.4.1"
 
 [[package]]
 name = "webkit2gtk-sys"
