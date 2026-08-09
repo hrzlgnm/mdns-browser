@@ -56,12 +56,12 @@
 //!
 //! ### Sandboxed environments (Flatpak)
 //!
-//! All detection reads are scoped to `/sys/class/drm`, which is one of the sysfs subtrees
-//! Flatpak shares read-only with sandboxed apps by default (`/sys/block`, `/sys/bus`,
-//! `/sys/class`, `/sys/dev`, `/sys/devices`). Earlier versions checked `/sys/module/nvidia`
-//! directly, which is *not* part of that default allowlist and would always be reported as
-//! missing inside a Flatpak sandbox, silently disabling the workaround. Deriving driver
-//! detection from the `device/driver` symlink avoids that problem.
+//! GPU and NVIDIA-driver detection reads are scoped to `/sys/class/drm`, which is one of the
+//! sysfs subtrees Flatpak shares read-only with sandboxed apps by default (`/sys/block`,
+//! `/sys/bus`, `/sys/class`, `/sys/dev`, `/sys/devices`). Earlier versions checked
+//! `/sys/module/nvidia` directly, which is *not* part of that default allowlist and would
+//! always be reported as missing inside a Flatpak sandbox, silently disabling the workaround.
+//! Deriving driver detection from the `device/driver` symlink avoids that problem.
 //!
 //! The `egl-wayland2` optimization (see below) reads `/proc/driver/nvidia/version` and the
 //! host's `/etc/egl` / `/usr/share/egl` directories, none of which are visible inside a
@@ -775,16 +775,16 @@ mod tests {
         vendor: Option<&str>,
         driver: Option<&str>,
         boot_vga: bool,
-    ) -> PathBuf {
+    ) -> std::io::Result<PathBuf> {
         let card_path = drm_dir.join(name);
         let device_path = card_path.join("device");
-        std::fs::create_dir_all(&device_path).unwrap();
+        std::fs::create_dir_all(&device_path)?;
 
         if let Some(vendor) = vendor {
-            std::fs::write(device_path.join("vendor"), vendor).unwrap();
+            std::fs::write(device_path.join("vendor"), vendor)?;
         }
         if boot_vga {
-            std::fs::write(device_path.join("boot_vga"), "1").unwrap();
+            std::fs::write(device_path.join("boot_vga"), "1")?;
         }
         if let Some(driver) = driver {
             // The real sysfs symlink target doesn't need to resolve to an
@@ -792,31 +792,33 @@ mod tests {
             // stored link text, matching how it behaves under sandboxes that
             // don't expose `/sys/bus`.
             let target = PathBuf::from(format!("../../../../bus/pci/drivers/{driver}"));
-            std::os::unix::fs::symlink(target, device_path.join("driver")).unwrap();
+            std::os::unix::fs::symlink(target, device_path.join("driver"))?;
         }
 
-        card_path
+        Ok(card_path)
     }
 
     #[test]
-    fn test_driver_name_resolves_symlink() {
+    fn test_driver_name_resolves_symlink() -> std::io::Result<()> {
         let dir = temp_dir("driver_name");
-        let card = write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true);
+        let card = write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true)?;
         assert_eq!(driver_name(&card), Some("nvidia".to_string()));
+        Ok(())
     }
 
     #[test]
-    fn test_driver_name_missing_symlink() {
+    fn test_driver_name_missing_symlink() -> std::io::Result<()> {
         let dir = temp_dir("driver_name_missing");
-        let card = write_fake_card(&dir, "card0", Some("0x10de"), None, true);
+        let card = write_fake_card(&dir, "card0", Some("0x10de"), None, true)?;
         assert_eq!(driver_name(&card), None);
+        Ok(())
     }
 
     #[test]
-    fn test_enumerate_gpus_at_nvidia_primary() {
+    fn test_enumerate_gpus_at_nvidia_primary() -> std::io::Result<()> {
         let dir = temp_dir("enumerate_nvidia_primary");
-        write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true);
-        write_fake_card(&dir, "card1", Some("0x1002"), Some("amdgpu"), false);
+        write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true)?;
+        write_fake_card(&dir, "card1", Some("0x1002"), Some("amdgpu"), false)?;
 
         let devices = enumerate_gpus_at(&dir);
         assert_eq!(devices.len(), 2);
@@ -824,18 +826,20 @@ mod tests {
             .iter()
             .any(|d| d.is_primary && d.is_nvidia && d.uses_nvidia_driver));
         assert!(nvidia_driver_loaded(&devices));
+        Ok(())
     }
 
     #[test]
-    fn test_enumerate_gpus_at_nouveau_not_nvidia_driver() {
+    fn test_enumerate_gpus_at_nouveau_not_nvidia_driver() -> std::io::Result<()> {
         // NVIDIA vendor ID but the open-source nouveau driver bound - the
         // proprietary-driver check must not treat this as "loaded".
         let dir = temp_dir("enumerate_nouveau");
-        write_fake_card(&dir, "card0", Some("0x10de"), Some("nouveau"), true);
+        write_fake_card(&dir, "card0", Some("0x10de"), Some("nouveau"), true)?;
 
         let devices = enumerate_gpus_at(&dir);
         assert!(devices.iter().any(|d| d.is_primary && d.is_nvidia));
         assert!(!nvidia_driver_loaded(&devices));
+        Ok(())
     }
 
     #[test]
@@ -892,11 +896,11 @@ mod tests {
     /// regression test for the bug where the workaround silently became a
     /// no-op in sandboxes because detection relied on `/sys/module/nvidia`.
     #[test]
-    fn test_needs_workaround_detection_in_simulated_flatpak_sandbox() {
+    fn test_needs_workaround_detection_in_simulated_flatpak_sandbox() -> std::io::Result<()> {
         let dir = temp_dir("flatpak_sandbox");
         // Only /sys/class/drm exists in the sandbox; deliberately do not
         // create anything resembling /sys/module or /proc.
-        write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true);
+        write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true)?;
 
         let devices = enumerate_gpus_at(&dir);
         let primary_gpu_is_nvidia = devices.iter().any(|d| d.is_primary && d.is_nvidia);
@@ -917,5 +921,6 @@ mod tests {
         // directories reachable, egl-wayland2 can never be detected as
         // active, so the conservative Wayland workaround is selected.
         assert!(!is_egl_wayland2_selected(&[], None));
+        Ok(())
     }
 }
