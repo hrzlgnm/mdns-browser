@@ -46,12 +46,31 @@
 //!
 //! The crate detects the NVIDIA driver by:
 //! 1. If the primary/boot GPU (via `boot_display` or `boot_vga` attributes) has vendor ID 0x10de
-//! 2. If the proprietary `nvidia` kernel module is loaded (`/sys/module/nvidia` exists)
+//! 2. If any enumerated GPU's `device/driver` symlink (e.g.
+//!    `/sys/class/drm/card0/device/driver`) resolves to a driver named `nvidia`
 //!
 //! GPU detection uses sysfs exclusively (`/sys/class/drm/`). This provides a simpler and
 //! more reliable detection mechanism with no external runtime dependencies.
 //!
 //! This specifically targets the proprietary NVIDIA driver, not the open-source nouveau driver.
+//!
+//! ### Sandboxed environments (Flatpak)
+//!
+//! All detection reads are scoped to `/sys/class/drm`, which is one of the sysfs subtrees
+//! Flatpak shares read-only with sandboxed apps by default (`/sys/block`, `/sys/bus`,
+//! `/sys/class`, `/sys/dev`, `/sys/devices`). Earlier versions checked `/sys/module/nvidia`
+//! directly, which is *not* part of that default allowlist and would always be reported as
+//! missing inside a Flatpak sandbox, silently disabling the workaround. Deriving driver
+//! detection from the `device/driver` symlink avoids that problem.
+//!
+//! The `egl-wayland2` optimization (see below) reads `/proc/driver/nvidia/version` and the
+//! host's `/etc/egl` / `/usr/share/egl` directories, none of which are visible inside a
+//! Flatpak sandbox (`/proc` is a reserved path and the EGL config directories belong to the
+//! host's `/etc`/`/usr`). When these are unreadable, detection conservatively falls back to
+//! "not `egl-wayland2`", so the Wayland workaround is still applied. This is safe but not
+//! perf-optimal for sandboxed apps running with a 560+ driver and `egl-wayland2` installed.
+//!
+//! Session type detection also has a sandbox-aware fallback (see below).
 //!
 //! Whether `egl-wayland2` is used is detected by mirroring the EGL loader logic:
 //! the EGL external platform JSON manifests in `/etc/egl/egl_external_platform.d`
@@ -141,6 +160,7 @@ use std::path::{Path, PathBuf};
 struct GpuDevice {
     is_primary: bool,
     is_nvidia: bool,
+    uses_nvidia_driver: bool,
 }
 
 fn read_sysfs_file(path: &Path) -> Option<String> {
@@ -162,11 +182,23 @@ fn is_sysfs_attr_one(card_path: &Path, attr: &str) -> bool {
     read_sysfs_file(&card_path.join(attr)).as_deref() == Some("1")
 }
 
-fn enumerate_gpus() -> Vec<GpuDevice> {
-    let mut devices = Vec::new();
-    let drm_path = PathBuf::from("/sys/class/drm");
+/// Returns the name of the kernel driver bound to the GPU at `card_path`, if
+/// any, by resolving the `device/driver` symlink (e.g. `.../drivers/nvidia`).
+///
+/// This only reads the symlink target text via `read_link`, which does not
+/// require the target directory itself to be accessible - it works even in
+/// sandboxes (such as Flatpak) that only expose `/sys/class`.
+fn driver_name(card_path: &Path) -> Option<String> {
+    let driver_link = card_path.join("device/driver");
+    let target = std::fs::read_link(driver_link).ok()?;
+    target.file_name()?.to_str().map(str::to_string)
+}
 
-    let entries = match std::fs::read_dir(&drm_path) {
+/// Enumerates GPUs found under `drm_path` (typically `/sys/class/drm`).
+fn enumerate_gpus_at(drm_path: &Path) -> Vec<GpuDevice> {
+    let mut devices = Vec::new();
+
+    let entries = match std::fs::read_dir(drm_path) {
         Ok(e) => e,
         Err(_) => return devices,
     };
@@ -190,18 +222,31 @@ fn enumerate_gpus() -> Vec<GpuDevice> {
             || is_sysfs_attr_one(&card_path.join("device"), "boot_vga");
 
         let is_nvidia = vendor_id == 0x10de;
+        let uses_nvidia_driver = driver_name(&card_path).as_deref() == Some("nvidia");
 
         devices.push(GpuDevice {
             is_primary,
             is_nvidia,
+            uses_nvidia_driver,
         });
     }
 
     devices
 }
 
-fn nvidia_driver_loaded() -> bool {
-    std::path::Path::new("/sys/module/nvidia").exists()
+fn enumerate_gpus() -> Vec<GpuDevice> {
+    enumerate_gpus_at(Path::new("/sys/class/drm"))
+}
+
+/// Returns whether any enumerated GPU is currently bound to the proprietary
+/// `nvidia` kernel driver.
+///
+/// This is derived from the `device/driver` symlink of each GPU under
+/// `/sys/class/drm` rather than checking for `/sys/module/nvidia`, since the
+/// latter is not exposed inside sandboxes (such as Flatpak) that only share
+/// `/sys/class` (and similar subtrees) with the app by default.
+fn nvidia_driver_loaded(devices: &[GpuDevice]) -> bool {
+    devices.iter().any(|d| d.uses_nvidia_driver)
 }
 
 /// The NVIDIA Wayland EGL platform library referenced by an external platform manifest.
@@ -333,22 +378,48 @@ fn egl_wayland2_active() -> bool {
     is_egl_wayland2_selected(&configs, driver_major)
 }
 
+#[derive(Debug, PartialEq, Eq)]
 enum SessionType {
     Wayland,
     X11,
     Unknown,
 }
 
-/// Detects the used session type based upon the XDG_SESSION_TYPE environment variable
-fn get_session_type() -> SessionType {
-    match std::env::var("XDG_SESSION_TYPE") {
-        Ok(session) => match session.as_str() {
-            "x11" => SessionType::X11,
-            "wayland" => SessionType::Wayland,
-            _ => SessionType::Unknown,
-        },
-        _ => SessionType::Unknown,
+/// Determines the session type from the relevant environment variables.
+///
+/// `XDG_SESSION_TYPE` is preferred when set to a recognized value. Sandboxed
+/// environments such as Flatpak do not propagate `XDG_SESSION_TYPE` into the
+/// sandbox, so `WAYLAND_DISPLAY` and `DISPLAY` are used as a fallback: Flatpak
+/// sets these automatically when the corresponding socket permission
+/// (`--socket=wayland`, `--socket=x11`/`--socket=fallback-x11`) is granted.
+fn session_type_from_env(
+    xdg_session_type: Option<&str>,
+    wayland_display: Option<&str>,
+    display: Option<&str>,
+) -> SessionType {
+    match xdg_session_type {
+        Some("x11") => return SessionType::X11,
+        Some("wayland") => return SessionType::Wayland,
+        _ => {}
     }
+    if wayland_display.is_some() {
+        SessionType::Wayland
+    } else if display.is_some() {
+        SessionType::X11
+    } else {
+        SessionType::Unknown
+    }
+}
+
+/// Detects the used session type based upon the `XDG_SESSION_TYPE` environment
+/// variable, falling back to `WAYLAND_DISPLAY`/`DISPLAY` when unavailable (e.g.
+/// inside a Flatpak sandbox). See [`session_type_from_env`] for details.
+fn get_session_type() -> SessionType {
+    session_type_from_env(
+        std::env::var("XDG_SESSION_TYPE").ok().as_deref(),
+        std::env::var("WAYLAND_DISPLAY").ok().as_deref(),
+        std::env::var("DISPLAY").ok().as_deref(),
+    )
 }
 
 /// Represents the type of workaround to apply for NVIDIA WebKitGTK issues.
@@ -387,8 +458,10 @@ pub enum WorkaroundKind {
 /// Call this first, then call the workaround if needed - ideally before spawning any threads.
 pub fn needs_workaround() -> WorkaroundKind {
     let session = get_session_type();
+    let devices = enumerate_gpus();
+    let primary_gpu_is_nvidia = devices.iter().any(|d| d.is_primary && d.is_nvidia);
 
-    if !is_primary_gpu_nvidia() || !nvidia_driver_loaded() {
+    if !primary_gpu_is_nvidia || !nvidia_driver_loaded(&devices) {
         return WorkaroundKind::None;
     }
     match session {
@@ -691,5 +764,158 @@ mod tests {
         )];
         assert!(!is_egl_wayland2_selected(&configs, Some(610)));
         assert!(!is_egl_wayland2_selected(&[], Some(610)));
+    }
+
+    /// Creates a fake `/sys/class/drm/<name>` GPU entry with a `device/driver`
+    /// symlink pointing at a driver named `driver`, and optionally a
+    /// `boot_vga` attribute set to `1` and a `vendor` file.
+    fn write_fake_card(
+        drm_dir: &Path,
+        name: &str,
+        vendor: Option<&str>,
+        driver: Option<&str>,
+        boot_vga: bool,
+    ) -> PathBuf {
+        let card_path = drm_dir.join(name);
+        let device_path = card_path.join("device");
+        std::fs::create_dir_all(&device_path).unwrap();
+
+        if let Some(vendor) = vendor {
+            std::fs::write(device_path.join("vendor"), vendor).unwrap();
+        }
+        if boot_vga {
+            std::fs::write(device_path.join("boot_vga"), "1").unwrap();
+        }
+        if let Some(driver) = driver {
+            // The real sysfs symlink target doesn't need to resolve to an
+            // existing path for `read_link` to work - it only reads the
+            // stored link text, matching how it behaves under sandboxes that
+            // don't expose `/sys/bus`.
+            let target = PathBuf::from(format!("../../../../bus/pci/drivers/{driver}"));
+            std::os::unix::fs::symlink(target, device_path.join("driver")).unwrap();
+        }
+
+        card_path
+    }
+
+    #[test]
+    fn test_driver_name_resolves_symlink() {
+        let dir = temp_dir("driver_name");
+        let card = write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true);
+        assert_eq!(driver_name(&card), Some("nvidia".to_string()));
+    }
+
+    #[test]
+    fn test_driver_name_missing_symlink() {
+        let dir = temp_dir("driver_name_missing");
+        let card = write_fake_card(&dir, "card0", Some("0x10de"), None, true);
+        assert_eq!(driver_name(&card), None);
+    }
+
+    #[test]
+    fn test_enumerate_gpus_at_nvidia_primary() {
+        let dir = temp_dir("enumerate_nvidia_primary");
+        write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true);
+        write_fake_card(&dir, "card1", Some("0x1002"), Some("amdgpu"), false);
+
+        let devices = enumerate_gpus_at(&dir);
+        assert_eq!(devices.len(), 2);
+        assert!(devices
+            .iter()
+            .any(|d| d.is_primary && d.is_nvidia && d.uses_nvidia_driver));
+        assert!(nvidia_driver_loaded(&devices));
+    }
+
+    #[test]
+    fn test_enumerate_gpus_at_nouveau_not_nvidia_driver() {
+        // NVIDIA vendor ID but the open-source nouveau driver bound - the
+        // proprietary-driver check must not treat this as "loaded".
+        let dir = temp_dir("enumerate_nouveau");
+        write_fake_card(&dir, "card0", Some("0x10de"), Some("nouveau"), true);
+
+        let devices = enumerate_gpus_at(&dir);
+        assert!(devices.iter().any(|d| d.is_primary && d.is_nvidia));
+        assert!(!nvidia_driver_loaded(&devices));
+    }
+
+    #[test]
+    fn test_enumerate_gpus_at_no_cards() {
+        let dir = temp_dir("enumerate_empty");
+        let devices = enumerate_gpus_at(&dir);
+        assert!(devices.is_empty());
+        assert!(!nvidia_driver_loaded(&devices));
+    }
+
+    #[test]
+    fn test_session_type_from_env_prefers_xdg_session_type() {
+        assert_eq!(
+            session_type_from_env(Some("wayland"), None, Some(":0")),
+            SessionType::Wayland
+        );
+        assert_eq!(
+            session_type_from_env(Some("x11"), Some("wayland-0"), None),
+            SessionType::X11
+        );
+    }
+
+    #[test]
+    fn test_session_type_from_env_falls_back_to_display_vars() {
+        // Simulates a Flatpak sandbox where XDG_SESSION_TYPE isn't
+        // propagated, but the socket permission env vars are set.
+        assert_eq!(
+            session_type_from_env(None, Some("wayland-0"), None),
+            SessionType::Wayland
+        );
+        assert_eq!(
+            session_type_from_env(None, None, Some(":0")),
+            SessionType::X11
+        );
+        assert_eq!(
+            session_type_from_env(None, None, None),
+            SessionType::Unknown
+        );
+    }
+
+    #[test]
+    fn test_session_type_from_env_unrecognized_xdg_session_type_falls_back() {
+        assert_eq!(
+            session_type_from_env(Some("tty"), Some("wayland-0"), None),
+            SessionType::Wayland
+        );
+    }
+
+    /// Integration test: exercises the full GPU-detection pipeline
+    /// (`enumerate_gpus_at` + `nvidia_driver_loaded`) against a fake sysfs
+    /// tree that mimics what is actually visible inside a Flatpak sandbox,
+    /// i.e. only `/sys/class/drm` is present - there is no
+    /// `/sys/module/nvidia` and no `/proc/driver/nvidia/version`. This is a
+    /// regression test for the bug where the workaround silently became a
+    /// no-op in sandboxes because detection relied on `/sys/module/nvidia`.
+    #[test]
+    fn test_needs_workaround_detection_in_simulated_flatpak_sandbox() {
+        let dir = temp_dir("flatpak_sandbox");
+        // Only /sys/class/drm exists in the sandbox; deliberately do not
+        // create anything resembling /sys/module or /proc.
+        write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true);
+
+        let devices = enumerate_gpus_at(&dir);
+        let primary_gpu_is_nvidia = devices.iter().any(|d| d.is_primary && d.is_nvidia);
+        let driver_loaded = nvidia_driver_loaded(&devices);
+
+        assert!(
+            primary_gpu_is_nvidia && driver_loaded,
+            "NVIDIA should still be detected from /sys/class/drm alone, \
+             without /sys/module or /proc access"
+        );
+
+        // The session type would typically come from WAYLAND_DISPLAY/DISPLAY
+        // in a Flatpak sandbox, since XDG_SESSION_TYPE is not propagated.
+        let session = session_type_from_env(None, Some("wayland-0"), None);
+        assert_eq!(session, SessionType::Wayland);
+
+        // With no /proc/driver/nvidia/version and no host EGL config
+        // directories reachable, egl-wayland2 can never be detected as
+        // active, so the conservative Wayland workaround is selected.
+        assert!(!is_egl_wayland2_selected(&[], None));
     }
 }
