@@ -52,6 +52,7 @@ Screenshots from [v0.11.28](https://github.com/hrzlgnm/mdns-browser/releases/tag
         - [Flatpak (FlatPark)](#flatpak-flatpark)
     - [Auditable binaries](#auditable-binaries)
     - [Attested build artifacts](#attested-build-artifacts)
+    - [Immutable releases](#immutable-releases)
     - [Privacy](#privacy)
     - [Acknowledgments](#acknowledgments)
 
@@ -207,6 +208,12 @@ Since release v0.8.x
 The build artifacts are now attested. Attestations information about the binaries is available [here](https://github.com/hrzlgnm/mdns-browser/attestations). For more information and details on how to verify those, see [Verifying artifact attestations with the GitHub CLI](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds#verifying-artifact-attestations-with-the-github-cli)
 
 Since release v0.8.x
+
+## Immutable releases
+
+The GitHub releases are now immutable: a release is first created as a draft, all its assets (binaries, checksums, attestations) are uploaded while it is still a draft, and it is only published once everything is in place. This ensures that a published release is always complete and cannot be altered afterwards.
+
+Since release v1.13.0
 
 ## Privacy
 
