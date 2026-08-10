@@ -230,11 +230,6 @@ pub struct ThemeChangedEvent {
     pub theme: String,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct CanBrowseChangedEvent {
-    pub can_browse: bool,
-}
-
 #[derive(Deserialize, Serialize, Clone, Eq, PartialEq, Debug, Store)]
 pub struct ProtocolFlags {
     pub ipv4: bool,
