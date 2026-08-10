@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.15.2...HEAD)
+
+### Changed
+
+- Cross-link zux graph visualizer ([#2450](https://github.com/hrzlgnm/mdns-browser/pull/2450))
+
+### Dependencies
+
+- *(deps)* Update rust crate serde_with to v3.22.0 ([#2451](https://github.com/hrzlgnm/mdns-browser/pull/2451))
+
+- *(deps)* Lock file maintenance ([#2452](https://github.com/hrzlgnm/mdns-browser/pull/2452))
+
+## [1.15.2] - 2026-08-09 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.15.1...v1.15.2)
+
+### Changed
+
+- Add FlatPak install method via FlatPark and version badge ([#2449](https://github.com/hrzlgnm/mdns-browser/pull/2449))
+
+### Fixed
+
+- *(webkit2gtk-nvidia-quirk)* Detect NVIDIA driver without /sys/module or XDG_SESSION_TYPE ([#2448](https://github.com/hrzlgnm/mdns-browser/pull/2448))
+
 ## [1.15.1] - 2026-08-08 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.15.0...v1.15.1)
 
 ### Added
