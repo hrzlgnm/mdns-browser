@@ -13,8 +13,8 @@ use models::*;
 #[cfg(not(windows))]
 use pnet::datalink;
 use shared_constants::{
-    INTERFACES_CAN_BROWSE_CHECK_INTERVAL, INTERFACES_LIST_CHECK_INTERVAL,
-    MDNS_SD_IP_CHECK_INTERVAL, MDNS_SD_META_SERVICE, METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT,
+    INTERFACES_LIST_CHECK_INTERVAL, MDNS_SD_IP_CHECK_INTERVAL, MDNS_SD_META_SERVICE,
+    METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT,
 };
 use std::{
     collections::{BTreeSet, HashMap, HashSet},
@@ -64,7 +64,6 @@ struct ManagedState {
     daemon: SharedServiceDaemon,
     queriers: Arc<Mutex<HashSet<String>>>,
     metrics_subscribed: AtomicBool,
-    can_browse_subscribed: AtomicBool,
     interfaces_subscribed: AtomicBool,
     ipv4_enabled: AtomicBool,
     ipv6_enabled: AtomicBool,
@@ -80,7 +79,6 @@ impl ManagedState {
             daemon: initialize_shared_daemon(),
             queriers: Arc::new(Mutex::new(HashSet::new())),
             metrics_subscribed: AtomicBool::new(false),
-            can_browse_subscribed: AtomicBool::new(false),
             interfaces_subscribed: AtomicBool::new(false),
             ipv4_enabled: AtomicBool::new(true),
             ipv6_enabled: AtomicBool::new(true),
@@ -95,7 +93,6 @@ impl ManagedState {
             daemon: initialize_shared_daemon(),
             queriers: Arc::new(Mutex::new(HashSet::new())),
             metrics_subscribed: AtomicBool::new(false),
-            can_browse_subscribed: AtomicBool::new(false),
             interfaces_subscribed: AtomicBool::new(false),
             ipv4_enabled: AtomicBool::new(true),
             ipv6_enabled: AtomicBool::new(true),
@@ -692,76 +689,6 @@ mod tests {
     }
 }
 
-#[cfg(not(windows))]
-fn has_mdns_capable_interfaces() -> bool {
-    datalink::interfaces().iter().any(|interface| {
-        is_mdns_capable_pnet(interface) || (interface.is_loopback() && !interface.ips.is_empty())
-    })
-}
-
-#[cfg(windows)]
-fn has_mdns_capable_interfaces() -> bool {
-    if let Ok(adapters) = ipconfig::get_adapters() {
-        adapters.iter().any(|adapter| {
-            is_mdns_capable_ipconfig(adapter)
-                || (adapter.if_type() == ipconfig::IfType::SoftwareLoopback
-                    && !adapter.ip_addresses().is_empty())
-        })
-    } else {
-        log::warn!("Unable to determine whether we have mDNS capable network adapters, assuming no network is present");
-        false
-    }
-}
-
-async fn poll_can_browse(window: Window) {
-    let mut current = has_mdns_capable_interfaces();
-    emit_event(
-        &window,
-        "can-browse-changed",
-        &CanBrowseChangedEvent {
-            can_browse: current,
-        },
-    );
-    loop {
-        tokio::time::sleep(INTERFACES_CAN_BROWSE_CHECK_INTERVAL).await;
-        let new_value = has_mdns_capable_interfaces();
-        if new_value != current {
-            current = new_value;
-            emit_event(
-                &window,
-                "can-browse-changed",
-                &CanBrowseChangedEvent {
-                    can_browse: current,
-                },
-            );
-        }
-    }
-}
-
-/// Subscribes to updates of the mDNS browsing capability.
-///
-/// Starts a background task that polls whether mDNS-capable interfaces are available at regular
-/// intervals, or emits the current state immediately if a subscription is already active. Emits
-/// `"can-browse-changed"` events to the Tauri window.
-#[tauri::command]
-fn subscribe_can_browse(window: Window, state: State<ManagedState>) {
-    if state
-        .can_browse_subscribed
-        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
-        .is_ok()
-    {
-        tauri::async_runtime::spawn(poll_can_browse(window));
-    } else {
-        emit_event(
-            &window,
-            "can-browse-changed",
-            &CanBrowseChangedEvent {
-                can_browse: has_mdns_capable_interfaces(),
-            },
-        );
-    }
-}
-
 async fn poll_interfaces(window: Window, disabled_interfaces: Arc<Mutex<HashSet<String>>>) {
     let mut current: Vec<NetworkInterface> = Vec::new();
     loop {
@@ -1330,7 +1257,6 @@ pub fn run() {
             open_url,
             set_interfaces,
             set_protocol_flags,
-            subscribe_can_browse,
             subscribe_interfaces,
             subscribe_metrics,
             stop_browse,
@@ -1374,7 +1300,6 @@ pub fn run_mobile() {
             open_url,
             set_interfaces,
             set_protocol_flags,
-            subscribe_can_browse,
             subscribe_interfaces,
             subscribe_metrics,
             stop_browse,

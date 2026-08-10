@@ -15,8 +15,8 @@ use thaw::{
     AutoComplete, AutoCompleteOption, AutoCompleteRef, AutoCompleteSize, Badge, BadgeAppearance,
     BadgeColor, BadgeSize, Button, ButtonAppearance, ButtonSize, Card, CardHeader, CardPreview,
     ComponentRef, Dialog, DialogBody, DialogSurface, Flex, FlexAlign, FlexGap, FlexJustify, Grid,
-    GridItem, Icon, Input, Layout, MessageBar, MessageBarBody, MessageBarIntent, MessageBarTitle,
-    Scrollbar, Select, Table, TableBody, TableCell, TableRow, Text, TextTag,
+    GridItem, Icon, Input, Layout, Scrollbar, Select, Table, TableBody, TableCell, TableRow, Text,
+    TextTag,
 };
 
 use super::{
@@ -26,7 +26,7 @@ use super::{
     css::get_class,
     invoke::invoke_no_args,
     is_desktop::IsDesktopInjection,
-    listen::{listen_add_remove, listen_events, listen_to_named_event},
+    listen::{listen_add_remove, listen_events},
     network_interfaces::HasEnabledInterfacesInjection,
     protocol_flags::ProtocolFlags,
     values_table::ValuesTable,
@@ -77,17 +77,6 @@ async fn listen_to_service_type_events(writer: WriteSignal<ServiceTypes>) {
             });
         },
     )
-    .await;
-}
-
-/// Subscribes to "can_browse" events and updates the browsing capability signal accordingly.
-///
-/// Updates the provided signal whenever a "can_browse" event is received,
-/// reflecting whether browsing is currently allowed.
-async fn listen_to_can_browse_events(writer: WriteSignal<bool>) {
-    listen_to_named_event("can_browse", move |event: CanBrowseChangedEvent| {
-        writer.update(|evt| *evt = event.can_browse);
-    })
     .await;
 }
 
@@ -851,11 +840,9 @@ pub fn Browse() -> impl IntoView {
     // Stop any previously started browsing, to ensure we not browsing after a frontend reload
     spawn_local(stop_browse());
 
-    let (can_browse, set_can_browse) = signal(false);
     let (service_types, set_service_types) = signal(ServiceTypes::new());
     provide_context(ServiceTypesInjection(service_types));
     LocalResource::new(move || listen_to_service_type_events(set_service_types));
-    LocalResource::new(move || listen_to_can_browse_events(set_can_browse));
     let store = Store::new(Resolved::default());
     let filtered = Store::new(Filtered::default());
 
@@ -902,14 +889,10 @@ pub fn Browse() -> impl IntoView {
             && check_service_type_fully_qualified(service_type.get().clone().as_str()).is_err()
     });
 
-    let browsing_or_cannot_browse = Signal::derive(move || browsing.get() || !can_browse.get());
-
     let has_enabled_interfaces = HasEnabledInterfacesInjection::expect_context();
+    let service_type_input_disabled = Signal::derive(move || browsing.get());
     let browse_disabled = Signal::derive(move || {
-        !can_browse.get()
-            || browsing.get()
-            || service_type_invalid.get()
-            || !has_enabled_interfaces.get()
+        browsing.get() || service_type_invalid.get() || !has_enabled_interfaces.get()
     });
 
     let browse_all_action = Action::new_local(|input: &ServiceTypes| {
@@ -998,30 +981,6 @@ pub fn Browse() -> impl IntoView {
         );
     };
 
-    Effect::watch(
-        move || can_browse.get(),
-        move |can_browse, previous_can_browse, _| {
-            if *can_browse && !previous_can_browse.unwrap_or(&false) {
-                service_type.set(String::new());
-                spawn_local(browse_types());
-                start_auto_focus_timer(
-                    move || comp_ref.get_untracked(),
-                    move |h| {
-                        tutorial_timeout.set_value(h);
-                    },
-                    AUTO_COMPLETE_AUTO_FOCUS_DELAY,
-                );
-            } else {
-                clear_tutorial_timer();
-                set_service_types.set(Vec::new());
-                browsing.set(false);
-                stop_browsing_action.dispatch(());
-                service_type.set(String::new());
-            }
-        },
-        false,
-    );
-
     LocalResource::new(move || listen_for_resolve_events(store));
     let is_desktop = IsDesktopInjection::expect_context();
     let layout_class = get_class(&is_desktop, "browse-layout");
@@ -1031,31 +990,12 @@ pub fn Browse() -> impl IntoView {
         <Layout class=layout_class>
             <BackTop threshold=100 />
             <Flex vertical=true gap=FlexGap::Small>
-                <Show
-                    when=move || { !can_browse.get() }
-                    fallback=move || {
-                        view! { <div class="hidden" /> }
-                    }
-                >
-                    <MessageBar intent=MessageBarIntent::Warning>
-                        <MessageBarBody>
-                            <MessageBarTitle>"No network detected"</MessageBarTitle>
-                            {move || {
-                                if is_desktop.get() {
-                                    "Please connect to WiFi or plug in a network cable."
-                                } else {
-                                    "Please connect to WiFi."
-                                }
-                            }}
-                        </MessageBarBody>
-                    </MessageBar>
-                </Show>
                 <ProtocolFlags disabled=browsing />
                 <Flex gap=FlexGap::Small align=FlexAlign::Center justify=FlexJustify::Start>
                     <AutoCompleteServiceType
                         invalid=service_type_invalid
                         value=service_type
-                        disabled=browsing_or_cannot_browse
+                        disabled=service_type_input_disabled
                         comp_ref=comp_ref
                     />
                     <Button
