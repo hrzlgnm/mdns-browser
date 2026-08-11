@@ -5,11 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.15.2...HEAD)
+## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.15.3...HEAD)
+
+### Changed
+
+- Document immutable releases ([#2455](https://github.com/hrzlgnm/mdns-browser/pull/2455))
+
+- Adjust immutable releases wording ([#2456](https://github.com/hrzlgnm/mdns-browser/pull/2456))
+
+## [1.15.3] - 2026-08-10 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.15.2...v1.15.3)
 
 ### Changed
 
 - Cross-link zux graph visualizer ([#2450](https://github.com/hrzlgnm/mdns-browser/pull/2450))
+
+- Remove can_browse and network banner ([#2454](https://github.com/hrzlgnm/mdns-browser/pull/2454))
 
 ### Dependencies
 
