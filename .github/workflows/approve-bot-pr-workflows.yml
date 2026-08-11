@@ -7,15 +7,15 @@ on:
   workflow_run:
     workflows: ["CI"]
     types: [requested]
-  schedule:
-    - cron: "0 */4 * * *"
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   actions: write # needed to approve workflow runs
 
 concurrency:
-  group: approve-bot-pr-workflows
+  group: approve-bot-pr-${{ github.event_name }}
   cancel-in-progress: false
 
 jobs:
