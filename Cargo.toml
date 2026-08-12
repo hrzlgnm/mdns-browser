@@ -72,7 +72,7 @@ semver = "1.0"
 log = "0.4"
 thiserror = "2.0"
 tokio = { version = "1.45", features = ["time"] }
-mdns-sd = "0.20"
+mdns-sd = "0.21"
 tauri = { version = "2.0", features = ["devtools"] }
 tauri-plugin-clipboard-manager = "2.2"
 tauri-plugin-log = { version = "2.4", features = ["colored"] }
