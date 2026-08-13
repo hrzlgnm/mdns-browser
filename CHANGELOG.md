@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Adjust immutable releases wording ([#2456](https://github.com/hrzlgnm/mdns-browser/pull/2456))
 
+### Dependencies
+
+- *(deps)* Update archlinux:base-devel docker digest to ee205c2 ([#2458](https://github.com/hrzlgnm/mdns-browser/pull/2458))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 7060a98 ([#2460](https://github.com/hrzlgnm/mdns-browser/pull/2460))
+
+- *(deps)* Update rust crate futures to v0.3.34 ([#2461](https://github.com/hrzlgnm/mdns-browser/pull/2461))
+
+- *(deps)* Update rust crate mdns-sd to 0.21 ([#2462](https://github.com/hrzlgnm/mdns-browser/pull/2462))
+
+### Maintenance
+
+- Trigger bot PR workflow approval on pull_request to main ([#2459](https://github.com/hrzlgnm/mdns-browser/pull/2459))
+
 ## [1.15.3] - 2026-08-10 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.15.2...v1.15.3)
 
 ### Changed
