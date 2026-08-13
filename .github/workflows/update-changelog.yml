@@ -20,6 +20,8 @@ jobs:
   update-changelog:
     name: "📝 Update Unreleased Changelog"
     runs-on: ubuntu-slim
+    outputs:
+      changed: ${{ steps.changes.outputs.changed }}
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -79,3 +81,10 @@ jobs:
           fi
 
           gh pr merge "$BRANCH" --auto --squash
+
+  approve-bot-pr:
+    if: needs.update-changelog.outputs.changed == 'true'
+    needs: update-changelog
+    uses: hrzlgnm/actions/.github/workflows/approve-bot-pr-reusable.yml@90304415a9d4a88d72826d5cce4d9d04d07ea29b # v2.5.6
+    with:
+      branch: chore/update-changelog
