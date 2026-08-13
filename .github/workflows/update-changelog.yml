@@ -90,5 +90,3 @@ jobs:
       contents: read
       pull-requests: read
     uses: hrzlgnm/actions/.github/workflows/approve-bot-pr-reusable.yml@1847f299d36e715acd93d4bc496b9faab29a4c94 # v2.6.0
-    with:
-      branch: chore/update-changelog
