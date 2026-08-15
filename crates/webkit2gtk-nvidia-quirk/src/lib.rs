@@ -39,7 +39,7 @@
 //! [#280210](https://bugs.webkit.org/show_bug.cgi?id=280210)), while others
 //! such as niri tolerate the missing acquire point. Explicit sync is therefore
 //! disabled only on the compositors known to enforce the rule (Hyprland). On
-//! compositors that tolerate it, the dma-buf based `egl-wayland2` library
+//! compositors that tolerate it, the dma-buf-based `egl-wayland2` library
 //! (NVIDIA driver 560 or newer) is treated as working and the workaround is
 //! skipped, since disabling explicit sync would degrade rendering performance.
 //!
@@ -654,13 +654,13 @@ mod tests {
         dir
     }
 
-    fn write_manifest(dir: &Path, name: &str, library_path: &str) -> PathBuf {
+    fn write_manifest(dir: &Path, name: &str, library_path: &str) -> std::io::Result<PathBuf> {
         let path = dir.join(name);
         let content = format!(
             "{{\n  \"file_format_version\": \"1.0.0\",\n  \"ICD\": {{\n    \"library_path\": \"{library_path}\"\n  }}\n}}\n"
         );
-        std::fs::write(&path, content).unwrap();
-        path
+        std::fs::write(&path, content)?;
+        Ok(path)
     }
 
     #[test]
@@ -722,16 +722,16 @@ mod tests {
     }
 
     #[test]
-    fn test_json_files_in_dir_sorted() {
+    fn test_json_files_in_dir_sorted() -> std::io::Result<()> {
         let dir = temp_dir("sorted");
-        write_manifest(&dir, "20_nvidia_xcb.json", "libnvidia-egl-xcb.so.1");
-        write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1");
+        write_manifest(&dir, "20_nvidia_xcb.json", "libnvidia-egl-xcb.so.1")?;
+        write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1")?;
         write_manifest(
             &dir,
             "09_nvidia_wayland2.json",
             "libnvidia-egl-wayland2.so.1",
-        );
-        write_manifest(&dir, "not-a-json.txt", "foo");
+        )?;
+        write_manifest(&dir, "not-a-json.txt", "foo")?;
         let files = json_files_in_dir(&dir);
         let names: Vec<String> = files
             .iter()
@@ -745,80 +745,87 @@ mod tests {
                 "20_nvidia_xcb.json",
             ]
         );
+        Ok(())
     }
 
     #[test]
-    fn test_is_egl_wayland2_selected_new_first() {
+    fn test_is_egl_wayland2_selected_new_first() -> std::io::Result<()> {
         let dir = temp_dir("new_first");
         let configs = vec![
             write_manifest(
                 &dir,
                 "09_nvidia_wayland2.json",
                 "libnvidia-egl-wayland2.so.1",
-            ),
-            write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1"),
+            )?,
+            write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1")?,
         ];
         assert!(is_egl_wayland2_selected(&configs, Some(610)));
+        Ok(())
     }
 
     #[test]
-    fn test_is_egl_wayland2_selected_only_new() {
+    fn test_is_egl_wayland2_selected_only_new() -> std::io::Result<()> {
         let dir = temp_dir("only_new");
         let configs = vec![write_manifest(
             &dir,
             "09_nvidia_wayland2.json",
             "libnvidia-egl-wayland2.so.1",
-        )];
+        )?];
         assert!(is_egl_wayland2_selected(&configs, Some(610)));
+        Ok(())
     }
 
     #[test]
-    fn test_is_egl_wayland2_selected_old_first() {
+    fn test_is_egl_wayland2_selected_old_first() -> std::io::Result<()> {
         let dir = temp_dir("old_first");
         let configs = vec![
-            write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1"),
+            write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1")?,
             write_manifest(
                 &dir,
                 "99_nvidia_wayland2.json",
                 "libnvidia-egl-wayland2.so.1",
-            ),
+            )?,
         ];
         assert!(!is_egl_wayland2_selected(&configs, Some(610)));
+        Ok(())
     }
 
     #[test]
-    fn test_is_egl_wayland2_selected_only_old() {
+    fn test_is_egl_wayland2_selected_only_old() -> std::io::Result<()> {
         let dir = temp_dir("only_old");
         let configs = vec![write_manifest(
             &dir,
             "10_nvidia_wayland.json",
             "libnvidia-egl-wayland.so.1",
-        )];
+        )?];
         assert!(!is_egl_wayland2_selected(&configs, Some(610)));
+        Ok(())
     }
 
     #[test]
-    fn test_is_egl_wayland2_selected_driver_too_old() {
+    fn test_is_egl_wayland2_selected_driver_too_old() -> std::io::Result<()> {
         let dir = temp_dir("driver_too_old");
         let configs = vec![write_manifest(
             &dir,
             "09_nvidia_wayland2.json",
             "libnvidia-egl-wayland2.so.1",
-        )];
+        )?];
         assert!(!is_egl_wayland2_selected(&configs, Some(550)));
         assert!(!is_egl_wayland2_selected(&configs, None));
+        Ok(())
     }
 
     #[test]
-    fn test_is_egl_wayland2_selected_no_wayland_lib() {
+    fn test_is_egl_wayland2_selected_no_wayland_lib() -> std::io::Result<()> {
         let dir = temp_dir("no_wayland_lib");
         let configs = vec![write_manifest(
             &dir,
             "15_nvidia_gbm.json",
             "libnvidia-egl-gbm.so.1",
-        )];
+        )?];
         assert!(!is_egl_wayland2_selected(&configs, Some(610)));
         assert!(!is_egl_wayland2_selected(&[], Some(610)));
+        Ok(())
     }
 
     /// Creates a fake `/sys/class/drm/<name>` GPU entry with a `device/driver`
