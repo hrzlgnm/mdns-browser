@@ -138,7 +138,7 @@ All source files must include:
 ```
 
 ### Rust Code Style
-- Use `cargo fmt` for formatting
+- `cargo fmt` applies and checks formatting; no need to review formatting or import style, the formatter covers it
 - Clippy must pass with `--tests -- -D warnings`
 - Prefer explicit error handling over `unwrap()`
 - Use `Result<T, String>` for Tauri command return types
