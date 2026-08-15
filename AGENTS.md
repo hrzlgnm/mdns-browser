@@ -139,6 +139,7 @@ All source files must include:
 
 ### Rust Code Style
 - Use `cargo fmt` for formatting
+- Let rustfmt own import formatting: it rewrites `use std::path::{PathBuf};` to `use std::path::PathBuf;`, so write single-component imports without braces
 - Clippy must pass with `--tests -- -D warnings`
 - Prefer explicit error handling over `unwrap()`
 - Use `Result<T, String>` for Tauri command return types
