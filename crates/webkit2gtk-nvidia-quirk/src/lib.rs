@@ -32,13 +32,25 @@
 //! ## Wayland
 //!
 //! WebKitGTK's DMA-BUF renderer enables the Wayland explicit sync protocol on
-//! the window surface but does not always set an acquire point, which
-//! compositors enforce strictly and answer with a protocol error that kills the
-//! connection (`Gdk-Message: Error 71 (Protocol error) dispatching to Wayland
-//! display`). This is a WebKitGTK bug
-//! ([#280210](https://bugs.webkit.org/show_bug.cgi?id=280210)) independent of
-//! the NVIDIA driver version or the Wayland EGL library in use, so explicit
-//! sync is disabled for every NVIDIA Wayland session.
+//! the window surface but does not always set an acquire point before
+//! committing. Compositors differ in how strictly they enforce this: Hyprland
+//! answers with a protocol error that kills the connection (`Gdk-Message:
+//! Error 71 (Protocol error) dispatching to Wayland display`, WebKitGTK bug
+//! [#280210](https://bugs.webkit.org/show_bug.cgi?id=280210)), while others
+//! such as niri tolerate the missing acquire point. Explicit sync is therefore
+//! disabled only on the compositors known to enforce the rule (Hyprland). On
+//! compositors that tolerate it, the dma-buf based `egl-wayland2` library
+//! (NVIDIA driver 560 or newer) is treated as working and the workaround is
+//! skipped, since disabling explicit sync would degrade rendering performance.
+//!
+//! Detecting `egl-wayland2` mirrors the EGL loader logic: the external platform
+//! JSON manifests in `/etc/egl/egl_external_platform.d` and
+//! `/usr/share/egl/egl_external_platform.d` (or the directories/files given via
+//! `__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS`/`__EGL_EXTERNAL_PLATFORM_CONFIG_FILENAMES`)
+//! are checked in load order against `/proc/driver/nvidia/version`. Inside a
+//! Flatpak sandbox neither `/proc` nor the host `/etc`/`/usr` directories are
+//! visible, so `egl-wayland2` is reported as not active and the workaround is
+//! applied - safe, but not perf-optimal for sandboxed apps on a 560+ driver.
 //!
 //! ## Detection Method
 //!
@@ -136,7 +148,7 @@
 
 #![cfg(target_os = "linux")]
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
 struct GpuDevice {
@@ -231,6 +243,135 @@ fn nvidia_driver_loaded(devices: &[GpuDevice]) -> bool {
     devices.iter().any(|d| d.uses_nvidia_driver)
 }
 
+/// The NVIDIA Wayland EGL platform library referenced by an external platform manifest.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum WaylandLib {
+    /// The EGLStreams based `egl-wayland` library.
+    EglWayland,
+    /// The dma-buf based `egl-wayland2` library.
+    EglWayland2,
+}
+
+/// Classifies an external platform library path as either the old or the new
+/// NVIDIA Wayland library.
+fn classify_wayland_lib(library_path: &str) -> Option<WaylandLib> {
+    if library_path.contains("nvidia-egl-wayland2") {
+        Some(WaylandLib::EglWayland2)
+    } else if library_path.contains("nvidia-egl-wayland") {
+        Some(WaylandLib::EglWayland)
+    } else {
+        None
+    }
+}
+
+/// Extracts the `library_path` from an EGL external platform JSON manifest.
+fn library_path_from_manifest(content: &str) -> Option<&str> {
+    let key = "\"library_path\"";
+    let rest = &content[content.find(key)? + key.len()..];
+    let open = rest.find('"')?;
+    let value = &rest[open + 1..];
+    let close = value.find('"')?;
+    Some(&value[..close])
+}
+
+/// Reads an EGL external platform JSON manifest and classifies the NVIDIA
+/// Wayland library it references, if any.
+fn wayland_lib_from_manifest(path: &Path) -> Option<WaylandLib> {
+    let content = read_sysfs_file(path)?;
+    let library_path = library_path_from_manifest(&content)?;
+    classify_wayland_lib(library_path)
+}
+
+/// Returns the `.json` files of an EGL external platform config directory,
+/// sorted by filename as the EGL loader would try them.
+fn json_files_in_dir(dir: &Path) -> Vec<PathBuf> {
+    let mut files: Vec<PathBuf> = match std::fs::read_dir(dir) {
+        Ok(entries) => entries
+            .flatten()
+            .map(|entry| entry.path())
+            .filter(|path| path.extension().is_some_and(|ext| ext == "json"))
+            .collect(),
+        Err(_) => Vec::new(),
+    };
+    files.sort();
+    files
+}
+
+/// Returns the EGL external platform JSON config files in the order the EGL
+/// loader would try them, honoring the `__EGL_EXTERNAL_PLATFORM_CONFIG_FILENAMES`
+/// and `__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS` environment variables.
+fn egl_external_platform_config_files() -> Vec<PathBuf> {
+    if let Ok(files) = std::env::var("__EGL_EXTERNAL_PLATFORM_CONFIG_FILENAMES") {
+        return files.split(':').map(PathBuf::from).collect();
+    }
+    let dirs: Vec<PathBuf> = match std::env::var("__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS") {
+        Ok(dirs) => dirs.split(':').map(PathBuf::from).collect(),
+        Err(_) => vec![
+            PathBuf::from("/etc/egl/egl_external_platform.d"),
+            PathBuf::from("/usr/share/egl/egl_external_platform.d"),
+        ],
+    };
+    dirs.iter().flat_map(|dir| json_files_in_dir(dir)).collect()
+}
+
+/// Returns the NVIDIA Wayland EGL library the loader would select first, given
+/// the external platform JSON config files in load order.
+fn first_wayland_lib(configs: &[PathBuf]) -> Option<WaylandLib> {
+    configs
+        .iter()
+        .find_map(|config| wayland_lib_from_manifest(config))
+}
+
+/// Extracts the major version of a dotted NVIDIA driver version string, e.g.
+/// `610` from `610.43.03`.
+fn parse_driver_major(version: &str) -> Option<u64> {
+    let bytes = version.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i].is_ascii_digit() {
+            let start = i;
+            while i < bytes.len() && bytes[i].is_ascii_digit() {
+                i += 1;
+            }
+            let major = bytes[start..i]
+                .iter()
+                .fold(0u64, |acc, b| acc * 10 + u64::from(b - b'0'));
+            if bytes.get(i) == Some(&b'.') && bytes.get(i + 1).is_some_and(|b| b.is_ascii_digit()) {
+                return Some(major);
+            }
+        } else {
+            i += 1;
+        }
+    }
+    None
+}
+
+/// Returns the loaded NVIDIA driver major version, if it can be determined.
+fn nvidia_driver_major() -> Option<u64> {
+    let version = read_sysfs_file(Path::new("/proc/driver/nvidia/version"))?;
+    parse_driver_major(&version)
+}
+
+/// Returns whether the dma-buf based `egl-wayland2` library is the one the EGL
+/// loader would use for the Wayland platform.
+///
+/// This is the case when the first external platform manifest in load order
+/// referencing an NVIDIA Wayland library points at `libnvidia-egl-wayland2.so`
+/// and the loaded NVIDIA driver is version 560 or newer (the version that added
+/// the driver interface `egl-wayland2` depends on). On older drivers the new
+/// library fails to initialize and the loader falls back to the old one.
+fn is_egl_wayland2_selected(configs: &[PathBuf], driver_major: Option<u64>) -> bool {
+    matches!(first_wayland_lib(configs), Some(WaylandLib::EglWayland2))
+        && driver_major.is_some_and(|major| major >= 560)
+}
+
+/// Reads the current system state and returns whether `egl-wayland2` is in use.
+fn egl_wayland2_active() -> bool {
+    let configs = egl_external_platform_config_files();
+    let driver_major = nvidia_driver_major();
+    is_egl_wayland2_selected(&configs, driver_major)
+}
+
 #[derive(Debug, PartialEq, Eq)]
 enum SessionType {
     Wayland,
@@ -275,6 +416,43 @@ fn get_session_type() -> SessionType {
     )
 }
 
+/// Returns the compositor advertised in the environment, if any.
+///
+/// Compositors advertise their identity via `XDG_CURRENT_DESKTOP`, which is the
+/// standard signal toolkits use to branch on compositor behavior.
+/// `XDG_SESSION_DESKTOP` is used as a fallback since some compositors only set
+/// that one.
+fn compositor_from_env<'a>(
+    xdg_current_desktop: Option<&'a str>,
+    xdg_session_desktop: Option<&'a str>,
+) -> Option<&'a str> {
+    xdg_current_desktop.or(xdg_session_desktop)
+}
+
+/// Detects the running compositor from the environment. See
+/// [`compositor_from_env`] for details.
+fn get_compositor() -> Option<String> {
+    compositor_from_env(
+        std::env::var("XDG_CURRENT_DESKTOP").ok().as_deref(),
+        std::env::var("XDG_SESSION_DESKTOP").ok().as_deref(),
+    )
+    .map(str::to_string)
+}
+
+/// Returns whether the running compositor strictly enforces the Wayland
+/// explicit sync acquire-point rule.
+///
+/// WebKitGTK's DMA-BUF renderer enables the explicit sync protocol on the
+/// window surface but does not always set an acquire point before committing.
+/// Compositors differ in how they answer such commits: Hyprland raises a
+/// protocol error that kills the client (`Error 71 (Protocol error)
+/// dispatching to Wayland display`), while others such as niri tolerate the
+/// missing acquire point. The workaround is applied only on the compositors
+/// known to enforce the rule.
+fn explicit_sync_is_strictly_enforced(compositor: Option<&str>) -> bool {
+    matches!(compositor, Some("Hyprland"))
+}
+
 /// Represents the type of workaround to apply for NVIDIA WebKitGTK issues.
 ///
 /// Use this enum to determine which workaround is needed based on the session type
@@ -293,16 +471,27 @@ pub enum WorkaroundKind {
     DisableNvExplicitSync,
 }
 
-/// Selects the workaround for a detected session and GPU state.
+/// Selects the workaround for a detected session, GPU, compositor, and EGL
+/// library state.
 ///
-/// On Wayland the explicit sync workaround is applied unconditionally: the
-/// protocol error is caused by WebKitGTK itself, not by the driver's Wayland
-/// EGL library, so there is no configuration where it can be skipped.
-fn workaround_for(session: SessionType, nvidia_detected: bool) -> WorkaroundKind {
+/// On Wayland the explicit sync workaround is applied when the compositor
+/// strictly enforces the acquire-point rule (see
+/// [`explicit_sync_is_strictly_enforced`]). On compositors that tolerate the
+/// missing acquire point it is skipped when the dma-buf based `egl-wayland2`
+/// library is in use, since disabling explicit sync would degrade rendering
+/// performance.
+fn workaround_for(
+    session: SessionType,
+    nvidia_detected: bool,
+    strict_explicit_sync: bool,
+    egl_wayland2: bool,
+) -> WorkaroundKind {
     if !nvidia_detected {
         return WorkaroundKind::None;
     }
     match session {
+        SessionType::Wayland if strict_explicit_sync => WorkaroundKind::DisableNvExplicitSync,
+        SessionType::Wayland if egl_wayland2 => WorkaroundKind::None,
         SessionType::Wayland => WorkaroundKind::DisableNvExplicitSync,
         SessionType::X11 => WorkaroundKind::DisableWebkitDmabufRenderer,
         SessionType::Unknown => WorkaroundKind::None,
@@ -329,7 +518,12 @@ pub fn needs_workaround() -> WorkaroundKind {
     let devices = enumerate_gpus();
     let nvidia_detected =
         devices.iter().any(|d| d.is_primary && d.is_nvidia) && nvidia_driver_loaded(&devices);
-    workaround_for(get_session_type(), nvidia_detected)
+    workaround_for(
+        get_session_type(),
+        nvidia_detected,
+        explicit_sync_is_strictly_enforced(get_compositor().as_deref()),
+        egl_wayland2_active(),
+    )
 }
 
 /// Checks if the primary GPU is an NVIDIA GPU.
@@ -460,6 +654,173 @@ mod tests {
         dir
     }
 
+    fn write_manifest(dir: &Path, name: &str, library_path: &str) -> PathBuf {
+        let path = dir.join(name);
+        let content = format!(
+            "{{\n  \"file_format_version\": \"1.0.0\",\n  \"ICD\": {{\n    \"library_path\": \"{library_path}\"\n  }}\n}}\n"
+        );
+        std::fs::write(&path, content).unwrap();
+        path
+    }
+
+    #[test]
+    fn test_classify_wayland_lib_wayland2() {
+        assert_eq!(
+            classify_wayland_lib("libnvidia-egl-wayland2.so.1"),
+            Some(WaylandLib::EglWayland2)
+        );
+        assert_eq!(
+            classify_wayland_lib("/usr/lib/libnvidia-egl-wayland2.so.1.0.1"),
+            Some(WaylandLib::EglWayland2)
+        );
+    }
+
+    #[test]
+    fn test_classify_wayland_lib_old() {
+        assert_eq!(
+            classify_wayland_lib("libnvidia-egl-wayland.so.1"),
+            Some(WaylandLib::EglWayland)
+        );
+        assert_eq!(
+            classify_wayland_lib("/usr/lib/libnvidia-egl-wayland.so.1.1.21"),
+            Some(WaylandLib::EglWayland)
+        );
+    }
+
+    #[test]
+    fn test_classify_wayland_lib_other() {
+        assert_eq!(classify_wayland_lib("libnvidia-egl-gbm.so.1"), None);
+        assert_eq!(classify_wayland_lib("libnvidia-egl-xcb.so.1"), None);
+    }
+
+    #[test]
+    fn test_library_path_from_manifest() {
+        let manifest = r#"{
+            "file_format_version": "1.0.0",
+            "ICD": {
+                "library_path": "libnvidia-egl-wayland2.so.1"
+            }
+        }"#;
+        assert_eq!(
+            library_path_from_manifest(manifest),
+            Some("libnvidia-egl-wayland2.so.1")
+        );
+        assert_eq!(library_path_from_manifest("no library path"), None);
+    }
+
+    #[test]
+    fn test_parse_driver_major() {
+        let nvr =
+            "NVRM version: NVIDIA UNIX Open Kernel Module for x86_64  610.43.03  Release Build";
+        assert_eq!(parse_driver_major(nvr), Some(610));
+        assert_eq!(
+            parse_driver_major("NVRM version: NVIDIA UNIX Open Kernel Module 560.35.03"),
+            Some(560)
+        );
+        assert_eq!(parse_driver_major("no version here"), None);
+        assert_eq!(parse_driver_major("x86_64"), None);
+    }
+
+    #[test]
+    fn test_json_files_in_dir_sorted() {
+        let dir = temp_dir("sorted");
+        write_manifest(&dir, "20_nvidia_xcb.json", "libnvidia-egl-xcb.so.1");
+        write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1");
+        write_manifest(
+            &dir,
+            "09_nvidia_wayland2.json",
+            "libnvidia-egl-wayland2.so.1",
+        );
+        write_manifest(&dir, "not-a-json.txt", "foo");
+        let files = json_files_in_dir(&dir);
+        let names: Vec<String> = files
+            .iter()
+            .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
+            .collect();
+        assert_eq!(
+            names,
+            vec![
+                "09_nvidia_wayland2.json",
+                "10_nvidia_wayland.json",
+                "20_nvidia_xcb.json",
+            ]
+        );
+    }
+
+    #[test]
+    fn test_is_egl_wayland2_selected_new_first() {
+        let dir = temp_dir("new_first");
+        let configs = vec![
+            write_manifest(
+                &dir,
+                "09_nvidia_wayland2.json",
+                "libnvidia-egl-wayland2.so.1",
+            ),
+            write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1"),
+        ];
+        assert!(is_egl_wayland2_selected(&configs, Some(610)));
+    }
+
+    #[test]
+    fn test_is_egl_wayland2_selected_only_new() {
+        let dir = temp_dir("only_new");
+        let configs = vec![write_manifest(
+            &dir,
+            "09_nvidia_wayland2.json",
+            "libnvidia-egl-wayland2.so.1",
+        )];
+        assert!(is_egl_wayland2_selected(&configs, Some(610)));
+    }
+
+    #[test]
+    fn test_is_egl_wayland2_selected_old_first() {
+        let dir = temp_dir("old_first");
+        let configs = vec![
+            write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1"),
+            write_manifest(
+                &dir,
+                "99_nvidia_wayland2.json",
+                "libnvidia-egl-wayland2.so.1",
+            ),
+        ];
+        assert!(!is_egl_wayland2_selected(&configs, Some(610)));
+    }
+
+    #[test]
+    fn test_is_egl_wayland2_selected_only_old() {
+        let dir = temp_dir("only_old");
+        let configs = vec![write_manifest(
+            &dir,
+            "10_nvidia_wayland.json",
+            "libnvidia-egl-wayland.so.1",
+        )];
+        assert!(!is_egl_wayland2_selected(&configs, Some(610)));
+    }
+
+    #[test]
+    fn test_is_egl_wayland2_selected_driver_too_old() {
+        let dir = temp_dir("driver_too_old");
+        let configs = vec![write_manifest(
+            &dir,
+            "09_nvidia_wayland2.json",
+            "libnvidia-egl-wayland2.so.1",
+        )];
+        assert!(!is_egl_wayland2_selected(&configs, Some(550)));
+        assert!(!is_egl_wayland2_selected(&configs, None));
+    }
+
+    #[test]
+    fn test_is_egl_wayland2_selected_no_wayland_lib() {
+        let dir = temp_dir("no_wayland_lib");
+        let configs = vec![write_manifest(
+            &dir,
+            "15_nvidia_gbm.json",
+            "libnvidia-egl-gbm.so.1",
+        )];
+        assert!(!is_egl_wayland2_selected(&configs, Some(610)));
+        assert!(!is_egl_wayland2_selected(&[], Some(610)));
+    }
+
     /// Creates a fake `/sys/class/drm/<name>` GPU entry with a `device/driver`
     /// symlink pointing at a driver named `driver`, and optionally a
     /// `boot_vga` attribute set to `1` and a `vendor` file.
@@ -583,9 +944,29 @@ mod tests {
     }
 
     #[test]
-    fn test_workaround_for_wayland_disables_nv_explicit_sync() {
+    fn test_workaround_for_strict_compositor_disables_nv_explicit_sync() {
+        // Hyprland enforces the acquire-point rule even with egl-wayland2
+        // active, so the workaround must not be skipped.
         assert_eq!(
-            workaround_for(SessionType::Wayland, true),
+            workaround_for(SessionType::Wayland, true, true, true),
+            WorkaroundKind::DisableNvExplicitSync
+        );
+    }
+
+    #[test]
+    fn test_workaround_for_egl_wayland2_skips_on_lenient_compositor() {
+        // On compositors that tolerate the missing acquire point (e.g. niri),
+        // egl-wayland2 works and the workaround is skipped.
+        assert_eq!(
+            workaround_for(SessionType::Wayland, true, false, true),
+            WorkaroundKind::None
+        );
+    }
+
+    #[test]
+    fn test_workaround_for_wayland_without_egl_wayland2_disables_nv_explicit_sync() {
+        assert_eq!(
+            workaround_for(SessionType::Wayland, true, false, false),
             WorkaroundKind::DisableNvExplicitSync
         );
     }
@@ -593,7 +974,7 @@ mod tests {
     #[test]
     fn test_workaround_for_x11_disables_dmabuf_renderer() {
         assert_eq!(
-            workaround_for(SessionType::X11, true),
+            workaround_for(SessionType::X11, true, false, false),
             WorkaroundKind::DisableWebkitDmabufRenderer
         );
     }
@@ -601,7 +982,7 @@ mod tests {
     #[test]
     fn test_workaround_for_unknown_session_is_noop() {
         assert_eq!(
-            workaround_for(SessionType::Unknown, true),
+            workaround_for(SessionType::Unknown, true, false, false),
             WorkaroundKind::None
         );
     }
@@ -609,13 +990,41 @@ mod tests {
     #[test]
     fn test_workaround_for_no_nvidia_is_noop() {
         assert_eq!(
-            workaround_for(SessionType::Wayland, false),
+            workaround_for(SessionType::Wayland, false, true, true),
             WorkaroundKind::None
         );
         assert_eq!(
-            workaround_for(SessionType::X11, false),
+            workaround_for(SessionType::X11, false, false, false),
             WorkaroundKind::None
         );
+    }
+
+    #[test]
+    fn test_compositor_from_env_prefers_xdg_current_desktop() {
+        assert_eq!(
+            compositor_from_env(Some("Hyprland"), Some("Hyprland")),
+            Some("Hyprland")
+        );
+        assert_eq!(
+            compositor_from_env(Some("niri"), Some("Hyprland")),
+            Some("niri")
+        );
+    }
+
+    #[test]
+    fn test_compositor_from_env_falls_back_to_xdg_session_desktop() {
+        assert_eq!(
+            compositor_from_env(None, Some("Hyprland")),
+            Some("Hyprland")
+        );
+        assert_eq!(compositor_from_env(None, None), None);
+    }
+
+    #[test]
+    fn test_explicit_sync_is_strictly_enforced() {
+        assert!(explicit_sync_is_strictly_enforced(Some("Hyprland")));
+        assert!(!explicit_sync_is_strictly_enforced(Some("niri")));
+        assert!(!explicit_sync_is_strictly_enforced(None));
     }
 
     /// Integration test: exercises the full GPU-detection pipeline
@@ -647,11 +1056,17 @@ mod tests {
         let session = session_type_from_env(None, Some("wayland-0"), None);
         assert_eq!(session, SessionType::Wayland);
 
-        // Wayland + NVIDIA must always disable explicit sync, regardless of
-        // the driver version or the EGL config directories reachable inside
-        // the sandbox.
+        // With no /proc/driver/nvidia/version and no host EGL config
+        // directories reachable, egl-wayland2 can never be detected as
+        // active, so the conservative Wayland workaround is selected.
+        assert!(!is_egl_wayland2_selected(&[], None));
         assert_eq!(
-            workaround_for(session, primary_gpu_is_nvidia && driver_loaded),
+            workaround_for(
+                session,
+                primary_gpu_is_nvidia && driver_loaded,
+                false,
+                false
+            ),
             WorkaroundKind::DisableNvExplicitSync
         );
         Ok(())
