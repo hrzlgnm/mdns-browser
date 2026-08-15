@@ -20,7 +20,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:97562a897b435e92a089300d2d817936be81c46cee76bcc174c893c1cd7143da
+      image: ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1@sha256:e03c7a7d6eaf6e6522be6b9409be8be9a38bc3e364f1b9e6981a81d720be9567
     steps:
       - name: 🔧 Configure Git safe directory
         run: |
