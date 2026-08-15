@@ -5,6 +5,12 @@ All notable changes to `webkit2gtk-nvidia-quirk` will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This changelog is auto-generated from commits that modify this crate.
 
+## [1.4.2] - 2026-08-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v1.4.1...webkit2gtk-nvidia-quirk-v1.4.2)
+
+### Fixed
+
+- *(webkit2gtk-nvidia-quirk)* Scope explicit sync workaround to hyprland (#2471) ([#2471](https://github.com/hrzlgnm/mdns-browser/pull/2471))
+
 ## [1.4.1] - 2026-08-09 [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v1.4.0...webkit2gtk-nvidia-quirk-v1.4.1)
 
 ### Fixed
