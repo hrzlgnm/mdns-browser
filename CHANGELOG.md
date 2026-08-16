@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.1] - 2026-08-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.16.0...v1.16.1)
+
+### Changed
+
+- Clarify cargo fmt covers formatting ([#2472](https://github.com/hrzlgnm/mdns-browser/pull/2472))
+
+### Dependencies
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 28b4f11 ([#2468](https://github.com/hrzlgnm/mdns-browser/pull/2468))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 2247606 ([#2469](https://github.com/hrzlgnm/mdns-browser/pull/2469))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-void-package-builder:v1 docker digest to e03c7a7 ([#2470](https://github.com/hrzlgnm/mdns-browser/pull/2470))
+
+### Fixed
+
+- *(webkit2gtk-nvidia-quirk)* Scope explicit sync workaround to hyprland ([#2471](https://github.com/hrzlgnm/mdns-browser/pull/2471))
+
 ## [1.16.0] - 2026-08-13 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.15.3...v1.16.0)
 
 ### Changed
