@@ -960,9 +960,13 @@ fn theme(window: Window) -> Theme {
 fn close_splashscreen(app: AppHandle, state: State<ManagedState>) {
     if let Some(w) = app.get_webview_window("main") {
         let _ = w.show();
-        let _ = w.set_focus();
         if state.dev_tools_enabled {
-            w.open_devtools();
+            let window = w.clone();
+            tauri::async_runtime::spawn(async move {
+                #[cfg(target_os = "linux")]
+                tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+                window.open_devtools();
+            });
         }
     }
     if let Some(w) = app.get_webview_window("splashscreen") {
@@ -1177,6 +1181,49 @@ mod autoupdate {
 }
 
 #[cfg(desktop)]
+/// Creates the main application window.
+///
+/// The window is created programmatically (rather than via `tauri.conf.json`)
+/// so its decoration state can be decided at creation time, which is the only
+/// point at which it reliably takes effect: Wayland/GTK and X11 do not honor
+/// runtime decoration changes once the window is mapped. Tiling Wayland
+/// compositors therefore start borderless, while every other session starts
+/// decorated.
+///
+/// On non-tiling Wayland the minimize/maximize/close buttons are dead after the
+/// window is created hidden and shown (tauri-apps/tao#1046). Starting the
+/// window maximized is a creation-time reconfigure that wires the buttons up,
+/// avoiding any runtime toggle/cycle.
+fn create_main_window(app: &AppHandle) -> Result<tauri::WebviewWindow, tauri::Error> {
+    #[cfg(target_os = "linux")]
+    let wayland = webkit2gtk_nvidia_quirk::is_wayland_session();
+    #[cfg(target_os = "linux")]
+    let tiling = webkit2gtk_nvidia_quirk::is_tiling_compositor();
+    #[cfg(target_os = "linux")]
+    let decorate = !(wayland && tiling);
+    #[cfg(target_os = "linux")]
+    let start_maximized = wayland && !tiling;
+    #[cfg(not(target_os = "linux"))]
+    let decorate = true;
+    #[cfg(not(target_os = "linux"))]
+    let start_maximized = false;
+
+    let mut builder =
+        tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
+            .title("mDNS-Browser")
+            .inner_size(1615.0, 900.0)
+            .decorations(decorate)
+            .visible(false);
+    if start_maximized {
+        builder = builder.maximized(true);
+    }
+    builder.build().map_err(|e| {
+        log::error!("Failed to create main window: {e}");
+        e
+    })
+}
+
+#[cfg(desktop)]
 pub fn run() {
     use chrono::Utc;
     use tauri_plugin_log::{Target, TargetKind};
@@ -1224,11 +1271,15 @@ pub fn run() {
         .manage(ManagedState::new(args.enable_devtools))
         .manage(autoupdate::PendingUpdate(Mutex::new(None)))
         .setup(move |app| {
-            // Due to peculiarities of `tauri dev` mode,
-            // we need to do close the splashscreen manually
-            let main_window = app
-                .get_webview_window("main")
-                .expect("Main window to exist");
+            // The main window is created programmatically (instead of via
+            // tauri.conf.json) so its decoration state can be set at creation
+            // time. Runtime decoration changes do not take effect on
+            // Wayland/GTK (and X11) once the window is mapped, so tiling
+            // Wayland compositors must start borderless from the start.
+            let main_window = create_main_window(app.handle())?;
+
+            // Due to peculiarities of `tauri dev` mode, we need to close the
+            // splashscreen and show the main window manually.
             let url = main_window.url().expect("Main window url to exist");
             let scheme = url.scheme();
             if scheme == "http" {
@@ -1236,9 +1287,6 @@ pub fn run() {
                     tauri::async_runtime::spawn(async move {
                         let _ = splashscreen_window.close();
                         let _ = main_window.show();
-                        if args.enable_devtools {
-                            main_window.open_devtools();
-                        }
                     });
                 }
             }

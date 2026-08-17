@@ -416,6 +416,72 @@ fn get_session_type() -> SessionType {
     )
 }
 
+/// Returns `true` when the application is running in a Wayland session.
+///
+/// This reuses the same session detection as the WebKitGTK workarounds
+/// ([`get_session_type`]), falling back to `WAYLAND_DISPLAY`/`DISPLAY` when
+/// `XDG_SESSION_TYPE` is unavailable (e.g. inside a Flatpak sandbox).
+///
+/// It is used to apply Wayland-specific workarounds that must not run under X11.
+pub fn is_wayland_session() -> bool {
+    get_session_type() == SessionType::Wayland
+}
+
+/// Returns `true` when the application is running in an X11 session.
+///
+/// This reuses the same session detection as the WebKitGTK workarounds
+/// ([`get_session_type`]), falling back to `WAYLAND_DISPLAY`/`DISPLAY` when
+/// `XDG_SESSION_TYPE` is unavailable (e.g. inside a Flatpak sandbox).
+///
+/// It is used to apply X11-specific workarounds that must not run under Wayland.
+pub fn is_x11_session() -> bool {
+    get_session_type() == SessionType::X11
+}
+
+/// Compositors that lay out windows without traditional title bars, so client
+/// side decorations are unwanted. This is a heuristic list since Wayland has no
+/// protocol that reports tiling vs floating behavior. It is not exhaustive and
+/// is matched against the desktop name advertised via
+/// `XDG_CURRENT_DESKTOP`/`XDG_SESSION_DESKTOP`; some floating-first compositors
+/// (e.g. Wayfire, KWin, GNOME Shell) only tile via optional plugins/extensions
+/// and are intentionally excluded.
+const TILING_COMPOSITORS: &[&str] = &[
+    "Hyprland",
+    "sway",
+    "river",
+    "niri",
+    "dwl",
+    "newm",
+    "karuiwm",
+    "japokwm",
+    "qtile",
+    "miraclewm",
+    "vivarium",
+    "waymonad",
+];
+
+/// Returns `true` when the running compositor is known to use a tiling layout.
+///
+/// Wayland provides no protocol to query tiling vs floating behavior, so this
+/// matches the compositor advertised via `XDG_CURRENT_DESKTOP` (or
+/// `XDG_SESSION_DESKTOP`) against a known set. The desktop-name comparison is
+/// case-insensitive and tolerates `XDG_CURRENT_DESKTOP` being a
+/// colon/comma/semicolon-separated list, as some sessions advertise more than
+/// one desktop name.
+///
+/// It is used to skip client side decorations on compositors that do not render
+/// or make use of them.
+pub fn is_tiling_compositor() -> bool {
+    let matches = |desktop: &str| -> bool {
+        desktop.split([':', ';', ',']).map(str::trim).any(|part| {
+            TILING_COMPOSITORS
+                .iter()
+                .any(|t| t.eq_ignore_ascii_case(part))
+        })
+    };
+    get_compositor().as_deref().map(matches).unwrap_or(false)
+}
+
 /// Returns the compositor advertised in the environment, if any.
 ///
 /// Compositors advertise their identity via `XDG_CURRENT_DESKTOP`, which is the
@@ -426,7 +492,8 @@ fn compositor_from_env<'a>(
     xdg_current_desktop: Option<&'a str>,
     xdg_session_desktop: Option<&'a str>,
 ) -> Option<&'a str> {
-    xdg_current_desktop.or(xdg_session_desktop)
+    let current = xdg_current_desktop.filter(|s| !s.trim().is_empty());
+    current.or(xdg_session_desktop)
 }
 
 /// Detects the running compositor from the environment. See
