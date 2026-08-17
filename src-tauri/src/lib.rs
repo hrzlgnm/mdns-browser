@@ -956,21 +956,28 @@ fn theme(window: Window) -> Theme {
 }
 
 /// On non-tiling Wayland the minimize/maximize/close buttons are left dead by
-/// the compositor until the window is reconfigured once (e.g. after resizing).
-/// Toggling the decorations re-wires them. The window already has the correct
-/// decoration state from creation, so this is purely a best-effort button fix.
+/// the compositor until the window is reconfigured once. A runtime toggle of
+/// decorations is unreliable on some compositors (e.g. it does not re-wire the
+/// buttons on Ubuntu/GNOME Wayland), so instead perform a maximize/restore
+/// cycle, which forces the required reconfigure and re-wires the buttons. This
+/// is the same gesture the user can do manually (double-click the title bar).
 #[cfg(target_os = "linux")]
-fn reconfigure_for_wayland_buttons(window: &tauri::WebviewWindow) {
+fn reconfigure_for_wayland_buttons(window: tauri::WebviewWindow) {
     if webkit2gtk_nvidia_quirk::is_wayland_session()
         && !webkit2gtk_nvidia_quirk::is_tiling_compositor()
     {
-        let _ = window.set_decorations(false);
-        let _ = window.set_decorations(true);
+        std::thread::spawn(move || {
+            let _ = window.maximize();
+            // Let the compositor commit the maximized state before restoring,
+            // otherwise the two calls coalesce and nothing changes.
+            std::thread::sleep(std::time::Duration::from_millis(60));
+            let _ = window.unmaximize();
+        });
     }
 }
 
 #[cfg(not(target_os = "linux"))]
-fn reconfigure_for_wayland_buttons(_window: &tauri::WebviewWindow) {}
+fn reconfigure_for_wayland_buttons(_window: tauri::WebviewWindow) {}
 
 #[cfg(desktop)]
 #[tauri::command]
@@ -978,7 +985,7 @@ fn close_splashscreen(app: AppHandle, state: State<ManagedState>) {
     if let Some(w) = app.get_webview_window("main") {
         let _ = w.show();
         let _ = w.set_focus();
-        reconfigure_for_wayland_buttons(&w);
+        reconfigure_for_wayland_buttons(w.clone());
         if state.dev_tools_enabled {
             w.open_devtools();
         }
@@ -1280,7 +1287,7 @@ pub fn run() {
                     tauri::async_runtime::spawn(async move {
                         let _ = splashscreen_window.close();
                         let _ = main_window.show();
-                        reconfigure_for_wayland_buttons(&main_window);
+                        reconfigure_for_wayland_buttons(main_window.clone());
                         if args.enable_devtools {
                             main_window.open_devtools();
                         }
