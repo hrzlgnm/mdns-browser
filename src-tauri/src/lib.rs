@@ -955,12 +955,30 @@ fn theme(window: Window) -> Theme {
     }
 }
 
+/// On non-tiling Wayland the minimize/maximize/close buttons are left dead by
+/// the compositor until the window is reconfigured once (e.g. after resizing).
+/// Toggling the decorations re-wires them. The window already has the correct
+/// decoration state from creation, so this is purely a best-effort button fix.
+#[cfg(target_os = "linux")]
+fn reconfigure_for_wayland_buttons(window: &tauri::WebviewWindow) {
+    if webkit2gtk_nvidia_quirk::is_wayland_session()
+        && !webkit2gtk_nvidia_quirk::is_tiling_compositor()
+    {
+        let _ = window.set_decorations(false);
+        let _ = window.set_decorations(true);
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+fn reconfigure_for_wayland_buttons(_window: &tauri::WebviewWindow) {}
+
 #[cfg(desktop)]
 #[tauri::command]
 fn close_splashscreen(app: AppHandle, state: State<ManagedState>) {
     if let Some(w) = app.get_webview_window("main") {
         let _ = w.show();
         let _ = w.set_focus();
+        reconfigure_for_wayland_buttons(&w);
         if state.dev_tools_enabled {
             w.open_devtools();
         }
@@ -1177,12 +1195,34 @@ mod autoupdate {
 }
 
 #[cfg(desktop)]
+/// Creates the main application window.
+///
+/// The window is created programmatically (rather than via `tauri.conf.json`)
+/// so its decoration state can be decided at creation time, which is the only
+/// point at which it reliably takes effect: Wayland/GTK and X11 do not honor
+/// runtime decoration changes once the window is mapped. Tiling Wayland
+/// compositors therefore start borderless, while every other session starts
+/// decorated.
+fn create_main_window(app: &AppHandle) -> tauri::WebviewWindow {
+    #[cfg(target_os = "linux")]
+    let decorate = !(webkit2gtk_nvidia_quirk::is_wayland_session()
+        && webkit2gtk_nvidia_quirk::is_tiling_compositor());
+    #[cfg(not(target_os = "linux"))]
+    let decorate = true;
+
+    tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
+        .title("mDNS-Browser")
+        .inner_size(1615.0, 900.0)
+        .decorations(decorate)
+        .visible(false)
+        .build()
+        .expect("Main window to be created")
+}
+
 pub fn run() {
     use chrono::Utc;
     use tauri_plugin_log::{Target, TargetKind};
     let args = Args::parse();
-
-    #[cfg(target_os = "linux")]
     {
         if !args.no_nvidia_workaround {
             let options = ApplyWorkaroundOptions::default()
@@ -1224,42 +1264,23 @@ pub fn run() {
         .manage(ManagedState::new(args.enable_devtools))
         .manage(autoupdate::PendingUpdate(Mutex::new(None)))
         .setup(move |app| {
-            // Due to peculiarities of `tauri dev` mode,
-            // we need to do close the splashscreen manually
-            let main_window = app
-                .get_webview_window("main")
-                .expect("Main window to exist");
+            // The main window is created programmatically (instead of via
+            // tauri.conf.json) so its decoration state can be set at creation
+            // time. Runtime decoration changes do not take effect on
+            // Wayland/GTK (and X11) once the window is mapped, so tiling
+            // Wayland compositors must start borderless from the start.
+            let main_window = create_main_window(app.handle());
+
+            // Due to peculiarities of `tauri dev` mode, we need to close the
+            // splashscreen and show the main window manually.
             let url = main_window.url().expect("Main window url to exist");
             let scheme = url.scheme();
             if scheme == "http" {
                 if let Some(splashscreen_window) = app.get_webview_window("splashscreen") {
                     tauri::async_runtime::spawn(async move {
                         let _ = splashscreen_window.close();
-
-                        // The main window is created without decorations (see
-                        // tauri.conf.json) so tiling Wayland compositors get a
-                        // borderless window without relying on a runtime
-                        // decoration change, which does not take effect on
-                        // Wayland/GTK after the window is mapped. On every other
-                        // session we enable decorations here.
-                        #[cfg(target_os = "linux")]
-                        let want_decorations = !webkit2gtk_nvidia_quirk::is_wayland_session()
-                            || !webkit2gtk_nvidia_quirk::is_tiling_compositor();
-                        #[cfg(not(target_os = "linux"))]
-                        let want_decorations = true;
-
                         let _ = main_window.show();
-
-                        // On non-tiling Wayland the false->true transition also
-                        // re-wires the minimize/maximize/close buttons that the
-                        // compositor otherwise leaves dead until the window is
-                        // resized. Enabling decorations at runtime is reliable;
-                        // only disabling at runtime is not.
-                        if want_decorations {
-                            let _ = main_window.set_decorations(false);
-                            let _ = main_window.set_decorations(true);
-                        }
-
+                        reconfigure_for_wayland_buttons(&main_window);
                         if args.enable_devtools {
                             main_window.open_devtools();
                         }
@@ -1311,6 +1332,12 @@ pub fn run_mobile() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
         .manage(autoupdate::PendingUpdateInfo(std::sync::Mutex::new(None)))
+        .setup(|app| {
+            // Mirror the desktop entry point: create the main window
+            // programmatically so its decoration state is set at creation.
+            let _ = create_main_window(app.handle());
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             autoupdate::can_auto_update,
             autoupdate::fetch_update,

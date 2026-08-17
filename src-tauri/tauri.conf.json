@@ -70,15 +70,6 @@
         "withGlobalTauri": true,
         "windows": [
             {
-                "title": "mDNS-Browser",
-                "url": "index.html",
-                "width": 1615,
-                "height": 900,
-                "label": "main",
-                "decorations": false,
-                "visible": false
-            },
-            {
                 "title": "Splashscreen",
                 "url": "public/splashscreen.html",
                 "label": "splashscreen",
