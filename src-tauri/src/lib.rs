@@ -1216,6 +1216,7 @@ fn create_main_window(app: &AppHandle) -> tauri::WebviewWindow {
     builder.build().expect("Main window to be created")
 }
 
+#[cfg(desktop)]
 pub fn run() {
     use chrono::Utc;
     use tauri_plugin_log::{Target, TargetKind};
