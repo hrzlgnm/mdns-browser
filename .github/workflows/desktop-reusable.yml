@@ -270,16 +270,11 @@ jobs:
           fi
           gh release upload "$TAG_NAME" "${ASSETS[@]}" --clobber
 
-      - name: 🛡️ Attest build provenance (publish release only)
+      - name: 🛡️ Attest build provenance (plain binary)
         if: inputs.tagName
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
         with:
           subject-path: |
-            target/release/bundle/nsis/*
-            target/**/release/bundle/macos/*.tar.gz*
-            target/**/release/bundle/dmg/*.dmg
-            target/release/bundle/deb/*.deb
-            target/release/bundle/rpm/*.rpm
             target/**/release/mdns-browser
             target/release/mdns-browser.exe
             target/release/mdns_browser.pdb
@@ -291,13 +286,22 @@ jobs:
             target/aarch64-apple-darwin/release/deps/mdns-browser-*.dSYM
             target/aarch64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-aarch64.tar.gz
 
-      - name: 🛡️ Attest SBOM
+      - name: 🛡️ Attest SBOM (plain binary)
         if: inputs.tagName
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
         with:
-          subject-path: ${{
-            contains(matrix.os, 'ubuntu') && 'target/release/mdns-browser' ||
-            contains(matrix.os, 'windows') && 'target/release/mdns-browser.exe' ||
-            contains(matrix.os, 'macos') && 'target/universal-apple-darwin/release/mdns-browser'
-            }}
+          subject-path: |
+            target/**/release/mdns-browser
+            target/release/mdns-browser.exe
           sbom-path: "sbom.spdx.json"
+
+      - name: 🛡️ Attest build provenance (bundles)
+        if: inputs.tagName
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-path: |
+            target/release/bundle/nsis/*
+            target/**/release/bundle/macos/*.tar.gz*
+            target/**/release/bundle/dmg/*.dmg
+            target/release/bundle/deb/*.deb
+            target/release/bundle/rpm/*.rpm
