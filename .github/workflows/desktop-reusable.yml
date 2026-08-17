@@ -277,14 +277,6 @@ jobs:
           subject-path: |
             target/**/release/mdns-browser
             target/release/mdns-browser.exe
-            target/release/mdns_browser.pdb
-            target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-windows.zip
-            target/release/mdns-browser.dwp
-            target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-linux.tar.gz
-            target/x86_64-apple-darwin/release/deps/mdns-browser-*.dSYM
-            target/x86_64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-x86_64.tar.gz
-            target/aarch64-apple-darwin/release/deps/mdns-browser-*.dSYM
-            target/aarch64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-aarch64.tar.gz
 
       - name: 🛡️ Attest SBOM (plain binary)
         if: inputs.tagName
@@ -305,3 +297,11 @@ jobs:
             target/**/release/bundle/dmg/*.dmg
             target/release/bundle/deb/*.deb
             target/release/bundle/rpm/*.rpm
+            target/release/mdns_browser.pdb
+            target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-windows.zip
+            target/release/mdns-browser.dwp
+            target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-linux.tar.gz
+            target/x86_64-apple-darwin/release/deps/mdns-browser-*.dSYM
+            target/x86_64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-x86_64.tar.gz
+            target/aarch64-apple-darwin/release/deps/mdns-browser-*.dSYM
+            target/aarch64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-aarch64.tar.gz
