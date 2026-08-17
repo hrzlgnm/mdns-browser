@@ -1220,6 +1220,8 @@ pub fn run() {
     use chrono::Utc;
     use tauri_plugin_log::{Target, TargetKind};
     let args = Args::parse();
+
+    #[cfg(target_os = "linux")]
     {
         if !args.no_nvidia_workaround {
             let options = ApplyWorkaroundOptions::default()
