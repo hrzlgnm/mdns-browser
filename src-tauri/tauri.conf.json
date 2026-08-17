@@ -75,6 +75,7 @@
                 "width": 1615,
                 "height": 900,
                 "label": "main",
+                "decorations": false,
                 "visible": false
             },
             {

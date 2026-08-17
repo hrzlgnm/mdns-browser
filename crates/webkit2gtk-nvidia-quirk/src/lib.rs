@@ -416,6 +416,75 @@ fn get_session_type() -> SessionType {
     )
 }
 
+/// Returns `true` when the application is running in a Wayland session.
+///
+/// This reuses the same session detection as the WebKitGTK workarounds
+/// ([`get_session_type`]), falling back to `WAYLAND_DISPLAY`/`DISPLAY` when
+/// `XDG_SESSION_TYPE` is unavailable (e.g. inside a Flatpak sandbox).
+///
+/// It is used to apply Wayland-specific workarounds that must not run under X11.
+pub fn is_wayland_session() -> bool {
+    get_session_type() == SessionType::Wayland
+}
+
+/// Returns `true` when the application is running in an X11 session.
+///
+/// This reuses the same session detection as the WebKitGTK workarounds
+/// ([`get_session_type`]), falling back to `WAYLAND_DISPLAY`/`DISPLAY` when
+/// `XDG_SESSION_TYPE` is unavailable (e.g. inside a Flatpak sandbox).
+///
+/// It is used to apply X11-specific workarounds that must not run under Wayland.
+pub fn is_x11_session() -> bool {
+    get_session_type() == SessionType::X11
+}
+
+/// Compositors that lay out windows without traditional title bars, so client
+/// side decorations are unwanted. This is a heuristic list since Wayland has no
+/// protocol that reports tiling vs floating behavior.
+const TILING_COMPOSITORS: &[&str] = &[
+    "Hyprland", "sway", "river", "niri", "dwl", "newm", "karuiwm", "japokwm", "qtile", "Wayfire",
+];
+
+/// Environment variables that reliably identify a tiling Wayland compositor.
+///
+/// These are exported by the compositor itself for every client and are more
+/// dependable than the desktop-name heuristics, which can be missing or
+/// reformatted depending on how the session/app was launched.
+const TILING_COMPOSITOR_ENV_VARS: &[&str] = &[
+    "HYPRLAND_INSTANCE_SIGNATURE", // Hyprland
+    "SWAYSOCK",                    // sway
+    "NIRI_SOCKET",                 // niri
+];
+
+/// Returns `true` when the running compositor is known to use a tiling layout.
+///
+/// Wayland provides no protocol to query tiling vs floating behavior, so this
+/// first checks for compositor-specific environment variables
+/// ([`TILING_COMPOSITOR_ENV_VARS`]) and then falls back to matching the
+/// compositor advertised via `XDG_CURRENT_DESKTOP` (or `XDG_SESSION_DESKTOP`)
+/// against a known set. The desktop-name comparison is case-insensitive and
+/// tolerates `XDG_CURRENT_DESKTOP` being a colon/comma/semicolon-separated
+/// list, as some sessions advertise more than one desktop name.
+///
+/// It is used to skip client side decorations on compositors that do not render
+/// or make use of them.
+pub fn is_tiling_compositor() -> bool {
+    if TILING_COMPOSITOR_ENV_VARS
+        .iter()
+        .any(|v| std::env::var(v).is_ok())
+    {
+        return true;
+    }
+    let matches = |desktop: &str| -> bool {
+        desktop.split([':', ';', ',']).map(str::trim).any(|part| {
+            TILING_COMPOSITORS
+                .iter()
+                .any(|t| t.eq_ignore_ascii_case(part))
+        })
+    };
+    get_compositor().as_deref().map(matches).unwrap_or(false)
+}
+
 /// Returns the compositor advertised in the environment, if any.
 ///
 /// Compositors advertise their identity via `XDG_CURRENT_DESKTOP`, which is the

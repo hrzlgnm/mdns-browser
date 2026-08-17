@@ -1235,7 +1235,31 @@ pub fn run() {
                 if let Some(splashscreen_window) = app.get_webview_window("splashscreen") {
                     tauri::async_runtime::spawn(async move {
                         let _ = splashscreen_window.close();
+
+                        // The main window is created without decorations (see
+                        // tauri.conf.json) so tiling Wayland compositors get a
+                        // borderless window without relying on a runtime
+                        // decoration change, which does not take effect on
+                        // Wayland/GTK after the window is mapped. On every other
+                        // session we enable decorations here.
+                        #[cfg(target_os = "linux")]
+                        let want_decorations = !webkit2gtk_nvidia_quirk::is_wayland_session()
+                            || !webkit2gtk_nvidia_quirk::is_tiling_compositor();
+                        #[cfg(not(target_os = "linux"))]
+                        let want_decorations = true;
+
                         let _ = main_window.show();
+
+                        // On non-tiling Wayland the false->true transition also
+                        // re-wires the minimize/maximize/close buttons that the
+                        // compositor otherwise leaves dead until the window is
+                        // resized. Enabling decorations at runtime is reliable;
+                        // only disabling at runtime is not.
+                        if want_decorations {
+                            let _ = main_window.set_decorations(false);
+                            let _ = main_window.set_decorations(true);
+                        }
+
                         if args.enable_devtools {
                             main_window.open_devtools();
                         }
