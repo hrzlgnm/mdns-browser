@@ -960,9 +960,11 @@ fn theme(window: Window) -> Theme {
 fn close_splashscreen(app: AppHandle, state: State<ManagedState>) {
     if let Some(w) = app.get_webview_window("main") {
         let _ = w.show();
-        let _ = w.set_focus();
         if state.dev_tools_enabled {
-            w.open_devtools();
+            let window = w.clone();
+            tauri::async_runtime::spawn(async move {
+                window.open_devtools();
+            });
         }
     }
     if let Some(w) = app.get_webview_window("splashscreen") {
@@ -1280,9 +1282,6 @@ pub fn run() {
                     tauri::async_runtime::spawn(async move {
                         let _ = splashscreen_window.close();
                         let _ = main_window.show();
-                        if args.enable_devtools {
-                            main_window.open_devtools();
-                        }
                     });
                 }
             }
