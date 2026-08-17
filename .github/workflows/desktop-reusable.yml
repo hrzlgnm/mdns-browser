@@ -134,7 +134,6 @@ jobs:
 
       - name: 🔨 Build plain executables using tauri action (publish artifacts on release)
         uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
-        if: ${{ !contains(matrix.os, 'macos') }}
         env:
           RUSTFLAGS: "-D warnings"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -271,7 +270,24 @@ jobs:
           fi
           gh release upload "$TAG_NAME" "${ASSETS[@]}" --clobber
 
-      - name: 🛡️ Attest build provenance (publish release only)
+      - name: 🛡️ Attest build provenance (plain binary)
+        if: inputs.tagName
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-path: |
+            target/**/release/mdns-browser
+            target/release/mdns-browser.exe
+
+      - name: 🛡️ Attest SBOM (plain binary)
+        if: inputs.tagName
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-path: |
+            target/**/release/mdns-browser
+            target/release/mdns-browser.exe
+          sbom-path: "sbom.spdx.json"
+
+      - name: 🛡️ Attest build provenance (bundles)
         if: inputs.tagName
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
         with:
@@ -281,8 +297,6 @@ jobs:
             target/**/release/bundle/dmg/*.dmg
             target/release/bundle/deb/*.deb
             target/release/bundle/rpm/*.rpm
-            target/**/release/mdns-browser
-            target/release/mdns-browser.exe
             target/release/mdns_browser.pdb
             target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-windows.zip
             target/release/mdns-browser.dwp
@@ -291,14 +305,3 @@ jobs:
             target/x86_64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-x86_64.tar.gz
             target/aarch64-apple-darwin/release/deps/mdns-browser-*.dSYM
             target/aarch64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-aarch64.tar.gz
-
-      - name: 🛡️ Attest SBOM
-        if: inputs.tagName
-        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
-        with:
-          subject-path: ${{
-            contains(matrix.os, 'ubuntu') && 'target/release/mdns-browser' ||
-            contains(matrix.os, 'windows') && 'target/release/mdns-browser.exe' ||
-            contains(matrix.os, 'macos') && 'target/universal-apple-darwin/release/mdns-browser'
-            }}
-          sbom-path: "sbom.spdx.json"
