@@ -1330,12 +1330,6 @@ pub fn run_mobile() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(ManagedState::new())
         .manage(autoupdate::PendingUpdateInfo(std::sync::Mutex::new(None)))
-        .setup(|app| {
-            // Mirror the desktop entry point: create the main window
-            // programmatically so its decoration state is set at creation.
-            let _ = create_main_window(app.handle());
-            Ok(())
-        })
         .invoke_handler(tauri::generate_handler![
             autoupdate::can_auto_update,
             autoupdate::fetch_update,
