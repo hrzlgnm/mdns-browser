@@ -1192,7 +1192,7 @@ mod autoupdate {
 /// window is created hidden and shown (tauri-apps/tao#1046). Starting the
 /// window maximized is a creation-time reconfigure that wires the buttons up,
 /// avoiding any runtime toggle/cycle.
-fn create_main_window(app: &AppHandle) -> tauri::WebviewWindow {
+fn create_main_window(app: &AppHandle) -> Result<tauri::WebviewWindow, tauri::Error> {
     #[cfg(target_os = "linux")]
     let wayland = webkit2gtk_nvidia_quirk::is_wayland_session();
     #[cfg(target_os = "linux")]
@@ -1215,7 +1215,10 @@ fn create_main_window(app: &AppHandle) -> tauri::WebviewWindow {
     if start_maximized {
         builder = builder.maximized(true);
     }
-    builder.build().expect("Main window to be created")
+    builder.build().map_err(|e| {
+        log::error!("Failed to create main window: {e}");
+        e
+    })
 }
 
 #[cfg(desktop)]
@@ -1271,7 +1274,7 @@ pub fn run() {
             // time. Runtime decoration changes do not take effect on
             // Wayland/GTK (and X11) once the window is mapped, so tiling
             // Wayland compositors must start borderless from the start.
-            let main_window = create_main_window(app.handle());
+            let main_window = create_main_window(app.handle())?;
 
             // Due to peculiarities of `tauri dev` mode, we need to close the
             // splashscreen and show the main window manually.

@@ -492,7 +492,8 @@ fn compositor_from_env<'a>(
     xdg_current_desktop: Option<&'a str>,
     xdg_session_desktop: Option<&'a str>,
 ) -> Option<&'a str> {
-    xdg_current_desktop.or(xdg_session_desktop)
+    let current = xdg_current_desktop.filter(|s| !s.trim().is_empty());
+    current.or(xdg_session_desktop)
 }
 
 /// Detects the running compositor from the environment. See
