@@ -5,6 +5,12 @@ All notable changes to `webkit2gtk-nvidia-quirk` will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This changelog is auto-generated from commits that modify this crate.
 
+## [1.4.3] - 2026-08-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v1.4.2...webkit2gtk-nvidia-quirk-v1.4.3)
+
+### Fixed
+
+- Borderless on tiling Wayland, working buttons on non-tiling (#2475) ([#2475](https://github.com/hrzlgnm/mdns-browser/pull/2475))
+
 ## [1.4.2] - 2026-08-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v1.4.1...webkit2gtk-nvidia-quirk-v1.4.2)
 
 ### Fixed
