@@ -963,6 +963,8 @@ fn close_splashscreen(app: AppHandle, state: State<ManagedState>) {
         if state.dev_tools_enabled {
             let window = w.clone();
             tauri::async_runtime::spawn(async move {
+                #[cfg(target_os = "linux")]
+                tokio::time::sleep(std::time::Duration::from_millis(100)).await;
                 window.open_devtools();
             });
         }
