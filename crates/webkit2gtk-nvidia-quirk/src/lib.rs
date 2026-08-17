@@ -440,9 +440,24 @@ pub fn is_x11_session() -> bool {
 
 /// Compositors that lay out windows without traditional title bars, so client
 /// side decorations are unwanted. This is a heuristic list since Wayland has no
-/// protocol that reports tiling vs floating behavior.
+/// protocol that reports tiling vs floating behavior. It is not exhaustive:
+/// compositors without a reliable identifying environment variable can only be
+/// detected via `XDG_CURRENT_DESKTOP`/`XDG_SESSION_DESKTOP`, and some
+/// floating-first compositors (e.g. Wayfire, KWin, GNOME Shell) only tile via
+/// optional plugins/extensions and are intentionally excluded.
 const TILING_COMPOSITORS: &[&str] = &[
-    "Hyprland", "sway", "river", "niri", "dwl", "newm", "karuiwm", "japokwm", "qtile", "Wayfire",
+    "Hyprland",
+    "sway",
+    "river",
+    "niri",
+    "dwl",
+    "newm",
+    "karuiwm",
+    "japokwm",
+    "qtile",
+    "miraclewm",
+    "vivarium",
+    "waymonad",
 ];
 
 /// Environment variables that reliably identify a tiling Wayland compositor.
