@@ -1,4 +1,4 @@
-.TH mdns-browser 1 "2026-02-07" "mdns-browser" "User Commands"
+.TH mdns-browser 1 "2026-08-18" "mdns-browser" "User Commands"
 .SH NAME
 mdns-browser \- Browse mDNS services
 .SH SYNOPSIS
@@ -20,11 +20,14 @@ Enable logging to file
 .BI \-d , \-\-disable\-dmabuf\-renderer
 Disable dmabuf renderer (Linux only), useful when having rendering issues
 .TP
-.BI \-\-disable\-nv\-explicit\-sync
+.BI \-e , \-\-disable\-nv\-explicit\-sync
 Disable NVIDIA explicit sync even if NVIDIA is not detected (Linux only)
 .TP
-.BI \-\-no\-nvidia\-workaround
+.BI \-n , \-\-no\-nvidia\-workaround
 Disable all NVIDIA workarounds entirely (Linux only)
+.TP
+.BI \-v , \-\-nvidia\-workaround\-verbose
+Print diagnostic notes when applying an NVIDIA workaround (Linux only)
 .TP
 .BI \-h , \-\-help
 Print help

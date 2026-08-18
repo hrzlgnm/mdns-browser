@@ -72,8 +72,9 @@ Options:
   -D, --enable-devtools             Enable devtools at startup
   -f, --log-to-file                 Enable logging to file
   -d, --disable-dmabuf-renderer     Disable dmabuf renderer (Linux only), useful when having rendering issues
-      --disable-nv-explicit-sync    Disable NVIDIA explicit sync (Linux only)
-      --no-nvidia-workaround        Disable all NVIDIA workarounds entirely (Linux only)
+  -e, --disable-nv-explicit-sync    Disable NVIDIA explicit sync (Linux only)
+  -n, --no-nvidia-workaround        Disable all NVIDIA workarounds entirely (Linux only)
+  -v, --nvidia-workaround-verbose   Print diagnostic notes when applying an NVIDIA workaround (Linux only)
   -h, --help                        Print help
   -V, --version                     Print version
 
@@ -113,6 +114,13 @@ This option disables all NVIDIA workarounds entirely, including automatic detect
 Useful for testing whether rendering issues are caused by the workarounds or to completely disable them.
 
 This option takes precedence over both `--disable-dmabuf-renderer` and `--disable-nv-explicit-sync`.
+
+### nvidia-workaround-verbose (Linux only)
+
+This option prints diagnostic notes to stderr when a NVIDIA workaround is applied, so you can confirm which workarounds are active.
+It only affects diagnostic output and does not change any behavior.
+
+This option has been added with release [v1.18.0](https://github.com/hrzlgnm/mdns-browser/releases/tag/v1.18.0)
 
 ## Where to find the executables?
 
