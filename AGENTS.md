@@ -294,6 +294,7 @@ This ensures your workflow changes follow GitHub Actions best practices and will
 
 - **Never** use `unsafe` code - this will cause CI to fail
 - **Never** add `#[allow(warnings)]` attributes to suppress warnings - fix the underlying issues instead
+- **Never** manually bump crate versions in `Cargo.toml` or add `CHANGELOG.md` entries for crates. Version bumps and changelog generation are performed automatically by the crate publishing workflow (git-cliff, based on conventional commits). Only change source, tests, and docs.
 - **Never** amend commits - commits will be squashed in GitHub, just create a new commit instead
 - **Always** format code before committing
 - **Always** run clippy and fix warnings (both debug and release)
