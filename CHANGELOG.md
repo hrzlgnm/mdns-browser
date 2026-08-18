@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0] - 2026-08-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.16.1...v1.17.0)
+
+### Dependencies
+
+- *(deps)* Lock file maintenance ([#2474](https://github.com/hrzlgnm/mdns-browser/pull/2474))
+
+- *(deps)* Update archlinux:base-devel docker digest to 714acd1 ([#2477](https://github.com/hrzlgnm/mdns-browser/pull/2477))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 8eda1e6 ([#2478](https://github.com/hrzlgnm/mdns-browser/pull/2478))
+
+### Fixed
+
+- Publish unbundled macOS executable on release ([#2476](https://github.com/hrzlgnm/mdns-browser/pull/2476))
+
+- Borderless on tiling Wayland, working buttons on non-tiling ([#2475](https://github.com/hrzlgnm/mdns-browser/pull/2475))
+
 ## [1.16.1] - 2026-08-15 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.16.0...v1.16.1)
 
 ### Changed
