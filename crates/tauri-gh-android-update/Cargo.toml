@@ -1,0 +1,21 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+[package]
+name = "tauri-gh-android-update"
+version = "0.1.0"
+edition = "2021"
+description = "GitHub-releases based updater for Tauri apps on platforms without tauri-plugin-updater support"
+license = "MIT"
+repository = "https://github.com/hrzlgnm/mdns-browser"
+authors = ["hrzlgnm"]
+readme = "README.md"
+
+[dependencies]
+log = { workspace = true }
+reqwest = { workspace = true }
+semver = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tauri = "2"
+tauri-plugin-opener = { workspace = true }
