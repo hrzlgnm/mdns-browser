@@ -1032,6 +1032,13 @@ struct Args {
         help = "Disable all NVIDIA workarounds entirely"
     )]
     no_nvidia_workaround: bool,
+    #[cfg(target_os = "linux")]
+    #[arg(
+        long,
+        default_value_t = false,
+        help = "Print diagnostic notes when applying a NVIDIA workaround"
+    )]
+    nvidia_workaround_verbose: bool,
 }
 
 #[cfg(desktop)]
@@ -1234,7 +1241,8 @@ pub fn run() {
         if !args.no_nvidia_workaround {
             let options = ApplyWorkaroundOptions::default()
                 .force_disable_dmabuf(args.disable_dmabuf_renderer)
-                .force_disable_nv_explicit_sync(args.disable_nv_explicit_sync);
+                .force_disable_nv_explicit_sync(args.disable_nv_explicit_sync)
+                .verbose(args.nvidia_workaround_verbose);
             apply_workaround_with_options(options);
         }
     }
