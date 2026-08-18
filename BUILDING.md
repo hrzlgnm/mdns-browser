@@ -33,22 +33,22 @@ Make sure the following development libraries are installed:
 
 You can install these using your package manager. For detailed instructions, refer to the official [Tauri Linux setup guide](https://tauri.app/start/prerequisites/#linux).
 
-#### xbps (Void Linux)
+#### pacman (Arch Linux)
 
-For Void Linux, install these dependencies by running:
+For Arch Linux, install these dependencies by running:
 
 ```console
-sudo xbps-install -Syu
-sudo xbps-install -S \
- libwebkit2gtk41-devel \
+sudo pacman -Syu
+sudo pacman -S --needed \
+ webkit2gtk-4.1 \
  curl \
  wget \
  file \
  openssl \
- gtk+3-devel \
- librsvg-devel \
+ gtk3 \
+ librsvg \
  gcc \
- pkg-config
+ pkgconf
 ```
 
 ### Rust Crates

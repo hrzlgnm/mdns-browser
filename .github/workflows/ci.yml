@@ -53,7 +53,6 @@ jobs:
       lint: ${{ steps.filter.outputs.lint }}
       tauri: ${{ steps.filter.outputs.tauri }}
       tests: ${{ steps.filter.outputs.tests }}
-      void: ${{ steps.filter.outputs.void }}
       winget: ${{ steps.filter.outputs.winget }}
     steps:
       - name: 🔄 Checkout
@@ -107,9 +106,6 @@ jobs:
             tests:
               - '.github/workflows/test-reusable.yml'
               - '.config/nextest.toml'
-            void:
-              - '.github/workflows/void-reusable.yml'
-              - 'packaging/void/**'
             winget:
               - '.github/workflows/winget-reusable.yml'
               - '.github/actions/latest-release-info/action.yml'
@@ -135,14 +131,6 @@ jobs:
       - actionlint
     if: needs.changes.outputs.aur == 'true'
     uses: ./.github/workflows/aur-reusable.yml
-
-  void:
-    name: Void
-    needs:
-      - changes
-      - actionlint
-    if: needs.changes.outputs.void == 'true'
-    uses: ./.github/workflows/void-reusable.yml
 
   winget:
     name: winget
@@ -226,7 +214,6 @@ jobs:
       - typos
       - actionlint
       - aur
-      - void
       - winget
       - lint
       - tests
@@ -241,7 +228,6 @@ jobs:
         with:
           allowed-skips: >-
             aur,
-            void,
             winget,
             lint,
             tests,

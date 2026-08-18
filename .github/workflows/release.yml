@@ -105,15 +105,4 @@ jobs:
     with:
       tagName: ${{ github.ref_name }}
 
-  build_void:
-    needs: [create_release_draft, source_checksums]
-    permissions:
-      id-token: write # needed for OIDC token for attestation
-      attestations: write # needed to create build attestations
-      contents: write # needed to upload build artifacts
-      actions: read # needed to download workflow artifacts
-    name: 🔨 Build Void
-    uses: ./.github/workflows/void-reusable.yml
-    secrets: inherit
-    with:
-      tagName: ${{ github.ref_name }}
+
