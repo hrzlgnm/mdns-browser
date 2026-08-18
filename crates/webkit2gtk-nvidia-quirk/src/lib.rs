@@ -836,7 +836,7 @@ mod tests {
         use super::*;
 
         #[test]
-        fn classify_wayland_lib_wayland2() {
+        fn test_classify_wayland_lib_wayland2() {
             assert_eq!(
                 classify_wayland_lib("libnvidia-egl-wayland2.so.1"),
                 Some(WaylandLib::EglWayland2)
@@ -848,7 +848,7 @@ mod tests {
         }
 
         #[test]
-        fn classify_wayland_lib_old() {
+        fn test_classify_wayland_lib_old() {
             assert_eq!(
                 classify_wayland_lib("libnvidia-egl-wayland.so.1"),
                 Some(WaylandLib::EglWayland)
@@ -860,13 +860,13 @@ mod tests {
         }
 
         #[test]
-        fn classify_wayland_lib_other() {
+        fn test_classify_wayland_lib_other() {
             assert_eq!(classify_wayland_lib("libnvidia-egl-gbm.so.1"), None);
             assert_eq!(classify_wayland_lib("libnvidia-egl-xcb.so.1"), None);
         }
 
         #[test]
-        fn parses_manifest_library_path() {
+        fn test_parses_manifest_library_path() {
             let manifest = r#"{
                 "file_format_version": "1.0.0",
                 "ICD": {
@@ -881,7 +881,7 @@ mod tests {
         }
 
         #[test]
-        fn parses_driver_major() {
+        fn test_parses_driver_major() {
             let nvr =
                 "NVRM version: NVIDIA UNIX Open Kernel Module for x86_64  610.43.03  Release Build";
             assert_eq!(parse_driver_major(nvr), Some(610));
@@ -894,7 +894,7 @@ mod tests {
         }
 
         #[test]
-        fn json_files_in_dir_sorted() -> std::io::Result<()> {
+        fn test_json_files_in_dir_sorted() -> std::io::Result<()> {
             let dir = temp_dir("sorted");
             write_manifest(&dir, "20_nvidia_xcb.json", "libnvidia-egl-xcb.so.1")?;
             write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1")?;
@@ -921,7 +921,7 @@ mod tests {
         }
 
         #[test]
-        fn egl_wayland2_selected_new_first() -> std::io::Result<()> {
+        fn test_egl_wayland2_selected_new_first() -> std::io::Result<()> {
             let dir = temp_dir("new_first");
             let configs = vec![
                 write_manifest(
@@ -936,7 +936,7 @@ mod tests {
         }
 
         #[test]
-        fn egl_wayland2_selected_only_new() -> std::io::Result<()> {
+        fn test_egl_wayland2_selected_only_new() -> std::io::Result<()> {
             let dir = temp_dir("only_new");
             let configs = vec![write_manifest(
                 &dir,
@@ -948,7 +948,7 @@ mod tests {
         }
 
         #[test]
-        fn egl_wayland2_selected_old_first() -> std::io::Result<()> {
+        fn test_egl_wayland2_selected_old_first() -> std::io::Result<()> {
             let dir = temp_dir("old_first");
             let configs = vec![
                 write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1")?,
@@ -963,7 +963,7 @@ mod tests {
         }
 
         #[test]
-        fn egl_wayland2_selected_only_old() -> std::io::Result<()> {
+        fn test_egl_wayland2_selected_only_old() -> std::io::Result<()> {
             let dir = temp_dir("only_old");
             let configs = vec![write_manifest(
                 &dir,
@@ -975,7 +975,7 @@ mod tests {
         }
 
         #[test]
-        fn egl_wayland2_selected_driver_too_old() -> std::io::Result<()> {
+        fn test_egl_wayland2_selected_driver_too_old() -> std::io::Result<()> {
             let dir = temp_dir("driver_too_old");
             let configs = vec![write_manifest(
                 &dir,
@@ -988,7 +988,7 @@ mod tests {
         }
 
         #[test]
-        fn egl_wayland2_selected_no_wayland_lib() -> std::io::Result<()> {
+        fn test_egl_wayland2_selected_no_wayland_lib() -> std::io::Result<()> {
             let dir = temp_dir("no_wayland_lib");
             let configs = vec![write_manifest(
                 &dir,
@@ -1005,7 +1005,7 @@ mod tests {
         use super::*;
 
         #[test]
-        fn driver_name_resolves_symlink() -> std::io::Result<()> {
+        fn test_driver_name_resolves_symlink() -> std::io::Result<()> {
             let dir = temp_dir("driver_name");
             let card = write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true)?;
             assert_eq!(driver_name(&card), Some("nvidia".to_string()));
@@ -1013,7 +1013,7 @@ mod tests {
         }
 
         #[test]
-        fn driver_name_missing_symlink() -> std::io::Result<()> {
+        fn test_driver_name_missing_symlink() -> std::io::Result<()> {
             let dir = temp_dir("driver_name_missing");
             let card = write_fake_card(&dir, "card0", Some("0x10de"), None, true)?;
             assert_eq!(driver_name(&card), None);
@@ -1021,7 +1021,7 @@ mod tests {
         }
 
         #[test]
-        fn enumerate_gpus_at_nvidia_primary() -> std::io::Result<()> {
+        fn test_enumerate_gpus_at_nvidia_primary() -> std::io::Result<()> {
             let dir = temp_dir("enumerate_nvidia_primary");
             write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true)?;
             write_fake_card(&dir, "card1", Some("0x1002"), Some("amdgpu"), false)?;
@@ -1036,7 +1036,7 @@ mod tests {
         }
 
         #[test]
-        fn enumerate_gpus_at_nouveau_not_nvidia_driver() -> std::io::Result<()> {
+        fn test_enumerate_gpus_at_nouveau_not_nvidia_driver() -> std::io::Result<()> {
             // NVIDIA vendor ID but the open-source nouveau driver bound - the
             // proprietary-driver check must not treat this as "loaded".
             let dir = temp_dir("enumerate_nouveau");
@@ -1049,7 +1049,7 @@ mod tests {
         }
 
         #[test]
-        fn enumerate_gpus_at_no_cards() {
+        fn test_enumerate_gpus_at_no_cards() {
             let dir = temp_dir("enumerate_empty");
             let devices = enumerate_gpus_at(&dir);
             assert!(devices.is_empty());
@@ -1061,7 +1061,7 @@ mod tests {
         use super::*;
 
         #[test]
-        fn xdg_session_type_preferred() {
+        fn test_xdg_session_type_preferred() {
             assert_eq!(
                 session_type_from_env(None, Some("wayland"), None, Some(":0")),
                 SessionType::Wayland
@@ -1073,7 +1073,7 @@ mod tests {
         }
 
         #[test]
-        fn falls_back_to_display_vars() {
+        fn test_falls_back_to_display_vars() {
             // Simulates a Flatpak sandbox where XDG_SESSION_TYPE isn't
             // propagated, but the socket permission env vars are set.
             assert_eq!(
@@ -1091,7 +1091,7 @@ mod tests {
         }
 
         #[test]
-        fn unrecognized_xdg_session_type_falls_back() {
+        fn test_unrecognized_xdg_session_type_falls_back() {
             assert_eq!(
                 session_type_from_env(None, Some("tty"), Some("wayland-0"), None),
                 SessionType::Wayland
@@ -1099,7 +1099,7 @@ mod tests {
         }
 
         #[test]
-        fn gdk_backend_overrides_xdg_session_type() {
+        fn test_gdk_backend_overrides_xdg_session_type() {
             // GDK_BACKEND=x11 wins even when XDG_SESSION_TYPE says wayland.
             assert_eq!(
                 session_type_from_env(Some("x11"), Some("wayland"), Some("wayland-0"), None),
@@ -1112,7 +1112,7 @@ mod tests {
         }
 
         #[test]
-        fn gdk_backend_list_takes_first() {
+        fn test_gdk_backend_list_takes_first() {
             // GDK reads a comma-separated list and uses the first recognized entry.
             assert_eq!(
                 session_type_from_env(Some("x11,wayland"), Some("wayland"), None, None),
@@ -1126,7 +1126,7 @@ mod tests {
         }
 
         #[test]
-        fn gdk_backend_unrecognized_falls_through() {
+        fn test_gdk_backend_unrecognized_falls_through() {
             assert_eq!(
                 session_type_from_env(Some("broadway"), Some("wayland"), None, None),
                 SessionType::Wayland
@@ -1142,7 +1142,7 @@ mod tests {
         use super::*;
 
         #[test]
-        fn hyprland_disables_dmabuf_renderer() {
+        fn test_hyprland_disables_dmabuf_renderer() {
             // Hyprland enforces the acquire-point rule and its NVIDIA EGL/GBM
             // render path SIGSEVs, so the DMABUF renderer is disabled even with
             // egl-wayland2 active (the workaround must not be skipped).
@@ -1153,7 +1153,7 @@ mod tests {
         }
 
         #[test]
-        fn egl_wayland2_skips_on_lenient_compositor() {
+        fn test_egl_wayland2_skips_on_lenient_compositor() {
             // On compositors that tolerate the missing acquire point (e.g. niri),
             // egl-wayland2 works and the workaround is skipped.
             assert_eq!(
@@ -1163,7 +1163,7 @@ mod tests {
         }
 
         #[test]
-        fn wayland_without_egl_wayland2_disables_nv_explicit_sync() {
+        fn test_wayland_without_egl_wayland2_disables_nv_explicit_sync() {
             assert_eq!(
                 workaround_for(SessionType::Wayland, true, false, false),
                 WorkaroundKind::DisableNvExplicitSync
@@ -1171,7 +1171,7 @@ mod tests {
         }
 
         #[test]
-        fn x11_disables_dmabuf_renderer() {
+        fn test_x11_disables_dmabuf_renderer() {
             assert_eq!(
                 workaround_for(SessionType::X11, true, false, false),
                 WorkaroundKind::DisableWebkitDmabufRenderer
@@ -1179,7 +1179,7 @@ mod tests {
         }
 
         #[test]
-        fn unknown_session_is_noop() {
+        fn test_unknown_session_is_noop() {
             assert_eq!(
                 workaround_for(SessionType::Unknown, true, false, false),
                 WorkaroundKind::None
@@ -1187,7 +1187,7 @@ mod tests {
         }
 
         #[test]
-        fn no_nvidia_is_noop() {
+        fn test_no_nvidia_is_noop() {
             assert_eq!(
                 workaround_for(SessionType::Wayland, false, true, true),
                 WorkaroundKind::None
@@ -1199,7 +1199,7 @@ mod tests {
         }
 
         #[test]
-        fn compositor_from_env_prefers_xdg_current_desktop() {
+        fn test_compositor_from_env_prefers_xdg_current_desktop() {
             assert_eq!(
                 compositor_from_env(Some("Hyprland"), Some("Hyprland")),
                 Some("Hyprland")
@@ -1211,20 +1211,20 @@ mod tests {
         }
 
         #[test]
-        fn compositor_from_env_falls_back_to_xdg_session_desktop() {
+        fn test_compositor_from_env_falls_back_to_xdg_session_desktop() {
             assert_eq!(compositor_from_env(None, Some("Hyprland")), Some("Hyprland"));
             assert_eq!(compositor_from_env(None, None), None);
         }
 
         #[test]
-        fn hyprland_compositor_detected() {
+        fn test_hyprland_compositor_detected() {
             assert!(is_hyprland(Some("Hyprland")));
             assert!(!is_hyprland(Some("niri")));
             assert!(!is_hyprland(None));
         }
 
         #[test]
-        fn hyprland_recognized_within_desktop_name_list() {
+        fn test_hyprland_recognized_within_desktop_name_list() {
             // XDG_CURRENT_DESKTOP can be a colon/comma/semicolon separated list
             // of session names; Hyprland must be recognized wherever it appears.
             assert!(is_hyprland(Some("Hyprland:GNOME")));
@@ -1234,7 +1234,7 @@ mod tests {
         }
 
         #[test]
-        fn hyprland_detected_via_socket() {
+        fn test_hyprland_detected_via_socket() {
             // When XDG_CURRENT_DESKTOP is absent, Hyprland is detected from its
             // Wayland socket under XDG_RUNTIME_DIR named after the instance
             // signature.
@@ -1268,7 +1268,7 @@ mod tests {
     /// regression test for the bug where the workaround silently became a
     /// no-op in sandboxes because detection relied on `/sys/module/nvidia`.
     #[test]
-    fn needs_workaround_detection_in_simulated_flatpak_sandbox() -> std::io::Result<()> {
+    fn test_needs_workaround_detection_in_simulated_flatpak_sandbox() -> std::io::Result<()> {
         let dir = temp_dir("flatpak_sandbox");
         // Only /sys/class/drm exists in the sandbox; deliberately do not
         // create anything resembling /sys/module or /proc.
