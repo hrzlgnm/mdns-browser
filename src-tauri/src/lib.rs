@@ -1036,7 +1036,7 @@ struct Args {
     #[arg(
         long,
         default_value_t = false,
-        help = "Print diagnostic notes when applying a NVIDIA workaround"
+        help = "Print diagnostic notes when applying an NVIDIA workaround"
     )]
     nvidia_workaround_verbose: bool,
 }
