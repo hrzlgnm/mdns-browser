@@ -11,10 +11,16 @@ Compositors differ in how strictly they enforce this: Hyprland answers with a
 protocol error that kills the connection (see
 [WebKitGTK Bug #280210](https://bugs.webkit.org/show_bug.cgi?id=280210)),
 while others such as niri tolerate the missing acquire point. On Hyprland the
-workaround disables NVIDIA explicit sync. On compositors that tolerate the
-missing acquire point, the workaround is skipped when the dma-buf-based
-`egl-wayland2` library is in use (NVIDIA driver 560 or newer), since disabling
-explicit sync would degrade rendering performance.
+workaround disables the WebKit DMA-BUF renderer, which also avoids a separate
+NVIDIA EGL/GBM SIGSEGV that occurs during rendering there. On compositors that
+tolerate the missing acquire point, the workaround is skipped when the
+dma-buf-based `egl-wayland2` library is in use (NVIDIA driver 560 or newer),
+since disabling explicit sync would degrade rendering performance.
+
+The session type is detected from `GDK_BACKEND` first (the backend
+GDK/WebKitGTK actually selects - a comma-separated list where the first
+recognized entry of `x11`/`wayland` wins; unrecognized entries are ignored),
+then `XDG_SESSION_TYPE`, then `WAYLAND_DISPLAY`/`DISPLAY`.
 
 ## Quick Start
 

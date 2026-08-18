@@ -147,7 +147,7 @@ jobs:
         if: (!inputs.dry-run)
         run: |
           git add -A
-          git commit -S -m "Bump webkit2gtk-nvidia-quirk to ${{ steps.version.outputs.version }}"
+          git commit -S -m "chore(webkit2gtk-nvidia-quirk): Bump webkit2gtk-nvidia-quirk to ${{ steps.version.outputs.version }}"
           git tag -s -a webkit2gtk-nvidia-quirk-v${{ steps.version.outputs.version }} -m "webkit2gtk-nvidia-quirk Release v${{ steps.version.outputs.version }}"
           git push --follow-tags
 
