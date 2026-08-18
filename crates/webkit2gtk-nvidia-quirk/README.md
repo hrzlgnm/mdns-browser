@@ -18,8 +18,9 @@ dma-buf-based `egl-wayland2` library is in use (NVIDIA driver 560 or newer),
 since disabling explicit sync would degrade rendering performance.
 
 The session type is detected from `GDK_BACKEND` first (the backend
-GDK/WebKitGTK actually selects), then `XDG_SESSION_TYPE`, then
-`WAYLAND_DISPLAY`/`DISPLAY`.
+GDK/WebKitGTK actually selects - a comma-separated list where the first
+recognized entry of `x11`/`wayland` wins; unrecognized entries are ignored),
+then `XDG_SESSION_TYPE`, then `WAYLAND_DISPLAY`/`DISPLAY`.
 
 ## Quick Start
 

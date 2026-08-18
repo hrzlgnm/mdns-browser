@@ -36,8 +36,9 @@
 //! | Wayland (other) | Disable NVIDIA explicit sync | `__NV_DISABLE_EXPLICIT_SYNC=1` |
 //!
 //! The session type is taken from `GDK_BACKEND` first (the backend GDK/WebKitGTK
-//! actually selects, a colon/comma separated list where the first recognized
-//! entry wins), then `XDG_SESSION_TYPE`, then `WAYLAND_DISPLAY`/`DISPLAY`.
+//! actually selects, a comma-separated list where the first recognized entry of
+//! `x11`/`wayland` wins; unrecognized entries such as `broadway` are ignored),
+//! then `XDG_SESSION_TYPE`, then `WAYLAND_DISPLAY`/`DISPLAY`.
 //!
 //! ## Wayland
 //!
@@ -393,20 +394,17 @@ enum SessionType {
 
 /// Parses `GDK_BACKEND` into the session type GDK would actually select.
 ///
-/// GDK reads `GDK_BACKEND` as a colon/comma separated list of preferred
-/// backends and uses the first one that is available, so the first recognized
-/// entry wins. This is the backend WebKitGTK ends up using, which is why it
-/// takes precedence over `XDG_SESSION_TYPE`/`WAYLAND_DISPLAY`/`DISPLAY`.
+/// `GDK_BACKEND` is a comma-separated list of preferred backends; GDK uses the
+/// first one that initializes, so the first recognized entry (`x11`/`wayland`)
+/// wins. Unrecognized entries (e.g. `broadway`) are ignored rather than
+/// terminating the search. This is the backend WebKitGTK ends up using, which
+/// is why it takes precedence over `XDG_SESSION_TYPE`/`WAYLAND_DISPLAY`/`DISPLAY`.
 fn session_type_from_gdk_backend(gdk_backend: Option<&str>) -> Option<SessionType> {
-    let backend = gdk_backend?
-        .split([',', ':'])
+    gdk_backend?
+        .split(',')
         .map(str::trim)
-        .find(|s| !s.is_empty())?;
-    match backend {
-        "x11" => Some(SessionType::X11),
-        "wayland" => Some(SessionType::Wayland),
-        _ => None,
-    }
+        .find(|s| *s == "x11" || *s == "wayland")
+        .map(|s| if s == "x11" { SessionType::X11 } else { SessionType::Wayland })
 }
 
 /// Determines the session type from the relevant environment variables.
@@ -537,11 +535,41 @@ fn compositor_from_env<'a>(
 /// Detects the running compositor from the environment. See
 /// [`compositor_from_env`] for details.
 fn get_compositor() -> Option<String> {
-    compositor_from_env(
+    if let Some(name) = compositor_from_env(
         std::env::var("XDG_CURRENT_DESKTOP").ok().as_deref(),
         std::env::var("XDG_SESSION_DESKTOP").ok().as_deref(),
-    )
-    .map(str::to_string)
+    ) {
+        return Some(name.to_string());
+    }
+    // Hyprland does not always advertise itself via XDG_CURRENT_DESKTOP (for
+    // example in embedded/headless setups), but it always creates a Wayland
+    // socket named after its instance signature under XDG_RUNTIME_DIR.
+    if hyprland_socket_present() {
+        return Some("Hyprland".to_string());
+    }
+    None
+}
+
+/// Returns `true` when Hyprland's Wayland socket is present.
+///
+/// Hyprland sets `HYPRLAND_INSTANCE_SIGNATURE` and creates the socket
+/// `$XDG_RUNTIME_DIR/hyprland/<signature>.sock`. The presence of that socket is
+/// a reliable signal that Hyprland is the active compositor even when
+/// `XDG_CURRENT_DESKTOP` is not set.
+fn hyprland_socket_present() -> bool {
+    let Ok(signature) = std::env::var("HYPRLAND_INSTANCE_SIGNATURE") else {
+        return false;
+    };
+    if signature.trim().is_empty() {
+        return false;
+    }
+    let Ok(runtime_dir) = std::env::var("XDG_RUNTIME_DIR") else {
+        return false;
+    };
+    Path::new(&runtime_dir)
+        .join("hyprland")
+        .join(format!("{signature}.sock"))
+        .exists()
 }
 
 /// Returns whether the running compositor is Hyprland.
@@ -554,7 +582,9 @@ fn get_compositor() -> Option<String> {
 /// (`libnvidia-eglcore` / GBM `EINVAL`). The DMA-BUF renderer is disabled there
 /// to avoid both failure modes.
 fn is_hyprland(compositor: Option<&str>) -> bool {
-    matches!(compositor, Some("Hyprland"))
+    compositor
+        .map(|c| c.split([':', ';', ',']).any(|part| part.trim() == "Hyprland"))
+        .unwrap_or(false)
 }
 
 /// Represents the type of workaround to apply for NVIDIA WebKitGTK issues.
@@ -1083,13 +1113,14 @@ mod tests {
 
         #[test]
         fn gdk_backend_list_takes_first() {
-            // GDK reads a colon/comma separated list and uses the first recognized.
+            // GDK reads a comma-separated list and uses the first recognized entry.
             assert_eq!(
                 session_type_from_env(Some("x11,wayland"), Some("wayland"), None, None),
                 SessionType::X11
             );
+            // Unrecognized entries before the recognized one are ignored.
             assert_eq!(
-                session_type_from_env(Some("wayland:x11"), Some("x11"), None, None),
+                session_type_from_env(Some("broadway,wayland"), Some("x11"), None, None),
                 SessionType::Wayland
             );
         }
@@ -1190,6 +1221,42 @@ mod tests {
             assert!(is_hyprland(Some("Hyprland")));
             assert!(!is_hyprland(Some("niri")));
             assert!(!is_hyprland(None));
+        }
+
+        #[test]
+        fn hyprland_recognized_within_desktop_name_list() {
+            // XDG_CURRENT_DESKTOP can be a colon/comma/semicolon separated list
+            // of session names; Hyprland must be recognized wherever it appears.
+            assert!(is_hyprland(Some("Hyprland:GNOME")));
+            assert!(is_hyprland(Some("Unity:Hyprland")));
+            assert!(is_hyprland(Some("GNOME,Hyprland")));
+            assert!(!is_hyprland(Some("GNOME")));
+        }
+
+        #[test]
+        fn hyprland_detected_via_socket() {
+            // When XDG_CURRENT_DESKTOP is absent, Hyprland is detected from its
+            // Wayland socket under XDG_RUNTIME_DIR named after the instance
+            // signature.
+            let runtime = temp_dir("hyprland_socket");
+            let signature = "test-instance";
+            std::env::set_var("HYPRLAND_INSTANCE_SIGNATURE", signature);
+            std::env::set_var("XDG_RUNTIME_DIR", runtime.to_str().unwrap());
+            // Ensure desktop env vars do not shadow the socket fallback.
+            std::env::remove_var("XDG_CURRENT_DESKTOP");
+            std::env::remove_var("XDG_SESSION_DESKTOP");
+            let _ = std::fs::create_dir_all(runtime.join("hyprland"));
+            std::fs::write(
+                runtime.join("hyprland").join(format!("{signature}.sock")),
+                b"",
+            )
+            .unwrap();
+
+            assert_eq!(get_compositor(), Some("Hyprland".to_string()));
+
+            // Clean up so other tests are unaffected.
+            std::env::remove_var("HYPRLAND_INSTANCE_SIGNATURE");
+            std::env::remove_var("XDG_RUNTIME_DIR");
         }
     }
 
