@@ -12,7 +12,11 @@
 //! with the proprietary NVIDIA driver, rendering issues occur that vary by session type:
 //!
 //! - **X11**: The DMABUF renderer causes blank windows
-//! - **Wayland**: The application does not start
+//! - **Wayland (Hyprland)**: The DMABUF renderer violates the compositor's
+//!   acquire-point rule (a protocol error that kills the client) and its NVIDIA
+//!   EGL/GBM render path SIGSEVs during rendering
+//! - **Wayland (other)**: The application may not start unless NVIDIA explicit
+//!   sync is disabled
 //!
 //! Related upstream issues:
 //! - [tauri-apps/tauri#10702](https://github.com/tauri-apps/tauri/issues/10702)
@@ -27,7 +31,13 @@
 //! | Session Type | Workaround | Environment Variable |
 //! |-------------|------------|---------------------|
 //! | X11 | Disable DMABUF renderer | `WEBKIT_DISABLE_DMABUF_RENDERER=1` |
-//! | Wayland | Disable NVIDIA explicit sync | `__NV_DISABLE_EXPLICIT_SYNC=1` |
+//! | Wayland (Hyprland) | Disable DMABUF renderer | `WEBKIT_DISABLE_DMABUF_RENDERER=1` |
+//! | Wayland (other, `egl-wayland2`) | none | - |
+//! | Wayland (other) | Disable NVIDIA explicit sync | `__NV_DISABLE_EXPLICIT_SYNC=1` |
+//!
+//! The session type is taken from `GDK_BACKEND` first (the backend GDK/WebKitGTK
+//! actually selects, a colon/comma separated list where the first recognized
+//! entry wins), then `XDG_SESSION_TYPE`, then `WAYLAND_DISPLAY`/`DISPLAY`.
 //!
 //! ## Wayland
 //!
@@ -37,11 +47,13 @@
 //! answers with a protocol error that kills the connection (`Gdk-Message:
 //! Error 71 (Protocol error) dispatching to Wayland display`, WebKitGTK bug
 //! [#280210](https://bugs.webkit.org/show_bug.cgi?id=280210)), while others
-//! such as niri tolerate the missing acquire point. Explicit sync is therefore
-//! disabled only on the compositors known to enforce the rule (Hyprland). On
-//! compositors that tolerate it, the dma-buf-based `egl-wayland2` library
-//! (NVIDIA driver 560 or newer) is treated as working and the workaround is
-//! skipped, since disabling explicit sync would degrade rendering performance.
+//! such as niri tolerate the missing acquire point. The DMA-BUF renderer is
+//! therefore disabled on Hyprland, which also avoids a separate NVIDIA EGL/GBM
+//! SIGSEGV that occurs during rendering there. On compositors that tolerate the
+//! missing acquire point, the dma-buf based `egl-wayland2` library (NVIDIA
+//! driver 560 or newer) is treated as working and the workaround is skipped,
+//! since disabling explicit sync would degrade rendering performance; on those
+//! compositors without `egl-wayland2`, NVIDIA explicit sync is disabled.
 //!
 //! Detecting `egl-wayland2` mirrors the EGL loader logic: the external platform
 //! JSON manifests in `/etc/egl/egl_external_platform.d` and
@@ -379,18 +391,42 @@ enum SessionType {
     Unknown,
 }
 
+/// Parses `GDK_BACKEND` into the session type GDK would actually select.
+///
+/// GDK reads `GDK_BACKEND` as a colon/comma separated list of preferred
+/// backends and uses the first one that is available, so the first recognized
+/// entry wins. This is the backend WebKitGTK ends up using, which is why it
+/// takes precedence over `XDG_SESSION_TYPE`/`WAYLAND_DISPLAY`/`DISPLAY`.
+fn session_type_from_gdk_backend(gdk_backend: Option<&str>) -> Option<SessionType> {
+    let backend = gdk_backend?
+        .split([',', ':'])
+        .map(str::trim)
+        .find(|s| !s.is_empty())?;
+    match backend {
+        "x11" => Some(SessionType::X11),
+        "wayland" => Some(SessionType::Wayland),
+        _ => None,
+    }
+}
+
 /// Determines the session type from the relevant environment variables.
 ///
-/// `XDG_SESSION_TYPE` is preferred when set to a recognized value. Sandboxed
-/// environments such as Flatpak do not propagate `XDG_SESSION_TYPE` into the
-/// sandbox, so `WAYLAND_DISPLAY` and `DISPLAY` are used as a fallback: Flatpak
-/// sets these automatically when the corresponding socket permission
-/// (`--socket=wayland`, `--socket=x11`/`--socket=fallback-x11`) is granted.
+/// `GDK_BACKEND` is consulted first, since it is the backend GDK/WebKitGTK
+/// actually selects. `XDG_SESSION_TYPE` is preferred next when set to a
+/// recognized value. Sandboxed environments such as Flatpak do not propagate
+/// `XDG_SESSION_TYPE` into the sandbox, so `WAYLAND_DISPLAY` and `DISPLAY` are
+/// used as a fallback: Flatpak sets these automatically when the corresponding
+/// socket permission (`--socket=wayland`, `--socket=x11`/`--socket=fallback-x11`)
+/// is granted.
 fn session_type_from_env(
+    gdk_backend: Option<&str>,
     xdg_session_type: Option<&str>,
     wayland_display: Option<&str>,
     display: Option<&str>,
 ) -> SessionType {
+    if let Some(session) = session_type_from_gdk_backend(gdk_backend) {
+        return session;
+    }
     match xdg_session_type {
         Some("x11") => return SessionType::X11,
         Some("wayland") => return SessionType::Wayland,
@@ -405,11 +441,13 @@ fn session_type_from_env(
     }
 }
 
-/// Detects the used session type based upon the `XDG_SESSION_TYPE` environment
-/// variable, falling back to `WAYLAND_DISPLAY`/`DISPLAY` when unavailable (e.g.
-/// inside a Flatpak sandbox). See [`session_type_from_env`] for details.
+/// Detects the used session type based upon the `GDK_BACKEND` and
+/// `XDG_SESSION_TYPE` environment variables, falling back to
+/// `WAYLAND_DISPLAY`/`DISPLAY` when unavailable (e.g. inside a Flatpak sandbox).
+/// See [`session_type_from_env`] for details.
 fn get_session_type() -> SessionType {
     session_type_from_env(
+        std::env::var("GDK_BACKEND").ok().as_deref(),
         std::env::var("XDG_SESSION_TYPE").ok().as_deref(),
         std::env::var("WAYLAND_DISPLAY").ok().as_deref(),
         std::env::var("DISPLAY").ok().as_deref(),
@@ -506,17 +544,16 @@ fn get_compositor() -> Option<String> {
     .map(str::to_string)
 }
 
-/// Returns whether the running compositor strictly enforces the Wayland
-/// explicit sync acquire-point rule.
+/// Returns whether the running compositor is Hyprland.
 ///
-/// WebKitGTK's DMA-BUF renderer enables the explicit sync protocol on the
-/// window surface but does not always set an acquire point before committing.
-/// Compositors differ in how they answer such commits: Hyprland raises a
-/// protocol error that kills the client (`Error 71 (Protocol error)
-/// dispatching to Wayland display`), while others such as niri tolerate the
-/// missing acquire point. The workaround is applied only on the compositors
-/// known to enforce the rule.
-fn explicit_sync_is_strictly_enforced(compositor: Option<&str>) -> bool {
+/// Hyprland strictly enforces Wayland semantics that WebKitGTK's DMA-BUF
+/// renderer violates: the renderer enables the explicit sync protocol on the
+/// window surface but does not always set an acquire point before committing
+/// (a protocol error that kills the client on Hyprland, tolerated by e.g.
+/// niri), and its NVIDIA EGL/GBM render path SIGSEVs during rendering
+/// (`libnvidia-eglcore` / GBM `EINVAL`). The DMA-BUF renderer is disabled there
+/// to avoid both failure modes.
+fn is_hyprland(compositor: Option<&str>) -> bool {
     matches!(compositor, Some("Hyprland"))
 }
 
@@ -530,34 +567,37 @@ pub enum WorkaroundKind {
     None,
     /// Disable the WebKit DMABUF renderer.
     ///
-    /// This workaround is needed for X11 sessions with NVIDIA drivers.
+    /// This workaround is needed for X11 sessions and for Hyprland Wayland
+    /// sessions with NVIDIA drivers.
     DisableWebkitDmabufRenderer,
     /// Disable NVIDIA explicit sync.
     ///
-    /// This workaround is needed for Wayland sessions with NVIDIA drivers.
+    /// This workaround is needed for non-Hyprland Wayland sessions with NVIDIA
+    /// drivers where the dma-buf based `egl-wayland2` library is not in use.
     DisableNvExplicitSync,
 }
 
 /// Selects the workaround for a detected session, GPU, compositor, and EGL
 /// library state.
 ///
-/// On Wayland the explicit sync workaround is applied when the compositor
-/// strictly enforces the acquire-point rule (see
-/// [`explicit_sync_is_strictly_enforced`]). On compositors that tolerate the
-/// missing acquire point it is skipped when the dma-buf based `egl-wayland2`
-/// library is in use, since disabling explicit sync would degrade rendering
-/// performance.
+/// On Hyprland the DMA-BUF renderer is disabled entirely, since it both
+/// violates the compositor's acquire-point rule (a protocol error that kills
+/// the client) and triggers an NVIDIA EGL/GBM SIGSEGV during rendering. On other
+/// Wayland compositors the explicit sync workaround is skipped when the dma-buf
+/// based `egl-wayland2` library is in use (NVIDIA driver 560+), since disabling
+/// explicit sync would degrade rendering performance; otherwise explicit sync is
+/// disabled.
 fn workaround_for(
     session: SessionType,
     nvidia_detected: bool,
-    strict_explicit_sync: bool,
+    hyprland: bool,
     egl_wayland2: bool,
 ) -> WorkaroundKind {
     if !nvidia_detected {
         return WorkaroundKind::None;
     }
     match session {
-        SessionType::Wayland if strict_explicit_sync => WorkaroundKind::DisableNvExplicitSync,
+        SessionType::Wayland if hyprland => WorkaroundKind::DisableWebkitDmabufRenderer,
         SessionType::Wayland if egl_wayland2 => WorkaroundKind::None,
         SessionType::Wayland => WorkaroundKind::DisableNvExplicitSync,
         SessionType::X11 => WorkaroundKind::DisableWebkitDmabufRenderer,
@@ -588,7 +628,7 @@ pub fn needs_workaround() -> WorkaroundKind {
     workaround_for(
         get_session_type(),
         nvidia_detected,
-        explicit_sync_is_strictly_enforced(get_compositor().as_deref()),
+        is_hyprland(get_compositor().as_deref()),
         egl_wayland2_active(),
     )
 }
@@ -730,171 +770,6 @@ mod tests {
         Ok(path)
     }
 
-    #[test]
-    fn test_classify_wayland_lib_wayland2() {
-        assert_eq!(
-            classify_wayland_lib("libnvidia-egl-wayland2.so.1"),
-            Some(WaylandLib::EglWayland2)
-        );
-        assert_eq!(
-            classify_wayland_lib("/usr/lib/libnvidia-egl-wayland2.so.1.0.1"),
-            Some(WaylandLib::EglWayland2)
-        );
-    }
-
-    #[test]
-    fn test_classify_wayland_lib_old() {
-        assert_eq!(
-            classify_wayland_lib("libnvidia-egl-wayland.so.1"),
-            Some(WaylandLib::EglWayland)
-        );
-        assert_eq!(
-            classify_wayland_lib("/usr/lib/libnvidia-egl-wayland.so.1.1.21"),
-            Some(WaylandLib::EglWayland)
-        );
-    }
-
-    #[test]
-    fn test_classify_wayland_lib_other() {
-        assert_eq!(classify_wayland_lib("libnvidia-egl-gbm.so.1"), None);
-        assert_eq!(classify_wayland_lib("libnvidia-egl-xcb.so.1"), None);
-    }
-
-    #[test]
-    fn test_library_path_from_manifest() {
-        let manifest = r#"{
-            "file_format_version": "1.0.0",
-            "ICD": {
-                "library_path": "libnvidia-egl-wayland2.so.1"
-            }
-        }"#;
-        assert_eq!(
-            library_path_from_manifest(manifest),
-            Some("libnvidia-egl-wayland2.so.1")
-        );
-        assert_eq!(library_path_from_manifest("no library path"), None);
-    }
-
-    #[test]
-    fn test_parse_driver_major() {
-        let nvr =
-            "NVRM version: NVIDIA UNIX Open Kernel Module for x86_64  610.43.03  Release Build";
-        assert_eq!(parse_driver_major(nvr), Some(610));
-        assert_eq!(
-            parse_driver_major("NVRM version: NVIDIA UNIX Open Kernel Module 560.35.03"),
-            Some(560)
-        );
-        assert_eq!(parse_driver_major("no version here"), None);
-        assert_eq!(parse_driver_major("x86_64"), None);
-    }
-
-    #[test]
-    fn test_json_files_in_dir_sorted() -> std::io::Result<()> {
-        let dir = temp_dir("sorted");
-        write_manifest(&dir, "20_nvidia_xcb.json", "libnvidia-egl-xcb.so.1")?;
-        write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1")?;
-        write_manifest(
-            &dir,
-            "09_nvidia_wayland2.json",
-            "libnvidia-egl-wayland2.so.1",
-        )?;
-        write_manifest(&dir, "not-a-json.txt", "foo")?;
-        let files = json_files_in_dir(&dir);
-        let names: Vec<String> = files
-            .iter()
-            .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
-            .collect();
-        assert_eq!(
-            names,
-            vec![
-                "09_nvidia_wayland2.json",
-                "10_nvidia_wayland.json",
-                "20_nvidia_xcb.json",
-            ]
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn test_is_egl_wayland2_selected_new_first() -> std::io::Result<()> {
-        let dir = temp_dir("new_first");
-        let configs = vec![
-            write_manifest(
-                &dir,
-                "09_nvidia_wayland2.json",
-                "libnvidia-egl-wayland2.so.1",
-            )?,
-            write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1")?,
-        ];
-        assert!(is_egl_wayland2_selected(&configs, Some(610)));
-        Ok(())
-    }
-
-    #[test]
-    fn test_is_egl_wayland2_selected_only_new() -> std::io::Result<()> {
-        let dir = temp_dir("only_new");
-        let configs = vec![write_manifest(
-            &dir,
-            "09_nvidia_wayland2.json",
-            "libnvidia-egl-wayland2.so.1",
-        )?];
-        assert!(is_egl_wayland2_selected(&configs, Some(610)));
-        Ok(())
-    }
-
-    #[test]
-    fn test_is_egl_wayland2_selected_old_first() -> std::io::Result<()> {
-        let dir = temp_dir("old_first");
-        let configs = vec![
-            write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1")?,
-            write_manifest(
-                &dir,
-                "99_nvidia_wayland2.json",
-                "libnvidia-egl-wayland2.so.1",
-            )?,
-        ];
-        assert!(!is_egl_wayland2_selected(&configs, Some(610)));
-        Ok(())
-    }
-
-    #[test]
-    fn test_is_egl_wayland2_selected_only_old() -> std::io::Result<()> {
-        let dir = temp_dir("only_old");
-        let configs = vec![write_manifest(
-            &dir,
-            "10_nvidia_wayland.json",
-            "libnvidia-egl-wayland.so.1",
-        )?];
-        assert!(!is_egl_wayland2_selected(&configs, Some(610)));
-        Ok(())
-    }
-
-    #[test]
-    fn test_is_egl_wayland2_selected_driver_too_old() -> std::io::Result<()> {
-        let dir = temp_dir("driver_too_old");
-        let configs = vec![write_manifest(
-            &dir,
-            "09_nvidia_wayland2.json",
-            "libnvidia-egl-wayland2.so.1",
-        )?];
-        assert!(!is_egl_wayland2_selected(&configs, Some(550)));
-        assert!(!is_egl_wayland2_selected(&configs, None));
-        Ok(())
-    }
-
-    #[test]
-    fn test_is_egl_wayland2_selected_no_wayland_lib() -> std::io::Result<()> {
-        let dir = temp_dir("no_wayland_lib");
-        let configs = vec![write_manifest(
-            &dir,
-            "15_nvidia_gbm.json",
-            "libnvidia-egl-gbm.so.1",
-        )?];
-        assert!(!is_egl_wayland2_selected(&configs, Some(610)));
-        assert!(!is_egl_wayland2_selected(&[], Some(610)));
-        Ok(())
-    }
-
     /// Creates a fake `/sys/class/drm/<name>` GPU entry with a `device/driver`
     /// symlink pointing at a driver named `driver`, and optionally a
     /// `boot_vga` attribute set to `1` and a `vendor` file.
@@ -927,178 +802,395 @@ mod tests {
         Ok(card_path)
     }
 
-    #[test]
-    fn test_driver_name_resolves_symlink() -> std::io::Result<()> {
-        let dir = temp_dir("driver_name");
-        let card = write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true)?;
-        assert_eq!(driver_name(&card), Some("nvidia".to_string()));
-        Ok(())
+    mod egl_external_platform {
+        use super::*;
+
+        #[test]
+        fn classify_wayland_lib_wayland2() {
+            assert_eq!(
+                classify_wayland_lib("libnvidia-egl-wayland2.so.1"),
+                Some(WaylandLib::EglWayland2)
+            );
+            assert_eq!(
+                classify_wayland_lib("/usr/lib/libnvidia-egl-wayland2.so.1.0.1"),
+                Some(WaylandLib::EglWayland2)
+            );
+        }
+
+        #[test]
+        fn classify_wayland_lib_old() {
+            assert_eq!(
+                classify_wayland_lib("libnvidia-egl-wayland.so.1"),
+                Some(WaylandLib::EglWayland)
+            );
+            assert_eq!(
+                classify_wayland_lib("/usr/lib/libnvidia-egl-wayland.so.1.1.21"),
+                Some(WaylandLib::EglWayland)
+            );
+        }
+
+        #[test]
+        fn classify_wayland_lib_other() {
+            assert_eq!(classify_wayland_lib("libnvidia-egl-gbm.so.1"), None);
+            assert_eq!(classify_wayland_lib("libnvidia-egl-xcb.so.1"), None);
+        }
+
+        #[test]
+        fn parses_manifest_library_path() {
+            let manifest = r#"{
+                "file_format_version": "1.0.0",
+                "ICD": {
+                    "library_path": "libnvidia-egl-wayland2.so.1"
+                }
+            }"#;
+            assert_eq!(
+                library_path_from_manifest(manifest),
+                Some("libnvidia-egl-wayland2.so.1")
+            );
+            assert_eq!(library_path_from_manifest("no library path"), None);
+        }
+
+        #[test]
+        fn parses_driver_major() {
+            let nvr =
+                "NVRM version: NVIDIA UNIX Open Kernel Module for x86_64  610.43.03  Release Build";
+            assert_eq!(parse_driver_major(nvr), Some(610));
+            assert_eq!(
+                parse_driver_major("NVRM version: NVIDIA UNIX Open Kernel Module 560.35.03"),
+                Some(560)
+            );
+            assert_eq!(parse_driver_major("no version here"), None);
+            assert_eq!(parse_driver_major("x86_64"), None);
+        }
+
+        #[test]
+        fn json_files_in_dir_sorted() -> std::io::Result<()> {
+            let dir = temp_dir("sorted");
+            write_manifest(&dir, "20_nvidia_xcb.json", "libnvidia-egl-xcb.so.1")?;
+            write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1")?;
+            write_manifest(
+                &dir,
+                "09_nvidia_wayland2.json",
+                "libnvidia-egl-wayland2.so.1",
+            )?;
+            write_manifest(&dir, "not-a-json.txt", "foo")?;
+            let files = json_files_in_dir(&dir);
+            let names: Vec<String> = files
+                .iter()
+                .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
+                .collect();
+            assert_eq!(
+                names,
+                vec![
+                    "09_nvidia_wayland2.json",
+                    "10_nvidia_wayland.json",
+                    "20_nvidia_xcb.json",
+                ]
+            );
+            Ok(())
+        }
+
+        #[test]
+        fn egl_wayland2_selected_new_first() -> std::io::Result<()> {
+            let dir = temp_dir("new_first");
+            let configs = vec![
+                write_manifest(
+                    &dir,
+                    "09_nvidia_wayland2.json",
+                    "libnvidia-egl-wayland2.so.1",
+                )?,
+                write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1")?,
+            ];
+            assert!(is_egl_wayland2_selected(&configs, Some(610)));
+            Ok(())
+        }
+
+        #[test]
+        fn egl_wayland2_selected_only_new() -> std::io::Result<()> {
+            let dir = temp_dir("only_new");
+            let configs = vec![write_manifest(
+                &dir,
+                "09_nvidia_wayland2.json",
+                "libnvidia-egl-wayland2.so.1",
+            )?];
+            assert!(is_egl_wayland2_selected(&configs, Some(610)));
+            Ok(())
+        }
+
+        #[test]
+        fn egl_wayland2_selected_old_first() -> std::io::Result<()> {
+            let dir = temp_dir("old_first");
+            let configs = vec![
+                write_manifest(&dir, "10_nvidia_wayland.json", "libnvidia-egl-wayland.so.1")?,
+                write_manifest(
+                    &dir,
+                    "99_nvidia_wayland2.json",
+                    "libnvidia-egl-wayland2.so.1",
+                )?,
+            ];
+            assert!(!is_egl_wayland2_selected(&configs, Some(610)));
+            Ok(())
+        }
+
+        #[test]
+        fn egl_wayland2_selected_only_old() -> std::io::Result<()> {
+            let dir = temp_dir("only_old");
+            let configs = vec![write_manifest(
+                &dir,
+                "10_nvidia_wayland.json",
+                "libnvidia-egl-wayland.so.1",
+            )?];
+            assert!(!is_egl_wayland2_selected(&configs, Some(610)));
+            Ok(())
+        }
+
+        #[test]
+        fn egl_wayland2_selected_driver_too_old() -> std::io::Result<()> {
+            let dir = temp_dir("driver_too_old");
+            let configs = vec![write_manifest(
+                &dir,
+                "09_nvidia_wayland2.json",
+                "libnvidia-egl-wayland2.so.1",
+            )?];
+            assert!(!is_egl_wayland2_selected(&configs, Some(550)));
+            assert!(!is_egl_wayland2_selected(&configs, None));
+            Ok(())
+        }
+
+        #[test]
+        fn egl_wayland2_selected_no_wayland_lib() -> std::io::Result<()> {
+            let dir = temp_dir("no_wayland_lib");
+            let configs = vec![write_manifest(
+                &dir,
+                "15_nvidia_gbm.json",
+                "libnvidia-egl-gbm.so.1",
+            )?];
+            assert!(!is_egl_wayland2_selected(&configs, Some(610)));
+            assert!(!is_egl_wayland2_selected(&[], Some(610)));
+            Ok(())
+        }
     }
 
-    #[test]
-    fn test_driver_name_missing_symlink() -> std::io::Result<()> {
-        let dir = temp_dir("driver_name_missing");
-        let card = write_fake_card(&dir, "card0", Some("0x10de"), None, true)?;
-        assert_eq!(driver_name(&card), None);
-        Ok(())
+    mod gpu_detection {
+        use super::*;
+
+        #[test]
+        fn driver_name_resolves_symlink() -> std::io::Result<()> {
+            let dir = temp_dir("driver_name");
+            let card = write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true)?;
+            assert_eq!(driver_name(&card), Some("nvidia".to_string()));
+            Ok(())
+        }
+
+        #[test]
+        fn driver_name_missing_symlink() -> std::io::Result<()> {
+            let dir = temp_dir("driver_name_missing");
+            let card = write_fake_card(&dir, "card0", Some("0x10de"), None, true)?;
+            assert_eq!(driver_name(&card), None);
+            Ok(())
+        }
+
+        #[test]
+        fn enumerate_gpus_at_nvidia_primary() -> std::io::Result<()> {
+            let dir = temp_dir("enumerate_nvidia_primary");
+            write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true)?;
+            write_fake_card(&dir, "card1", Some("0x1002"), Some("amdgpu"), false)?;
+
+            let devices = enumerate_gpus_at(&dir);
+            assert_eq!(devices.len(), 2);
+            assert!(devices
+                .iter()
+                .any(|d| d.is_primary && d.is_nvidia && d.uses_nvidia_driver));
+            assert!(nvidia_driver_loaded(&devices));
+            Ok(())
+        }
+
+        #[test]
+        fn enumerate_gpus_at_nouveau_not_nvidia_driver() -> std::io::Result<()> {
+            // NVIDIA vendor ID but the open-source nouveau driver bound - the
+            // proprietary-driver check must not treat this as "loaded".
+            let dir = temp_dir("enumerate_nouveau");
+            write_fake_card(&dir, "card0", Some("0x10de"), Some("nouveau"), true)?;
+
+            let devices = enumerate_gpus_at(&dir);
+            assert!(devices.iter().any(|d| d.is_primary && d.is_nvidia));
+            assert!(!nvidia_driver_loaded(&devices));
+            Ok(())
+        }
+
+        #[test]
+        fn enumerate_gpus_at_no_cards() {
+            let dir = temp_dir("enumerate_empty");
+            let devices = enumerate_gpus_at(&dir);
+            assert!(devices.is_empty());
+            assert!(!nvidia_driver_loaded(&devices));
+        }
     }
 
-    #[test]
-    fn test_enumerate_gpus_at_nvidia_primary() -> std::io::Result<()> {
-        let dir = temp_dir("enumerate_nvidia_primary");
-        write_fake_card(&dir, "card0", Some("0x10de"), Some("nvidia"), true)?;
-        write_fake_card(&dir, "card1", Some("0x1002"), Some("amdgpu"), false)?;
+    mod session_detection {
+        use super::*;
 
-        let devices = enumerate_gpus_at(&dir);
-        assert_eq!(devices.len(), 2);
-        assert!(devices
-            .iter()
-            .any(|d| d.is_primary && d.is_nvidia && d.uses_nvidia_driver));
-        assert!(nvidia_driver_loaded(&devices));
-        Ok(())
+        #[test]
+        fn xdg_session_type_preferred() {
+            assert_eq!(
+                session_type_from_env(None, Some("wayland"), None, Some(":0")),
+                SessionType::Wayland
+            );
+            assert_eq!(
+                session_type_from_env(None, Some("x11"), Some("wayland-0"), None),
+                SessionType::X11
+            );
+        }
+
+        #[test]
+        fn falls_back_to_display_vars() {
+            // Simulates a Flatpak sandbox where XDG_SESSION_TYPE isn't
+            // propagated, but the socket permission env vars are set.
+            assert_eq!(
+                session_type_from_env(None, None, Some("wayland-0"), None),
+                SessionType::Wayland
+            );
+            assert_eq!(
+                session_type_from_env(None, None, None, Some(":0")),
+                SessionType::X11
+            );
+            assert_eq!(
+                session_type_from_env(None, None, None, None),
+                SessionType::Unknown
+            );
+        }
+
+        #[test]
+        fn unrecognized_xdg_session_type_falls_back() {
+            assert_eq!(
+                session_type_from_env(None, Some("tty"), Some("wayland-0"), None),
+                SessionType::Wayland
+            );
+        }
+
+        #[test]
+        fn gdk_backend_overrides_xdg_session_type() {
+            // GDK_BACKEND=x11 wins even when XDG_SESSION_TYPE says wayland.
+            assert_eq!(
+                session_type_from_env(Some("x11"), Some("wayland"), Some("wayland-0"), None),
+                SessionType::X11
+            );
+            assert_eq!(
+                session_type_from_env(Some("wayland"), Some("x11"), None, Some(":0")),
+                SessionType::Wayland
+            );
+        }
+
+        #[test]
+        fn gdk_backend_list_takes_first() {
+            // GDK reads a colon/comma separated list and uses the first recognized.
+            assert_eq!(
+                session_type_from_env(Some("x11,wayland"), Some("wayland"), None, None),
+                SessionType::X11
+            );
+            assert_eq!(
+                session_type_from_env(Some("wayland:x11"), Some("x11"), None, None),
+                SessionType::Wayland
+            );
+        }
+
+        #[test]
+        fn gdk_backend_unrecognized_falls_through() {
+            assert_eq!(
+                session_type_from_env(Some("broadway"), Some("wayland"), None, None),
+                SessionType::Wayland
+            );
+            assert_eq!(
+                session_type_from_env(Some("broadway"), None, None, None),
+                SessionType::Unknown
+            );
+        }
     }
 
-    #[test]
-    fn test_enumerate_gpus_at_nouveau_not_nvidia_driver() -> std::io::Result<()> {
-        // NVIDIA vendor ID but the open-source nouveau driver bound - the
-        // proprietary-driver check must not treat this as "loaded".
-        let dir = temp_dir("enumerate_nouveau");
-        write_fake_card(&dir, "card0", Some("0x10de"), Some("nouveau"), true)?;
+    mod workaround_selection {
+        use super::*;
 
-        let devices = enumerate_gpus_at(&dir);
-        assert!(devices.iter().any(|d| d.is_primary && d.is_nvidia));
-        assert!(!nvidia_driver_loaded(&devices));
-        Ok(())
-    }
+        #[test]
+        fn hyprland_disables_dmabuf_renderer() {
+            // Hyprland enforces the acquire-point rule and its NVIDIA EGL/GBM
+            // render path SIGSEVs, so the DMABUF renderer is disabled even with
+            // egl-wayland2 active (the workaround must not be skipped).
+            assert_eq!(
+                workaround_for(SessionType::Wayland, true, true, true),
+                WorkaroundKind::DisableWebkitDmabufRenderer
+            );
+        }
 
-    #[test]
-    fn test_enumerate_gpus_at_no_cards() {
-        let dir = temp_dir("enumerate_empty");
-        let devices = enumerate_gpus_at(&dir);
-        assert!(devices.is_empty());
-        assert!(!nvidia_driver_loaded(&devices));
-    }
+        #[test]
+        fn egl_wayland2_skips_on_lenient_compositor() {
+            // On compositors that tolerate the missing acquire point (e.g. niri),
+            // egl-wayland2 works and the workaround is skipped.
+            assert_eq!(
+                workaround_for(SessionType::Wayland, true, false, true),
+                WorkaroundKind::None
+            );
+        }
 
-    #[test]
-    fn test_session_type_from_env_prefers_xdg_session_type() {
-        assert_eq!(
-            session_type_from_env(Some("wayland"), None, Some(":0")),
-            SessionType::Wayland
-        );
-        assert_eq!(
-            session_type_from_env(Some("x11"), Some("wayland-0"), None),
-            SessionType::X11
-        );
-    }
+        #[test]
+        fn wayland_without_egl_wayland2_disables_nv_explicit_sync() {
+            assert_eq!(
+                workaround_for(SessionType::Wayland, true, false, false),
+                WorkaroundKind::DisableNvExplicitSync
+            );
+        }
 
-    #[test]
-    fn test_session_type_from_env_falls_back_to_display_vars() {
-        // Simulates a Flatpak sandbox where XDG_SESSION_TYPE isn't
-        // propagated, but the socket permission env vars are set.
-        assert_eq!(
-            session_type_from_env(None, Some("wayland-0"), None),
-            SessionType::Wayland
-        );
-        assert_eq!(
-            session_type_from_env(None, None, Some(":0")),
-            SessionType::X11
-        );
-        assert_eq!(
-            session_type_from_env(None, None, None),
-            SessionType::Unknown
-        );
-    }
+        #[test]
+        fn x11_disables_dmabuf_renderer() {
+            assert_eq!(
+                workaround_for(SessionType::X11, true, false, false),
+                WorkaroundKind::DisableWebkitDmabufRenderer
+            );
+        }
 
-    #[test]
-    fn test_session_type_from_env_unrecognized_xdg_session_type_falls_back() {
-        assert_eq!(
-            session_type_from_env(Some("tty"), Some("wayland-0"), None),
-            SessionType::Wayland
-        );
-    }
+        #[test]
+        fn unknown_session_is_noop() {
+            assert_eq!(
+                workaround_for(SessionType::Unknown, true, false, false),
+                WorkaroundKind::None
+            );
+        }
 
-    #[test]
-    fn test_workaround_for_strict_compositor_disables_nv_explicit_sync() {
-        // Hyprland enforces the acquire-point rule even with egl-wayland2
-        // active, so the workaround must not be skipped.
-        assert_eq!(
-            workaround_for(SessionType::Wayland, true, true, true),
-            WorkaroundKind::DisableNvExplicitSync
-        );
-    }
+        #[test]
+        fn no_nvidia_is_noop() {
+            assert_eq!(
+                workaround_for(SessionType::Wayland, false, true, true),
+                WorkaroundKind::None
+            );
+            assert_eq!(
+                workaround_for(SessionType::X11, false, false, false),
+                WorkaroundKind::None
+            );
+        }
 
-    #[test]
-    fn test_workaround_for_egl_wayland2_skips_on_lenient_compositor() {
-        // On compositors that tolerate the missing acquire point (e.g. niri),
-        // egl-wayland2 works and the workaround is skipped.
-        assert_eq!(
-            workaround_for(SessionType::Wayland, true, false, true),
-            WorkaroundKind::None
-        );
-    }
+        #[test]
+        fn compositor_from_env_prefers_xdg_current_desktop() {
+            assert_eq!(
+                compositor_from_env(Some("Hyprland"), Some("Hyprland")),
+                Some("Hyprland")
+            );
+            assert_eq!(
+                compositor_from_env(Some("niri"), Some("Hyprland")),
+                Some("niri")
+            );
+        }
 
-    #[test]
-    fn test_workaround_for_wayland_without_egl_wayland2_disables_nv_explicit_sync() {
-        assert_eq!(
-            workaround_for(SessionType::Wayland, true, false, false),
-            WorkaroundKind::DisableNvExplicitSync
-        );
-    }
+        #[test]
+        fn compositor_from_env_falls_back_to_xdg_session_desktop() {
+            assert_eq!(compositor_from_env(None, Some("Hyprland")), Some("Hyprland"));
+            assert_eq!(compositor_from_env(None, None), None);
+        }
 
-    #[test]
-    fn test_workaround_for_x11_disables_dmabuf_renderer() {
-        assert_eq!(
-            workaround_for(SessionType::X11, true, false, false),
-            WorkaroundKind::DisableWebkitDmabufRenderer
-        );
-    }
-
-    #[test]
-    fn test_workaround_for_unknown_session_is_noop() {
-        assert_eq!(
-            workaround_for(SessionType::Unknown, true, false, false),
-            WorkaroundKind::None
-        );
-    }
-
-    #[test]
-    fn test_workaround_for_no_nvidia_is_noop() {
-        assert_eq!(
-            workaround_for(SessionType::Wayland, false, true, true),
-            WorkaroundKind::None
-        );
-        assert_eq!(
-            workaround_for(SessionType::X11, false, false, false),
-            WorkaroundKind::None
-        );
-    }
-
-    #[test]
-    fn test_compositor_from_env_prefers_xdg_current_desktop() {
-        assert_eq!(
-            compositor_from_env(Some("Hyprland"), Some("Hyprland")),
-            Some("Hyprland")
-        );
-        assert_eq!(
-            compositor_from_env(Some("niri"), Some("Hyprland")),
-            Some("niri")
-        );
-    }
-
-    #[test]
-    fn test_compositor_from_env_falls_back_to_xdg_session_desktop() {
-        assert_eq!(
-            compositor_from_env(None, Some("Hyprland")),
-            Some("Hyprland")
-        );
-        assert_eq!(compositor_from_env(None, None), None);
-    }
-
-    #[test]
-    fn test_explicit_sync_is_strictly_enforced() {
-        assert!(explicit_sync_is_strictly_enforced(Some("Hyprland")));
-        assert!(!explicit_sync_is_strictly_enforced(Some("niri")));
-        assert!(!explicit_sync_is_strictly_enforced(None));
+        #[test]
+        fn hyprland_compositor_detected() {
+            assert!(is_hyprland(Some("Hyprland")));
+            assert!(!is_hyprland(Some("niri")));
+            assert!(!is_hyprland(None));
+        }
     }
 
     /// Integration test: exercises the full GPU-detection pipeline
@@ -1109,7 +1201,7 @@ mod tests {
     /// regression test for the bug where the workaround silently became a
     /// no-op in sandboxes because detection relied on `/sys/module/nvidia`.
     #[test]
-    fn test_needs_workaround_detection_in_simulated_flatpak_sandbox() -> std::io::Result<()> {
+    fn needs_workaround_detection_in_simulated_flatpak_sandbox() -> std::io::Result<()> {
         let dir = temp_dir("flatpak_sandbox");
         // Only /sys/class/drm exists in the sandbox; deliberately do not
         // create anything resembling /sys/module or /proc.
@@ -1127,7 +1219,7 @@ mod tests {
 
         // The session type would typically come from WAYLAND_DISPLAY/DISPLAY
         // in a Flatpak sandbox, since XDG_SESSION_TYPE is not propagated.
-        let session = session_type_from_env(None, Some("wayland-0"), None);
+        let session = session_type_from_env(None, None, Some("wayland-0"), None);
         assert_eq!(session, SessionType::Wayland);
 
         // With no /proc/driver/nvidia/version and no host EGL config
