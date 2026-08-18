@@ -106,13 +106,17 @@
 //! Returns `WorkaroundKind::None` if no workaround is needed, `WorkaroundKind::DisableWebkitDmabufRenderer`
 //! for X11 sessions, or `WorkaroundKind::DisableNvExplicitSync` for Wayland sessions.
 //!
-//! ### `set_webkit_disable_dmabuf_renderer()`
+//! ### `set_webkit_disable_dmabuf_renderer(verbose: bool)`
 //!
 //! Sets the `WEBKIT_DISABLE_DMABUF_RENDERER` environment variable. Use this for X11 sessions.
+//! The `verbose` argument controls whether a diagnostic note is printed to stderr
+//! (the `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable also enables it).
 //!
-//! ### `nv_disable_explicit_sync()`
+//! ### `nv_disable_explicit_sync(verbose: bool)`
 //!
 //! Sets the `__NV_DISABLE_EXPLICIT_SYNC` environment variable. Use this for Wayland sessions.
+//! The `verbose` argument controls whether a diagnostic note is printed to stderr
+//! (the `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable also enables it).
 //!
 //! ### `apply_workaround_with_options(options: ApplyWorkaroundOptions)`
 //!
@@ -603,7 +607,23 @@ pub fn is_primary_gpu_nvidia() -> bool {
     devices.iter().any(|d| d.is_primary && d.is_nvidia)
 }
 
+/// Returns whether a diagnostic note should be printed for a workaround.
+///
+/// Notes are printed when `verbose` is explicitly enabled or when the
+/// `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable is set to `1` or `true`.
+fn should_print(verbose: bool) -> bool {
+    verbose
+        || std::env::var("WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE")
+            .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
+            .unwrap_or(false)
+}
+
 /// Sets the `WEBKIT_DISABLE_DMABUF_RENDERER` environment variable.
+///
+/// # Arguments
+///
+/// * `verbose` - when `true`, a diagnostic note is printed to stderr. The
+///   `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable also enables it.
 ///
 /// This function should be called explicitly from single-threaded startup
 /// (main) before spawning threads or when launching subprocesses.
@@ -612,14 +632,21 @@ pub fn is_primary_gpu_nvidia() -> bool {
 ///
 /// This function modifies the process environment. Call it early in your
 /// application's startup, before any threading has begun.
-pub fn set_webkit_disable_dmabuf_renderer() {
-    eprintln!("Note: disabling dmabuf renderer, expect degraded renderer performance.");
-    eprintln!("See https://github.com/tauri-apps/tauri/issues/9304 for more details.");
+pub fn set_webkit_disable_dmabuf_renderer(verbose: bool) {
     std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+    if should_print(verbose) {
+        eprintln!("Note: disabling dmabuf renderer, expect degraded renderer performance.");
+        eprintln!("See https://github.com/tauri-apps/tauri/issues/9304 for more details.");
+    }
 }
 
 /// Sets the `__NV_DISABLE_EXPLICIT_SYNC` environment variable.
 ///
+/// # Arguments
+///
+/// * `verbose` - when `true`, a diagnostic note is printed to stderr. The
+///   `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable also enables it.
+///
 /// This function should be called explicitly from single-threaded startup
 /// (main) before spawning threads or when launching subprocesses.
 ///
@@ -627,10 +654,12 @@ pub fn set_webkit_disable_dmabuf_renderer() {
 ///
 /// This function modifies the process environment. Call it early in your
 /// application's startup, before any threading has begun.
-pub fn nv_disable_explicit_sync() {
-    eprintln!("Note: disabling nvidia explicit sync.");
-    eprintln!("See https://bugs.webkit.org/show_bug.cgi?id=280210 for more details");
+pub fn nv_disable_explicit_sync(verbose: bool) {
     std::env::set_var("__NV_DISABLE_EXPLICIT_SYNC", "1");
+    if should_print(verbose) {
+        eprintln!("Note: disabling nvidia explicit sync.");
+        eprintln!("See https://bugs.webkit.org/show_bug.cgi?id=280210 for more details");
+    }
 }
 
 /// Builder struct for configuring which workarounds to force-apply.
@@ -654,6 +683,11 @@ pub struct ApplyWorkaroundOptions {
     pub force_disable_dmabuf: bool,
     /// Force disable NVIDIA explicit sync.
     pub force_disable_nv_explicit_sync: bool,
+    /// Print diagnostic notes to stderr when applying a workaround.
+    ///
+    /// Off by default. Can also be enabled with the
+    /// `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable.
+    pub verbose: bool,
 }
 
 impl ApplyWorkaroundOptions {
@@ -674,6 +708,15 @@ impl ApplyWorkaroundOptions {
         self.force_disable_nv_explicit_sync = value;
         self
     }
+
+    /// Sets the `verbose` option.
+    ///
+    /// When `true`, a diagnostic note is printed to stderr whenever a
+    /// workaround is applied. Off by default.
+    pub fn verbose(mut self, value: bool) -> Self {
+        self.verbose = value;
+        self
+    }
 }
 
 /// Applies workarounds based on the provided options.
@@ -691,16 +734,18 @@ impl ApplyWorkaroundOptions {
 /// application's startup, before any threading has begun.
 pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) {
     if options.force_disable_dmabuf {
-        set_webkit_disable_dmabuf_renderer();
+        set_webkit_disable_dmabuf_renderer(options.verbose);
     }
     if options.force_disable_nv_explicit_sync {
-        nv_disable_explicit_sync();
+        nv_disable_explicit_sync(options.verbose);
     }
     if !options.force_disable_dmabuf && !options.force_disable_nv_explicit_sync {
         match needs_workaround() {
             WorkaroundKind::None => {}
-            WorkaroundKind::DisableWebkitDmabufRenderer => set_webkit_disable_dmabuf_renderer(),
-            WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(),
+            WorkaroundKind::DisableWebkitDmabufRenderer => {
+                set_webkit_disable_dmabuf_renderer(options.verbose)
+            }
+            WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(options.verbose),
         }
     }
 }
