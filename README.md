@@ -72,9 +72,9 @@ Options:
   -D, --enable-devtools             Enable devtools at startup
   -f, --log-to-file                 Enable logging to file
   -d, --disable-dmabuf-renderer     Disable dmabuf renderer (Linux only), useful when having rendering issues
-      --disable-nv-explicit-sync    Disable NVIDIA explicit sync (Linux only)
-      --no-nvidia-workaround        Disable all NVIDIA workarounds entirely (Linux only)
-      --nvidia-workaround-verbose   Print diagnostic notes when applying an NVIDIA workaround (Linux only)
+  -e, --disable-nv-explicit-sync    Disable NVIDIA explicit sync (Linux only)
+  -n, --no-nvidia-workaround        Disable all NVIDIA workarounds entirely (Linux only)
+  -v, --nvidia-workaround-verbose   Print diagnostic notes when applying an NVIDIA workaround (Linux only)
   -h, --help                        Print help
   -V, --version                     Print version
 
