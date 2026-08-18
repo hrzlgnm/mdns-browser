@@ -270,6 +270,7 @@ cd src-tauri && cargo fmt -- --check && \
 cd .. && \
 leptosfmt --check src && \
 cargo clippy --workspace --tests -- -D warnings && \
+cargo clippy --release --workspace --tests -- -D warnings && \
 cargo nextest run --profile ci --workspace && \
 actionlint .github/workflows/*.yml
 ```
