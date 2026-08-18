@@ -120,6 +120,8 @@ This option takes precedence over both `--disable-dmabuf-renderer` and `--disabl
 This option prints diagnostic notes to stderr when a NVIDIA workaround is applied, so you can confirm which workarounds are active.
 It only affects diagnostic output and does not change any behavior.
 
+This option has been added with release [v1.18.0](https://github.com/hrzlgnm/mdns-browser/releases/tag/v1.18.0)
+
 ## Where to find the executables?
 
 ### GitHub Releases
