@@ -229,6 +229,14 @@ All source files must include:
 - Conventional commits: `feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, etc.
 - All changes land via pull requests on a branch (direct pushes to `main` are blocked). Create a `feat/...`, `fix/...`, etc. branch and open a PR.
 
+### Tags
+
+- Releases are tagged with `vMAJOR.MINOR.PATCH` (e.g. `v1.18.0`). This is the
+  only tag format used since the project switched to it; older
+  `mdns-browser-vX.Y.Z` style tags are no longer produced and should be ignored.
+- When adding a "added with release" note to docs (e.g. the README option
+  sections), link to the matching `vX.Y.Z` tag, not the old prefix format.
+
 ### When to commit
 
 - Do not leave completed work uncommitted. Once a logical unit of work is done and the tree is green, commit it — don't wait to be asked. This is a standing authorization: treat every task as implicitly including "and commit your work" unless the user says otherwise.
