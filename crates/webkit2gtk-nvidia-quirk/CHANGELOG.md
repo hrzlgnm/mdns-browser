@@ -5,6 +5,16 @@ All notable changes to `webkit2gtk-nvidia-quirk` will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This changelog is auto-generated from commits that modify this crate.
 
+## [2.0.0] - 2026-08-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v1.4.3...webkit2gtk-nvidia-quirk-v2.0.0)
+
+### Added
+
+- Make workaround diagnostic output opt-in (verbose arg) (#2481) ([#2481](https://github.com/hrzlgnm/mdns-browser/pull/2481))
+
+### Fixed
+
+- *(webkit2gtk-nvidia-quirk)* Disable WebKit DMABUF renderer on Hyprland (#2480) ([#2480](https://github.com/hrzlgnm/mdns-browser/pull/2480))
+
 ## [1.4.3] - 2026-08-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v1.4.2...webkit2gtk-nvidia-quirk-v1.4.3)
 
 ### Fixed
