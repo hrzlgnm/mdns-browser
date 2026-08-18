@@ -404,7 +404,13 @@ fn session_type_from_gdk_backend(gdk_backend: Option<&str>) -> Option<SessionTyp
         .split(',')
         .map(str::trim)
         .find(|s| *s == "x11" || *s == "wayland")
-        .map(|s| if s == "x11" { SessionType::X11 } else { SessionType::Wayland })
+        .map(|s| {
+            if s == "x11" {
+                SessionType::X11
+            } else {
+                SessionType::Wayland
+            }
+        })
 }
 
 /// Determines the session type from the relevant environment variables.
@@ -583,7 +589,10 @@ fn hyprland_socket_present() -> bool {
 /// to avoid both failure modes.
 fn is_hyprland(compositor: Option<&str>) -> bool {
     compositor
-        .map(|c| c.split([':', ';', ',']).any(|part| part.trim() == "Hyprland"))
+        .map(|c| {
+            c.split([':', ';', ','])
+                .any(|part| part.trim() == "Hyprland")
+        })
         .unwrap_or(false)
 }
 
@@ -1212,7 +1221,10 @@ mod tests {
 
         #[test]
         fn test_compositor_from_env_falls_back_to_xdg_session_desktop() {
-            assert_eq!(compositor_from_env(None, Some("Hyprland")), Some("Hyprland"));
+            assert_eq!(
+                compositor_from_env(None, Some("Hyprland")),
+                Some("Hyprland")
+            );
             assert_eq!(compositor_from_env(None, None), None);
         }
 
