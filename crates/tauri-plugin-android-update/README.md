@@ -1,6 +1,6 @@
-# tauri-gh-android-update
+# tauri-plugin-android-update
 
-[![Crates.io](https://img.shields.io/crates/v/tauri-gh-android-update)](https://crates.io/crates/tauri-gh-android-update)
+[![Crates.io](https://img.shields.io/crates/v/tauri-plugin-android-update)](https://crates.io/crates/tauri-plugin-android-update)
 [![License: MIT-0](https://img.shields.io/badge/License-MIT%2D0-blue.svg)](https://opensource.org/license/mit-0/)
 
 A Tauri plugin that surfaces new GitHub releases for manual download on
@@ -23,20 +23,26 @@ Add the plugin to your `src-tauri/Cargo.toml`:
 
 ```toml
 [dependencies]
-tauri-gh-android-update = "0.1"
+tauri-plugin-android-update = "0.1"
 tauri-plugin-opener = "2"
 ```
 
-Register it where you do not use `tauri-plugin-updater`, e.g. on mobile:
+Register it where you do not use `tauri-plugin-updater`, e.g. on mobile, and
+add its commands to your app's `invoke_handler` under their unqualified names:
 
 ```rust
 #[cfg(mobile)]
 .plugin(
-    tauri_gh_android_update::Builder::new()
+    tauri_plugin_android_update::Builder::new()
         .owner("owner")
         .repo("repo")
         .build()
 )
+.invoke_handler(tauri::generate_handler![
+    tauri_plugin_android_update::check,
+    tauri_plugin_android_update::download_and_install,
+    // ...
+])
 ```
 
 The URLs are derived from the `owner`/`repo` pair. To point the update check
@@ -44,7 +50,7 @@ at a custom `latest.json` manifest (or to open a different release page),
 provide the URLs explicitly instead:
 
 ```rust
-tauri_gh_android_update::Builder::new()
+tauri_plugin_android_update::Builder::new()
     .latest_json_url("https://example.com/app/latest.json")
     .releases_url("https://example.com/app/download")
     .build()
@@ -52,10 +58,11 @@ tauri_gh_android_update::Builder::new()
 
 ## Commands
 
-The plugin registers these commands with `tauri::generate_handler!`. The
-command names mirror the `tauri-plugin-updater` plugin's, but the payloads
-are this plugin's own — the `tauri-plugin-updater` JavaScript API does not
-exist on these platforms, so the frontend invokes them directly:
+The plugin manages the state its commands rely on but leaves the registration
+to the app, so the commands are invoked under the same unqualified names on
+every platform. The command names mirror the `tauri-plugin-updater` plugin's,
+but the payloads are this plugin's own — the `tauri-plugin-updater` JavaScript
+API does not exist on these platforms, so the frontend invokes them directly:
 
 - `check` — fetches the `latest.json` update manifest from the latest release,
   compares its version against the installed one, and resolves to the update

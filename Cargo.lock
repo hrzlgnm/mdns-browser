@@ -3195,7 +3195,7 @@ dependencies = [
  "shared_constants",
  "tauri",
  "tauri-build",
- "tauri-gh-android-update",
+ "tauri-plugin-android-update",
  "tauri-plugin-clipboard-manager",
  "tauri-plugin-log",
  "tauri-plugin-opener",
@@ -5639,19 +5639,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tauri-gh-android-update"
-version = "0.1.0"
-dependencies = [
- "log",
- "reqwest 0.12.28",
- "semver",
- "serde",
- "serde_json",
- "tauri",
- "tauri-plugin-opener",
-]
-
-[[package]]
 name = "tauri-macros"
 version = "2.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5679,6 +5666,19 @@ dependencies = [
  "serde_json",
  "tauri-utils",
  "walkdir",
+]
+
+[[package]]
+name = "tauri-plugin-android-update"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "reqwest 0.12.28",
+ "semver",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-plugin-opener",
 ]
 
 [[package]]

@@ -17,7 +17,7 @@ tauri-plugin-updater = { workspace = true }
 chrono = { workspace = true }
 
 [target.'cfg(any(target_os="android",target_os="ios"))'.dependencies]
-tauri-gh-android-update = { path = "../crates/tauri-gh-android-update" }
+tauri-plugin-android-update = { workspace = true }
 
 [dependencies]
 # crates

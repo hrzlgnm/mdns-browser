@@ -1355,7 +1355,7 @@ pub fn run_mobile() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(
-            tauri_gh_android_update::Builder::new()
+            tauri_plugin_android_update::Builder::new()
                 .owner("hrzlgnm")
                 .repo("mdns-browser")
                 .build(),
@@ -1375,6 +1375,8 @@ pub fn run_mobile() {
             subscribe_interfaces,
             subscribe_metrics,
             stop_browse,
+            tauri_plugin_android_update::check,
+            tauri_plugin_android_update::download_and_install,
             theme,
             verify,
             version,

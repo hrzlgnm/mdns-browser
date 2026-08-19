@@ -1,14 +1,14 @@
 // Copyright 2026 hrzlgnm
 // SPDX-License-Identifier: MIT-0
 
-//! # tauri-gh-android-update
+//! # tauri-plugin-android-update
 //!
 //! A Tauri plugin that surfaces new GitHub releases for manual download.
 //!
 //! [`tauri-plugin-updater`] cannot be used on Android, where apps must not
 //! self-install (Google Play Store regulations). This plugin fills that gap
-//! with its own [`check`] and [`download_and_install`] commands — a custom
-//! API modeled on the `tauri-plugin-updater` command names — backed by the
+//! with the [`check`] and [`download_and_install`] commands — a custom API
+//! modeled on the `tauri-plugin-updater` command names — backed by the
 //! `latest.json` update manifest that the release workflow publishes: the
 //! Tauri bundler generates it via `createUpdaterArtifacts`, and
 //! `tauri-apps/tauri-action` attaches it (signed with the updater signing key
@@ -16,8 +16,12 @@
 //! and installing, `download_and_install` opens the release page in the
 //! default browser so the user can install manually.
 //!
-//! It is meant to be registered on platforms without self-install support
-//! (e.g. under `#[cfg(mobile)]`), where desktop apps keep using
+//! The plugin manages the state the commands need, but does not register the
+//! commands itself: they are registered by the consuming app through its own
+//! `tauri::generate_handler!` (see [`Builder`]), so the frontend can invoke
+//! them under the same unqualified names (`check` / `download_and_install`)
+//! as on desktop. Register the plugin on platforms without self-install
+//! support (e.g. under `#[cfg(mobile)]`), where desktop apps keep using
 //! [`tauri-plugin-updater`].
 //!
 //! [`tauri-plugin-updater`]: https://docs.rs/tauri-plugin-updater
@@ -28,7 +32,6 @@ use tauri::{
     plugin::{Builder as PluginBuilder, TauriPlugin},
     Manager, Runtime,
 };
-use tauri_plugin_opener::OpenerExt;
 
 /// Metadata about an available update, as returned by [`check`].
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
@@ -110,9 +113,11 @@ impl Builder {
 
     /// Builds the plugin.
     ///
-    /// Registers the [`check`] and [`download_and_install`] commands. Register
-    /// it on platforms that cannot self-install updates (e.g. under
-    /// `#[cfg(mobile)]`).
+    /// Sets up the state that the [`check`] and [`download_and_install`]
+    /// commands rely on. Register it on platforms that cannot self-install
+    /// updates (e.g. under `#[cfg(mobile)]`) and add the commands to the
+    /// app's own `tauri::generate_handler!` so the frontend can invoke them
+    /// unqualified.
     ///
     /// The URLs are resolved when the plugin is set up: an explicitly
     /// configured URL wins, otherwise it is derived from `owner`/`repo`.
@@ -125,14 +130,14 @@ impl Builder {
             .releases_url
             .or_else(|| github_releases_url(&self.owner, &self.repo));
 
-        PluginBuilder::<R>::new("gh-android-update")
+        PluginBuilder::<R>::new("android-update")
             .setup(move |app, _api| {
                 let (Some(latest_json_url), Some(releases_url)) = (latest_json_url, releases_url)
                 else {
                     let message =
                         "owner and repo, or latest_json_url and releases_url, must be configured"
                             .to_string();
-                    log::error!("failed to set up tauri-gh-android-update: {message}");
+                    log::error!("failed to set up tauri-plugin-android-update: {message}");
                     return Err(message.into());
                 };
                 app.manage(Config {
@@ -142,7 +147,6 @@ impl Builder {
                 app.manage(PendingUpdateInfo(Mutex::new(None)));
                 Ok(())
             })
-            .invoke_handler(tauri::generate_handler![check, download_and_install])
             .build()
     }
 }
@@ -167,7 +171,10 @@ fn repository_configured(owner: &str, repo: &str) -> bool {
 }
 
 /// The release endpoints the plugin talks to.
-struct Config {
+///
+/// Managed as app state by [`Builder::build`]; the [`check`] and
+/// [`download_and_install`] commands take it via `tauri::State`.
+pub struct Config {
     latest_json_url: String,
     releases_url: String,
 }
@@ -179,7 +186,10 @@ struct PendingUpdate {
 }
 
 /// App-managed state holding the pending update, if any.
-struct PendingUpdateInfo(Mutex<Option<PendingUpdate>>);
+///
+/// Managed as app state by [`Builder::build`]; the [`check`] and
+/// [`download_and_install`] commands take it via `tauri::State`.
+pub struct PendingUpdateInfo(Mutex<Option<PendingUpdate>>);
 
 /// The `latest.json` update manifest published with each release.
 #[derive(serde::Deserialize)]
@@ -204,103 +214,120 @@ fn compare_versions(fetched: &str, current: &str) -> Result<std::cmp::Ordering, 
     Ok(fetched.cmp(&current))
 }
 
-/// Checks the GitHub releases of the configured repository for a version
-/// newer than the installed one, mirroring the `check` command of
-/// [`tauri-plugin-updater`](https://docs.rs/tauri-plugin-updater).
-///
-/// Returns the update metadata when a newer release exists and stores it as
-/// the pending update for [`download_and_install`], or `None` when the app is
-/// up to date.
-#[tauri::command]
-async fn check<R: Runtime>(
-    app: tauri::AppHandle<R>,
-    config: tauri::State<'_, Config>,
-    pending_update: tauri::State<'_, PendingUpdateInfo>,
-) -> Result<Option<UpdateMetadata>, String> {
-    let body = reqwest::get(&config.latest_json_url)
-        .await
-        .map_err(|e| {
-            log::error!("failed to fetch latest release info: {e}");
-            format!("failed to fetch latest release info: {e}")
-        })?
-        .text()
-        .await
-        .map_err(|e| {
-            log::error!("failed to read latest release info: {e}");
-            format!("failed to read latest release info: {e}")
+mod commands {
+    use super::{
+        compare_versions, Config, LatestJson, PendingUpdate, PendingUpdateInfo, UpdateMetadata,
+    };
+    use tauri::Runtime;
+    use tauri_plugin_opener::OpenerExt;
+
+    /// Checks the GitHub releases of the configured repository for a version
+    /// newer than the installed one, mirroring the `check` command of
+    /// [`tauri-plugin-updater`](https://docs.rs/tauri-plugin-updater).
+    ///
+    /// Returns the update metadata when a newer release exists and stores it as
+    /// the pending update for [`download_and_install`], or `None` when the app is
+    /// up to date.
+    ///
+    /// The consuming app registers this command in its own
+    /// `tauri::generate_handler!` under the unqualified `check` name.
+    #[tauri::command]
+    pub async fn check<R: Runtime>(
+        app: tauri::AppHandle<R>,
+        config: tauri::State<'_, Config>,
+        pending_update: tauri::State<'_, PendingUpdateInfo>,
+    ) -> Result<Option<UpdateMetadata>, String> {
+        let body = reqwest::get(&config.latest_json_url)
+            .await
+            .map_err(|e| {
+                log::error!("failed to fetch latest release info: {e}");
+                format!("failed to fetch latest release info: {e}")
+            })?
+            .text()
+            .await
+            .map_err(|e| {
+                log::error!("failed to read latest release info: {e}");
+                format!("failed to read latest release info: {e}")
+            })?;
+        let latest_json: LatestJson = serde_json::from_str(&body).map_err(|e| {
+            log::error!("failed to parse latest release info: {e}");
+            format!("failed to parse latest release info: {e}")
         })?;
-    let latest_json: LatestJson = serde_json::from_str(&body).map_err(|e| {
-        log::error!("failed to parse latest release info: {e}");
-        format!("failed to parse latest release info: {e}")
-    })?;
-    let latest_version = latest_json.version.trim_start_matches('v').to_string();
-    let current_version = app.package_info().version.to_string();
+        let latest_version = latest_json.version.trim_start_matches('v').to_string();
+        let current_version = app.package_info().version.to_string();
 
-    let ordering = compare_versions(&latest_json.version, &current_version)?;
+        let ordering = compare_versions(&latest_json.version, &current_version)?;
 
-    let mut pending = pending_update.0.lock().map_err(|e| {
-        log::error!("failed to lock pending update state: {e}");
-        format!("failed to lock pending update state: {e}")
-    })?;
+        let mut pending = pending_update.0.lock().map_err(|e| {
+            log::error!("failed to lock pending update state: {e}");
+            format!("failed to lock pending update state: {e}")
+        })?;
 
-    match ordering {
-        std::cmp::Ordering::Greater => {
-            log::info!("update {latest_version} found");
-            *pending = Some(PendingUpdate {
-                version: latest_version.clone(),
-            });
-            Ok(Some(UpdateMetadata {
-                version: latest_version,
-                current_version,
-            }))
+        match ordering {
+            std::cmp::Ordering::Greater => {
+                log::info!("update {latest_version} found");
+                *pending = Some(PendingUpdate {
+                    version: latest_version.clone(),
+                });
+                Ok(Some(UpdateMetadata {
+                    version: latest_version,
+                    current_version,
+                }))
+            }
+            _ => {
+                log::info!("app is up to date ({current_version})");
+                *pending = None;
+                Ok(None)
+            }
         }
-        _ => {
-            log::info!("app is up to date ({current_version})");
-            *pending = None;
-            Ok(None)
-        }
+    }
+
+    /// Opens the release page of the configured repository for the pending
+    /// update, where the user can download the new version manually. Named after
+    /// the `download_and_install` command of
+    /// [`tauri-plugin-updater`](https://docs.rs/tauri-plugin-updater).
+    ///
+    /// The consuming app registers this command in its own
+    /// `tauri::generate_handler!` under the unqualified `download_and_install`
+    /// name.
+    #[tauri::command]
+    pub async fn download_and_install<R: Runtime>(
+        app: tauri::AppHandle<R>,
+        config: tauri::State<'_, Config>,
+        pending_update: tauri::State<'_, PendingUpdateInfo>,
+    ) -> Result<(), String> {
+        let pending = pending_update
+            .0
+            .lock()
+            .map_err(|e| {
+                log::error!("failed to lock pending update state: {e}");
+                format!("failed to lock pending update state: {e}")
+            })?
+            .as_ref()
+            .cloned()
+            .ok_or_else(|| {
+                log::error!("there is no pending update");
+                "there is no pending update".to_string()
+            })?;
+
+        log::info!(
+            "opening releases page for update {}: {}",
+            pending.version,
+            config.releases_url
+        );
+        app.opener()
+            .open_url(config.releases_url.clone(), None::<String>)
+            .map_err(|e| {
+                log::error!("failed to open releases page: {e:?}");
+                format!("failed to open releases page: {e:?}")
+            })?;
+
+        log::info!("releases page opened, user can download the update manually");
+        Ok(())
     }
 }
 
-/// Opens the release page of the configured repository for the pending
-/// update, where the user can download the new version manually. Named after
-/// the `download_and_install` command of
-/// [`tauri-plugin-updater`](https://docs.rs/tauri-plugin-updater).
-#[tauri::command]
-async fn download_and_install<R: Runtime>(
-    app: tauri::AppHandle<R>,
-    config: tauri::State<'_, Config>,
-    pending_update: tauri::State<'_, PendingUpdateInfo>,
-) -> Result<(), String> {
-    let pending = pending_update
-        .0
-        .lock()
-        .map_err(|e| {
-            log::error!("failed to lock pending update state: {e}");
-            format!("failed to lock pending update state: {e}")
-        })?
-        .as_ref()
-        .cloned()
-        .ok_or_else(|| {
-            log::error!("there is no pending update");
-            "there is no pending update".to_string()
-        })?;
-
-    log::info!(
-        "opening releases page for update {}: {}",
-        pending.version,
-        config.releases_url
-    );
-    app.opener()
-        .open_url(config.releases_url.clone(), None::<String>)
-        .map_err(|e| {
-            log::error!("failed to open releases page: {e:?}");
-            format!("failed to open releases page: {e:?}")
-        })?;
-
-    log::info!("releases page opened, user can download the update manually");
-    Ok(())
-}
+pub use commands::{check, download_and_install};
 
 #[cfg(test)]
 mod compare_versions_tests {
