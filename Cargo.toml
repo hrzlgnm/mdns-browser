@@ -57,6 +57,7 @@ models = { path = "./crates/models" }
 members = [
     "crates/models",
     "crates/shared_constants",
+    "crates/tauri-gh-android-update",
     "crates/webkit2gtk-nvidia-quirk",
     "src-tauri",
 ]

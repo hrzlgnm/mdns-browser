@@ -5640,6 +5640,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "tauri-gh-android-update"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "reqwest 0.12.28",
+ "semver",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-plugin-opener",
+]
+
+[[package]]
 name = "tauri-macros"
 version = "2.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
