@@ -30,7 +30,8 @@ cargo tauri android init --ci
 
 # Build the Android app (APK + AAB)
 # The Tauri CLI sets up the NDK cross-compilation environment - always build via this
-cargo --locked tauri android build
+# Restrict to the x86_64 ABI to keep local verification builds quick
+cargo --locked tauri android build --target x86_64
 ```
 
 Notes on Android builds:
