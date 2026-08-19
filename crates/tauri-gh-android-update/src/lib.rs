@@ -7,10 +7,10 @@
 //!
 //! [`tauri-plugin-updater`] cannot be used on Android, where apps must not
 //! self-install (Google Play Store regulations). This plugin fills that gap
-//! with the same `fetch_update` / `install_update` / `can_auto_update`
-//! commands the frontend would otherwise get from the updater plugin, backed
-//! by the `latest.json` update manifest that the Tauri bundler attaches to
-//! each GitHub release. Instead of downloading and installing, `install_update`
+//! with its own [`fetch_update`], [`install_update`] and [`can_auto_update`]
+//! commands — a custom API, not the `tauri-plugin-updater` one — backed by
+//! the `latest.json` update manifest that the Tauri bundler attaches to each
+//! GitHub release. Instead of downloading and installing, `install_update`
 //! opens the release page in the default browser so the user can install
 //! manually.
 //!

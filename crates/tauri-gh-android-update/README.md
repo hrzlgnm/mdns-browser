@@ -8,11 +8,11 @@ platforms where `tauri-plugin-updater` cannot be used.
 
 `tauri-plugin-updater` does not support Android, where apps must not
 self-install (Google Play Store regulations). This plugin fills that gap with
-the same `fetch_update` / `install_update` / `can_auto_update` commands the
-frontend would otherwise get from the updater plugin, backed by the
-`latest.json` update manifest that the Tauri bundler attaches to each GitHub
-release. Instead of downloading and installing, `install_update` opens the
-release page in the default browser so the user can install manually.
+its own `fetch_update` / `install_update` / `can_auto_update` commands — a
+custom API, not the `tauri-plugin-updater` one — backed by the `latest.json`
+update manifest that the Tauri bundler attaches to each GitHub release.
+Instead of downloading and installing, `install_update` opens the release
+page in the default browser so the user can install manually.
 
 ## Quick Start
 
@@ -47,19 +47,25 @@ tauri_gh_android_update::Builder::new()
     .build()
 ```
 
-The frontend then calls the commands just like with the updater plugin:
+## Commands
 
-- `can_auto_update` - returns whether the app can check for updates
-- `fetch_update` - checks the configured GitHub releases for a newer version
-- `install_update` - opens the release page for the pending update
+The plugin registers these commands with `tauri::generate_handler!`. They are
+custom Tauri commands — the `tauri-plugin-updater` command and JavaScript API
+does not exist on these platforms, so the frontend invokes them directly:
+
+- `can_auto_update` — resolves to `true`; the app can always check for
+  updates.
+- `fetch_update` — fetches the `latest.json` update manifest from the latest
+  release, compares its version against the installed one, and resolves to the
+  update metadata (`{ version, currentVersion }`) when a newer release exists,
+  or `null` when the app is up to date. A newer release is also stored as the
+  pending update for `install_update`.
+- `install_update` — opens the release page for the pending update in the
+  default browser, where the user can download the new version manually.
+  Errors when no update is pending (i.e. `fetch_update` found nothing or has
+  not run).
 
 ## How it works
-
-`fetch_update` fetches the `latest.json` update manifest from the latest
-GitHub release of the configured repository, compares its version against the
-installed one, and stores a pending update when a newer release exists.
-`install_update` then opens the latest release page in the default browser,
-where the user can download the new version manually.
 
 The plugin manages its own pending-update state, so no additional `.manage()`
 is required.
