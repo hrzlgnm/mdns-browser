@@ -13,12 +13,22 @@ use thaw::{
 
 use super::is_desktop::IsDesktopInjection;
 
-async fn check_update() -> Result<Option<UpdateMetadata>, String> {
-    invoke_result::<Option<UpdateMetadata>, String>("check", &()).await
+async fn check_update(is_desktop: bool) -> Result<Option<UpdateMetadata>, String> {
+    let command = update_command("check", is_desktop);
+    invoke_result::<Option<UpdateMetadata>, String>(&command, &()).await
 }
 
-async fn download_and_install() -> Result<(), String> {
-    invoke_result::<(), String>("download_and_install", &()).await
+async fn download_and_install(is_desktop: bool) -> Result<(), String> {
+    let command = update_command("download_and_install", is_desktop);
+    invoke_result::<(), String>(&command, &()).await
+}
+
+fn update_command(command: &str, is_desktop: bool) -> String {
+    if is_desktop {
+        command.to_string()
+    } else {
+        format!("plugin:android-update|{command}")
+    }
 }
 
 fn create_update_error_toast(message: String) -> impl IntoView {
@@ -73,7 +83,7 @@ pub fn About() -> impl IntoView {
     let toaster = ToasterInjection::expect_context();
 
     let check_update_action = Action::new_local(move |_: &()| async move {
-        match check_update().await {
+        match check_update(is_desktop.get()).await {
             Ok(update) => {
                 if update.is_none() {
                     show_no_update_with_timeout();
@@ -88,7 +98,7 @@ pub fn About() -> impl IntoView {
     });
 
     let download_and_install_action = Action::new_local(move |_: &()| async move {
-        if let Err(e) = download_and_install().await {
+        if let Err(e) = download_and_install(is_desktop.get()).await {
             log::error!("failed to install update: {e}");
             toaster.dispatch_toast(move || create_update_error_toast(e), Default::default());
         }

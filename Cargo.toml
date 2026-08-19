@@ -75,6 +75,7 @@ thiserror = "2.0"
 tokio = { version = "1.45", features = ["time"] }
 mdns-sd = "0.21"
 tauri = { version = "2.0", features = ["devtools"] }
+tauri-plugin = "2"
 tauri-plugin-android-update = { path = "crates/tauri-plugin-android-update" }
 tauri-plugin-clipboard-manager = "2.2"
 tauri-plugin-log = { version = "2.4", features = ["colored"] }

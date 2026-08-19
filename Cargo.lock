@@ -5678,6 +5678,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tauri",
+ "tauri-plugin",
  "tauri-plugin-opener",
 ]
 

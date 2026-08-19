@@ -10,6 +10,10 @@ license = "MIT-0"
 repository = "https://github.com/hrzlgnm/mdns-browser"
 authors = ["hrzlgnm"]
 readme = "README.md"
+links = "tauri-plugin-android-update"
+
+[build-dependencies]
+tauri-plugin = { workspace = true, features = ["build"] }
 
 [dependencies]
 log = { workspace = true }

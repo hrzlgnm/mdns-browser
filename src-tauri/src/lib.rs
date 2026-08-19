@@ -1375,8 +1375,6 @@ pub fn run_mobile() {
             subscribe_interfaces,
             subscribe_metrics,
             stop_browse,
-            tauri_plugin_android_update::check,
-            tauri_plugin_android_update::download_and_install,
             theme,
             verify,
             version,
