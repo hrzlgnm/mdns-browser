@@ -1096,81 +1096,14 @@ mod foreign_crate {
 
 #[cfg(desktop)]
 mod autoupdate {
-    use models::UpdateMetadata;
-    use serde::Serialize;
-    use std::sync::Mutex;
     use tauri::utils::platform::bundle_type;
-    use tauri::{AppHandle, State};
-    use tauri_plugin_updater::{Update, UpdaterExt};
-
-    #[derive(Debug, thiserror::Error)]
-    pub enum Error {
-        #[error(transparent)]
-        Updater(#[from] tauri_plugin_updater::Error),
-        #[error("there is no pending update")]
-        NoPendingUpdate,
-    }
-
-    impl Serialize for Error {
-        fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
-        {
-            serializer.serialize_str(self.to_string().as_str())
-        }
-    }
-
-    type Result<T> = std::result::Result<T, Error>;
+    use tauri::AppHandle;
 
     #[tauri::command]
-    pub async fn check(
-        app: AppHandle,
-        pending_update: State<'_, PendingUpdate>,
-    ) -> Result<Option<UpdateMetadata>> {
-        let update = app
-            .updater_builder()
-            .version_comparator(|current, update| update.version != current)
-            .build()?
-            .check()
-            .await?;
-
-        let update_metadata = update.as_ref().map(|update| UpdateMetadata {
-            version: update.version.clone(),
-            current_version: update.current_version.clone(),
-        });
-
-        *pending_update.0.lock().expect("To lock") = update;
-
-        Ok(update_metadata)
-    }
-
-    #[tauri::command]
-    pub async fn download_and_install(
-        app: AppHandle,
-        pending_update: State<'_, PendingUpdate>,
-    ) -> Result<()> {
-        let Some(update) = pending_update.0.lock().expect("To lock").take() else {
-            return Err(Error::NoPendingUpdate);
-        };
-
-        let mut downloaded = 0;
-        update
-            .download_and_install(
-                |chunk_length, content_length| {
-                    downloaded += chunk_length;
-                    log::info!("downloaded {downloaded} from {content_length:?}");
-                },
-                || {
-                    log::info!("download finished");
-                },
-            )
-            .await?;
-
-        log::info!("update installed, restarting");
+    pub fn restart(app: AppHandle) {
+        log::info!("restarting to apply the installed update");
         app.restart();
     }
-
-    pub struct PendingUpdate(pub Mutex<Option<Update>>);
 
     #[tauri::command]
     pub fn can_auto_update() -> bool {
@@ -1280,7 +1213,6 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(ManagedState::new(args.enable_devtools))
-        .manage(autoupdate::PendingUpdate(Mutex::new(None)))
         .setup(move |app| {
             // The main window is created programmatically (instead of via
             // tauri.conf.json) so its decoration state can be set at creation
@@ -1304,8 +1236,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            autoupdate::check,
-            autoupdate::download_and_install,
+            autoupdate::restart,
             autoupdate::can_auto_update,
             browse_many,
             browse_types,
