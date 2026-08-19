@@ -66,6 +66,7 @@ impl Serialize for ChannelRef {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 struct DownloadArgs {
     rid: u32,
     on_event: ChannelRef,

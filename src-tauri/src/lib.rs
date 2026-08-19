@@ -1100,9 +1100,9 @@ mod autoupdate {
     use tauri::AppHandle;
 
     #[tauri::command]
-    pub fn restart(app: AppHandle) {
+    pub fn restart(app: AppHandle) -> Result<(), String> {
         log::info!("restarting to apply the installed update");
-        app.restart();
+        app.restart()
     }
 
     #[tauri::command]
