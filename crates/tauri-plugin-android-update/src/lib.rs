@@ -237,7 +237,16 @@ mod commands {
         config: tauri::State<'_, Config>,
         pending_update: tauri::State<'_, PendingUpdateInfo>,
     ) -> Result<Option<UpdateMetadata>, String> {
-        let body = reqwest::get(&config.latest_json_url)
+        let client = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(15))
+            .build()
+            .map_err(|e| {
+                log::error!("failed to build http client: {e}");
+                format!("failed to build http client: {e}")
+            })?;
+        let body = client
+            .get(&config.latest_json_url)
+            .send()
             .await
             .map_err(|e| {
                 log::error!("failed to fetch latest release info: {e}");
