@@ -1,7 +1,7 @@
 # tauri-gh-android-update
 
 [![Crates.io](https://img.shields.io/crates/v/tauri-gh-android-update)](https://crates.io/crates/tauri-gh-android-update)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT-0](https://img.shields.io/badge/License-MIT%2D0-blue.svg)](https://opensource.org/license/mit-0/)
 
 A Tauri plugin that surfaces new GitHub releases for manual download on
 platforms where `tauri-plugin-updater` cannot be used.
@@ -66,4 +66,4 @@ is required.
 
 ## License
 
-MIT
+MIT-0

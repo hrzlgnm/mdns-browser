@@ -208,11 +208,11 @@ fn compare_versions(fetched: &str, current: &str) -> Result<std::cmp::Ordering, 
 
 /// Returns whether the app can check for updates.
 ///
-/// Always `true`: on the platforms this plugin targets, surfacing new releases
-/// in-app is the only update mechanism available.
+/// Always `Ok(true)`: on the platforms this plugin targets, surfacing new
+/// releases in-app is the only update mechanism available.
 #[tauri::command]
-fn can_auto_update() -> bool {
-    true
+fn can_auto_update() -> Result<bool, String> {
+    Ok(true)
 }
 
 /// Checks the GitHub releases of the configured repository for a version
@@ -283,10 +283,16 @@ async fn install_update<R: Runtime>(
     let pending = pending_update
         .0
         .lock()
-        .expect("To lock")
+        .map_err(|e| {
+            log::error!("failed to lock pending update state: {e}");
+            format!("failed to lock pending update state: {e}")
+        })?
         .as_ref()
         .cloned()
-        .ok_or_else(|| "there is no pending update".to_string())?;
+        .ok_or_else(|| {
+            log::error!("there is no pending update");
+            "there is no pending update".to_string()
+        })?;
 
     log::info!(
         "opening releases page for update {}: {}",
