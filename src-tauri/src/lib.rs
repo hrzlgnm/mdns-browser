@@ -1123,7 +1123,7 @@ mod autoupdate {
     type Result<T> = std::result::Result<T, Error>;
 
     #[tauri::command]
-    pub async fn fetch_update(
+    pub async fn check(
         app: AppHandle,
         pending_update: State<'_, PendingUpdate>,
     ) -> Result<Option<UpdateMetadata>> {
@@ -1145,7 +1145,7 @@ mod autoupdate {
     }
 
     #[tauri::command]
-    pub async fn install_update(
+    pub async fn download_and_install(
         app: AppHandle,
         pending_update: State<'_, PendingUpdate>,
     ) -> Result<()> {
@@ -1304,8 +1304,8 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            autoupdate::fetch_update,
-            autoupdate::install_update,
+            autoupdate::check,
+            autoupdate::download_and_install,
             autoupdate::can_auto_update,
             browse_many,
             browse_types,
@@ -1332,6 +1332,16 @@ pub fn run() {
 fn close_splashscreen() {}
 
 #[cfg(mobile)]
+#[tauri::command]
+fn can_auto_update() -> bool {
+    if cfg!(debug_assertions) {
+        log::debug!("Running dev build, auto-update is disabled");
+        return false;
+    }
+    true
+}
+
+#[cfg(mobile)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run_mobile() {
     use tauri_plugin_log::{Target, TargetKind};
@@ -1344,14 +1354,17 @@ pub fn run_mobile() {
         )
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(
+            tauri_plugin_android_update::Builder::new()
+                .owner("hrzlgnm")
+                .repo("mdns-browser")
+                .build(),
+        )
         .manage(ManagedState::new())
-        .manage(autoupdate::PendingUpdateInfo(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
-            autoupdate::can_auto_update,
-            autoupdate::fetch_update,
-            autoupdate::install_update,
             browse_many,
             browse_types,
+            can_auto_update,
             close_splashscreen,
             copy_to_clipboard,
             get_protocol_flags,
@@ -1362,167 +1375,12 @@ pub fn run_mobile() {
             subscribe_interfaces,
             subscribe_metrics,
             stop_browse,
+            tauri_plugin_android_update::check,
+            tauri_plugin_android_update::download_and_install,
             theme,
             verify,
             version,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-#[cfg(any(mobile, test))]
-fn compare_versions(fetched: &str, current: &str) -> Result<std::cmp::Ordering, String> {
-    let fetched =
-        semver::Version::parse(fetched.strip_prefix('v').unwrap_or(fetched)).map_err(|e| {
-            log::error!("failed to parse latest release version: {e}");
-            format!("failed to parse latest release version: {e}")
-        })?;
-    let current = semver::Version::parse(current).map_err(|e| {
-        log::error!("failed to parse current app version: {e}");
-        format!("failed to parse current app version: {e}")
-    })?;
-    Ok(fetched.cmp(&current))
-}
-
-#[cfg(mobile)]
-mod autoupdate {
-    use models::UpdateMetadata;
-    use std::sync::Mutex;
-    use tauri::{AppHandle, State};
-    use tauri_plugin_opener::OpenerExt;
-
-    use crate::compare_versions;
-
-    const LATEST_JSON_URL: &str =
-        "https://github.com/hrzlgnm/mdns-browser/releases/latest/download/latest.json";
-    const GITHUB_RELEASES_URL: &str = "https://github.com/hrzlgnm/mdns-browser/releases/latest";
-
-    #[derive(Clone)]
-    pub struct PendingUpdate {
-        pub version: String,
-    }
-
-    pub struct PendingUpdateInfo(pub Mutex<Option<PendingUpdate>>);
-
-    #[derive(serde::Deserialize)]
-    struct LatestJson {
-        version: String,
-    }
-
-    #[tauri::command]
-    pub async fn fetch_update(
-        app: AppHandle,
-        pending_update: State<'_, PendingUpdateInfo>,
-    ) -> Result<Option<UpdateMetadata>, String> {
-        let body = reqwest::get(LATEST_JSON_URL)
-            .await
-            .map_err(|e| {
-                log::error!("failed to fetch latest release info: {e}");
-                format!("failed to fetch latest release info: {e}")
-            })?
-            .text()
-            .await
-            .map_err(|e| {
-                log::error!("failed to read latest release info: {e}");
-                format!("failed to read latest release info: {e}")
-            })?;
-        let latest_json: LatestJson = serde_json::from_str(&body).map_err(|e| {
-            log::error!("failed to parse latest release info: {e}");
-            format!("failed to parse latest release info: {e}")
-        })?;
-        let latest_version = latest_json.version.trim_start_matches('v').to_string();
-        let current_version = app.package_info().version.to_string();
-
-        let ordering = compare_versions(&latest_json.version, &current_version)?;
-
-        let mut pending = pending_update.0.lock().map_err(|e| {
-            log::error!("failed to lock pending update state: {e}");
-            format!("failed to lock pending update state: {e}")
-        })?;
-
-        match ordering {
-            std::cmp::Ordering::Greater => {
-                log::info!("Update {latest_version} found");
-                *pending = Some(PendingUpdate {
-                    version: latest_version.clone(),
-                });
-                Ok(Some(UpdateMetadata {
-                    version: latest_version,
-                    current_version,
-                }))
-            }
-            _ => {
-                log::info!("App is up to date ({current_version})");
-                *pending = None;
-                Ok(None)
-            }
-        }
-    }
-
-    #[tauri::command]
-    pub async fn install_update(
-        app: AppHandle,
-        pending_update: State<'_, PendingUpdateInfo>,
-    ) -> Result<(), String> {
-        let pending = pending_update
-            .0
-            .lock()
-            .expect("To lock")
-            .as_ref()
-            .cloned()
-            .ok_or_else(|| "there is no pending update".to_string())?;
-
-        let releases_url = GITHUB_RELEASES_URL;
-        log::info!(
-            "opening releases page for update {}: {}",
-            pending.version,
-            releases_url
-        );
-        app.opener()
-            .open_url(releases_url.to_string(), None::<String>)
-            .map_err(|e| {
-                log::error!("failed to open releases page: {e:?}");
-                format!("failed to open releases page: {e:?}")
-            })?;
-
-        log::info!("releases page opened, user can download APK manually");
-        Ok(())
-    }
-
-    #[tauri::command]
-    pub fn can_auto_update() -> bool {
-        true
-    }
-}
-
-#[cfg(test)]
-mod compare_versions_tests {
-    use super::compare_versions;
-    use std::cmp::Ordering;
-
-    #[test]
-    fn test_compare_versions_older_than_installed_is_not_an_update() {
-        assert_eq!(compare_versions("1.9.0", "2.0.0"), Ok(Ordering::Less));
-    }
-
-    #[test]
-    fn test_compare_versions_equal_to_installed_is_not_an_update() {
-        assert_eq!(compare_versions("2.0.0", "2.0.0"), Ok(Ordering::Equal));
-    }
-
-    #[test]
-    fn test_compare_versions_newer_than_installed_is_an_update() {
-        assert_eq!(compare_versions("2.0.1", "2.0.0"), Ok(Ordering::Greater));
-        assert_eq!(compare_versions("v2.0.1", "2.0.0"), Ok(Ordering::Greater));
-    }
-
-    #[test]
-    fn test_compare_versions_malformed_is_rejected() {
-        assert!(compare_versions("not-a-version", "2.0.0").is_err());
-    }
-
-    #[test]
-    fn test_compare_versions_double_v_prefix_is_rejected() {
-        assert!(compare_versions("vv2.0.1", "2.0.0").is_err());
-    }
 }
