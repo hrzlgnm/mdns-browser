@@ -7,10 +7,10 @@
 //!
 //! [`tauri-plugin-updater`] cannot be used on Android, where apps must not
 //! self-install (Google Play Store regulations). This plugin fills that gap
-//! with its own [`fetch_update`], [`install_update`] and [`can_auto_update`]
-//! commands — a custom API, not the `tauri-plugin-updater` one — backed by
-//! the `latest.json` update manifest that the Tauri bundler attaches to each
-//! GitHub release. Instead of downloading and installing, `install_update`
+//! with its own [`check`] and [`download_and_install`] commands — a custom
+//! API modeled on the `tauri-plugin-updater` command names — backed by the
+//! `latest.json` update manifest that the Tauri bundler attaches to each
+//! GitHub release. Instead of downloading and installing, `download_and_install`
 //! opens the release page in the default browser so the user can install
 //! manually.
 //!
@@ -28,7 +28,7 @@ use tauri::{
 };
 use tauri_plugin_opener::OpenerExt;
 
-/// Metadata about an available update, as returned by [`fetch_update`].
+/// Metadata about an available update, as returned by [`check`].
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateMetadata {
@@ -76,7 +76,7 @@ impl Builder {
     /// Sets the GitHub owner whose releases are checked for updates.
     ///
     /// Together with [`Builder::repo`] it derives the `latest.json` manifest
-    /// URL and the release page that [`install_update`] opens.
+    /// URL and the release page that [`download_and_install`] opens.
     pub fn owner(mut self, owner: impl Into<String>) -> Self {
         self.owner = owner.into();
         self
@@ -85,22 +85,22 @@ impl Builder {
     /// Sets the GitHub repository whose releases are checked for updates.
     ///
     /// Together with [`Builder::owner`] it derives the `latest.json` manifest
-    /// URL and the release page that [`install_update`] opens.
+    /// URL and the release page that [`download_and_install`] opens.
     pub fn repo(mut self, repo: impl Into<String>) -> Self {
         self.repo = repo.into();
         self
     }
 
-    /// Overrides the URL of the `latest.json` update manifest that
-    /// [`fetch_update`] reads. Defaults to the manifest attached to the latest
-    /// release of the configured repository.
+    /// Overrides the URL of the `latest.json` update manifest that [`check`]
+    /// reads. Defaults to the manifest attached to the latest release of the
+    /// configured repository.
     pub fn latest_json_url(mut self, url: impl Into<String>) -> Self {
         self.latest_json_url = Some(url.into());
         self
     }
 
-    /// Overrides the release page that [`install_update`] opens. Defaults to
-    /// the latest release of the configured repository.
+    /// Overrides the release page that [`download_and_install`] opens.
+    /// Defaults to the latest release of the configured repository.
     pub fn releases_url(mut self, url: impl Into<String>) -> Self {
         self.releases_url = Some(url.into());
         self
@@ -108,9 +108,9 @@ impl Builder {
 
     /// Builds the plugin.
     ///
-    /// Registers the [`fetch_update`], [`install_update`] and
-    /// [`can_auto_update`] commands. Register it on platforms that cannot
-    /// self-install updates (e.g. under `#[cfg(mobile)]`).
+    /// Registers the [`check`] and [`download_and_install`] commands. Register
+    /// it on platforms that cannot self-install updates (e.g. under
+    /// `#[cfg(mobile)]`).
     ///
     /// The URLs are resolved when the plugin is set up: an explicitly
     /// configured URL wins, otherwise it is derived from `owner`/`repo`.
@@ -140,11 +140,7 @@ impl Builder {
                 app.manage(PendingUpdateInfo(Mutex::new(None)));
                 Ok(())
             })
-            .invoke_handler(tauri::generate_handler![
-                can_auto_update,
-                fetch_update,
-                install_update
-            ])
+            .invoke_handler(tauri::generate_handler![check, download_and_install])
             .build()
     }
 }
@@ -174,7 +170,7 @@ struct Config {
     releases_url: String,
 }
 
-/// The pending update stored between `fetch_update` and `install_update`.
+/// The pending update stored between [`check`] and [`download_and_install`].
 #[derive(Clone)]
 struct PendingUpdate {
     version: String,
@@ -206,23 +202,15 @@ fn compare_versions(fetched: &str, current: &str) -> Result<std::cmp::Ordering, 
     Ok(fetched.cmp(&current))
 }
 
-/// Returns whether the app can check for updates.
-///
-/// Always `Ok(true)`: on the platforms this plugin targets, surfacing new
-/// releases in-app is the only update mechanism available.
-#[tauri::command]
-fn can_auto_update() -> Result<bool, String> {
-    Ok(true)
-}
-
 /// Checks the GitHub releases of the configured repository for a version
-/// newer than the installed one.
+/// newer than the installed one, mirroring the `check` command of
+/// [`tauri-plugin-updater`](https://docs.rs/tauri-plugin-updater).
 ///
 /// Returns the update metadata when a newer release exists and stores it as
-/// the pending update for [`install_update`], or `None` when the app is up to
-/// date.
+/// the pending update for [`download_and_install`], or `None` when the app is
+/// up to date.
 #[tauri::command]
-async fn fetch_update<R: Runtime>(
+async fn check<R: Runtime>(
     app: tauri::AppHandle<R>,
     config: tauri::State<'_, Config>,
     pending_update: tauri::State<'_, PendingUpdateInfo>,
@@ -273,9 +261,11 @@ async fn fetch_update<R: Runtime>(
 }
 
 /// Opens the release page of the configured repository for the pending
-/// update, where the user can download the new version manually.
+/// update, where the user can download the new version manually. Named after
+/// the `download_and_install` command of
+/// [`tauri-plugin-updater`](https://docs.rs/tauri-plugin-updater).
 #[tauri::command]
-async fn install_update<R: Runtime>(
+async fn download_and_install<R: Runtime>(
     app: tauri::AppHandle<R>,
     config: tauri::State<'_, Config>,
     pending_update: tauri::State<'_, PendingUpdateInfo>,
