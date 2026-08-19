@@ -18,7 +18,7 @@ use futures::StreamExt;
 /// The metadata `plugin:updater|check` resolves to. On desktop the app uses the
 /// `tauri-plugin-updater` commands directly, whose pending update is identified
 /// by a resource id (`rid`) that `download_and_install` must be given.
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct UpdaterMetadata {
     rid: u32,
@@ -38,7 +38,7 @@ impl From<UpdaterMetadata> for UpdateMetadata {
 /// The progress events `plugin:updater|download_and_install` emits on its
 /// channel. The app does not surface progress, but the command requires the
 /// channel argument.
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(tag = "event", content = "data")]
 enum DownloadEvent {
     #[serde(rename_all = "camelCase")]
@@ -65,7 +65,39 @@ impl Serialize for ChannelRef {
     }
 }
 
-#[derive(Serialize)]
+impl<'de> Deserialize<'de> for ChannelRef {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        deserializer.deserialize_str(ChannelRefVisitor)
+    }
+}
+
+struct ChannelRefVisitor;
+
+impl serde::de::Visitor<'_> for ChannelRefVisitor {
+    type Value = ChannelRef;
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str("a channel argument in the `__CHANNEL__:{id}` format")
+    }
+
+    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        let id = value
+            .strip_prefix("__CHANNEL__:")
+            .ok_or_else(|| E::custom("missing `__CHANNEL__:` prefix"))?;
+        let id = id
+            .parse::<usize>()
+            .map_err(|e| E::custom(format!("invalid channel id: {e}")))?;
+        Ok(ChannelRef(id))
+    }
+}
+
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct DownloadArgs {
     rid: u32,
