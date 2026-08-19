@@ -10,9 +10,12 @@ platforms where `tauri-plugin-updater` cannot be used.
 self-install (Google Play Store regulations). This plugin fills that gap with
 its own `check` / `download_and_install` commands, modeled on the
 `tauri-plugin-updater` command names, backed by the `latest.json` update
-manifest that the Tauri bundler attaches to each GitHub release. Instead of
-downloading and installing, `download_and_install` opens the release page in
-the default browser so the user can install manually.
+manifest that the release workflow publishes: the Tauri bundler generates it
+via `createUpdaterArtifacts`, and `tauri-apps/tauri-action` attaches it
+(signed with the updater signing key configured in the workflow) to each
+GitHub release. Instead of downloading and installing, `download_and_install`
+opens the release page in the default browser so the user can install
+manually.
 
 ## Quick Start
 

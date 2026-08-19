@@ -9,10 +9,12 @@
 //! self-install (Google Play Store regulations). This plugin fills that gap
 //! with its own [`check`] and [`download_and_install`] commands — a custom
 //! API modeled on the `tauri-plugin-updater` command names — backed by the
-//! `latest.json` update manifest that the Tauri bundler attaches to each
-//! GitHub release. Instead of downloading and installing, `download_and_install`
-//! opens the release page in the default browser so the user can install
-//! manually.
+//! `latest.json` update manifest that the release workflow publishes: the
+//! Tauri bundler generates it via `createUpdaterArtifacts`, and
+//! `tauri-apps/tauri-action` attaches it (signed with the updater signing key
+//! configured in the workflow) to each GitHub release. Instead of downloading
+//! and installing, `download_and_install` opens the release page in the
+//! default browser so the user can install manually.
 //!
 //! It is meant to be registered on platforms without self-install support
 //! (e.g. under `#[cfg(mobile)]`), where desktop apps keep using
