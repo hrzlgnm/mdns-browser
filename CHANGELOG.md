@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.18.0...HEAD)
+
+### Changed
+
+- *(webkit2gtk-nvidia-quirk)* Bump webkit2gtk-nvidia-quirk to 2.0.0
+
+### Dependencies
+
+- *(deps)* Update ubuntu:latest docker digest to 4b92853 ([#2493](https://github.com/hrzlgnm/mdns-browser/pull/2493))
+
+## [1.18.0] - 2026-08-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.17.0...v1.18.0)
+
+### Added
+
+- Make workaround diagnostic output opt-in (verbose arg) ([#2481](https://github.com/hrzlgnm/mdns-browser/pull/2481))
+
+- Add opt-in verbosity flag for NVIDIA workarounds ([#2484](https://github.com/hrzlgnm/mdns-browser/pull/2484))
+
+### Changed
+
+- *(release)* Surface webkit2gtk-nvidia-quirk bump in changelog ([#2482](https://github.com/hrzlgnm/mdns-browser/pull/2482))
+
+- Adopt Git/AI-attribution and engineering-judgment conventions from zux ([#2485](https://github.com/hrzlgnm/mdns-browser/pull/2485))
+
+- Document vX.Y.Z release tag format in AGENTS.md ([#2486](https://github.com/hrzlgnm/mdns-browser/pull/2486))
+
+### Fixed
+
+- *(webkit2gtk-nvidia-quirk)* Disable WebKit DMABUF renderer on Hyprland ([#2480](https://github.com/hrzlgnm/mdns-browser/pull/2480))
+
+### Maintenance
+
+- *(ci)* Set up Rust toolchain before cargo-install git-cliff ([#2487](https://github.com/hrzlgnm/mdns-browser/pull/2487))
+
+- *(ci)* Drop Void Linux release pipeline and packaging ([#2488](https://github.com/hrzlgnm/mdns-browser/pull/2488))
+
 ## [1.17.0] - 2026-08-17 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.16.1...v1.17.0)
 
 ### Dependencies

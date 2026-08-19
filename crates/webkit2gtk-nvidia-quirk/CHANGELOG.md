@@ -11,6 +11,10 @@ This changelog is auto-generated from commits that modify this crate.
 
 - Make workaround diagnostic output opt-in (verbose arg) (#2481) ([#2481](https://github.com/hrzlgnm/mdns-browser/pull/2481))
 
+### Changed
+
+- *(webkit2gtk-nvidia-quirk)* Bump webkit2gtk-nvidia-quirk to 2.0.0
+
 ### Fixed
 
 - *(webkit2gtk-nvidia-quirk)* Disable WebKit DMABUF renderer on Hyprland (#2480) ([#2480](https://github.com/hrzlgnm/mdns-browser/pull/2480))
