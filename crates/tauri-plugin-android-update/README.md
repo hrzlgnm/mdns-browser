@@ -28,7 +28,8 @@ tauri-plugin-opener = "2"
 ```
 
 Register it where you do not use `tauri-plugin-updater`, e.g. on mobile, and
-add its commands to your app's `invoke_handler` under their unqualified names:
+grant the plugin's `default` permission in your app's capabilities so the
+frontend can invoke its commands:
 
 ```rust
 #[cfg(mobile)]
@@ -38,11 +39,14 @@ add its commands to your app's `invoke_handler` under their unqualified names:
         .repo("repo")
         .build()
 )
-.invoke_handler(tauri::generate_handler![
-    tauri_plugin_android_update::check,
-    tauri_plugin_android_update::download_and_install,
-    // ...
-])
+```
+
+```json
+{
+    "permissions": [
+        "android-update:default"
+    ]
+}
 ```
 
 The URLs are derived from the `owner`/`repo` pair. To point the update check
@@ -58,11 +62,12 @@ tauri_plugin_android_update::Builder::new()
 
 ## Commands
 
-The plugin manages the state its commands rely on but leaves the registration
-to the app, so the commands are invoked under the same unqualified names on
-every platform. The command names mirror the `tauri-plugin-updater` plugin's,
-but the payloads are this plugin's own — the `tauri-plugin-updater` JavaScript
-API does not exist on these platforms, so the frontend invokes them directly:
+The plugin registers its commands under the `plugin:android-update|` namespace,
+so the frontend invokes them as `plugin:android-update|check` and
+`plugin:android-update|download_and_install`. The command names mirror the
+`tauri-plugin-updater` plugin's, but the payloads are this plugin's own — the
+`tauri-plugin-updater` JavaScript API does not exist on these platforms, so the
+frontend invokes them directly:
 
 - `check` — fetches the `latest.json` update manifest from the latest release,
   compares its version against the installed one, and resolves to the update

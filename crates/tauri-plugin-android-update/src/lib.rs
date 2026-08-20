@@ -16,13 +16,12 @@
 //! and installing, `download_and_install` opens the release page in the
 //! default browser so the user can install manually.
 //!
-//! The plugin manages the state the commands need, but does not register the
-//! commands itself: they are registered by the consuming app through its own
-//! `tauri::generate_handler!` (see [`Builder`]), so the frontend can invoke
-//! them under the same unqualified names (`check` / `download_and_install`)
-//! as on desktop. Register the plugin on platforms without self-install
-//! support (e.g. under `#[cfg(mobile)]`), where desktop apps keep using
-//! [`tauri-plugin-updater`].
+//! The plugin registers the [`check`] and [`download_and_install`] commands
+//! under the `plugin:android-update|` namespace and manages the state they
+//! rely on. Grant the plugin's `default` permission in the app's capabilities
+//! for the frontend to invoke them. Register the plugin on platforms without
+//! self-install support (e.g. under `#[cfg(mobile)]`), where desktop apps keep
+//! using [`tauri-plugin-updater`].
 //!
 //! [`tauri-plugin-updater`]: https://docs.rs/tauri-plugin-updater
 
@@ -113,11 +112,12 @@ impl Builder {
 
     /// Builds the plugin.
     ///
-    /// Sets up the state that the [`check`] and [`download_and_install`]
-    /// commands rely on. Register it on platforms that cannot self-install
-    /// updates (e.g. under `#[cfg(mobile)]`) and add the commands to the
-    /// app's own `tauri::generate_handler!` so the frontend can invoke them
-    /// unqualified.
+    /// Registers the [`check`] and [`download_and_install`] commands and sets
+    /// up the state they rely on. Register it on platforms that cannot
+    /// self-install updates (e.g. under `#[cfg(mobile)]`) and grant the
+    /// plugin's `default` permission in the app's capabilities so the
+    /// frontend can invoke the commands under their `plugin:android-update|`
+    /// names.
     ///
     /// The URLs are resolved when the plugin is set up: an explicitly
     /// configured URL wins, otherwise it is derived from `owner`/`repo`.
@@ -147,6 +147,7 @@ impl Builder {
                 app.manage(PendingUpdateInfo(Mutex::new(None)));
                 Ok(())
             })
+            .invoke_handler(tauri::generate_handler![check, download_and_install])
             .build()
     }
 }
@@ -229,8 +230,8 @@ mod commands {
     /// the pending update for [`download_and_install`], or `None` when the app is
     /// up to date.
     ///
-    /// The consuming app registers this command in its own
-    /// `tauri::generate_handler!` under the unqualified `check` name.
+    /// Registered by the plugin under the `plugin:android-update|check` name;
+    /// the app must grant the plugin's `default` permission.
     #[tauri::command]
     pub async fn check<R: Runtime>(
         app: tauri::AppHandle<R>,
@@ -296,9 +297,9 @@ mod commands {
     /// the `download_and_install` command of
     /// [`tauri-plugin-updater`](https://docs.rs/tauri-plugin-updater).
     ///
-    /// The consuming app registers this command in its own
-    /// `tauri::generate_handler!` under the unqualified `download_and_install`
-    /// name.
+    /// Registered by the plugin under the `plugin:android-update|`
+    /// `download_and_install` name; the app must grant the plugin's `default`
+    /// permission.
     #[tauri::command]
     pub async fn download_and_install<R: Runtime>(
         app: tauri::AppHandle<R>,
