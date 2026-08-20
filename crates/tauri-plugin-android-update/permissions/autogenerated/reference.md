@@ -2,7 +2,7 @@
 
 This permission set enables the Android update workflow.
 
-#### Granted Permissions
+### Granted Permissions
 
 Checking for a newer release and opening its page for manual download.
 
