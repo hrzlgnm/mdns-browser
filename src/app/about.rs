@@ -381,3 +381,61 @@ pub fn About() -> impl IntoView {
         </Layout>
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json;
+
+    #[test]
+    fn test_channel_ref_serialize() {
+        let channel_ref = ChannelRef(42);
+        let serialized = serde_json::to_string(&channel_ref).unwrap();
+        assert_eq!(serialized, r#""__CHANNEL__:42""#);
+    }
+
+    #[test]
+    fn test_channel_ref_deserialize() {
+        let json = r#""__CHANNEL__:42""#;
+        let channel_ref: ChannelRef = serde_json::from_str(json).unwrap();
+        assert_eq!(channel_ref.0, 42);
+    }
+
+    #[test]
+    fn test_channel_ref_deserialize_large_value() {
+        // Test with a large usize value
+        let large_value = usize::MAX / 2;
+        let json = format!(r#""__CHANNEL__:{}""#, large_value);
+        let channel_ref: ChannelRef = serde_json::from_str(&json).unwrap();
+        assert_eq!(channel_ref.0, large_value);
+    }
+
+    #[test]
+    fn test_channel_ref_deserialize_overflow() {
+        // Test value that exceeds usize::MAX
+        let json = r#""__CHANNEL__:99999999999999999999999999999999999999""#;
+        let result: Result<ChannelRef, _> = serde_json::from_str(json);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_channel_ref_deserialize_missing_prefix() {
+        let json = r#""42""#;
+        let result: Result<ChannelRef, _> = serde_json::from_str(json);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_channel_ref_deserialize_invalid_id() {
+        let json = r#""__CHANNEL__:not_a_number""#;
+        let result: Result<ChannelRef, _> = serde_json::from_str(json);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_channel_ref_deserialize_negative() {
+        let json = r#""__CHANNEL__:-1""#;
+        let result: Result<ChannelRef, _> = serde_json::from_str(json);
+        assert!(result.is_err());
+    }
+}

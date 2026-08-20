@@ -53,6 +53,9 @@ tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", branch = "v
 shared_constants = { path = "./crates/shared_constants" }
 models = { path = "./crates/models" }
 
+[dev-dependencies]
+serde_json = { workspace = true }
+
 [workspace]
 members = [
     "crates/models",

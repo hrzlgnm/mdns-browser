@@ -3222,6 +3222,7 @@ dependencies = [
  "reactive_stores 0.3.1",
  "serde",
  "serde-wasm-bindgen",
+ "serde_json",
  "shared_constants",
  "strsim",
  "tauri-sys",
