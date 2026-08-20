@@ -51,9 +51,11 @@ jobs:
           fetch-depth: 0
 
       - name: 🛡️ Verify RULESET_ID secret is configured
+        env:
+          RULESET_ID: ${{ secrets.RULESET_ID }}
         run: |
-          if [ -z "${{ secrets.RULESET_ID }}" ]; then
-            echo "Error: secrets.RULESET_ID is not set. Please configure the RULESET_ID secret in repository settings."
+          if [ -z "$RULESET_ID" ]; then
+            echo "Error: RULESET_ID secret is not set. Please configure the RULESET_ID secret in repository settings."
             echo "This secret should contain the ID of the ruleset used to disable enforcement during version bump."
             exit 1
           fi
@@ -74,14 +76,17 @@ jobs:
       - name: 🔢 Bump semantic version
         id: version
         shell: bash
+        env:
+          BUMP_VERSION: ${{ inputs.bump_version }}
+          DRY_RUN: ${{ inputs.dry-run }}
         run: |
           CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "tauri-plugin-android-update") | .version')
-          if [ "${{ inputs.dry-run }}" = "true" ]; then
-            if [ "${{ inputs.bump_version }}" = "none" ]; then
+          if [ "$DRY_RUN" = "true" ]; then
+            if [ "$BUMP_VERSION" = "none" ]; then
               NEW_VERSION="$CURRENT_VERSION"
             else
               IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-              case "${{ inputs.bump_version }}" in
+              case "$BUMP_VERSION" in
                 "patch")
                   NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
                   ;;
@@ -96,8 +101,8 @@ jobs:
             echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
             echo "Dry run: would bump from $CURRENT_VERSION to $NEW_VERSION"
           else
-            if [ "${{ inputs.bump_version }}" != "none" ]; then
-              cargo set-version --package tauri-plugin-android-update --bump "${{ inputs.bump_version }}"
+            if [ "$BUMP_VERSION" != "none" ]; then
+              cargo set-version --package tauri-plugin-android-update --bump "$BUMP_VERSION"
               CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "tauri-plugin-android-update") | .version')
             fi
             echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
@@ -145,10 +150,12 @@ jobs:
 
       - name: 💾🏷️⬆️ Commit, tag and push
         if: (!inputs.dry-run)
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           git add -A
-          git commit -S -m "chore(tauri-plugin-android-update): Bump tauri-plugin-android-update to ${{ steps.version.outputs.version }}"
-          git tag -s -a tauri-plugin-android-update-v${{ steps.version.outputs.version }} -m "tauri-plugin-android-update Release v${{ steps.version.outputs.version }}"
+          git commit -S -m "chore(tauri-plugin-android-update): Bump tauri-plugin-android-update to ${VERSION}"
+          git tag -s -a "tauri-plugin-android-update-v${VERSION}" -m "tauri-plugin-android-update Release v${VERSION}"
           git push --follow-tags
 
       - name: 👮 Re-enable enforcement of rules
