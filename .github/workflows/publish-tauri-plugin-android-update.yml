@@ -1,0 +1,195 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+name: Publish tauri-plugin-android-update
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_version:
+        description: Version bump type
+        required: true
+        type: choice
+        options:
+          - none
+          - patch
+          - minor
+          - major
+        default: patch
+      dry-run:
+        description: Dry run (no commits/tags/releases)
+        required: true
+        type: boolean
+        default: false
+      publish:
+        description: Publish to crates.io after version bump
+        required: true
+        type: boolean
+        default: true
+
+concurrency:
+  group: ruleset-modification
+  cancel-in-progress: false
+
+jobs:
+  bump_version:
+    permissions:
+      actions: write
+      contents: write
+    runs-on: ubuntu-latest
+    name: ⬆️ Bump version
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tagName: tauri-plugin-android-update-v${{ steps.version.outputs.version}}
+    env:
+      GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+      RULESET: repos/${{github.repository}}/rulesets/${{ secrets.RULESET_ID }}
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      - name: 🛡️ Verify RULESET_ID secret is configured
+        env:
+          RULESET_ID: ${{ secrets.RULESET_ID }}
+        run: |
+          if [ -z "$RULESET_ID" ]; then
+            echo "Error: RULESET_ID secret is not set. Please configure the RULESET_ID secret in repository settings."
+            echo "This secret should contain the ID of the ruleset used to disable enforcement during version bump."
+            exit 1
+          fi
+          echo "RULESET_ID secret is configured"
+
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
+        with:
+          save-cache: false
+
+      - name: 🔧 Install cargo-edit
+        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
+        with:
+          crate: cargo-edit
+          version: 0.13.13
+          locked: true
+
+      - name: 🔢 Bump semantic version
+        id: version
+        shell: bash
+        env:
+          BUMP_VERSION: ${{ inputs.bump_version }}
+          DRY_RUN: ${{ inputs.dry-run }}
+        run: |
+          CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "tauri-plugin-android-update") | .version')
+          if [ "$DRY_RUN" = "true" ]; then
+            if [ "$BUMP_VERSION" = "none" ]; then
+              NEW_VERSION="$CURRENT_VERSION"
+            else
+              IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+              case "$BUMP_VERSION" in
+                "patch")
+                  NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+                  ;;
+                "minor")
+                  NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
+                  ;;
+                "major")
+                  NEW_VERSION="$((MAJOR + 1)).0.0"
+                  ;;
+              esac
+            fi
+            echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+            echo "Dry run: would bump from $CURRENT_VERSION to $NEW_VERSION"
+          else
+            if [ "$BUMP_VERSION" != "none" ]; then
+              cargo set-version --package tauri-plugin-android-update --bump "$BUMP_VERSION"
+              CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "tauri-plugin-android-update") | .version')
+            fi
+            echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+            echo "Version: $CURRENT_VERSION"
+          fi
+
+      - name: 🔑 Set up SSH signing key
+        if: (!inputs.dry-run)
+        env:
+          SSH_SIGNING_KEY: ${{ secrets.SSH_SIGNING_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_SIGNING_KEY" > ~/.ssh/id_ed25519_signing
+          chmod 600 ~/.ssh/id_ed25519_signing
+          git config --global gpg.format ssh
+          git config --global user.signingKey ~/.ssh/id_ed25519_signing
+          git config --global user.name "hrzlgnm"
+          git config --global user.email "hrzlgnm@users.noreply.github.com"
+
+      - name: ⏳ Temporary disable ruleset enforcement
+        if: (!inputs.dry-run)
+        run: |
+          gh api \
+          -H "Accept: application/vnd.github+json" \
+          "${RULESET}" | jq '.enforcement = "disabled"' | \
+          gh api \
+          --method PUT \
+          -H "Accept: application/vnd.github+json" \
+          "${RULESET}" \
+          --input -
+
+      - name: 🔧 Install git-cliff
+        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
+        with:
+          crate: git-cliff
+          version: 2.13.1
+          locked: true
+
+      - name: 📝 Update CHANGELOG.md
+        if: ${{ !inputs.dry-run }}
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git-cliff --config cliff-tauri-plugin-android-update.toml --tag "tauri-plugin-android-update-v${VERSION}" --output crates/tauri-plugin-android-update/CHANGELOG.md
+
+      - name: 💾🏷️⬆️ Commit, tag and push
+        if: (!inputs.dry-run)
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git add -A
+          git commit -S -m "chore(tauri-plugin-android-update): Bump tauri-plugin-android-update to ${VERSION}"
+          git tag -s -a "tauri-plugin-android-update-v${VERSION}" -m "tauri-plugin-android-update Release v${VERSION}"
+          git push --follow-tags
+
+      - name: 👮 Re-enable enforcement of rules
+        if: (always() && !inputs.dry-run)
+        run: |
+          gh api \
+          -H "Accept: application/vnd.github+json" \
+          "${RULESET}" | jq '.enforcement = "active"' | \
+          gh api \
+          --method PUT \
+          -H "Accept: application/vnd.github+json" \
+          "${RULESET}" \
+          --input -
+
+  publish_crate:
+    needs: [bump_version]
+    if: (inputs.publish && !inputs.dry-run)
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    container: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:ac1df04c169958f2f1caf4ba49ed187ddbb54d062ba5fabd342f98d2e9e5c319
+    name: 📦 Publish to crates.io
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.bump_version == 'none' && github.ref_name || format('tauri-plugin-android-update-v{0}', needs.bump_version.outputs.version) }}
+
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
+
+      - name: 📦 Publish to crates.io
+        run: |
+          cargo publish --package tauri-plugin-android-update
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
