@@ -385,7 +385,6 @@ pub fn About() -> impl IntoView {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json;
 
     #[test]
     fn test_channel_ref_serialize() {
