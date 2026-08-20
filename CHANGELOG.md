@@ -7,13 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.18.0...HEAD)
 
+### Added
+
+- Add tauri-gh-android-update plugin crate ([#2489](https://github.com/hrzlgnm/mdns-browser/pull/2489))
+
 ### Changed
 
 - *(webkit2gtk-nvidia-quirk)* Bump webkit2gtk-nvidia-quirk to 2.0.0
 
+- Migrate mobile updater to tauri-gh-android-update plugin ([#2498](https://github.com/hrzlgnm/mdns-browser/pull/2498))
+
 ### Dependencies
 
 - *(deps)* Update ubuntu:latest docker digest to 4b92853 ([#2493](https://github.com/hrzlgnm/mdns-browser/pull/2493))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to ccf3ff2 ([#2495](https://github.com/hrzlgnm/mdns-browser/pull/2495))
+
+- *(deps)* Update ubuntu:latest docker digest to 6df9e8d ([#2496](https://github.com/hrzlgnm/mdns-browser/pull/2496))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to b7ad4e1 ([#2497](https://github.com/hrzlgnm/mdns-browser/pull/2497))
+
+- *(deps)* Update ubuntu:latest docker digest to 2260313 ([#2501](https://github.com/hrzlgnm/mdns-browser/pull/2501))
 
 ## [1.18.0] - 2026-08-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.17.0...v1.18.0)
 
