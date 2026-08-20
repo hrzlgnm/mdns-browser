@@ -319,10 +319,10 @@
           "markdownDescription": "Denies the download_and_install command without any pre-configured scope."
         },
         {
-          "description": "This permission set enables the Android update workflow.\n\n#### Granted Permissions\n\nChecking for a newer release and opening its page for manual download.\n\n#### This default permission set includes:\n\n- `allow-check`\n- `allow-download-and-install`",
+          "description": "This permission set enables the Android update workflow.\n\n### Granted Permissions\n\nChecking for a newer release and opening its page for manual download.\n\n#### This default permission set includes:\n\n- `allow-check`\n- `allow-download-and-install`",
           "type": "string",
           "const": "default",
-          "markdownDescription": "This permission set enables the Android update workflow.\n\n#### Granted Permissions\n\nChecking for a newer release and opening its page for manual download.\n\n#### This default permission set includes:\n\n- `allow-check`\n- `allow-download-and-install`"
+          "markdownDescription": "This permission set enables the Android update workflow.\n\n### Granted Permissions\n\nChecking for a newer release and opening its page for manual download.\n\n#### This default permission set includes:\n\n- `allow-check`\n- `allow-download-and-install`"
         }
       ]
     }
