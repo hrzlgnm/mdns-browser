@@ -1,7 +1,7 @@
 [files]
 ignore-files = true
 ignore-hidden = false
-extend-exclude = [".git/", "cliff.toml", "cliff-webkit2gtk.toml", ".github/cliff-release.toml"]
+extend-exclude = [".git/", "cliff.toml", "cliff-webkit2gtk.toml", "cliff-tauri-plugin-android-update.toml", ".github/cliff-release.toml"]
 
 [default]
 check-filename = true
