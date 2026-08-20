@@ -3,7 +3,7 @@
 
 [package]
 name = "tauri-plugin-android-update"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "GitHub-releases based updater for Tauri apps on platforms without tauri-plugin-updater support"
 license = "MIT-0"
