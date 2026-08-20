@@ -16,7 +16,7 @@ jobs:
           - os: "ubuntu-latest"
             symbol: 🐧
             platform: Linux
-            container_image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:b7ad4e164263e9aec5dff22b467ea7e272e6ee9687cdfbc52169f85222f9943c
+            container_image: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:ac1df04c169958f2f1caf4ba49ed187ddbb54d062ba5fabd342f98d2e9e5c319
           - os: "macos-latest"
             symbol: 🍏
           - os: "windows-latest"
