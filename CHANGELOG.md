@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.18.0...HEAD)
+## [1.18.1] - 2026-08-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.18.0...v1.18.1)
 
 ### Added
 
@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(webkit2gtk-nvidia-quirk)* Bump webkit2gtk-nvidia-quirk to 2.0.0
 
 - Migrate mobile updater to tauri-gh-android-update plugin ([#2498](https://github.com/hrzlgnm/mdns-browser/pull/2498))
+
+- Register updater commands as namespaced plugin commands ([#2500](https://github.com/hrzlgnm/mdns-browser/pull/2500))
+
+- *(tauri-plugin-android-update)* Bump tauri-plugin-android-update to 0.1.1
+
+- *(tauri-plugin-android-update)* Bump tauri-plugin-android-update to 0.1.2
 
 ### Dependencies
 
@@ -28,6 +34,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to b7ad4e1 ([#2497](https://github.com/hrzlgnm/mdns-browser/pull/2497))
 
 - *(deps)* Update ubuntu:latest docker digest to 2260313 ([#2501](https://github.com/hrzlgnm/mdns-browser/pull/2501))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to ac1df04 ([#2503](https://github.com/hrzlgnm/mdns-browser/pull/2503))
+
+### Fixed
+
+- Route workflow run inputs and secrets via env ([#2505](https://github.com/hrzlgnm/mdns-browser/pull/2505))
+
+- Regenerate stale permissions schema for tauri-plugin-android-update ([#2509](https://github.com/hrzlgnm/mdns-browser/pull/2509))
+
+- *(tauri-plugin-android-update)* Render MIT-0 license badge correctly ([#2510](https://github.com/hrzlgnm/mdns-browser/pull/2510))
+
+### Maintenance
+
+- Add publish workflow for tauri-plugin-android-update crate ([#2504](https://github.com/hrzlgnm/mdns-browser/pull/2504))
 
 ## [1.18.0] - 2026-08-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.17.0...v1.18.0)
 
