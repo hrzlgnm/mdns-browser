@@ -43,10 +43,6 @@ on:
       CARGO_REGISTRY_TOKEN:
         required: true
 
-concurrency:
-  group: ruleset-modification
-  cancel-in-progress: false
-
 jobs:
   bump_version:
     permissions:
@@ -140,8 +136,10 @@ jobs:
           git config --global user.email "hrzlgnm@users.noreply.github.com"
 
       - name: ⏳ Temporary disable ruleset enforcement
-        if: (always() && !inputs.dry_run)
+        if: (!inputs.dry_run)
+        shell: bash
         run: |
+          set -euo pipefail
           gh api \
           -H "Accept: application/vnd.github+json" \
           "${RULESET}" | jq '.enforcement = "disabled"' | \
@@ -159,7 +157,7 @@ jobs:
           locked: true
 
       - name: 📝 Update CHANGELOG.md
-        if: ${{ !inputs.dry_run }}
+        if: (!inputs.dry_run && inputs.bump_version != 'none')
         env:
           VERSION: ${{ steps.version.outputs.version }}
           CRATE_NAME: ${{ inputs.crate_name }}
@@ -169,12 +167,14 @@ jobs:
           git-cliff --config "$GIT_CLIFF_CONFIG" --tag "$TAG" --output "crates/${CRATE_NAME}/CHANGELOG.md"
 
       - name: 💾🏷️⬆️ Commit, tag and push
-        if: (!inputs.dry_run)
+        if: (!inputs.dry_run && inputs.bump_version != 'none')
+        shell: bash
         env:
           VERSION: ${{ steps.version.outputs.version }}
           CRATE_NAME: ${{ inputs.crate_name }}
           TAG: ${{ inputs.tag_prefix }}${{ steps.version.outputs.version }}
         run: |
+          set -euo pipefail
           git add -A
           git commit -S -m "chore(${CRATE_NAME}): Bump ${CRATE_NAME} to ${VERSION}"
           git tag -s -a "$TAG" -m "${CRATE_NAME} Release v${VERSION}"
@@ -182,7 +182,9 @@ jobs:
 
       - name: 👮 Re-enable enforcement of rules
         if: (always() && !inputs.dry_run)
+        shell: bash
         run: |
+          set -euo pipefail
           gh api \
           -H "Accept: application/vnd.github+json" \
           "${RULESET}" | jq '.enforcement = "active"' | \
@@ -196,7 +198,7 @@ jobs:
     needs: [bump_version]
     if: (inputs.publish && !inputs.dry_run)
     permissions:
-      contents: write
+      contents: read
     runs-on: ubuntu-latest
     container: ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1@sha256:ac1df04c169958f2f1caf4ba49ed187ddbb54d062ba5fabd342f98d2e9e5c319
     name: 📦 Publish to crates.io
@@ -205,13 +207,17 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
+          persist-credentials: false
           ref: ${{ inputs.bump_version == 'none' && github.ref_name || format('{0}{1}', inputs.tag_prefix, needs.bump_version.outputs.version) }}
 
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
 
       - name: 📦 Publish to crates.io
-        run: |
-          cargo publish --package ${{ inputs.crate_name }}
+        shell: bash
         env:
+          CRATE_NAME: ${{ inputs.crate_name }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          set -euo pipefail
+          cargo publish --package "$CRATE_NAME"
