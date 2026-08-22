@@ -40,7 +40,6 @@ jobs:
     name: ⬆️ Bump version
     outputs:
       version: ${{ steps.version.outputs.version }}
-      tagName: tauri-plugin-android-update-v${{ steps.version.outputs.version}}
     env:
       GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
       RULESET: repos/${{github.repository}}/rulesets/${{ secrets.RULESET_ID }}
