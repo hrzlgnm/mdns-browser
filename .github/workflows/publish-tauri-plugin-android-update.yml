@@ -3,6 +3,10 @@
 
 name: Publish tauri-plugin-android-update
 
+concurrency:
+  group: ruleset-modification
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
     inputs:
@@ -29,6 +33,9 @@ on:
 
 jobs:
   publish:
+    permissions:
+      actions: write
+      contents: write
     uses: ./.github/workflows/publish-crate-reusable.yml
     with:
       bump_version: ${{ inputs.bump_version }}
