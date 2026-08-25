@@ -125,7 +125,8 @@ The shared [`webkit2gtk-nvidia-quirk`](https://docs.rs/webkit2gtk-nvidia-quirk) 
 applications such as zux) provides additional tracing through the `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE`
 environment variable. Set it to `debug` (or `trace`/`verbose`/`2`) to print a full detection summary —
 session type, whether the primary GPU and NVIDIA driver are in use, the detected compositor, and the
-chosen workaround — in addition to the per-workaround note above. See the crate's
+chosen workaround — in addition to the per-workaround note above. This crate is Linux-only, so the
+environment variable has no effect on other platforms. See the crate's
 [documentation](https://docs.rs/webkit2gtk-nvidia-quirk) for the full list of accepted values.
 
 ## Where to find the executables?
