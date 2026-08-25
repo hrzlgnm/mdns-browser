@@ -123,13 +123,29 @@
 //!
 //! Sets the `WEBKIT_DISABLE_DMABUF_RENDERER` environment variable. Use this for X11 sessions.
 //! The `verbose` argument controls whether a diagnostic note is printed to stderr
-//! (the `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable also enables it).
+//! (the `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable also enables it at the
+//! `Note` level, and additionally prints a detection summary at the `Debug` level).
 //!
 //! ### `nv_disable_explicit_sync(verbose: bool)`
 //!
 //! Sets the `__NV_DISABLE_EXPLICIT_SYNC` environment variable. Use this for Wayland sessions.
 //! The `verbose` argument controls whether a diagnostic note is printed to stderr
-//! (the `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable also enables it).
+//! (the `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable also enables it at the
+//! `Note` level, and additionally prints a detection summary at the `Debug` level).
+//!
+//! ### `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` (environment variable)
+//!
+//! Controls diagnostic output to stderr and is independent of the `verbose`
+//! builder/`bool` arguments:
+//!
+//! - unset / `0` / `false` / `off` -> no output
+//! - `1` / `true` / `yes` / `on` -> print the per-workaround diagnostic note
+//! - `debug` / `trace` / `verbose` / `2` -> print the note **and** a detection
+//!   summary (session type, primary-GPU NVIDIA, compositor, Hyprland,
+//!   `egl-wayland2` state, and the chosen workaround)
+//!
+//! The debug detection trace is intentionally env-var controlled only; the
+//! builder API cannot enable it.
 //!
 //! ### `apply_workaround_with_options(options: ApplyWorkaroundOptions)`
 //!
@@ -389,7 +405,7 @@ fn egl_wayland2_active() -> bool {
     is_egl_wayland2_selected(&configs, driver_major)
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum SessionType {
     Wayland,
     X11,
@@ -648,6 +664,72 @@ fn workaround_for(
     }
 }
 
+/// The result of probe-based detection, kept together so the debug trace can
+/// report exactly why a given workaround was chosen.
+#[derive(Debug)]
+struct Detection {
+    session: SessionType,
+    nvidia_detected: bool,
+    compositor: Option<String>,
+    hyprland: bool,
+    egl_wayland2: bool,
+    kind: WorkaroundKind,
+}
+
+/// Runs the full detection pipeline and returns the structured [`Detection`].
+fn detect() -> Detection {
+    let devices = enumerate_gpus();
+    let nvidia_detected =
+        devices.iter().any(|d| d.is_primary && d.is_nvidia) && nvidia_driver_loaded(&devices);
+    let session = get_session_type();
+    let compositor = get_compositor();
+    let hyprland = is_hyprland(compositor.as_deref());
+    let egl_wayland2 = egl_wayland2_active();
+    let kind = workaround_for(session, nvidia_detected, hyprland, egl_wayland2);
+    Detection {
+        session,
+        nvidia_detected,
+        compositor,
+        hyprland,
+        egl_wayland2,
+        kind,
+    }
+}
+
+/// Returns a short human-readable name for a [`WorkaroundKind`].
+fn workaround_name(kind: WorkaroundKind) -> &'static str {
+    match kind {
+        WorkaroundKind::None => "none",
+        WorkaroundKind::DisableWebkitDmabufRenderer => "disable WebKit DMABUF renderer",
+        WorkaroundKind::DisableNvExplicitSync => "disable NVIDIA explicit sync",
+    }
+}
+
+/// Prints the detection summary to stderr when the debug verbosity level is
+/// enabled via the `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable.
+fn print_debug_trace(detection: &Detection) {
+    if !debug_enabled() {
+        return;
+    }
+    eprintln!("webkit2gtk-nvidia-quirk: detection summary");
+    eprintln!(
+        "  session type: {}",
+        match detection.session {
+            SessionType::X11 => "x11",
+            SessionType::Wayland => "wayland",
+            SessionType::Unknown => "unknown",
+        }
+    );
+    eprintln!("  primary GPU is NVIDIA: {}", detection.nvidia_detected);
+    eprintln!(
+        "  compositor: {}",
+        detection.compositor.as_deref().unwrap_or("(unknown)")
+    );
+    eprintln!("  hyprland: {}", detection.hyprland);
+    eprintln!("  egl-wayland2 active: {}", detection.egl_wayland2);
+    eprintln!("  chosen workaround: {}", workaround_name(detection.kind));
+}
+
 /// Checks if a workaround should be applied.
 ///
 /// This function checks if the proprietary NVIDIA driver is loaded and the primary GPU is NVIDIA.
@@ -665,15 +747,7 @@ fn workaround_for(
 /// [`nv_disable_explicit_sync`] to apply the respective workaround.
 /// Call this first, then call the workaround if needed - ideally before spawning any threads.
 pub fn needs_workaround() -> WorkaroundKind {
-    let devices = enumerate_gpus();
-    let nvidia_detected =
-        devices.iter().any(|d| d.is_primary && d.is_nvidia) && nvidia_driver_loaded(&devices);
-    workaround_for(
-        get_session_type(),
-        nvidia_detected,
-        is_hyprland(get_compositor().as_deref()),
-        egl_wayland2_active(),
-    )
+    detect().kind
 }
 
 /// Checks if the primary GPU is an NVIDIA GPU.
@@ -686,15 +760,50 @@ pub fn is_primary_gpu_nvidia() -> bool {
     devices.iter().any(|d| d.is_primary && d.is_nvidia)
 }
 
-/// Returns whether a diagnostic note should be printed for a workaround.
+/// Verbosity of the diagnostic output emitted to stderr.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Verbosity {
+    /// No diagnostic output.
+    Off,
+    /// Print the per-workaround diagnostic note (the existing behavior).
+    Note,
+    /// Print the detection summary in addition to the per-workaround note.
+    Debug,
+}
+
+/// Parses the `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable into a
+/// [`Verbosity`] level.
+///
+/// - unset / `0` / `false` / `off` (or any other value) -> [`Verbosity::Off`]
+/// - `1` / `true` / `yes` / `on` -> [`Verbosity::Note`]
+/// - `debug` / `trace` / `verbose` / `2` -> [`Verbosity::Debug`]
+fn verbosity_from_env() -> Verbosity {
+    match std::env::var("WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE")
+        .map(|v| v.trim().to_ascii_lowercase())
+        .as_deref()
+    {
+        Ok("1") | Ok("true") | Ok("yes") | Ok("on") => Verbosity::Note,
+        Ok("debug") | Ok("trace") | Ok("verbose") | Ok("2") => Verbosity::Debug,
+        _ => Verbosity::Off,
+    }
+}
+
+/// Returns whether the per-workaround diagnostic note should be printed.
 ///
 /// Notes are printed when `verbose` is explicitly enabled or when the
-/// `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable is set to `1` or `true`.
-fn should_print(verbose: bool) -> bool {
-    verbose
-        || std::env::var("WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE")
-            .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
-            .unwrap_or(false)
+/// `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable is at least
+/// [`Verbosity::Note`].
+fn note_enabled(verbose: bool) -> bool {
+    verbose || matches!(verbosity_from_env(), Verbosity::Note | Verbosity::Debug)
+}
+
+/// Returns whether the detection summary (debug trace) should be printed.
+///
+/// The summary is printed only when `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` is set to
+/// a debug level (`debug` / `trace` / `verbose` / `2`). It is intentionally
+/// env-var controlled only and cannot be toggled via the builder API.
+fn debug_enabled() -> bool {
+    matches!(verbosity_from_env(), Verbosity::Debug)
 }
 
 /// Sets the `WEBKIT_DISABLE_DMABUF_RENDERER` environment variable.
@@ -713,7 +822,7 @@ fn should_print(verbose: bool) -> bool {
 /// application's startup, before any threading has begun.
 pub fn set_webkit_disable_dmabuf_renderer(verbose: bool) {
     std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
-    if should_print(verbose) {
+    if note_enabled(verbose) {
         eprintln!("Note: disabling dmabuf renderer, expect degraded renderer performance.");
         eprintln!("See https://github.com/tauri-apps/tauri/issues/9304 for more details.");
     }
@@ -735,7 +844,7 @@ pub fn set_webkit_disable_dmabuf_renderer(verbose: bool) {
 /// application's startup, before any threading has begun.
 pub fn nv_disable_explicit_sync(verbose: bool) {
     std::env::set_var("__NV_DISABLE_EXPLICIT_SYNC", "1");
-    if should_print(verbose) {
+    if note_enabled(verbose) {
         eprintln!("Note: disabling nvidia explicit sync.");
         eprintln!("See https://bugs.webkit.org/show_bug.cgi?id=280210 for more details");
     }
@@ -765,7 +874,9 @@ pub struct ApplyWorkaroundOptions {
     /// Print diagnostic notes to stderr when applying a workaround.
     ///
     /// Off by default. Can also be enabled with the
-    /// `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable.
+    /// `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE` environment variable (`Note` level).
+    /// That variable additionally supports a `Debug` level which prints a
+    /// detection summary; the debug level is env-var controlled only.
     pub verbose: bool,
 }
 
@@ -819,7 +930,9 @@ pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) {
         nv_disable_explicit_sync(options.verbose);
     }
     if !options.force_disable_dmabuf && !options.force_disable_nv_explicit_sync {
-        match needs_workaround() {
+        let detection = detect();
+        print_debug_trace(&detection);
+        match detection.kind {
             WorkaroundKind::None => {}
             WorkaroundKind::DisableWebkitDmabufRenderer => {
                 set_webkit_disable_dmabuf_renderer(options.verbose)
@@ -1360,5 +1473,75 @@ mod tests {
             WorkaroundKind::DisableNvExplicitSync
         );
         Ok(())
+    }
+
+    mod verbosity {
+        use super::*;
+
+        // The verbosity tests share a single env var, so serialize them to
+        // avoid one test's `set_var` racing another's `assert`.
+        use std::sync::Mutex;
+        static LOCK: Mutex<()> = Mutex::new(());
+
+        fn with_var<F: FnOnce()>(value: Option<&str>, f: F) {
+            let _guard = LOCK.lock().unwrap();
+            match value {
+                Some(v) => std::env::set_var("WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE", v),
+                None => std::env::remove_var("WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE"),
+            }
+            f();
+            std::env::remove_var("WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE");
+        }
+
+        #[test]
+        fn test_verbosity_off_by_default() {
+            with_var(None, || assert_eq!(verbosity_from_env(), Verbosity::Off));
+        }
+
+        #[test]
+        fn test_verbosity_off_for_unknown_values() {
+            for v in ["0", "false", "off", "foo", "TRUEISH"] {
+                with_var(Some(v), || {
+                    assert_eq!(verbosity_from_env(), Verbosity::Off, "value: {v}")
+                });
+            }
+        }
+
+        #[test]
+        fn test_verbosity_note_values() {
+            for v in ["1", "true", "TRUE", "yes", "on", "  true  "] {
+                with_var(Some(v), || {
+                    assert_eq!(verbosity_from_env(), Verbosity::Note, "value: {v}")
+                });
+            }
+        }
+
+        #[test]
+        fn test_verbosity_debug_values() {
+            for v in ["debug", "DEBUG", "trace", "verbose", "2", "Debug"] {
+                with_var(Some(v), || {
+                    assert_eq!(verbosity_from_env(), Verbosity::Debug, "value: {v}")
+                });
+            }
+        }
+
+        #[test]
+        fn test_note_enabled_respects_env_note() {
+            with_var(Some("1"), || assert!(note_enabled(false)));
+            with_var(None, || assert!(!note_enabled(false)));
+            with_var(None, || assert!(note_enabled(true)));
+        }
+
+        #[test]
+        fn test_note_enabled_true_for_debug() {
+            with_var(Some("debug"), || assert!(note_enabled(false)));
+        }
+
+        #[test]
+        fn test_debug_enabled_only_at_debug_level() {
+            with_var(Some("1"), || assert!(!debug_enabled()));
+            with_var(Some("debug"), || assert!(debug_enabled()));
+            with_var(None, || assert!(!debug_enabled()));
+        }
     }
 }
