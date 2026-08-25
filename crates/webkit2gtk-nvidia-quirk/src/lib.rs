@@ -141,8 +141,9 @@
 //! - unset / `0` / `false` / `off` -> no output
 //! - `1` / `true` / `yes` / `on` -> print the per-workaround diagnostic note
 //! - `debug` / `trace` / `verbose` / `2` -> print the note **and** a detection
-//!   summary (session type, primary-GPU NVIDIA, compositor, Hyprland,
-//!   `egl-wayland2` state, and the chosen workaround)
+//!   summary (session type, primary-GPU NVIDIA, whether the NVIDIA driver is
+//!   loaded, detected compositor, Hyprland, `egl-wayland2` state, the chosen
+//!   workaround, and which workaround environment variables are set)
 //!
 //! The debug detection trace is intentionally env-var controlled only; the
 //! builder API cannot enable it.
@@ -669,7 +670,8 @@ fn workaround_for(
 #[derive(Debug)]
 struct Detection {
     session: SessionType,
-    nvidia_detected: bool,
+    primary_gpu_nvidia: bool,
+    nvidia_driver_loaded: bool,
     compositor: Option<String>,
     hyprland: bool,
     egl_wayland2: bool,
@@ -679,8 +681,9 @@ struct Detection {
 /// Runs the full detection pipeline and returns the structured [`Detection`].
 fn detect() -> Detection {
     let devices = enumerate_gpus();
-    let nvidia_detected =
-        devices.iter().any(|d| d.is_primary && d.is_nvidia) && nvidia_driver_loaded(&devices);
+    let primary_gpu_nvidia = devices.iter().any(|d| d.is_primary && d.is_nvidia);
+    let driver_loaded = nvidia_driver_loaded(&devices);
+    let nvidia_detected = primary_gpu_nvidia && driver_loaded;
     let session = get_session_type();
     let compositor = get_compositor();
     let hyprland = is_hyprland(compositor.as_deref());
@@ -688,7 +691,8 @@ fn detect() -> Detection {
     let kind = workaround_for(session, nvidia_detected, hyprland, egl_wayland2);
     Detection {
         session,
-        nvidia_detected,
+        primary_gpu_nvidia,
+        nvidia_driver_loaded: driver_loaded,
         compositor,
         hyprland,
         egl_wayland2,
@@ -720,7 +724,8 @@ fn print_debug_trace(detection: &Detection) {
             SessionType::Unknown => "unknown",
         }
     );
-    eprintln!("  primary GPU is NVIDIA: {}", detection.nvidia_detected);
+    eprintln!("  primary GPU is NVIDIA: {}", detection.primary_gpu_nvidia);
+    eprintln!("  NVIDIA driver loaded: {}", detection.nvidia_driver_loaded);
     eprintln!(
         "  compositor: {}",
         detection.compositor.as_deref().unwrap_or("(unknown)")
@@ -728,6 +733,14 @@ fn print_debug_trace(detection: &Detection) {
     eprintln!("  hyprland: {}", detection.hyprland);
     eprintln!("  egl-wayland2 active: {}", detection.egl_wayland2);
     eprintln!("  chosen workaround: {}", workaround_name(detection.kind));
+    eprintln!(
+        "  WEBKIT_DISABLE_DMABUF_RENDERER set: {}",
+        std::env::var("WEBKIT_DISABLE_DMABUF_RENDERER").is_ok()
+    );
+    eprintln!(
+        "  __NV_DISABLE_EXPLICIT_SYNC set: {}",
+        std::env::var("__NV_DISABLE_EXPLICIT_SYNC").is_ok()
+    );
 }
 
 /// Checks if a workaround should be applied.
@@ -931,7 +944,6 @@ pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) {
     }
     if !options.force_disable_dmabuf && !options.force_disable_nv_explicit_sync {
         let detection = detect();
-        print_debug_trace(&detection);
         match detection.kind {
             WorkaroundKind::None => {}
             WorkaroundKind::DisableWebkitDmabufRenderer => {
@@ -939,6 +951,9 @@ pub fn apply_workaround_with_options(options: ApplyWorkaroundOptions) {
             }
             WorkaroundKind::DisableNvExplicitSync => nv_disable_explicit_sync(options.verbose),
         }
+        // Print the trace after applying so the workaround env-var state is
+        // accurate (the setters run above).
+        print_debug_trace(&detection);
     }
 }
 

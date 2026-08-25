@@ -46,9 +46,10 @@ environment variable, independently of any `verbose` argument passed to the API:
 | `1` / `true` / `yes` / `on` | per-workaround diagnostic note |
 | `debug` / `trace` / `verbose` / `2` | note **and** a detection summary |
 
-The detection summary (session type, whether the primary GPU is NVIDIA, the
-detected compositor, Hyprland, `egl-wayland2` state, and the chosen workaround)
-is printed to stderr and is intended for troubleshooting why a particular
+The detection summary (session type, whether the primary GPU is NVIDIA, whether
+the NVIDIA driver is loaded, the detected compositor, Hyprland, `egl-wayland2`
+state, the chosen workaround, and which workaround environment variables are
+set) is printed to stderr and is intended for troubleshooting why a particular
 workaround was applied. It is env-var controlled only; the builder API cannot
 enable it.
 
