@@ -35,6 +35,24 @@ then `XDG_SESSION_TYPE`, then `WAYLAND_DISPLAY`/`DISPLAY`.
 
 See the [full documentation](https://docs.rs/webkit2gtk-nvidia-quirk) for detailed API information.
 
+## Verbosity
+
+Diagnostic output is controlled by the `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE`
+environment variable, independently of any `verbose` argument passed to the API:
+
+| Value | Output |
+|-------|--------|
+| unset / `0` / `false` / `off` | none |
+| `1` / `true` / `yes` / `on` | per-workaround diagnostic note |
+| `debug` / `trace` / `verbose` / `2` | note **and** a detection summary |
+
+The detection summary (session type, whether the primary GPU is NVIDIA, whether
+the NVIDIA driver is loaded, the detected compositor, Hyprland, `egl-wayland2`
+state, the chosen workaround, and which workaround environment variables are
+set) is printed to stderr and is intended for troubleshooting why a particular
+workaround was applied. It is env-var controlled only; the builder API cannot
+enable it.
+
 ## License
 
 MIT

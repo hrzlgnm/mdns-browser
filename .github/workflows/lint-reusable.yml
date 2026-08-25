@@ -25,8 +25,7 @@ jobs:
         shell: bash
         run: |
           cargo fmt -- --check
-          cd src-tauri
-          cargo fmt -- --check
+          cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 
   leptosfmt:
     runs-on: ubuntu-latest

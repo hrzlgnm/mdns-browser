@@ -97,7 +97,7 @@ actionlint .github/workflows/*.yml
 ### Full lint check (as run in CI)
 ```bash
 cargo fmt -- --check && \
-cd src-tauri && cargo fmt -- --check
+cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 ```
 
 ```bash
@@ -276,8 +276,7 @@ All source files must include:
 2. **Run the full CI check**:
 ```bash
 cargo fmt -- --check && \
-cd src-tauri && cargo fmt -- --check && \
-cd .. && \
+cargo fmt --manifest-path src-tauri/Cargo.toml -- --check && \
 leptosfmt --check src && \
 cargo clippy --workspace --tests -- -D warnings && \
 cargo clippy --release --workspace --tests -- -D warnings && \
