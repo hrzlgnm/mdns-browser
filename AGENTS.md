@@ -290,6 +290,7 @@ actionlint .github/workflows/*.yml
 
 After all checks pass and changes are committed:
 
+0. **Review the change** on the two axes described in [Code Review](#code-review) before pushing.
 1. **Push changes** to the repository
 2. **Create a pull request** immediately after pushing - do not wait for a prompt. Open PRs proactively for any pushed commit that does not already have one.
 3. **Include in PR description**:
@@ -297,6 +298,25 @@ After all checks pass and changes are committed:
    - Any relevant issue numbers (e.g., "Closes #123")
    - Testing performed
 4. **Request review** if applicable
+
+## Code Review
+
+Review every change on two axes before it is treated as complete:
+
+- **Standards**: does the change conform to the coding standards documented
+  in this file (and the Fowler smell baseline where the repo is silent)?
+- **Spec**: does the change faithfully implement the originating issue or
+  spec — no missing requirements, no scope creep, no incorrectly
+  implemented requirements?
+
+Run both axes as parallel sub-agents and report them separately; aggregate
+the findings, fix any defects, then proceed to push and open a PR. Use the
+`code-review` skill to drive this review.
+
+When additional changes land on a branch after its PR was already opened,
+update the PR description so it still reflects the cumulative set of changes
+(summary, issue references, testing performed) rather than only the original
+scope.
 
 ## Before Modifying Workflows or Actions
 
