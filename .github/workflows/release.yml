@@ -15,8 +15,7 @@ concurrency:
 jobs:
   create_release_draft:
     permissions:
-      actions: write # to upload the generated changelog artifact
-      contents: write # to create and update releases and drafts
+      contents: write # to create and update releases and drafts and upload the changelog artifact
     runs-on: ubuntu-slim
     name: 📝 Draft a new release
     steps:
