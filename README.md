@@ -121,6 +121,13 @@ It only affects diagnostic output and does not change any behavior.
 
 This option has been added with release [v1.18.0](https://github.com/hrzlgnm/mdns-browser/releases/tag/v1.18.0)
 
+The shared [`webkit2gtk-nvidia-quirk`](https://docs.rs/webkit2gtk-nvidia-quirk) crate (also used by other
+applications such as zux) provides additional tracing through the `WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE`
+environment variable. Set it to `debug` (or `trace`/`verbose`/`2`) to print a full detection summary —
+session type, whether the primary GPU and NVIDIA driver are in use, the detected compositor, and the
+chosen workaround — in addition to the per-workaround note above. See the crate's
+[documentation](https://docs.rs/webkit2gtk-nvidia-quirk) for the full list of accepted values.
+
 ## Where to find the executables?
 
 ### GitHub Releases
