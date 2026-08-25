@@ -1,0 +1,37 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+name: Update Snap
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  release:
+    types: [released]
+
+jobs:
+  trigger-snap-release:
+    permissions:
+      contents: read # needed to checkout repository for release info
+    runs-on: ubuntu-slim
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: 🏷️ Get latest release info
+        id: release-info
+        uses: ./.github/actions/latest-release-info
+
+      - name: 🚀 Dispatch Release snap in hrzlgnm/mdns-browser-snap
+        env:
+          GH_TOKEN: ${{ secrets.SNAP_REPO_TOKEN }}
+          TAG_NAME: ${{ steps.release-info.outputs.tagName }}
+        run: |
+          echo "Dispatching Release snap for ${TAG_NAME}"
+          gh workflow run release.yml \
+            --repo hrzlgnm/mdns-browser-snap \
+            --ref main \
+            -f tagName="${TAG_NAME}"
