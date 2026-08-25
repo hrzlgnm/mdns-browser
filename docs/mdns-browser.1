@@ -41,5 +41,23 @@ Linux: $XDG_DATA_HOME/com.github.hrzlgnm.mdns-browser/logs or $HOME/.local/share
 macOS: ~/Library/Logs/com.github.hrzlgnm.mdns-browser
 .fi
 The log file will be named mdns-browser.log and will contain log messages with a log-level having at least a level specified by the log-level option.
+.SH ENVIRONMENT
+.TP
+.B WEBKIT2GTK_NVIDIA_QUIRK_VERBOSE
+Controls diagnostic output of the underlying
+.B webkit2gtk\-nvidia\-quirk
+crate (Linux only).
+Set it to
+.B debug
+(or
+.BR trace ,
+.BR verbose ,
+or
+.B 2 )
+to print a full detection summary \(em session type, whether the primary GPU
+and NVIDIA driver are in use, the detected compositor, and the chosen
+workaround \(em in addition to the per\-workaround note printed by
+.B \-v /\-\-nvidia\-workaround\-verbose .
+See https://docs.rs/webkit2gtk-nvidia-quirk for the full list of accepted values.
 .SH REPORTING ISSUES
 Report bugs or issues at https://github.com/hrzlgnm/mdns-browser/issues
