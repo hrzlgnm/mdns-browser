@@ -6809,7 +6809,7 @@ dependencies = [
 
 [[package]]
 name = "webkit2gtk-nvidia-quirk"
-version = "2.0.0"
+version = "2.1.0"
 
 [[package]]
 name = "webkit2gtk-sys"

@@ -3,7 +3,7 @@
 
 [package]
 name = "webkit2gtk-nvidia-quirk"
-version = "2.0.0"
+version = "2.1.0"
 edition = "2021"
 description = "WebKitGTK DMABUF renderer quirk for NVIDIA/Mesa drivers on Linux"
 license = "MIT"
