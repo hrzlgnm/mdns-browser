@@ -57,7 +57,7 @@ jobs:
       - name: 📜 Create and 🔍 scan SBOM for vulnerabilities
         uses: ./.github/actions/sbom
         with:
-          artifact-name: "sbom.android.spdx.json"
+          artifact-name: "sbom.android.spdx.json.gz"
           current-version: ${{ steps.get-version.outputs.current-version }}
 
       - name: 🛠️🐂
