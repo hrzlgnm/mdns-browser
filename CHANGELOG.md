@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update rust crate log to v0.4.34 ([#2515](https://github.com/hrzlgnm/mdns-browser/pull/2515))
 
+- *(deps)* Lock file maintenance ([#2517](https://github.com/hrzlgnm/mdns-browser/pull/2517))
+
+- *(deps)* Update archlinux:base-devel docker digest to 68bfc3b ([#2519](https://github.com/hrzlgnm/mdns-browser/pull/2519))
+
+### Fixed
+
+- Disable coderabbit request changes workflow ([#2518](https://github.com/hrzlgnm/mdns-browser/pull/2518))
+
 ### Maintenance
 
 - *(ci)* Drop unused tagName output from crate publish workflows ([#2512](https://github.com/hrzlgnm/mdns-browser/pull/2512))
