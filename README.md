@@ -5,6 +5,7 @@
 [![WinGet Package Version](https://img.shields.io/winget/v/hrzlgnm.mdns-browser)](https://winstall.app/apps/hrzlgnm.mdns-browser)
 [![AUR Version](https://img.shields.io/aur/version/mdns-browser-bin)](https://aur.archlinux.org/packages/mdns-browser-bin)
 [![FlatPark Version](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2Fflatpark%2Fflatpark%2Fmain%2Fregistry%2Fio.github.hrzlgnm.mdns-browser%2Fio.github.hrzlgnm.mdns-browser.yml&search=download%2Fv%3F%28%3F%3Cversion%3E%5B0-9.%5D%2B%29%2F&replace=%24%3Cversion%3E&label=FlatPark&color=blue)](https://flatpark.org/apps/io.github.hrzlgnm.mdns-browser)
+[![mdns-browser](https://snapcraft.io/mdns-browser/badge.svg)](https://snapcraft.io/mdns-browser)
 [![License: MIT](https://img.shields.io/github/license/hrzlgnm/mdns-browser)](https://github.com/hrzlgnm/mdns-browser/blob/main/LICENSE)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/hrzlgnm/mdns-browser/ci.yml)](https://github.com/hrzlgnm/mdns-browser/actions)
 
@@ -49,6 +50,7 @@ Screenshots from [v0.11.28](https://github.com/hrzlgnm/mdns-browser/releases/tag
         - [Arch Linux (AUR)](#arch-linux-aur)
         - [Homebrew (macOS)](#homebrew-macos)
         - [Flatpak (FlatPark)](#flatpak-flatpark)
+        - [Snap Store](#snap-store)
     - [Auditable binaries](#auditable-binaries)
     - [Attested build artifacts](#attested-build-artifacts)
     - [Immutable releases](#immutable-releases)
@@ -196,6 +198,16 @@ flatpak install flatpark io.github.hrzlgnm.mdns-browser
 ```
 
 The package page is available at <https://flatpark.org/apps/io.github.hrzlgnm.mdns-browser>.
+
+### Snap Store
+
+To install on Linux via Snap, run the following command:
+
+```console
+sudo snap install mdns-browser
+```
+
+The package page is available at <https://snapcraft.io/mdns-browser>.
 
 ## Auditable binaries
 
