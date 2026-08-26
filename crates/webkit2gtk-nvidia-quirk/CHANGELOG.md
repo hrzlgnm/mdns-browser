@@ -11,6 +11,10 @@ This changelog is auto-generated from commits that modify this crate.
 
 - Add env-var debug trace to webkit2gtk-nvidia-quirk (#2524) ([#2524](https://github.com/hrzlgnm/mdns-browser/pull/2524))
 
+### Changed
+
+- *(webkit2gtk-nvidia-quirk)* Bump webkit2gtk-nvidia-quirk to 2.1.0
+
 ## [2.0.0] - 2026-08-18 [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v1.4.3...webkit2gtk-nvidia-quirk-v2.0.0)
 
 ### Added

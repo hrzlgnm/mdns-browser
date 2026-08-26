@@ -5,7 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.18.1...HEAD)
+## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.19.0...HEAD)
+
+### Added
+
+- Gzip the SBOM workflow artifacts on publish ([#2527](https://github.com/hrzlgnm/mdns-browser/pull/2527))
+
+- Trigger snap release after a release is published ([#2529](https://github.com/hrzlgnm/mdns-browser/pull/2529))
+
+### Changed
+
+- Add Snap Store badge and installation instructions ([#2528](https://github.com/hrzlgnm/mdns-browser/pull/2528))
+
+## [1.19.0] - 2026-08-25 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.18.1...v1.19.0)
+
+### Added
+
+- Add env-var debug trace to webkit2gtk-nvidia-quirk ([#2524](https://github.com/hrzlgnm/mdns-browser/pull/2524))
+
+### Changed
+
+- Require two-axis code review before completion ([#2525](https://github.com/hrzlgnm/mdns-browser/pull/2525))
+
+- *(webkit2gtk-nvidia-quirk)* Bump webkit2gtk-nvidia-quirk to 2.1.0
+
+- Point README to webkit2gtk-nvidia-quirk tracing docs ([#2526](https://github.com/hrzlgnm/mdns-browser/pull/2526))
 
 ### Dependencies
 
@@ -14,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Lock file maintenance ([#2517](https://github.com/hrzlgnm/mdns-browser/pull/2517))
 
 - *(deps)* Update archlinux:base-devel docker digest to 68bfc3b ([#2519](https://github.com/hrzlgnm/mdns-browser/pull/2519))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 3bb1a10 ([#2522](https://github.com/hrzlgnm/mdns-browser/pull/2522))
+
+- *(deps)* Update actions/setup-java action to v6 ([#2520](https://github.com/hrzlgnm/mdns-browser/pull/2520))
 
 ### Fixed
 
@@ -24,6 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(ci)* Drop unused tagName output from crate publish workflows ([#2512](https://github.com/hrzlgnm/mdns-browser/pull/2512))
 
 - *(ci)* Harden crate-publish reusable workflow from review ([#2514](https://github.com/hrzlgnm/mdns-browser/pull/2514))
+
+- Drop unneeded actions: write from release draft job ([#2523](https://github.com/hrzlgnm/mdns-browser/pull/2523))
 
 ## [1.18.1] - 2026-08-20 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.18.0...v1.18.1)
 
