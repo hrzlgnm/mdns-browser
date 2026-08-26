@@ -122,7 +122,7 @@ cargo tauri dev -- --log-level debug --enable-devtools
 4. Run `cargo clippy --workspace --tests -- -D warnings` to check for issues
 5. Run `cargo nextest run --profile ci -p models -p mdns-browser` to run tests
 6. Run `cargo --locked tauri build --no-bundle --no-sign` to build release version
-7. Run `cargo clippy --release -workspace --tests -- -D warnings` to ensure no warnings in release
+7. Run `cargo clippy --release --workspace --tests -- -D warnings` to ensure no warnings in release
 8. Run `actionlint` to check GitHub Actions workflows if modified
 9. Run renovate config validator if `.github/renovate.json5` was modified
 10. If README.md was updated, update the manpage (`docs/mdns-browser.1`)
@@ -209,7 +209,7 @@ All source files must include:
 │   └── Cargo.toml                # Backend dependencies
 ├── crates/                       # Shared libraries
 │   ├── models/                   # Data structures and validation
-│   └── shared_constants/         # Constants shared across crates
+│   ├── shared_constants/         # Constants shared across crates
 │   └── webkit2gtk-nvidia-quirk/  # WebKit2Gtk NVIDIA quirk
 ├── Trunk.toml                    # Frontend build configuration
 ├── Cargo.toml                    # Workspace configuration
@@ -224,7 +224,7 @@ All source files must include:
 - Frontend and backend communicate via Tauri events and commands
 - The app supports both desktop and mobile platforms
 - CI runs on Ubuntu, macOS, and Windows - ensure cross-platform compatibility
-- The project uses auditible binaries with `cargo-auditable`
+- The project uses auditable binaries with `cargo-auditable`
 
 ## Git Conventions
 
