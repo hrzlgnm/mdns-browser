@@ -1,7 +1,6 @@
-/src
-/aur-template
-/crates
-/public
-/xbsp-template
 /Cargo.toml
-
+/crates
+/docs
+/packaging
+/public
+/src
