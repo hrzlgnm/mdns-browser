@@ -88,7 +88,7 @@ actionlint .github/workflows/*.yml
 5. Commit only when all checks pass, then push and open a PR (see
    [After Completion](#after-completion))
 
-# Code Style Guidelines
+## Code Style Guidelines
 
 ### File Headers
 
@@ -101,7 +101,6 @@ All source files must include:
 ### Rust Code Style
 
 - `cargo fmt` applies and checks formatting; no need to review formatting or import style, the formatter covers it
-- Clippy must pass with `--tests -- -D warnings` (debug and release)
 - Prefer explicit error handling over `unwrap()`
 - Use workspace dependencies defined in root Cargo.toml
 - Keep imports at file level, not inside functions
