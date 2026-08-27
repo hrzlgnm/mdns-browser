@@ -1,5 +1,5 @@
 # Copyright 2026 hrzlgnm
-# SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT
 
 name: Sync version from tag
 description: Derives the release version from a tag and syncs it into the workspace Cargo.toml files, the Tauri config and the Cargo.lock. Does not commit anything.
