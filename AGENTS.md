@@ -95,7 +95,7 @@ actionlint .github/workflows/*.yml
 All source files must include:
 ```rust
 // Copyright 2026 hrzlgnm
-// SPDX-License-Identifier: MIT-0
+// SPDX-License-Identifier: MIT
 ```
 
 ### Rust Code Style

@@ -1,5 +1,5 @@
 # Copyright 2026 hrzlgnm
-# SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT
 
 # git-cliff configuration for generating GitHub release notes in the same
 # format the previous release-drafter setup produced.

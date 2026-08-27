@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Copyright 2024-2026 hrzlgnm
-# SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT
 
 version=$1
 sha256sum=$2

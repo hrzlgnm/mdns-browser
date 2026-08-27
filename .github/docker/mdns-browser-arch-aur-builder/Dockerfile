@@ -1,5 +1,5 @@
 # Copyright 2025 hrzlgnm
-# SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT
 
 FROM archlinux:base-devel@sha256:68bfc3b0d277b08a99101dc9b94aaa03e5ae70cf1b4fb965c03b2b87b915760d
 RUN pacman -Syu --noconfirm \
