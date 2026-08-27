@@ -158,6 +158,15 @@ jobs:
             target/**/release/mdns-browser
             target/release/mdns-browser.exe
 
+      - name: 🛡️ Attest SBOM (plain binary)
+        if: inputs.tagName
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-path: |
+            target/**/release/mdns-browser
+            target/release/mdns-browser.exe
+          sbom-path: "sbom.spdx.json"
+
       - name: 🔨 Build bundles using tauri action (publish artifacts on release)
         uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
         env:
@@ -277,15 +286,6 @@ jobs:
             exit 1
           fi
           gh release upload "$TAG_NAME" "${ASSETS[@]}" --clobber
-
-      - name: 🛡️ Attest SBOM (plain binary)
-        if: inputs.tagName
-        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
-        with:
-          subject-path: |
-            target/**/release/mdns-browser
-            target/release/mdns-browser.exe
-          sbom-path: "sbom.spdx.json"
 
       - name: 🛡️ Attest build provenance (bundles)
         if: inputs.tagName
