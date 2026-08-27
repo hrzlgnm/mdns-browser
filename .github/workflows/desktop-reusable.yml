@@ -293,6 +293,7 @@ jobs:
         with:
           subject-path: |
             target/release/bundle/nsis/*
+            target/release/bundle/msi/*
             target/**/release/bundle/macos/*.tar.gz*
             target/**/release/bundle/dmg/*.dmg
             target/release/bundle/deb/*.deb
