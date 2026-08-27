@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Snap Store badge and installation instructions ([#2528](https://github.com/hrzlgnm/mdns-browser/pull/2528))
 
+- Improve AGENTS.md efficiency (dedup, prune, progressive disclosure) ([#2532](https://github.com/hrzlgnm/mdns-browser/pull/2532))
+
+- Cleanup some unused files and ignore settings ([#2533](https://github.com/hrzlgnm/mdns-browser/pull/2533))
+
+### Fixed
+
+- Disable grype DB caching in sbom composite ([#2531](https://github.com/hrzlgnm/mdns-browser/pull/2531))
+
 ## [1.19.0] - 2026-08-25 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.18.1...v1.19.0)
 
 ### Added
