@@ -5,6 +5,12 @@ All notable changes to `webkit2gtk-nvidia-quirk` will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This changelog is auto-generated from commits that modify this crate.
 
+## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v2.1.0...HEAD)
+
+### Fixed
+
+- Align SPDX identifiers with MIT LICENSE (#2535) ([#2535](https://github.com/hrzlgnm/mdns-browser/pull/2535))
+
 ## [2.1.0] - 2026-08-25 [compare](https://github.com/hrzlgnm/mdns-browser/compare/webkit2gtk-nvidia-quirk-v2.0.0...webkit2gtk-nvidia-quirk-v2.1.0)
 
 ### Added
