@@ -147,6 +147,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ inputs.tagName }}
         run: |
+          cp sbom.spdx.json.gz sbom.android.spdx.json.gz
           gh release upload "$TAG_NAME" "sbom.android.spdx.json.gz" --clobber
 
       - name: 🛡️ Attest build provenance (publish only)
