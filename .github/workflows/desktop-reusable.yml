@@ -287,6 +287,18 @@ jobs:
           fi
           gh release upload "$TAG_NAME" "${ASSETS[@]}" --clobber
 
+      - name: 📤 Publish SBOM to release
+        if: inputs.tagName
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ inputs.tagName }}
+          SBOM_PLATFORM: ${{ matrix.platform }}
+        run: |
+          SBOM_FILE="sbom.${SBOM_PLATFORM}.spdx.json.gz"
+          cp sbom.spdx.json.gz "$SBOM_FILE"
+          gh release upload "$TAG_NAME" "$SBOM_FILE" --clobber
+
       - name: 🛡️ Attest build provenance (bundles)
         if: inputs.tagName
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4

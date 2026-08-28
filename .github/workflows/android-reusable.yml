@@ -140,6 +140,15 @@ jobs:
             exit 1
           fi
 
+      - name: 📤 Publish SBOM to release
+        if: inputs.tagName
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ inputs.tagName }}
+        run: |
+          gh release upload "$TAG_NAME" "sbom.android.spdx.json.gz" --clobber
+
       - name: 🛡️ Attest build provenance (publish only)
         if: inputs.tagName
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
