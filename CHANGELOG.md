@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.19.0...HEAD)
+## [1.20.0] - 2026-08-28 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.19.0...v1.20.0)
 
 ### Added
 
@@ -21,9 +21,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Cleanup some unused files and ignore settings ([#2533](https://github.com/hrzlgnm/mdns-browser/pull/2533))
 
+### Dependencies
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to abe0f2e ([#2537](https://github.com/hrzlgnm/mdns-browser/pull/2537))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 191609e ([#2538](https://github.com/hrzlgnm/mdns-browser/pull/2538))
+
+- *(deps)* Update hrzlgnm/actions action to v2.7.0 ([#2540](https://github.com/hrzlgnm/mdns-browser/pull/2540))
+
+- *(deps)* Update anchore/scan-action action to v7.4.1 ([#2539](https://github.com/hrzlgnm/mdns-browser/pull/2539))
+
 ### Fixed
 
 - Disable grype DB caching in sbom composite ([#2531](https://github.com/hrzlgnm/mdns-browser/pull/2531))
+
+- Align SPDX identifiers with MIT LICENSE ([#2535](https://github.com/hrzlgnm/mdns-browser/pull/2535))
+
+- Attest plain-binary provenance before bundle recompile ([#2536](https://github.com/hrzlgnm/mdns-browser/pull/2536))
+
+- Publish gzipped SBOMs as release assets ([#2541](https://github.com/hrzlgnm/mdns-browser/pull/2541))
 
 ## [1.19.0] - 2026-08-25 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.18.1...v1.19.0)
 
