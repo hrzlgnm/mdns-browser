@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update hrzlgnm/actions action to v2.8.1 ([#2546](https://github.com/hrzlgnm/mdns-browser/pull/2546))
 
+- *(deps)* Lock file maintenance ([#2548](https://github.com/hrzlgnm/mdns-browser/pull/2548))
+
 ## [1.20.0] - 2026-08-28 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.19.0...v1.20.0)
 
 ### Added
