@@ -35,7 +35,7 @@ jobs:
         uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
         with:
           crate: git-cliff
-          version: 2.13.1
+          version: 2.14.1
           locked: true
 
       - name: 📝 Generate changelog
