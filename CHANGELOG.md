@@ -5,7 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.0...HEAD)
+## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.2...HEAD)
+
+### Dependencies
+
+- *(deps)* Update archlinux:base-devel docker digest to 84cd9ef ([#2556](https://github.com/hrzlgnm/mdns-browser/pull/2556))
+
+## [1.20.2] - 2026-08-31 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.1...v1.20.2)
+
+### Changed
+
+- Mount .github for renovate validator ([#2555](https://github.com/hrzlgnm/mdns-browser/pull/2555))
+
+### Dependencies
+
+- *(deps)* Update rust crate tauri-plugin-log to v2.9.1 ([#2552](https://github.com/hrzlgnm/mdns-browser/pull/2552))
+
+- *(deps)* Update rust crate tauri-plugin-clipboard-manager to v2.3.3 ([#2551](https://github.com/hrzlgnm/mdns-browser/pull/2551))
+
+- *(deps)* Update rust crate tauri-plugin-updater to v2.11.0 ([#2554](https://github.com/hrzlgnm/mdns-browser/pull/2554))
+
+- *(deps)* Update rust crate tauri-plugin-opener to v2.5.5 ([#2553](https://github.com/hrzlgnm/mdns-browser/pull/2553))
+
+## [1.20.1] - 2026-08-31 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.0...v1.20.1)
 
 ### Dependencies
 
@@ -18,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update hrzlgnm/actions action to v2.8.1 ([#2546](https://github.com/hrzlgnm/mdns-browser/pull/2546))
 
 - *(deps)* Lock file maintenance ([#2548](https://github.com/hrzlgnm/mdns-browser/pull/2548))
+
+- *(deps)* Update rust crate mdns-sd to v0.21.1 ([#2550](https://github.com/hrzlgnm/mdns-browser/pull/2550))
 
 ## [1.20.0] - 2026-08-28 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.19.0...v1.20.0)
 
