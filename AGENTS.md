@@ -232,22 +232,27 @@ After all checks pass and changes are committed:
 
 ## Code Review
 
-Review every change on two axes before it is treated as complete:
+This is a mandatory gate. Do not push, do not open a PR, and do not
+declare a task complete until the two-axis review has run and its
+findings are fixed.
 
-- **Standards**: does the change conform to the coding standards documented
-  in this file (and the Fowler smell baseline where the repo is silent)?
-- **Spec**: does the change faithfully implement the originating issue or
-  spec — no missing requirements, no scope creep, no incorrectly
-  implemented requirements?
-
-Run both axes as parallel sub-agents and report them separately; aggregate
-the findings, fix any defects, then proceed to push and open a PR. Use the
-`code-review` skill to drive this review.
-
-When additional changes land on a branch after its PR was already opened,
-update the PR description so it still reflects the cumulative set of changes
-(summary, issue references, testing performed) rather than only the original
-scope.
+- **When:** after all checks pass on the final commit(s), before
+  `git push` and before `gh pr create`. Re-run after every fixup that
+  touches `src/`, `src-tauri/`, `crates/`, or docs.
+- **How:** load the `code-review` skill (skill tool `name: "code-review"`).
+  Pin the fixed point to `main` (use `origin/main` if `main` is stale)
+  and pass `git diff main...HEAD` (three-dot, merge-base) plus
+  `git log main..HEAD --oneline`. The skill spawns two parallel
+  sub-agents — **Standards** (this file plus the Fowler smell baseline
+  defined in the skill) and **Spec** (originating issue/spec/request;
+  reports "no spec available" if none exists) — then aggregates.
+- **Report:** paste both axes verbatim under `## Standards` / `## Spec`,
+  do not merge or rerank them. End with a one-line summary: total
+  findings per axis and the worst issue within each axis. Fix defects
+  before pushing.
+- After adding changes to an open pull request, update its description
+  so the summary, issue references, and testing cover the cumulative
+  branch.
 
 ## Code comments
 
