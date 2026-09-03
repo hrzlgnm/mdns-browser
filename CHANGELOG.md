@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.2...HEAD)
 
+### Changed
+
+- Make two-axis code review a mandatory gate ([#2561](https://github.com/hrzlgnm/mdns-browser/pull/2561))
+
 ### Dependencies
 
 - *(deps)* Update archlinux:base-devel docker digest to 84cd9ef ([#2556](https://github.com/hrzlgnm/mdns-browser/pull/2556))
@@ -14,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 9dd4489 ([#2558](https://github.com/hrzlgnm/mdns-browser/pull/2558))
 
 - *(deps)* Update dependency git-cliff to v2.14.1 ([#2559](https://github.com/hrzlgnm/mdns-browser/pull/2559))
+
+- *(deps)* Update hrzlgnm/actions action to v2.8.2 ([#2562](https://github.com/hrzlgnm/mdns-browser/pull/2562))
 
 ## [1.20.2] - 2026-08-31 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.1...v1.20.2)
 
