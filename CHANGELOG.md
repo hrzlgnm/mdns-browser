@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update hrzlgnm/actions action to v2.8.2 ([#2562](https://github.com/hrzlgnm/mdns-browser/pull/2562))
 
+- *(deps)* Update dtolnay/rust-toolchain digest to 6bed076 ([#2564](https://github.com/hrzlgnm/mdns-browser/pull/2564))
+
 ## [1.20.2] - 2026-08-31 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.1...v1.20.2)
 
 ### Changed
