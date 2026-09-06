@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.2...HEAD)
+## [1.20.3] - 2026-09-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.2...v1.20.3)
 
 ### Changed
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(deps)* Update hrzlgnm/actions action to v2.8.2 ([#2562](https://github.com/hrzlgnm/mdns-browser/pull/2562))
 
 - *(deps)* Update dtolnay/rust-toolchain digest to 6bed076 ([#2564](https://github.com/hrzlgnm/mdns-browser/pull/2564))
+
+- *(deps)* Update rust crate mdns-sd to v0.21.2 ([#2566](https://github.com/hrzlgnm/mdns-browser/pull/2566))
 
 ## [1.20.2] - 2026-08-31 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.1...v1.20.2)
 
