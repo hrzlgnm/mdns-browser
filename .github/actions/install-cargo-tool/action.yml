@@ -56,6 +56,9 @@ runs:
       run: |
         set -euo pipefail
 
+        # Prefer node for the install path so it matches path.join exactly
+        # (backslash separators on Windows). Without node the key may miss
+        # and the tool is rebuilt; a miss never restores a wrong entry.
         if command -v node >/dev/null 2>&1; then
           INSTALL_PATH="$(node -e 'const path = require("node:path"); const home = process.env.HOME ?? process.env.USERPROFILE; console.log(path.join(home, ".cargo-install", process.argv[1]));' "$INPUT_CRATE")"
         else
@@ -82,7 +85,7 @@ runs:
             OS_VERSION="$(sed -n 's/^VERSION_ID="\(.*\)"$/\1/p' /etc/os-release | head -n 1)"
             ;;
           macOS)
-            OS_VERSION="$(sw_vers -productVersion)"
+            OS_VERSION="$(sw_vers -productVersion | tr -d '\r')"
             ;;
           Windows)
             MAJOR="$(pwsh -NoProfile -Command '[System.Environment]::OSVersion.Version.Major' 2>/dev/null | tr -d '\r' || pwsh.exe -NoProfile -Command '[System.Environment]::OSVersion.Version.Major' | tr -d '\r' || true)"
@@ -101,6 +104,7 @@ runs:
         {
           echo "key=cargo-install-$INPUT_CRATE-$INPUT_VERSION-$HASH"
           echo "path=$INSTALL_PATH"
+          echo "features_csv=$FEATURES_CSV"
         } >> "$GITHUB_OUTPUT"
 
     - name: Restore ${{ inputs.crate }} from cache (tags)
@@ -117,17 +121,12 @@ runs:
       env:
         INPUT_CRATE: ${{ inputs.crate }}
         INPUT_VERSION: ${{ inputs.version }}
-        INPUT_FEATURES: ${{ inputs.features }}
         INPUT_ARGS: ${{ inputs.args }}
+        FEATURES_CSV: ${{ steps.key.outputs.features_csv }}
         INSTALL_PATH: ${{ steps.key.outputs.path }}
       run: |
         set -euo pipefail
         set -f
-
-        FEATURES_CSV=""
-        if [ -n "$INPUT_FEATURES" ]; then
-          FEATURES_CSV="$(printf '%s' "$INPUT_FEATURES" | tr ', ' '\n' | sed '/^$/d' | paste -sd ',' -)"
-        fi
 
         ARGS=(install "$INPUT_CRATE" --force --root "$INSTALL_PATH" --version "$INPUT_VERSION")
         if [ -n "$FEATURES_CSV" ]; then
