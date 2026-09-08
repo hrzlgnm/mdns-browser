@@ -51,7 +51,7 @@ jobs:
 
       - name: 🔢 Get sha256sums
         id: sha256sums
-        uses: ./.github/actions/retry
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}
@@ -59,6 +59,10 @@ jobs:
           RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
           NEEDS_EXE: ${{ matrix.package.needs_exe }}
         with:
+          timeout_minutes: 5
+          max_attempts: 5
+          retry_wait_seconds: 10
+          warning_on_retry: true
           command: |
             set -o pipefail
             if [[ "$PACKAGE_NAME" == "mdns-browser-bin" ]]; then
@@ -85,7 +89,7 @@ jobs:
             fi
 
       - name: 📐 Lint generated PKGBUILD
-        shell: bash
+        uses: ./.github/actions/retry
         env:
           SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}
@@ -95,18 +99,18 @@ jobs:
           SHA256: ${{ steps.sha256sums.outputs.sha256 }}
         with:
           command: |
-          su runner -c "
-            set -o errexit
-            mkdir -p ~/lint
-            o=\$(pwd)
-            if [[ \"\$NEEDS_EXE\" == \"true\" ]]; then
-              \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$SHA256_EXE\" \"\$TAG_NAME\" > ~/lint/PKGBUILD
-            else
-              \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$TAG_NAME\" > ~/lint/PKGBUILD
-            fi
-            cd ~/lint
-            \"\$o/packaging/aur/makepkg-lint.sh\"
-          "
+            su runner -c "
+              set -o errexit
+              mkdir -p ~/lint
+              o=\$(pwd)
+              if [[ \"\$NEEDS_EXE\" == \"true\" ]]; then
+                \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$SHA256_EXE\" \"\$TAG_NAME\" > ~/lint/PKGBUILD
+              else
+                \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$TAG_NAME\" > ~/lint/PKGBUILD
+              fi
+              cd ~/lint
+              \"\$o/packaging/aur/makepkg-lint.sh\"
+            "
       - name: 🛠️ Setup Deployment keys
         if: github.event.release.tag_name
         uses: ./.github/actions/retry
@@ -114,17 +118,17 @@ jobs:
           AUR_DEPLOY_KEY: ${{ secrets.AUR_DEPLOY_KEY }}
         with:
           command: |
-          chown -R runner:runner .
-          su runner -c "
-            set -o errexit
-            mkdir -p ~/.ssh
-            printf '%s\n' \"\$AUR_DEPLOY_KEY\" > ~/.ssh/aur
-            chmod 600 ~/.ssh/aur
-            echo \"Host aur.archlinux.org\" >> ~/.ssh/config
-            echo \"  IdentityFile ~/.ssh/aur\" >> ~/.ssh/config
-            echo \"  User aur\" >> ~/.ssh/config
-            ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
-          "
+            chown -R runner:runner .
+            su runner -c "
+              set -o errexit
+              mkdir -p ~/.ssh
+              printf '%s\n' \"\$AUR_DEPLOY_KEY\" > ~/.ssh/aur
+              chmod 600 ~/.ssh/aur
+              echo \"Host aur.archlinux.org\" >> ~/.ssh/config
+              echo \"  IdentityFile ~/.ssh/aur\" >> ~/.ssh/config
+              echo \"  User aur\" >> ~/.ssh/config
+              ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+            "
 
       - name: 🔄 Clone AUR Repo
         if: github.event.release.tag_name
@@ -133,10 +137,10 @@ jobs:
           PACKAGE_NAME: ${{ matrix.package.name }}
         with:
           command: |
-          su runner -c "
-            set -o errexit
-            git clone --depth=1 \"ssh://aur@aur.archlinux.org/\$PACKAGE_NAME.git\" ~/aur
-          "
+            su runner -c "
+              set -o errexit
+              git clone --depth=1 \"ssh://aur@aur.archlinux.org/\$PACKAGE_NAME.git\" ~/aur
+            "
 
       - name: 🔍 Check version
         if: github.event.release.tag_name
@@ -168,24 +172,24 @@ jobs:
           SHA256: ${{ steps.sha256sums.outputs.sha256 }}
         with:
           command: |
-          su runner -c "
-            set -o errexit
-            if [[ \"\$NEEDS_EXE\" == \"true\" ]]; then
-              \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$SHA256_EXE\" \"\$TAG_NAME\" > ~/aur/PKGBUILD
-            else
-              \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$TAG_NAME\" > ~/aur/PKGBUILD
-            fi
-            cd ~/aur
-            if [[ -z \$(git status --porcelain) ]]; then
-              echo \"No changes\"
-              exit 0
-            fi
-            makepkg --printsrcinfo > .SRCINFO
-            makepkg
-            makepkg --install --noconfirm
-            git config user.name \"hrzlgnm\"
-            git config user.email \"hrzlgnm@users.noreply.github.com\"
-            git add PKGBUILD .SRCINFO
-            git commit -m \"New upstream release \$RELEASE_VERSION\"
-            git push origin master
-          "
+            su runner -c "
+              set -o errexit
+              if [[ \"\$NEEDS_EXE\" == \"true\" ]]; then
+                \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$SHA256_EXE\" \"\$TAG_NAME\" > ~/aur/PKGBUILD
+              else
+                \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$TAG_NAME\" > ~/aur/PKGBUILD
+              fi
+              cd ~/aur
+              if [[ -z \$(git status --porcelain) ]]; then
+                echo \"No changes\"
+                exit 0
+              fi
+              makepkg --printsrcinfo > .SRCINFO
+              makepkg
+              makepkg --install --noconfirm
+              git config user.name \"hrzlgnm\"
+              git config user.email \"hrzlgnm@users.noreply.github.com\"
+              git add PKGBUILD .SRCINFO
+              git commit -m \"New upstream release \$RELEASE_VERSION\"
+              git push origin master
+            "

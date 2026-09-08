@@ -50,14 +50,14 @@ jobs:
           TAG: ${{ needs.release-info.outputs.tagName }}
         with:
           command: |
-          CHECKSUM=$(gh release view "$TAG" --repo hrzlgnm/mdns-browser --json assets --jq '.assets[] | select(.name | endswith(".dmg")) | select(.name | test("universal"; "i")) | select(.name | test("\\.sha256$") | not) | .digest')
-          if [ -z "$CHECKSUM" ]; then
-            echo "Error: No checksum found for universal.dmg in release $TAG"
-            exit 1
-          fi
-          # strip prefix sha256:
-          CHECKSUM="${CHECKSUM#sha256:}"
-          echo "DMG_CHECKSUM=$CHECKSUM" >> "$GITHUB_ENV"
+            CHECKSUM=$(gh release view "$TAG" --repo hrzlgnm/mdns-browser --json assets --jq '.assets[] | select(.name | endswith(".dmg")) | select(.name | test("universal"; "i")) | select(.name | test("\\.sha256$") | not) | .digest')
+            if [ -z "$CHECKSUM" ]; then
+              echo "Error: No checksum found for universal.dmg in release $TAG"
+              exit 1
+            fi
+            # strip prefix sha256:
+            CHECKSUM="${CHECKSUM#sha256:}"
+            echo "DMG_CHECKSUM=$CHECKSUM" >> "$GITHUB_ENV"
 
       - name: 🔑 Configure Git Identity
         run: |
@@ -88,5 +88,3 @@ jobs:
               echo "No staged changes (already committed on previous retry or no update needed)"
             fi
             git push
-          # git push handled above
-          fi
