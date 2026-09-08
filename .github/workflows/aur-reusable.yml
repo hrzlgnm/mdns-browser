@@ -127,7 +127,24 @@ jobs:
               echo \"Host aur.archlinux.org\" >> ~/.ssh/config
               echo \"  IdentityFile ~/.ssh/aur\" >> ~/.ssh/config
               echo \"  User aur\" >> ~/.ssh/config
-              ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+              # Arch-published AUR SSH host key fingerprints, see
+              # https://archlinux.org/news/aur-migration-new-ssh-hostkeys/
+              AUR_SSH_FPS="SHA256:RFzBCUItH9LZS0cKB5UE6ceAYhBD5C8GeOBip8Z11+4 SHA256:uTa/0PndEgPZTf76e1DFqXKJEXKsn7m9ivhLQtzGOCI SHA256:5s5cIyReIfNNVGRFdDbe3hdYiI5OelHGpw2rOUud3Q8"
+              ssh-keyscan -H aur.archlinux.org > ~/.ssh/aur-known-hosts.tmp
+              if [ ! -s ~/.ssh/aur-known-hosts.tmp ]; then
+                echo "::error::ssh-keyscan returned no host keys for aur.archlinux.org"
+                exit 1
+              fi
+              while read -r host type key; do
+                case "\$host" in #*|"") continue;; esac
+                fp=\$(printf '%s %s' "\$type" "\$key" | ssh-keygen -lf /dev/stdin -E sha256 | awk '{print \$2}')
+                case " \$AUR_SSH_FPS " in
+                  *" \$fp "*) ;;
+                  *) echo "::error::AUR host key \$type fingerprint \$fp not in Arch-published set, refusing" ; exit 1 ;;
+                esac
+              done < ~/.ssh/aur-known-hosts.tmp
+              cat ~/.ssh/aur-known-hosts.tmp >> ~/.ssh/known_hosts
+              rm -f ~/.ssh/aur-known-hosts.tmp
             "
 
       - name: 🔄 Clone AUR Repo
