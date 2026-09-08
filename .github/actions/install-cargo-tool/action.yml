@@ -1,0 +1,154 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT
+
+name: Install cargo tool
+description: >-
+  Installs a Rust binary crate from crates.io. On branches it uses a cached
+  install; on tags it only restores from the shared cache and otherwise builds
+  without saving, because a cache entry saved on refs/tags/* can never be
+  reused. Only exact versions are supported so the cache key stays stable.
+
+inputs:
+  crate:
+    description: "Name of the crate to install"
+    required: true
+  version:
+    description: "Exact version of the crate to install"
+    required: true
+  features:
+    description: "Space or comma-separated list of crate features to enable"
+    required: false
+    default: ""
+  args:
+    description: "Extra arguments for cargo install (simple space-separated flags)"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    # NOTE: keep crate: and version: non-adjacent below so the renovate
+    # crate:/version: regex manager does not match the ${{ inputs.* }}
+    # expressions here.
+    - name: Install ${{ inputs.crate }} (cached)
+      if: github.ref_type != 'tag'
+      uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
+      with:
+        crate: ${{ inputs.crate }}
+        locked: true
+        features: ${{ inputs.features }}
+        args: ${{ inputs.args }}
+        version: ${{ inputs.version }}
+
+    # The steps below replicate the cache key of
+    # baptiste0928/cargo-install so tag runs hit the entries warmed on main:
+    # cargo-install-{crate}-{version}-{sha256(...)[0:24]} over
+    # RUNNER_OS + RUNNER_ARCH + osVersion + cargo args.
+    - name: Compute ${{ inputs.crate }} cache key (tags)
+      if: github.ref_type == 'tag'
+      id: key
+      shell: bash
+      env:
+        INPUT_CRATE: ${{ inputs.crate }}
+        INPUT_VERSION: ${{ inputs.version }}
+        INPUT_FEATURES: ${{ inputs.features }}
+        INPUT_ARGS: ${{ inputs.args }}
+      run: |
+        set -euo pipefail
+
+        # Prefer node for the install path so it matches path.join exactly
+        # (backslash separators on Windows). Without node the key may miss
+        # and the tool is rebuilt; a miss never restores a wrong entry.
+        if command -v node >/dev/null 2>&1; then
+          INSTALL_PATH="$(node -e 'const path = require("node:path"); const home = process.env.HOME ?? process.env.USERPROFILE; console.log(path.join(home, ".cargo-install", process.argv[1]));' "$INPUT_CRATE")"
+        else
+          HOME_DIR="${HOME:-${USERPROFILE:-}}"
+          if [ -z "$HOME_DIR" ]; then
+            echo "Could not determine home directory" >&2
+            exit 1
+          fi
+          INSTALL_PATH="$HOME_DIR/.cargo-install/$INPUT_CRATE"
+        fi
+
+        FEATURES_CSV=""
+        if [ -n "$INPUT_FEATURES" ]; then
+          FEATURES_CSV="$(printf '%s' "$INPUT_FEATURES" | tr ', ' '\n' | sed '/^$/d' | paste -sd ',' -)"
+        fi
+
+        ARGS_STR="install $INPUT_CRATE --force --root $INSTALL_PATH --version $INPUT_VERSION"
+        if [ -n "$FEATURES_CSV" ]; then
+          ARGS_STR="$ARGS_STR --features $FEATURES_CSV"
+        fi
+        if [ -n "$INPUT_ARGS" ]; then
+          ARGS_STR="$ARGS_STR $INPUT_ARGS"
+        fi
+        ARGS_STR="$ARGS_STR --locked"
+
+        OS_VERSION=""
+        case "$RUNNER_OS" in
+          Linux)
+            OS_VERSION="$(sed -n 's/^VERSION_ID="\(.*\)"$/\1/p' /etc/os-release | head -n 1)"
+            ;;
+          macOS)
+            OS_VERSION="$(sw_vers -productVersion | tr -d '\r')"
+            ;;
+          Windows)
+            MAJOR="$(pwsh -NoProfile -Command '[System.Environment]::OSVersion.Version.Major' 2>/dev/null | tr -d '\r' || pwsh.exe -NoProfile -Command '[System.Environment]::OSVersion.Version.Major' | tr -d '\r' || true)"
+            MINOR="$(pwsh -NoProfile -Command '[System.Environment]::OSVersion.Version.Minor' 2>/dev/null | tr -d '\r' || pwsh.exe -NoProfile -Command '[System.Environment]::OSVersion.Version.Minor' | tr -d '\r' || true)"
+            OS_VERSION="$MAJOR.$MINOR"
+            ;;
+        esac
+
+        HASH_KEY="${RUNNER_OS}${RUNNER_ARCH}${OS_VERSION}${ARGS_STR}"
+        if command -v sha256sum >/dev/null 2>&1; then
+          HASH="$(printf '%s' "$HASH_KEY" | sha256sum | cut -c1-24)"
+        else
+          HASH="$(printf '%s' "$HASH_KEY" | shasum -a 256 | cut -c1-24)"
+        fi
+
+        {
+          echo "key=cargo-install-$INPUT_CRATE-$INPUT_VERSION-$HASH"
+          echo "path=$INSTALL_PATH"
+          echo "features_csv=$FEATURES_CSV"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Restore ${{ inputs.crate }} from cache (tags)
+      if: github.ref_type == 'tag'
+      id: restore
+      uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5
+      with:
+        path: ${{ steps.key.outputs.path }}
+        key: ${{ steps.key.outputs.key }}
+
+    - name: Install ${{ inputs.crate }} without saving cache (tags)
+      if: github.ref_type == 'tag' && steps.restore.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        INPUT_CRATE: ${{ inputs.crate }}
+        INPUT_VERSION: ${{ inputs.version }}
+        INPUT_ARGS: ${{ inputs.args }}
+        FEATURES_CSV: ${{ steps.key.outputs.features_csv }}
+        INSTALL_PATH: ${{ steps.key.outputs.path }}
+      run: |
+        set -euo pipefail
+        set -f
+
+        ARGS=(install "$INPUT_CRATE" --force --root "$INSTALL_PATH" --version "$INPUT_VERSION")
+        if [ -n "$FEATURES_CSV" ]; then
+          ARGS+=(--features "$FEATURES_CSV")
+        fi
+        if [ -n "$INPUT_ARGS" ]; then
+          # Word-splitting mirrors the action's shell-like arg parsing for
+          # simple flags; quoted args with spaces are not supported here.
+          EXTRA=($INPUT_ARGS)
+          ARGS+=("${EXTRA[@]}")
+        fi
+        ARGS+=(--locked)
+        CARGO_INSTALL_ROOT="$INSTALL_PATH" cargo "${ARGS[@]}"
+
+    - name: Add ${{ inputs.crate }} to PATH (tags)
+      if: github.ref_type == 'tag'
+      shell: bash
+      env:
+        INSTALL_PATH: ${{ steps.key.outputs.path }}
+      run: echo "$INSTALL_PATH/bin" >> "$GITHUB_PATH"
