@@ -32,6 +32,10 @@ jobs:
     runs-on: ubuntu-latest
     name: 🍺 Update Homebrew Tap
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+
       - name: 🔄 Checkout Tap Repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -40,11 +44,12 @@ jobs:
           path: homebrew-tap
 
       - name: 📥 Download DMG Checksum
-        shell: bash
+        uses: ./.github/actions/retry
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.release-info.outputs.tagName }}
-        run: |
+        with:
+          command: |
           CHECKSUM=$(gh release view "$TAG" --repo hrzlgnm/mdns-browser --json assets --jq '.assets[] | select(.name | endswith(".dmg")) | select(.name | test("universal"; "i")) | select(.name | test("\\.sha256$") | not) | .digest')
           if [ -z "$CHECKSUM" ]; then
             echo "Error: No checksum found for universal.dmg in release $TAG"
@@ -70,12 +75,18 @@ jobs:
           sed -i "s/sha256 \".*\"/sha256 \"$CHECKSUM\"/" "$CASK_PATH"
 
       - name: 💾 Commit & Push to Tap
-        working-directory: homebrew-tap
-        run: |
-          git add Casks/mdns-browser.rb
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: update mdns-browser to v${{ needs.release-info.outputs.version }}"
+        uses: ./.github/actions/retry
+        env:
+          VERSION: ${{ needs.release-info.outputs.version }}
+        with:
+          command: |
+            cd homebrew-tap
+            git add Casks/mdns-browser.rb
+            if ! git diff --cached --quiet; then
+              git commit -m "chore: update mdns-browser to v$VERSION"
+            else
+              echo "No staged changes (already committed on previous retry or no update needed)"
+            fi
             git push
-          else
-            echo "No changes to commit"
+          # git push handled above
           fi

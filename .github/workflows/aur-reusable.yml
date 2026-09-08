@@ -51,36 +51,38 @@ jobs:
 
       - name: 🔢 Get sha256sums
         id: sha256sums
-        shell: bash
+        uses: ./.github/actions/retry
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}
           PACKAGE_NAME: ${{ matrix.package.name }}
           RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
           NEEDS_EXE: ${{ matrix.package.needs_exe }}
-        run: |
-          if [[ "$PACKAGE_NAME" == "mdns-browser-bin" ]]; then
-            ASSETS=$(gh release view "$TAG_NAME" --repo hrzlgnm/mdns-browser --json assets --jq '.assets | map(select(.name | test("\\.sha256$") | not))')
-            SUM=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_${RELEASE_VERSION}_amd64.deb" '.[] | select(.name == $name) | .digest')
-            if [[ -z "$SUM" ]]; then
-              echo "Error: Failed to get checksum from GitHub API for release $TAG_NAME"
-              exit 1
-            fi
-            echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
-            if [[ "$NEEDS_EXE" == "true" ]]; then
-              SUM_EXE=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_linux_x64" '.[] | select(.name == $name) | .digest')
-              if [[ -z "$SUM_EXE" ]]; then
-                echo "Error: Failed to get exe checksum from GitHub API for release $TAG_NAME"
+        with:
+          command: |
+            set -o pipefail
+            if [[ "$PACKAGE_NAME" == "mdns-browser-bin" ]]; then
+              ASSETS=$(gh release view "$TAG_NAME" --repo hrzlgnm/mdns-browser --json assets --jq '.assets | map(select(.name | test("\\.sha256$") | not))')
+              SUM=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_${RELEASE_VERSION}_amd64.deb" '.[] | select(.name == $name) | .digest')
+              if [[ -z "$SUM" ]]; then
+                echo "Error: Failed to get checksum from GitHub API for release $TAG_NAME"
                 exit 1
               fi
-              echo "sha256_exe=$SUM_EXE" >> "$GITHUB_OUTPUT"
+              echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
+              if [[ "$NEEDS_EXE" == "true" ]]; then
+                SUM_EXE=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_linux_x64" '.[] | select(.name == $name) | .digest')
+                if [[ -z "$SUM_EXE" ]]; then
+                  echo "Error: Failed to get exe checksum from GitHub API for release $TAG_NAME"
+                  exit 1
+                fi
+                echo "sha256_exe=$SUM_EXE" >> "$GITHUB_OUTPUT"
+              fi
+            else
+              URL="https://github.com/hrzlgnm/mdns-browser/releases/download/$TAG_NAME/$TAG_NAME.tar.gz.sha256"
+              echo "getting $URL"
+              SUM=$(curl -LfsS --retry 5 --retry-delay 5 --retry-all-errors --connect-timeout 15 "$URL" | cut -d' ' -f1)
+              echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
             fi
-          else
-            URL="https://github.com/hrzlgnm/mdns-browser/releases/download/$TAG_NAME/$TAG_NAME.tar.gz.sha256"
-            echo "getting $URL"
-            SUM=$(curl -LfsS "$URL" | cut -d' ' -f1)
-            echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: 📐 Lint generated PKGBUILD
         shell: bash
@@ -91,7 +93,8 @@ jobs:
           GENERATE_SCRIPT: ${{ matrix.package.generate_script }}
           RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
           SHA256: ${{ steps.sha256sums.outputs.sha256 }}
-        run: |
+        with:
+          command: |
           su runner -c "
             set -o errexit
             mkdir -p ~/lint
@@ -106,10 +109,11 @@ jobs:
           "
       - name: 🛠️ Setup Deployment keys
         if: github.event.release.tag_name
-        shell: bash
+        uses: ./.github/actions/retry
         env:
           AUR_DEPLOY_KEY: ${{ secrets.AUR_DEPLOY_KEY }}
-        run: |
+        with:
+          command: |
           chown -R runner:runner .
           su runner -c "
             set -o errexit
@@ -124,10 +128,11 @@ jobs:
 
       - name: 🔄 Clone AUR Repo
         if: github.event.release.tag_name
-        shell: bash
+        uses: ./.github/actions/retry
         env:
           PACKAGE_NAME: ${{ matrix.package.name }}
-        run: |
+        with:
+          command: |
           su runner -c "
             set -o errexit
             git clone --depth=1 \"ssh://aur@aur.archlinux.org/\$PACKAGE_NAME.git\" ~/aur
@@ -153,7 +158,7 @@ jobs:
 
       - name: 🌀 Generate PKGBUILD update and publish
         if: github.event.release.tag_name
-        shell: bash
+        uses: ./.github/actions/retry
         env:
           SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}
@@ -161,7 +166,8 @@ jobs:
           GENERATE_SCRIPT: ${{ matrix.package.generate_script }}
           RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
           SHA256: ${{ steps.sha256sums.outputs.sha256 }}
-        run: |
+        with:
+          command: |
           su runner -c "
             set -o errexit
             if [[ \"\$NEEDS_EXE\" == \"true\" ]]; then
