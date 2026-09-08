@@ -115,7 +115,7 @@ runs:
     - name: Restore ${{ inputs.crate }} from cache (tags)
       if: github.ref_type == 'tag'
       id: restore
-      uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5
       with:
         path: ${{ steps.key.outputs.path }}
         key: ${{ steps.key.outputs.key }}
