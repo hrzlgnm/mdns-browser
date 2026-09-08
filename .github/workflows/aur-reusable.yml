@@ -136,7 +136,7 @@ jobs:
                 exit 1
               fi
               while read -r host type key; do
-                case "\$host" in #*|"") continue;; esac
+                case "\$host" in '#'*|"") continue;; esac
                 fp=\$(printf '%s %s' "\$type" "\$key" | ssh-keygen -lf /dev/stdin -E sha256 | awk '{print \$2}')
                 case " \$AUR_SSH_FPS " in
                   *" \$fp "*) ;;
