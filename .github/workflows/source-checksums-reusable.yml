@@ -50,20 +50,26 @@ jobs:
       matrix:
         algorithm: [sha256]
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+
       - name: 📥🔢☑️
+        uses: ./.github/actions/retry
         env:
           TAG: ${{ needs.tag.outputs.tag }}
           ALGORITHM: ${{ matrix.algorithm }}
-        run: |
-          set -o errexit
-          mkdir -p downloads && cd downloads
-          curl -sLO "https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${TAG}.tar.gz"
-          curl -sLO "https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${TAG}.zip"
-          for file in *; do
-            if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
-              "$ALGORITHM"sum "$file" > "$file.$ALGORITHM"
-            fi
-          done
+        with:
+          command: |
+            set -o errexit
+            mkdir -p downloads && cd downloads
+            curl -f -sL --retry 5 --retry-delay 5 --retry-all-errors --connect-timeout 15 -O "https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${TAG}.tar.gz"
+            curl -f -sL --retry 5 --retry-delay 5 --retry-all-errors --connect-timeout 15 -O "https://github.com/hrzlgnm/mdns-browser/archive/refs/tags/${TAG}.zip"
+            for file in *; do
+              if [ -f "$file" ] && [[ "$file" != *.sha* ]]; then
+                "$ALGORITHM"sum "$file" > "$file.$ALGORITHM"
+              fi
+            done
       - name: 📤
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:

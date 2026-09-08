@@ -1,0 +1,42 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT-0
+
+name: Retry command
+description: Shared wrapper around nick-fields/retry with repo defaults (node24)
+
+inputs:
+  command:
+    description: The command to run
+    required: true
+  timeout_minutes:
+    description: Minutes to wait before attempt times out
+    required: false
+    default: '5'
+  max_attempts:
+    description: Number of attempts to make before failing
+    required: false
+    default: '5'
+  retry_wait_seconds:
+    description: Number of seconds to wait before next retry
+    required: false
+    default: '10'
+  warning_on_retry:
+    description: Whether to output a warning on retry
+    required: false
+    default: 'true'
+  shell:
+    description: Alternate shell to use
+    required: false
+    default: 'bash'
+
+runs:
+  using: composite
+  steps:
+    - uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      with:
+        command: ${{ inputs.command }}
+        timeout_minutes: ${{ inputs.timeout_minutes }}
+        max_attempts: ${{ inputs.max_attempts }}
+        retry_wait_seconds: ${{ inputs.retry_wait_seconds }}
+        warning_on_retry: ${{ inputs.warning_on_retry }}
+        shell: ${{ inputs.shell }}

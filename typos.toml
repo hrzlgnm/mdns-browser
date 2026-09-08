@@ -5,4 +5,4 @@ extend-exclude = [".git/", "cliff.toml", "cliff-webkit2gtk.toml", "cliff-tauri-p
 
 [default]
 check-filename = true
-extend-ignore-re = ["digest to \\b[0-9a-f]{7,}\\b"]
+extend-ignore-re = ["digest to \\b[0-9a-f]{7,}\\b", "AUR_SSH_FPS=\"[^\"]*\""]

@@ -49,23 +49,29 @@ jobs:
           locked: true
 
       - name: 🆙 sync our fork of winget-pkgs
+        uses: ./.github/actions/retry
         env:
           GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
-        run: |
-          komac sync-fork
+        with:
+          command: |
+            komac sync-fork
 
       - name: 🆙 winget package
+        uses: ./.github/actions/retry
         env:
           GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
-        run: |
-          komac update hrzlgnm.mdns-browser \
+        with:
+          command: |
+            komac update hrzlgnm.mdns-browser \
             --version "$VERSION" \
             --urls "$URL" \
             --submit
 
       - name: 🧹 Cleanup merged branches
         if: always()
+        uses: ./.github/actions/retry
         env:
           GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
-        run: |
-          komac cleanup --only-merged
+        with:
+          command: |
+            komac cleanup --only-merged
