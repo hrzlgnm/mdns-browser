@@ -278,4 +278,8 @@ When a task could be done by tacking onto existing code or by first restructurin
 
 - No `unsafe` code anywhere - CI rejects it
 - No `#[allow(warnings)]` attributes - fix the underlying issue instead
+- New GitHub Actions must run on Node.js 24 or newer: when adding or
+  updating an action pin, verify upstream that its runtime (`runs.using`)
+  is `node24` or later. Node.js 20 and older are deprecated and emit a
+  warning on every run.
 - Leave crate versions in `Cargo.toml` and `CHANGELOG.md` entries untouched: the crate publishing workflow bumps versions and generates changelogs automatically (git-cliff, based on conventional commits). Only change source, tests, and docs.
