@@ -62,7 +62,12 @@ runs:
         if command -v node >/dev/null 2>&1; then
           INSTALL_PATH="$(node -e 'const path = require("node:path"); const home = process.env.HOME ?? process.env.USERPROFILE; console.log(path.join(home, ".cargo-install", process.argv[1]));' "$INPUT_CRATE")"
         else
-          INSTALL_PATH="$HOME/.cargo-install/$INPUT_CRATE"
+          HOME_DIR="${HOME:-${USERPROFILE:-}}"
+          if [ -z "$HOME_DIR" ]; then
+            echo "Could not determine home directory" >&2
+            exit 1
+          fi
+          INSTALL_PATH="$HOME_DIR/.cargo-install/$INPUT_CRATE"
         fi
 
         FEATURES_CSV=""
