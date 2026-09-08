@@ -33,11 +33,10 @@ jobs:
         uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
 
       - name: 🔧 Install git-cliff
-        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
+        uses: ./.github/actions/install-cargo-tool
         with:
           crate: git-cliff
           version: 2.14.1
-          locked: true
 
       - name: 📝 Update CHANGELOG.md with the new version
         run: |
