@@ -5,11 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.3...HEAD)
+## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.4...HEAD)
+
+### Changed
+
+- Require Node.js 24 or newer for GitHub Actions ([#2583](https://github.com/hrzlgnm/mdns-browser/pull/2583))
+
+### Dependencies
+
+- *(deps)* Update hrzlgnm/actions action to v2.8.3 ([#2574](https://github.com/hrzlgnm/mdns-browser/pull/2574))
+
+- *(deps)* Update hrzlgnm/actions action to v2.8.4 ([#2576](https://github.com/hrzlgnm/mdns-browser/pull/2576))
+
+- *(deps)* Update hrzlgnm/actions action to v2.9.0 ([#2580](https://github.com/hrzlgnm/mdns-browser/pull/2580))
+
+- *(deps)* Update archlinux:base-devel docker digest to 61f7de2 ([#2579](https://github.com/hrzlgnm/mdns-browser/pull/2579))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to d344e81 ([#2581](https://github.com/hrzlgnm/mdns-browser/pull/2581))
+
+### Maintenance
+
+- *(ci)* Add shared retry wrapper and use for downloads ([#2573](https://github.com/hrzlgnm/mdns-browser/pull/2573))
+
+- *(ci)* Quote # in host-key validation case pattern ([#2575](https://github.com/hrzlgnm/mdns-browser/pull/2575))
+
+- *(ci)* Use shared retry action from hrzlgnm/actions ([#2577](https://github.com/hrzlgnm/mdns-browser/pull/2577))
+
+- *(ci)* Stop writing cargo-install caches on tag refs ([#2578](https://github.com/hrzlgnm/mdns-browser/pull/2578))
+
+## [1.20.4] - 2026-09-08 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.3...v1.20.4)
 
 ### Dependencies
 
 - *(deps)* Lock file maintenance ([#2568](https://github.com/hrzlgnm/mdns-browser/pull/2568))
+
+- *(deps)* Update rust crate serde_with to v3.23.0 ([#2571](https://github.com/hrzlgnm/mdns-browser/pull/2571))
+
+- *(deps)* Update rust crate mdns-sd to v0.21.3 ([#2570](https://github.com/hrzlgnm/mdns-browser/pull/2570))
+
+- *(deps)* Lock file maintenance ([#2572](https://github.com/hrzlgnm/mdns-browser/pull/2572))
 
 ## [1.20.3] - 2026-09-05 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.2...v1.20.3)
 
