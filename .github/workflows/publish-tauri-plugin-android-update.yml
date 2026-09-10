@@ -44,6 +44,7 @@ jobs:
       crate_name: tauri-plugin-android-update
       tag_prefix: tauri-plugin-android-update-v
       git_cliff_config: cliff-tauri-plugin-android-update.toml
+      npm_package_dir: crates/tauri-plugin-android-update
     secrets:
       GH_ADMIN_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
       RULESET_ID: ${{ secrets.RULESET_ID }}
