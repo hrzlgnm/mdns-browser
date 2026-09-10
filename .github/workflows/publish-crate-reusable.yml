@@ -83,7 +83,7 @@ jobs:
           save-cache: false
 
       - name: 🟢 Setup Node.js
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24
 
@@ -253,7 +253,7 @@ jobs:
           ref: ${{ inputs.bump_version == 'none' && github.ref_name || format('{0}{1}', inputs.tag_prefix, needs.bump_version.outputs.version) }}
 
       - name: 🟢 Setup Node.js
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
