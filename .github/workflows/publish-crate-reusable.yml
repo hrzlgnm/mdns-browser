@@ -272,14 +272,16 @@ jobs:
             exit 1
           fi
 
-      - name: 📦 Publish to npm
+      - name: 📦 Stage publish to npm
         shell: bash
         env:
           NPM_PACKAGE_DIR: ${{ inputs.npm_package_dir }}
         run: |
           set -euo pipefail
           # npm publish ignores --prefix when locating package.json, so run
-          # from the package directory instead.
+          # from the package directory instead. Staged (not direct)
+          # publishing: a maintainer approves each staged version before it
+          # goes live.
           cd "$NPM_PACKAGE_DIR"
           npm ci
-          npm publish
+          npm stage publish
