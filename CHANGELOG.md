@@ -23,6 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to d344e81 ([#2581](https://github.com/hrzlgnm/mdns-browser/pull/2581))
 
+- *(deps)* Update actions/cache action to v6 ([#2584](https://github.com/hrzlgnm/mdns-browser/pull/2584))
+
+- *(deps)* Update ubuntu:latest docker digest to 513c074 ([#2588](https://github.com/hrzlgnm/mdns-browser/pull/2588))
+
+- *(deps)* Update actions/setup-java digest to de7274f ([#2587](https://github.com/hrzlgnm/mdns-browser/pull/2587))
+
+- *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 919e804 ([#2589](https://github.com/hrzlgnm/mdns-browser/pull/2589))
+
 ### Maintenance
 
 - *(ci)* Add shared retry wrapper and use for downloads ([#2573](https://github.com/hrzlgnm/mdns-browser/pull/2573))
@@ -32,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(ci)* Use shared retry action from hrzlgnm/actions ([#2577](https://github.com/hrzlgnm/mdns-browser/pull/2577))
 
 - *(ci)* Stop writing cargo-install caches on tag refs ([#2578](https://github.com/hrzlgnm/mdns-browser/pull/2578))
+
+- *(ci)* Install cargo-edit in cache-tools workflow ([#2586](https://github.com/hrzlgnm/mdns-browser/pull/2586))
 
 ## [1.20.4] - 2026-09-08 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.3...v1.20.4)
 
