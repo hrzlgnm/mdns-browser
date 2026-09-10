@@ -8,3 +8,7 @@
 # Gradle build output inside Tauri plugin android modules
 **/android/build/
 **/android/.tauri/
+
+# Node dependencies and built JS bindings inside Tauri plugin packages
+**/node_modules/
+**/dist-js/
