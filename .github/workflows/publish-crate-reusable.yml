@@ -33,6 +33,11 @@ on:
         description: git-cliff config file for the crate CHANGELOG
         required: true
         type: string
+      npm_package_dir:
+        description: Repo-relative dir of the companion npm package to version and publish (empty skips npm)
+        required: false
+        type: string
+        default: ''
     secrets:
       GH_ADMIN_TOKEN:
         required: true
@@ -77,6 +82,11 @@ jobs:
         with:
           save-cache: false
 
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+
       - name: 🔧 Install cargo-edit
         uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
         with:
@@ -91,6 +101,7 @@ jobs:
           BUMP_VERSION: ${{ inputs.bump_version }}
           DRY_RUN: ${{ inputs.dry_run }}
           CRATE_NAME: ${{ inputs.crate_name }}
+          NPM_PACKAGE_DIR: ${{ inputs.npm_package_dir }}
         run: |
           set -euo pipefail
           CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r --arg name "$CRATE_NAME" '.packages[] | select(.name == $name) | .version')
@@ -117,6 +128,9 @@ jobs:
             if [ "$BUMP_VERSION" != "none" ]; then
               cargo set-version --package "$CRATE_NAME" --bump "$BUMP_VERSION"
               CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r --arg name "$CRATE_NAME" '.packages[] | select(.name == $name) | .version')
+              if [ -n "$NPM_PACKAGE_DIR" ]; then
+                npm version --no-git-tag-version --prefix "$NPM_PACKAGE_DIR" "$CURRENT_VERSION"
+              fi
             fi
             echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
             echo "Version: $CURRENT_VERSION"
@@ -221,3 +235,48 @@ jobs:
         run: |
           set -euo pipefail
           cargo publish --package "$CRATE_NAME"
+
+  publish_npm:
+    needs: [bump_version]
+    if: (inputs.publish && !inputs.dry_run && inputs.npm_package_dir != '')
+    permissions:
+      contents: read
+      id-token: write # required for npm trusted publishing (OIDC)
+    runs-on: ubuntu-latest
+    name: 📦 Publish to npm
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ inputs.bump_version == 'none' && github.ref_name || format('{0}{1}', inputs.tag_prefix, needs.bump_version.outputs.version) }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: 🔍 Verify lockstep versions
+        shell: bash
+        env:
+          CRATE_NAME: ${{ inputs.crate_name }}
+          NPM_PACKAGE_DIR: ${{ inputs.npm_package_dir }}
+          VERSION: ${{ needs.bump_version.outputs.version }}
+        run: |
+          set -euo pipefail
+          NPM_VERSION=$(npm pkg get version --prefix "$NPM_PACKAGE_DIR" | tr -d '"')
+          if [ "$NPM_VERSION" != "$VERSION" ]; then
+            echo "Error: npm package version ($NPM_VERSION) does not match crate version ($VERSION)."
+            exit 1
+          fi
+
+      - name: 📦 Publish to npm
+        shell: bash
+        env:
+          NPM_PACKAGE_DIR: ${{ inputs.npm_package_dir }}
+        run: |
+          set -euo pipefail
+          npm ci --prefix "$NPM_PACKAGE_DIR"
+          npm publish --prefix "$NPM_PACKAGE_DIR"

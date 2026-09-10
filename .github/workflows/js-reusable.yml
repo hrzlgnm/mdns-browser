@@ -1,0 +1,46 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT
+
+name: "Reusable ci js workflow"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  js:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: crates/tauri-plugin-android-update
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: crates/tauri-plugin-android-update/package-lock.json
+
+      - name: 📥 Install dependencies
+        shell: bash
+        run: npm ci
+
+      - name: 🔍 Typecheck bindings
+        shell: bash
+        run: npx tsc --noEmit -p tsconfig.json
+
+      - name: 🏗️ Build bindings
+        shell: bash
+        run: npm run build
+
+      - name: 📦 Verify package contents
+        shell: bash
+        run: npm pack --dry-run

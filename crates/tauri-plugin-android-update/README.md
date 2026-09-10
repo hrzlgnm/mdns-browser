@@ -1,6 +1,7 @@
 # tauri-plugin-android-update
 
 [![Crates.io](https://img.shields.io/crates/v/tauri-plugin-android-update)](https://crates.io/crates/tauri-plugin-android-update)
+[![npm](https://img.shields.io/npm/v/tauri-plugin-android-update-api)](https://www.npmjs.com/package/tauri-plugin-android-update-api)
 [![License: MIT-0](https://img.shields.io/badge/License-MIT--0-blue.svg)](https://opensource.org/license/mit-0)
 
 A Tauri plugin that surfaces new GitHub releases for manual download on
@@ -65,9 +66,30 @@ tauri_plugin_android_update::Builder::new()
 The plugin registers its commands under the `plugin:android-update|` namespace,
 so the frontend invokes them as `plugin:android-update|check` and
 `plugin:android-update|download_and_install`. The command names mirror the
-`tauri-plugin-updater` plugin's, but the payloads are this plugin's own — the
-`tauri-plugin-updater` JavaScript API does not exist on these platforms, so the
-frontend invokes them directly:
+`tauri-plugin-updater` plugin's, but the payloads are this plugin's own.
+
+## JavaScript API
+
+The
+[`tauri-plugin-android-update-api`](https://www.npmjs.com/package/tauri-plugin-android-update-api)
+package wraps these commands for JavaScript frontends:
+
+```sh
+npm add tauri-plugin-android-update-api
+```
+
+```ts
+import { check, downloadAndInstall } from 'tauri-plugin-android-update-api';
+
+const update = await check();
+if (update) {
+  console.log(`update ${update.version} available (installed: ${update.currentVersion})`);
+  await downloadAndInstall();
+}
+```
+
+Frontends without a JavaScript runtime (e.g. the Leptos frontend in this
+workspace) invoke the commands directly instead:
 
 - `check` — fetches the `latest.json` update manifest from the latest release,
   compares its version against the installed one, and resolves to the update
