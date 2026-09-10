@@ -5730,7 +5730,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-android-update"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "log",
  "reqwest 0.12.28",

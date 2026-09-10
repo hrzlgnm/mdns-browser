@@ -1,6 +1,6 @@
 {
     "name": "tauri-plugin-android-update-api",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "description": "JavaScript bindings for tauri-plugin-android-update",
     "author": "hrzlgnm",
     "license": "MIT-0",
