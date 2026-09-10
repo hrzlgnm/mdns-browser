@@ -278,5 +278,8 @@ jobs:
           NPM_PACKAGE_DIR: ${{ inputs.npm_package_dir }}
         run: |
           set -euo pipefail
-          npm ci --prefix "$NPM_PACKAGE_DIR"
-          npm publish --prefix "$NPM_PACKAGE_DIR"
+          # npm publish ignores --prefix when locating package.json, so run
+          # from the package directory instead.
+          cd "$NPM_PACKAGE_DIR"
+          npm ci
+          npm publish
