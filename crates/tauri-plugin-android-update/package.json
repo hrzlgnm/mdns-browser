@@ -6,7 +6,7 @@
     "license": "MIT-0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/hrzlgnm/mdns-browser",
+        "url": "git+https://github.com/hrzlgnm/mdns-browser.git",
         "directory": "crates/tauri-plugin-android-update"
     },
     "type": "module",
