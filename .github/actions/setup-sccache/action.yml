@@ -10,6 +10,7 @@ runs:
     - uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba # v0.0.11
       with:
         # Pin the binary: the action pin fixes the action, the binary floats on default.
+        # renovate: datasource=github-releases depName=mozilla/sccache versioning=semver
         version: "v0.17.0"
 
     - shell: bash

@@ -75,5 +75,18 @@
             datasourceTemplate: "crate",
             versioningTemplate: "semver",
         },
+        {
+            description: "Track the sccache binary pinned via a renovate marker comment (the action pin does not cover it)",
+            matchStringsStrategy: "any",
+            customType: "regex",
+            managerFilePatterns: [
+                "/^\\.github/workflows/.*\\.yml$/",
+                "/^\\.github/actions/.*/.*\\.yml$/",
+            ],
+            matchStrings: [
+                "# renovate: datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)(?: versioning=(?<versioning>[^\\s]+?))?\\s+version:\\s*[\"']?(?<currentValue>v[0-9][^\"'\\s]*)[\"']?",
+            ],
+            depTypeTemplate: "sccache",
+        },
     ],
 }
