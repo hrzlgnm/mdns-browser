@@ -40,8 +40,8 @@ jobs:
 
       - name: 📝 Generate changelog
         run: |
-          git-cliff --output CHANGELOG.md
-          git-cliff --config cliff-webkit2gtk.toml --output crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
+          git-cliff --config .github/cliff/cliff.toml --output CHANGELOG.md
+          git-cliff --config .github/cliff/cliff-webkit2gtk.toml --output crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
 
       - name: 🔍 Check for changes
         id: changes

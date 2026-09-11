@@ -43,7 +43,7 @@ jobs:
       publish: ${{ inputs.publish }}
       crate_name: webkit2gtk-nvidia-quirk
       tag_prefix: webkit2gtk-nvidia-quirk-v
-      git_cliff_config: cliff-webkit2gtk.toml
+      git_cliff_config: .github/cliff/cliff-webkit2gtk.toml
     secrets:
       GH_ADMIN_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
       RULESET_ID: ${{ secrets.RULESET_ID }}
