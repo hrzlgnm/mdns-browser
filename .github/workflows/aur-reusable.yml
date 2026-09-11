@@ -75,7 +75,7 @@ jobs:
           warning_on_retry: true
           command: ./packaging/aur/resolve-sha256.sh
 
-      - name: 📐 Lint generated PKGBUILD
+      - name: 📐 Generate PKGBUILD
         uses: hrzlgnm/actions/.github/actions/retry@dc057d6ab047f38c862870e90c81a192d24ca92e # v2.11.0
         env:
           SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
@@ -88,6 +88,11 @@ jobs:
           # su without --login keeps the step env and only resets
           # HOME/SHELL/USER/LOGNAME, so the script reads inputs from env.
           command: su runner -c "./packaging/aur/lint-pkgbuild.sh"
+
+      - name: 🧹 Check generated PKGBUILD
+        uses: hrzlgnm/actions/.github/actions/aur-makepkg-lint@7977755d8fc1cfe487ec61359b5e876e248d1c1e # v2.13.0
+        with:
+          workdir: ~/lint
       - name: 🛠️ Setup AUR packaging
         if: github.event.release.tag_name
         uses: hrzlgnm/actions/.github/actions/aur-setup@ab90f7412a2c2e04df0a675ec57bc9a68b4ba5bc # v2.12.0
