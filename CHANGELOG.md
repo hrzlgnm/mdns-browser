@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.4...HEAD)
 
+### Added
+
+- Add JavaScript bindings for tauri-plugin-android-update ([#2591](https://github.com/hrzlgnm/mdns-browser/pull/2591))
+
 ### Changed
 
 - Require Node.js 24 or newer for GitHub Actions ([#2583](https://github.com/hrzlgnm/mdns-browser/pull/2583))
+
+- *(tauri-plugin-android-update)* Bump tauri-plugin-android-update to 0.2.0
 
 ### Dependencies
 
@@ -31,6 +37,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - *(deps)* Update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 919e804 ([#2589](https://github.com/hrzlgnm/mdns-browser/pull/2589))
 
+- *(deps)* Pin dependencies ([#2592](https://github.com/hrzlgnm/mdns-browser/pull/2592))
+
+- *(deps)* Update actions/setup-node action to v7 ([#2593](https://github.com/hrzlgnm/mdns-browser/pull/2593))
+
+- *(deps)* Update dependency cargo-nextest to v0.9.144 ([#2599](https://github.com/hrzlgnm/mdns-browser/pull/2599))
+
+### Fixed
+
+- Run npm publish from the package directory ([#2594](https://github.com/hrzlgnm/mdns-browser/pull/2594))
+
+- Stage the npm release instead of publishing directly ([#2595](https://github.com/hrzlgnm/mdns-browser/pull/2595))
+
 ### Maintenance
 
 - *(ci)* Add shared retry wrapper and use for downloads ([#2573](https://github.com/hrzlgnm/mdns-browser/pull/2573))
@@ -42,6 +60,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(ci)* Stop writing cargo-install caches on tag refs ([#2578](https://github.com/hrzlgnm/mdns-browser/pull/2578))
 
 - *(ci)* Install cargo-edit in cache-tools workflow ([#2586](https://github.com/hrzlgnm/mdns-browser/pull/2586))
+
+- *(ci)* Remove idle sccache from clippy job ([#2597](https://github.com/hrzlgnm/mdns-browser/pull/2597))
+
+- *(ci)* Pin sccache binary to v0.17.0 ([#2598](https://github.com/hrzlgnm/mdns-browser/pull/2598))
 
 ## [1.20.4] - 2026-09-08 [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.3...v1.20.4)
 
