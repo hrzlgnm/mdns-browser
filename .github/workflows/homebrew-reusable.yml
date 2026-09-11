@@ -46,7 +46,7 @@ jobs:
           path: homebrew-tap
 
       - name: 📥 Download DMG Checksum
-        uses: hrzlgnm/actions/.github/actions/retry@f85e921e2b4249d5b5b4eca7845481a382fb7a54 # v2.13.1
+        uses: hrzlgnm/actions/.github/actions/retry@03af2e8afc34f86696de4e40b92dda980359c866 # v2.14.0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.release-info.outputs.tagName }}
@@ -77,7 +77,7 @@ jobs:
           sed -i "s/sha256 \".*\"/sha256 \"$CHECKSUM\"/" "$CASK_PATH"
 
       - name: 💾 Commit & Push to Tap
-        uses: hrzlgnm/actions/.github/actions/retry@f85e921e2b4249d5b5b4eca7845481a382fb7a54 # v2.13.1
+        uses: hrzlgnm/actions/.github/actions/retry@03af2e8afc34f86696de4e40b92dda980359c866 # v2.14.0
         env:
           VERSION: ${{ needs.release-info.outputs.version }}
         with:
