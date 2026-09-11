@@ -76,7 +76,7 @@ jobs:
           command: ./packaging/aur/resolve-sha256.sh
 
       - name: 📐 Lint generated PKGBUILD
-        uses: hrzlgnm/actions/.github/actions/retry@d2c23efb5ed3a9f91dd4b2b898db20aeb5aa788f # v2.9.0
+        uses: hrzlgnm/actions/.github/actions/retry@9a8b61da03cbf93775f3fb47f6b393d06d8c62ed # v2.10.0
         env:
           SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}
@@ -90,7 +90,7 @@ jobs:
           command: su runner -c "./packaging/aur/lint-pkgbuild.sh"
       - name: 🛠️ Setup Deployment keys
         if: github.event.release.tag_name
-        uses: hrzlgnm/actions/.github/actions/retry@d2c23efb5ed3a9f91dd4b2b898db20aeb5aa788f # v2.9.0
+        uses: hrzlgnm/actions/.github/actions/retry@9a8b61da03cbf93775f3fb47f6b393d06d8c62ed # v2.10.0
         env:
           AUR_DEPLOY_KEY: ${{ secrets.AUR_DEPLOY_KEY }}
         with:
@@ -98,7 +98,7 @@ jobs:
 
       - name: 🔄 Clone AUR Repo
         if: github.event.release.tag_name
-        uses: hrzlgnm/actions/.github/actions/retry@d2c23efb5ed3a9f91dd4b2b898db20aeb5aa788f # v2.9.0
+        uses: hrzlgnm/actions/.github/actions/retry@9a8b61da03cbf93775f3fb47f6b393d06d8c62ed # v2.10.0
         env:
           PACKAGE_NAME: ${{ matrix.package.name }}
         with:
@@ -113,7 +113,7 @@ jobs:
 
       - name: 🌀 Generate PKGBUILD update and publish
         if: github.event.release.tag_name
-        uses: hrzlgnm/actions/.github/actions/retry@d2c23efb5ed3a9f91dd4b2b898db20aeb5aa788f # v2.9.0
+        uses: hrzlgnm/actions/.github/actions/retry@9a8b61da03cbf93775f3fb47f6b393d06d8c62ed # v2.10.0
         env:
           SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}

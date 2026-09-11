@@ -50,7 +50,7 @@ jobs:
           locked: true
 
       - name: 🆙 sync our fork of winget-pkgs
-        uses: hrzlgnm/actions/.github/actions/retry@d2c23efb5ed3a9f91dd4b2b898db20aeb5aa788f # v2.9.0
+        uses: hrzlgnm/actions/.github/actions/retry@9a8b61da03cbf93775f3fb47f6b393d06d8c62ed # v2.10.0
         env:
           GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
         with:
@@ -58,7 +58,7 @@ jobs:
             komac sync-fork
 
       - name: 🆙 winget package
-        uses: hrzlgnm/actions/.github/actions/retry@d2c23efb5ed3a9f91dd4b2b898db20aeb5aa788f # v2.9.0
+        uses: hrzlgnm/actions/.github/actions/retry@9a8b61da03cbf93775f3fb47f6b393d06d8c62ed # v2.10.0
         env:
           GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
         with:
@@ -70,7 +70,7 @@ jobs:
 
       - name: 🧹 Cleanup merged branches
         if: always()
-        uses: hrzlgnm/actions/.github/actions/retry@d2c23efb5ed3a9f91dd4b2b898db20aeb5aa788f # v2.9.0
+        uses: hrzlgnm/actions/.github/actions/retry@9a8b61da03cbf93775f3fb47f6b393d06d8c62ed # v2.10.0
         env:
           GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
         with:
