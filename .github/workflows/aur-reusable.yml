@@ -37,11 +37,17 @@ jobs:
         with:
           fetch-depth: 1
           persist-credentials: false
+      - name: 📥 Install pinned lint tools
+        uses: hrzlgnm/actions/.github/actions/retry@d2c23efb5ed3a9f91dd4b2b898db20aeb5aa788f # v2.9.0
+        with:
+          # Downloads only; the lint below stays plain so a real
+          # finding fails fast instead of being retried.
+          command: ./packaging/aur/install-lint-tools.sh
       - name: 🧹 Check shell scripts
         env:
           SCRIPTS_DIR: packaging/aur
         run: |
-          sudo apt-get update && sudo apt-get install -y shellcheck shfmt
+          export PATH="$HOME/.local/bin:$PATH"
           shellcheck -S warning "$SCRIPTS_DIR"/*.sh
           shfmt --diff --indent 4 --case-indent --binary-next-line "$SCRIPTS_DIR"/*.sh
 
