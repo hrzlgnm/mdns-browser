@@ -25,10 +25,29 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: 🧹 Delete pre-existing draft releases
-        uses: hugo19941994/delete-draft-releases@3f19a25abf2ce87850c2268938f98f14e4d3d1f1 # v3.0.0
+      - name: 🛑 Fail if any draft release exists
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          DRAFTS=$(gh api "repos/${REPOSITORY}/releases?per_page=100" --paginate \
+            -q '[.[] | select(.draft == true) | .tag_name] | join(", ")')
+          if [ -n "$DRAFTS" ]; then
+            echo "Error: refusing to clobber existing draft release(s): $DRAFTS" >&2
+            echo "Delete or publish the draft(s) manually, then re-run." >&2
+            exit 1
+          fi
+
+      - name: 🛑 Fail if release already exists for this tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          if gh release view "$TAG_NAME" --repo "${REPOSITORY}" >/dev/null 2>&1; then
+            echo "Error: release '$TAG_NAME' already exists" >&2
+            exit 1
+          fi
 
       - name: 🦀 Install Rust toolchain for git-cliff build fallback
         uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
