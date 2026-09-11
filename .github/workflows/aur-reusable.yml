@@ -89,6 +89,7 @@ jobs:
           # HOME/SHELL/USER/LOGNAME, so the script reads inputs from env.
           command: su runner -c "./packaging/aur/lint-pkgbuild.sh"
       - name: 🧰 Setup build environment
+        if: github.event.release.tag_name
         uses: hrzlgnm/actions/.github/actions/aur-fix-ownership@dc057d6ab047f38c862870e90c81a192d24ca92e # v2.11.0
 
       - name: 🛠️ Setup Deployment keys
