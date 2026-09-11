@@ -30,26 +30,10 @@ jobs:
 
   lint-scripts:
     name: "🧹 Lint shell scripts"
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🔄 Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-      - name: 📥 Install pinned lint tools
-        uses: hrzlgnm/actions/.github/actions/retry@d2c23efb5ed3a9f91dd4b2b898db20aeb5aa788f # v2.9.0
-        with:
-          # Downloads only; the lint below stays plain so a real
-          # finding fails fast instead of being retried.
-          command: ./packaging/aur/install-lint-tools.sh
-      - name: 🧹 Check shell scripts
-        env:
-          SCRIPTS_DIR: packaging/aur
-        run: |
-          export PATH="$HOME/.local/bin:$PATH"
-          shellcheck -S warning "$SCRIPTS_DIR"/*.sh
-          shfmt --diff --indent 4 --case-indent --binary-next-line "$SCRIPTS_DIR"/*.sh
+    uses: hrzlgnm/actions/.github/workflows/shell-lint-reusable.yml@9a8b61da03cbf93775f3fb47f6b393d06d8c62ed # v2.10.0
+    with:
+      runs-on: ubuntu-latest
+      scripts-dir: packaging/aur
 
   update-aur:
     needs:
