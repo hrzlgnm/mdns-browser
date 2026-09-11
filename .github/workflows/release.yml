@@ -63,11 +63,23 @@ jobs:
         run: |
           git-cliff --config .github/cliff/cliff.toml --output CHANGELOG.md
 
-      - name: 📤 Upload versioned changelog artifact
+      - name: 🎯 Sync version from tag
+        uses: ./.github/actions/sync-version
+        with:
+          tagName: ${{ github.ref_name }}
+
+      - name: 📤 Upload versioned sources artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: changelog
-          path: CHANGELOG.md
+          name: versioned-sources
+          path: |
+            CHANGELOG.md
+            Cargo.toml
+            Cargo.lock
+            src-tauri/Cargo.toml
+            src-tauri/tauri.conf.json
+            crates/models/Cargo.toml
+            crates/shared_constants/Cargo.toml
 
       - name: 🗒️ Generate release notes with git-cliff
         env:
