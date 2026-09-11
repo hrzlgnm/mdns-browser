@@ -49,6 +49,32 @@ jobs:
             exit 1
           fi
 
+      - name: 🛑 Fail if previous tag has no published release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          TAGS=$(git tag --list 'v*.*.*' --sort=v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true)
+          if ! grep -qxF "$TAG_NAME" <<< "$TAGS"; then
+            echo "Error: current tag '$TAG_NAME' not found among repository tags" >&2
+            exit 1
+          fi
+          PREV_TAG=$(awk -v tag="$TAG_NAME" '$0 == tag { print prev; exit } { prev = $0 }' <<< "$TAGS")
+          if [ -z "$PREV_TAG" ]; then
+            echo "No previous version tag before $TAG_NAME; skipping previous-release check"
+            exit 0
+          fi
+          IS_DRAFT=$(gh release view "$PREV_TAG" --repo "$REPOSITORY" --json isDraft --jq '.isDraft' 2>/dev/null) || {
+            echo "Error: previous tag '$PREV_TAG' has no associated release; publish it before releasing '$TAG_NAME'" >&2
+            exit 1
+          }
+          if [ "$IS_DRAFT" = "true" ]; then
+            echo "Error: previous tag '$PREV_TAG' has only a draft release; publish it before releasing '$TAG_NAME'" >&2
+            exit 1
+          fi
+          echo "Previous tag $PREV_TAG has a published release"
+
       - name: 🦀 Install Rust toolchain for git-cliff build fallback
         uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
 
