@@ -63,11 +63,12 @@ jobs:
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
           save-cache: ${{ inputs.branch == 'main' }}
 
-      - name: 🎯 Sync version from tag
+      - name: 📥 Download versioned sources
         if: inputs.tagName
-        uses: ./.github/actions/sync-version
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          tagName: ${{ inputs.tagName }}
+          name: versioned-sources
+          path: .
 
       - name: 📝 Extract version from tauri.conf.json
         id: get-version
@@ -75,19 +76,6 @@ jobs:
         run: |
           CURRENT_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
           echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: 📥 Download versioned changelog (linux bundles only)
-        if: inputs.tagName && contains(matrix.os, 'ubuntu')
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          name: changelog
-          path: changelog-artifact
-
-      - name: 📝 Replace CHANGELOG.md with the versioned changelog
-        if: inputs.tagName && contains(matrix.os, 'ubuntu')
-        shell: bash
-        run: |
-          cp changelog-artifact/CHANGELOG.md CHANGELOG.md
 
       - name: 📜 Create and 🔍 scan SBOM for vulnerabilities
         uses: ./.github/actions/sbom

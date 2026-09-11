@@ -43,11 +43,12 @@ jobs:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
           save-cache: ${{ inputs.branch == 'main' }}
 
-      - name: 🎯 Sync version from tag
+      - name: 📥 Download versioned sources
         if: inputs.tagName
-        uses: ./.github/actions/sync-version
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          tagName: ${{ inputs.tagName }}
+          name: versioned-sources
+          path: .
 
       - name: 📝 Extract version from tauri.conf.json
         id: get-version
