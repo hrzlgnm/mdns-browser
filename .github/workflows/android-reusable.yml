@@ -36,6 +36,7 @@ jobs:
         with:
           ref: ${{ inputs.tagName || github.ref }}
           fetch-depth: ${{ inputs.tagName && '0' || '1' }}
+          persist-credentials: false
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
         with:

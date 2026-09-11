@@ -23,6 +23,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: 🧹 Delete pre-existing draft releases
         uses: hugo19941994/delete-draft-releases@3f19a25abf2ce87850c2268938f98f14e4d3d1f1 # v3.0.0
