@@ -7,22 +7,22 @@ description: Sets up tauri
 runs:
   using: "composite"
   steps:
-    - name: Install trunk
-      uses: ./.github/actions/install-cargo-tool
+    - uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
       with:
         crate: trunk
         version: 0.21.14
+        locked: true
         args: --no-default-features
         features: rustls
 
-    - name: Install cargo-auditable
-      uses: ./.github/actions/install-cargo-tool
+    - uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
       with:
         crate: cargo-auditable
         version: 0.7.5
+        locked: true
 
-    - name: Install tauri-cli
-      uses: ./.github/actions/install-cargo-tool
+    - uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
       with:
         crate: tauri-cli
         version: 2.11.4
+        locked: true

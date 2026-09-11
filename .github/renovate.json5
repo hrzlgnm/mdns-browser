@@ -51,20 +51,6 @@
             matchStringsStrategy: "any",
             customType: "regex",
             managerFilePatterns: [
-                "/^\\.github/workflows/.*\\.yml$/",
-                "/^\\.github/actions/.*/.*\\.yml$/",
-            ],
-            matchStrings: [
-                "cargo\\s+install\\s+(?:--locked\\s+)?(?<depName>[A-Za-z0-9_-]+)\\s+--version\\s+(?<currentValue>[0-9][^\\s]*)",
-            ],
-            depTypeTemplate: "build-dependencies",
-            datasourceTemplate: "crate",
-            versioningTemplate: "semver",
-        },
-        {
-            matchStringsStrategy: "any",
-            customType: "regex",
-            managerFilePatterns: [
                 "/^\\.github/docker/.*/Dockerfile$/",
                 "/^packaging/aur/.*\\.sh$/",
             ],

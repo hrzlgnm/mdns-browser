@@ -42,10 +42,11 @@ jobs:
           save-cache: false
 
       - name: 🔧 Install komac
-        uses: ./.github/actions/install-cargo-tool
+        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
         with:
           crate: komac
           version: 2.16.0
+          locked: true
 
       - name: 🆙 sync our fork of winget-pkgs
         uses: hrzlgnm/actions/.github/actions/retry@d2c23efb5ed3a9f91dd4b2b898db20aeb5aa788f # v2.9.0
