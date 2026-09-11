@@ -31,11 +31,19 @@ if [[ "$PACKAGE_NAME" == "mdns-browser-bin" ]]; then
         echo "Error: Failed to get checksum from GitHub API for release $TAG_NAME" >&2
         exit 1
     fi
+    if [[ ! "$sum" =~ ^(sha256:)?[0-9a-fA-F]{64}$ ]]; then
+        echo "Error: Invalid sha256 checksum from GitHub API for release $TAG_NAME" >&2
+        exit 1
+    fi
     echo "sha256=$sum" >>"$GITHUB_OUTPUT"
     if [[ "$NEEDS_EXE" == "true" ]]; then
         sum_exe=$(jq -r --arg name "mdns-browser_linux_x64" '.[] | select(.name == $name) | .digest' <<<"$assets")
         if [[ -z "$sum_exe" ]]; then
             echo "Error: Failed to get exe checksum from GitHub API for release $TAG_NAME" >&2
+            exit 1
+        fi
+        if [[ ! "$sum_exe" =~ ^(sha256:)?[0-9a-fA-F]{64}$ ]]; then
+            echo "Error: Invalid sha256 exe checksum from GitHub API for release $TAG_NAME" >&2
             exit 1
         fi
         echo "sha256_exe=$sum_exe" >>"$GITHUB_OUTPUT"
@@ -44,5 +52,9 @@ else
     url="https://github.com/hrzlgnm/mdns-browser/releases/download/$TAG_NAME/$TAG_NAME.tar.gz.sha256"
     echo "getting $url"
     sum=$(curl -LfsS --retry 5 --retry-delay 5 --retry-all-errors --connect-timeout 15 "$url" | cut -d' ' -f1)
+    if [[ ! "$sum" =~ ^(sha256:)?[0-9a-fA-F]{64}$ ]]; then
+        echo "Error: Invalid sha256 checksum from $url" >&2
+        exit 1
+    fi
     echo "sha256=$sum" >>"$GITHUB_OUTPUT"
 fi
