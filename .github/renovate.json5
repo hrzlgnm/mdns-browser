@@ -74,5 +74,17 @@
             ],
             depTypeTemplate: "sccache",
         },
+        {
+            description: "Track pinned shellcheck/shfmt binaries via renovate marker comments (per-arch checksums stay pinned in the script and fail closed until refreshed)",
+            matchStringsStrategy: "any",
+            customType: "regex",
+            managerFilePatterns: [
+                "/^packaging\\/aur\\/install-lint-tools\\.sh$/",
+            ],
+            matchStrings: [
+                "# renovate: datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)(?: versioning=(?<versioning>[^\\s]+?))?\\s+\\w+_version=\"?(?<currentValue>v[0-9][^\"'\\s]*)\"?",
+            ],
+            depTypeTemplate: "build-dependencies",
+        },
     ],
 }

@@ -4,14 +4,36 @@
 #
 # Install pinned shellcheck and shfmt binaries into ~/.local/bin.
 # Pinned releases keep lint results reproducible across runner image updates.
-# Bump the versions together with their checksums below.
+#
+# Renovate bumps the versions below (see the "shell lint tools" manager in
+# .github/renovate.json5). Neither upstream publishes a checksum file, so the
+# per-arch checksums stay pinned here: after a version bump the install fails
+# closed on mismatch until the checksums are refreshed from the upstream
+# release digests.
 #
 # Idempotent: archives are re-downloaded and binaries overwritten on every
 # run, so a retry leaves the same final state.
 
 set -euo pipefail
 
+verify_checksum() {
+    local file="$1"
+    local expected="$2"
+    local actual
+    actual="$(sha256sum "$file" | cut -d' ' -f1)"
+    if [[ "$actual" != "$expected" ]]; then
+        echo "Error: checksum mismatch for $file" >&2
+        echo "  expected: $expected" >&2
+        echo "  actual:   $actual" >&2
+        echo "If renovate bumped the tool version, refresh the checksums" >&2
+        echo "above from the upstream release digests." >&2
+        return 1
+    fi
+}
+
+# renovate: datasource=github-releases depName=koalaman/shellcheck versioning=semver
 shellcheck_version="v0.11.0"
+# renovate: datasource=github-releases depName=mvdan/sh versioning=semver
 shfmt_version="v3.14.1"
 
 arch="$(uname -m)"
@@ -43,8 +65,8 @@ curl_flags=(-LfsS --retry 5 --retry-delay 5 --retry-all-errors --connect-timeout
 curl "${curl_flags[@]}" -o "$workdir/$shellcheck_asset" "https://github.com/koalaman/shellcheck/releases/download/${shellcheck_version}/${shellcheck_asset}"
 curl "${curl_flags[@]}" -o "$workdir/$shfmt_asset" "https://github.com/mvdan/sh/releases/download/${shfmt_version}/${shfmt_asset}"
 
-printf '%s  %s\n' "$shellcheck_sha256" "$workdir/$shellcheck_asset" | sha256sum -c -
-printf '%s  %s\n' "$shfmt_sha256" "$workdir/$shfmt_asset" | sha256sum -c -
+verify_checksum "$workdir/$shellcheck_asset" "$shellcheck_sha256"
+verify_checksum "$workdir/$shfmt_asset" "$shfmt_sha256"
 
 tar -xJf "$workdir/$shellcheck_asset" -C "$workdir"
 install -m 755 "$workdir/shellcheck-${shellcheck_version}/shellcheck" "$bindir/shellcheck"
