@@ -88,28 +88,26 @@ jobs:
           # su without --login keeps the step env and only resets
           # HOME/SHELL/USER/LOGNAME, so the script reads inputs from env.
           command: su runner -c "./packaging/aur/lint-pkgbuild.sh"
+      - name: 🧰 Setup build environment
+        uses: hrzlgnm/actions/.github/actions/aur-fix-ownership@dc057d6ab047f38c862870e90c81a192d24ca92e # v2.11.0
+
       - name: 🛠️ Setup Deployment keys
         if: github.event.release.tag_name
-        uses: hrzlgnm/actions/.github/actions/retry@9a8b61da03cbf93775f3fb47f6b393d06d8c62ed # v2.10.0
-        env:
-          AUR_DEPLOY_KEY: ${{ secrets.AUR_DEPLOY_KEY }}
+        uses: hrzlgnm/actions/.github/actions/aur-setup-ssh@dc057d6ab047f38c862870e90c81a192d24ca92e # v2.11.0
         with:
-          command: ./packaging/aur/fix-ownership.sh && su runner -c "./packaging/aur/setup-aur-ssh.sh"
+          deploy-key: ${{ secrets.AUR_DEPLOY_KEY }}
 
       - name: 🔄 Clone AUR Repo
         if: github.event.release.tag_name
-        uses: hrzlgnm/actions/.github/actions/retry@9a8b61da03cbf93775f3fb47f6b393d06d8c62ed # v2.10.0
-        env:
-          PACKAGE_NAME: ${{ matrix.package.name }}
+        uses: hrzlgnm/actions/.github/actions/aur-clone-repo@dc057d6ab047f38c862870e90c81a192d24ca92e # v2.11.0
         with:
-          command: su runner -c "./packaging/aur/clone-aur-repo.sh"
+          package-name: ${{ matrix.package.name }}
 
       - name: 🔍 Check version
         if: github.event.release.tag_name
-        shell: bash
-        env:
-          RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
-        run: su runner -c "./packaging/aur/check-aur-version.sh"
+        uses: hrzlgnm/actions/.github/actions/aur-check-version@dc057d6ab047f38c862870e90c81a192d24ca92e # v2.11.0
+        with:
+          release-version: ${{ needs.release-info.outputs.version }}
 
       - name: 🌀 Generate PKGBUILD update and publish
         if: github.event.release.tag_name
