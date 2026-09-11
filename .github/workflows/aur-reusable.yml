@@ -27,9 +27,26 @@ jobs:
         id: version
         uses: ./.github/actions/latest-release-info
 
+  lint-scripts:
+    name: "🧹 Lint shell scripts"
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+      - name: 🧹 Check shell scripts
+        env:
+          SCRIPTS_DIR: packaging/aur
+        run: |
+          sudo apt-get update && sudo apt-get install -y shellcheck shfmt
+          shellcheck -S warning "$SCRIPTS_DIR"/*.sh
+          shfmt --diff --indent 4 --case-indent --binary-next-line "$SCRIPTS_DIR"/*.sh
+
   update-aur:
     needs:
       - release-info
+      - lint-scripts
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:d344e8162f5bcf9bb52750adee123f17eeaa565138bf75096b58e97bad00db0e
@@ -63,30 +80,7 @@ jobs:
           max_attempts: 5
           retry_wait_seconds: 10
           warning_on_retry: true
-          command: |
-            set -o pipefail
-            if [[ "$PACKAGE_NAME" == "mdns-browser-bin" ]]; then
-              ASSETS=$(gh release view "$TAG_NAME" --repo hrzlgnm/mdns-browser --json assets --jq '.assets | map(select(.name | test("\\.sha256$") | not))')
-              SUM=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_${RELEASE_VERSION}_amd64.deb" '.[] | select(.name == $name) | .digest')
-              if [[ -z "$SUM" ]]; then
-                echo "Error: Failed to get checksum from GitHub API for release $TAG_NAME"
-                exit 1
-              fi
-              echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
-              if [[ "$NEEDS_EXE" == "true" ]]; then
-                SUM_EXE=$(echo "$ASSETS" | jq -r --arg name "mdns-browser_linux_x64" '.[] | select(.name == $name) | .digest')
-                if [[ -z "$SUM_EXE" ]]; then
-                  echo "Error: Failed to get exe checksum from GitHub API for release $TAG_NAME"
-                  exit 1
-                fi
-                echo "sha256_exe=$SUM_EXE" >> "$GITHUB_OUTPUT"
-              fi
-            else
-              URL="https://github.com/hrzlgnm/mdns-browser/releases/download/$TAG_NAME/$TAG_NAME.tar.gz.sha256"
-              echo "getting $URL"
-              SUM=$(curl -LfsS --retry 5 --retry-delay 5 --retry-all-errors --connect-timeout 15 "$URL" | cut -d' ' -f1)
-              echo "sha256=$SUM" >> "$GITHUB_OUTPUT"
-            fi
+          command: ./packaging/aur/resolve-sha256.sh
 
       - name: 📐 Lint generated PKGBUILD
         uses: hrzlgnm/actions/.github/actions/retry@d2c23efb5ed3a9f91dd4b2b898db20aeb5aa788f # v2.9.0
@@ -98,54 +92,16 @@ jobs:
           RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
           SHA256: ${{ steps.sha256sums.outputs.sha256 }}
         with:
-          command: |
-            su runner -c "
-              set -o errexit
-              mkdir -p ~/lint
-              o=\$(pwd)
-              if [[ \"\$NEEDS_EXE\" == \"true\" ]]; then
-                \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$SHA256_EXE\" \"\$TAG_NAME\" > ~/lint/PKGBUILD
-              else
-                \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$TAG_NAME\" > ~/lint/PKGBUILD
-              fi
-              cd ~/lint
-              \"\$o/packaging/aur/makepkg-lint.sh\"
-            "
+          # su without --login keeps the step env and only resets
+          # HOME/SHELL/USER/LOGNAME, so the script reads inputs from env.
+          command: su runner -c "./packaging/aur/lint-pkgbuild.sh"
       - name: 🛠️ Setup Deployment keys
         if: github.event.release.tag_name
         uses: hrzlgnm/actions/.github/actions/retry@d2c23efb5ed3a9f91dd4b2b898db20aeb5aa788f # v2.9.0
         env:
           AUR_DEPLOY_KEY: ${{ secrets.AUR_DEPLOY_KEY }}
         with:
-          command: |
-            chown -R runner:runner .
-            su runner -c "
-              set -o errexit
-              mkdir -p ~/.ssh
-              printf '%s\n' \"\$AUR_DEPLOY_KEY\" > ~/.ssh/aur
-              chmod 600 ~/.ssh/aur
-              echo \"Host aur.archlinux.org\" >> ~/.ssh/config
-              echo \"  IdentityFile ~/.ssh/aur\" >> ~/.ssh/config
-              echo \"  User aur\" >> ~/.ssh/config
-              # Arch-published AUR SSH host key fingerprints, see
-              # https://archlinux.org/news/aur-migration-new-ssh-hostkeys/
-              AUR_SSH_FPS="SHA256:RFzBCUItH9LZS0cKB5UE6ceAYhBD5C8GeOBip8Z11+4 SHA256:uTa/0PndEgPZTf76e1DFqXKJEXKsn7m9ivhLQtzGOCI SHA256:5s5cIyReIfNNVGRFdDbe3hdYiI5OelHGpw2rOUud3Q8"
-              ssh-keyscan -H aur.archlinux.org > ~/.ssh/aur-known-hosts.tmp
-              if [ ! -s ~/.ssh/aur-known-hosts.tmp ]; then
-                echo "::error::ssh-keyscan returned no host keys for aur.archlinux.org"
-                exit 1
-              fi
-              while read -r host type key; do
-                case "\$host" in '#'*|"") continue;; esac
-                fp=\$(printf '%s %s' "\$type" "\$key" | ssh-keygen -lf /dev/stdin -E sha256 | awk '{print \$2}')
-                case " \$AUR_SSH_FPS " in
-                  *" \$fp "*) ;;
-                  *) echo "::error::AUR host key \$type fingerprint \$fp not in Arch-published set, refusing" ; exit 1 ;;
-                esac
-              done < ~/.ssh/aur-known-hosts.tmp
-              cat ~/.ssh/aur-known-hosts.tmp >> ~/.ssh/known_hosts
-              rm -f ~/.ssh/aur-known-hosts.tmp
-            "
+          command: ./packaging/aur/fix-ownership.sh && su runner -c "./packaging/aur/setup-aur-ssh.sh"
 
       - name: 🔄 Clone AUR Repo
         if: github.event.release.tag_name
@@ -153,30 +109,14 @@ jobs:
         env:
           PACKAGE_NAME: ${{ matrix.package.name }}
         with:
-          command: |
-            su runner -c "
-              set -o errexit
-              rm -rf ~/aur
-              git clone --depth=1 \"ssh://aur@aur.archlinux.org/\$PACKAGE_NAME.git\" ~/aur
-            "
+          command: su runner -c "./packaging/aur/clone-aur-repo.sh"
 
       - name: 🔍 Check version
         if: github.event.release.tag_name
         shell: bash
         env:
           RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
-        run: |
-          su runner -c "
-            set -o errexit
-            cd ~/aur
-            if [[ -f PKGBUILD ]]; then
-              CURRENT_VERSION=\$(source PKGBUILD && echo \$pkgver)
-              if [[ \"\$(printf \"%s\n%s\" \"\$CURRENT_VERSION\" \"\$RELEASE_VERSION\" | sort -V | head -n1)\" != \"\$CURRENT_VERSION\" ]] || [[ \"\$CURRENT_VERSION\" == \"\$RELEASE_VERSION\" ]]; then
-                echo \"New version (\$RELEASE_VERSION) is not higher than the current version (\$CURRENT_VERSION). Exiting.\"
-                exit 1
-              fi
-            fi
-          "
+        run: su runner -c "./packaging/aur/check-aur-version.sh"
 
       - name: 🌀 Generate PKGBUILD update and publish
         if: github.event.release.tag_name
@@ -189,28 +129,4 @@ jobs:
           RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
           SHA256: ${{ steps.sha256sums.outputs.sha256 }}
         with:
-          command: |
-            su runner -c "
-              set -o errexit
-              if [[ \"\$NEEDS_EXE\" == \"true\" ]]; then
-                \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$SHA256_EXE\" \"\$TAG_NAME\" > ~/aur/PKGBUILD
-              else
-                \$GENERATE_SCRIPT \"\$RELEASE_VERSION\" \"\$SHA256\" \"\$TAG_NAME\" > ~/aur/PKGBUILD
-              fi
-              cd ~/aur
-              if [[ -n \$(git status --porcelain) ]]; then
-                makepkg --printsrcinfo > .SRCINFO
-                makepkg
-                makepkg --install --noconfirm
-                git config user.name \"hrzlgnm\"
-                git config user.email \"hrzlgnm@users.noreply.github.com\"
-                git add PKGBUILD .SRCINFO
-                git commit -m \"New upstream release \$RELEASE_VERSION\"
-              else
-                echo "No changes (already committed on previous retry or up to date)"
-              fi
-              # Always push: on retry after commit-but-push-failed the
-              # worktree is clean, so exiting early would skip the push.
-              # A failed push stays a failed attempt and is retried.
-              git push origin master
-            "
+          command: su runner -c "./packaging/aur/publish-aur.sh"
