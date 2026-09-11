@@ -41,7 +41,7 @@ jobs:
 
       - name: 📝 Update CHANGELOG.md with the new version
         run: |
-          git-cliff --output CHANGELOG.md
+          git-cliff --config .github/cliff/cliff.toml --output CHANGELOG.md
 
       - name: 📤 Upload versioned changelog artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -53,7 +53,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git-cliff --offline --config .github/cliff-release.toml --current --output release-body.md
+          git-cliff --offline --config .github/cliff/cliff-release.toml --current --output release-body.md
 
       - name: 🚀 Create draft release
         env:
