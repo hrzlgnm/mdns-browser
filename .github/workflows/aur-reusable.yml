@@ -30,7 +30,7 @@ jobs:
 
   lint-scripts:
     name: "🧹 Lint shell scripts"
-    uses: hrzlgnm/actions/.github/workflows/shell-lint-reusable.yml@dc057d6ab047f38c862870e90c81a192d24ca92e # v2.11.0
+    uses: hrzlgnm/actions/.github/workflows/shell-lint-reusable.yml@ab90f7412a2c2e04df0a675ec57bc9a68b4ba5bc # v2.12.0
     with:
       runs-on: ubuntu-latest
       scripts-dir: packaging/aur
@@ -76,7 +76,7 @@ jobs:
           command: ./packaging/aur/resolve-sha256.sh
 
       - name: 📐 Generate PKGBUILD
-        uses: hrzlgnm/actions/.github/actions/retry@dc057d6ab047f38c862870e90c81a192d24ca92e # v2.11.0
+        uses: hrzlgnm/actions/.github/actions/retry@ab90f7412a2c2e04df0a675ec57bc9a68b4ba5bc # v2.12.0
         env:
           SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}
@@ -103,7 +103,7 @@ jobs:
 
       - name: 🌀 Generate PKGBUILD update and publish
         if: github.event.release.tag_name
-        uses: hrzlgnm/actions/.github/actions/retry@dc057d6ab047f38c862870e90c81a192d24ca92e # v2.11.0
+        uses: hrzlgnm/actions/.github/actions/retry@ab90f7412a2c2e04df0a675ec57bc9a68b4ba5bc # v2.12.0
         env:
           SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}
