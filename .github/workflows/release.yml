@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-slim
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
+      prs_created: ${{ steps.release.outputs.prs_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
       version: ${{ steps.release.outputs.version }}
       sha: ${{ steps.release.outputs.sha }}
@@ -27,9 +28,46 @@ jobs:
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
         id: release
         with:
-          # PAT (not GITHUB_TOKEN): pushes must come from a collaborator
-          # account so CI runs start without manual approval.
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          # GITHUB_TOKEN: pushes come from github-actions[bot] with a
+          # verified signature. CI runs on the Release PR are approved
+          # by the approve-release-pr job below. Tags are created by
+          # the tag job with the PAT (the bot cannot bypass the tag
+          # rulesets).
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  tag:
+    needs: [release-please]
+    if: needs.release-please.outputs.release_created == 'true'
+    permissions:
+      contents: read # tag creation uses the PAT below, not GITHUB_TOKEN
+    name: "🏷️ Create release tag"
+    runs-on: ubuntu-slim
+    env:
+      GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+      TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
+      SHA: ${{ needs.release-please.outputs.sha }}
+    steps:
+      - name: 🏷️ Create release tag
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG_NAME}" --silent 2>/dev/null; then
+            echo "Tag ${TAG_NAME} already exists, skipping creation"
+          else
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+              -f "ref=refs/tags/${TAG_NAME}" \
+              -f "sha=${SHA}"
+          fi
+
+  approve-release-pr:
+    needs: [release-please]
+    if: needs.release-please.outputs.prs_created == 'true'
+    permissions:
+      actions: write # needed to approve workflow runs
+      contents: read
+      pull-requests: read
+    name: "✅ Approve Release PR workflows"
+    uses: hrzlgnm/actions/.github/workflows/approve-bot-pr-reusable.yml@30ff1b2685b9a56d7693655cf248f079be398dac # v2.14.2
+    with:
+      branch: release-please--branches--main--components--mdns-browser-ui
 
   prepare:
     needs: [release-please]
@@ -67,7 +105,7 @@ jobs:
             crates/shared_constants/Cargo.toml
 
   source_checksums:
-    needs: [release-please, prepare]
+    needs: [release-please, prepare, tag]
     if: needs.release-please.outputs.release_created == 'true'
     permissions:
       contents: write # to upload source checksums to release
@@ -79,7 +117,7 @@ jobs:
       tagName: ${{ needs.release-please.outputs.tag_name }}
 
   build_android:
-    needs: [release-please, prepare]
+    needs: [release-please, prepare, tag]
     if: needs.release-please.outputs.release_created == 'true'
     permissions:
       id-token: write # needed for OIDC token for attestation
@@ -93,7 +131,7 @@ jobs:
       tagName: ${{ needs.release-please.outputs.tag_name }}
 
   build_desktop:
-    needs: [release-please, prepare]
+    needs: [release-please, prepare, tag]
     if: needs.release-please.outputs.release_created == 'true'
     permissions:
       id-token: write # needed for OIDC token for attestation
