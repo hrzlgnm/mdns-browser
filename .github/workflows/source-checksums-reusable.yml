@@ -56,7 +56,7 @@ jobs:
           persist-credentials: false
 
       - name: 📥🔢☑️
-        uses: hrzlgnm/actions/.github/actions/retry@0bc72278fc09aa8093f47c430e6e52cf9321e14b # v2.14.1
+        uses: hrzlgnm/actions/.github/actions/retry@30ff1b2685b9a56d7693655cf248f079be398dac # v2.14.2
         env:
           TAG: ${{ needs.tag.outputs.tag }}
           ALGORITHM: ${{ matrix.algorithm }}
