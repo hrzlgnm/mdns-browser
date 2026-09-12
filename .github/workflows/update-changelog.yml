@@ -40,14 +40,13 @@ jobs:
 
       - name: 📝 Generate changelog
         run: |
-          git-cliff --config .github/cliff/cliff.toml --output CHANGELOG.md
           git-cliff --config .github/cliff/cliff-webkit2gtk.toml --output crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
 
       - name: 🔍 Check for changes
         id: changes
         shell: bash
         run: |
-          if git diff --quiet CHANGELOG.md crates/webkit2gtk-nvidia-quirk/CHANGELOG.md; then
+          if git diff --quiet crates/webkit2gtk-nvidia-quirk/CHANGELOG.md; then
             echo "No changes to changelog"
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
@@ -61,7 +60,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            CHANGELOG.md
             crates/webkit2gtk-nvidia-quirk/CHANGELOG.md
           commit-message: "chore(version): update unreleased changelog"
           branch-name: chore/update-changelog
@@ -76,7 +74,7 @@ jobs:
           if [ "$(gh pr list --head "$BRANCH" --state open --json number --jq 'length')" = "0" ]; then
             gh pr create \
               --title "chore: update unreleased changelog" \
-              --body "Automated update of the \`[Unreleased]\` section in \`CHANGELOG.md\`.
+              --body "Automated update of the \`[Unreleased]\` section in \`crates/webkit2gtk-nvidia-quirk/CHANGELOG.md\`.
 
           This PR is created automatically on a nightly schedule
           by running \`git-cliff\` without a version tag." \
