@@ -5,49 +5,51 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
+  workflow_dispatch:
 
-concurrency:
-  group: release
-  cancel-in-progress: false
+permissions:
+  contents: write # to open Release PRs, tag, and create draft releases
+  issues: write # to manage autorelease labels on Release PRs
+  pull-requests: write # to open and update Release PRs
 
 jobs:
-  create_release_draft:
-    permissions:
-      contents: write # to create and update releases and drafts and upload the versioned-sources artifact
+  release-please:
+    name: "🤖 Release Please"
     runs-on: ubuntu-slim
-    name: 📝 Draft a new release
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+      sha: ${{ steps.release.outputs.sha }}
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  prepare:
+    needs: [release-please]
+    if: needs.release-please.outputs.release_created == 'true'
+    permissions:
+      contents: read # checkout only; version sync is applied to the working tree, not committed
+    runs-on: ubuntu-slim
+    name: 📦 Prepare versioned sources
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          fetch-depth: 0
+          ref: ${{ needs.release-please.outputs.sha }}
           persist-credentials: false
 
-      - name: 🛑 Check release preconditions
-        uses: hrzlgnm/actions/.github/actions/release-preconditions@30ff1b2685b9a56d7693655cf248f079be398dac # v2.14.2
-        with:
-          tag-name: ${{ github.ref_name }}
-
-      - name: 🦀 Install Rust toolchain for git-cliff build fallback
+      - name: 🦀 Install Rust toolchain for cargo-edit
         uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
 
-      - name: 🔧 Install git-cliff
-        uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3
-        with:
-          crate: git-cliff
-          version: 2.14.1
-          locked: true
-
-      - name: 📝 Update CHANGELOG.md with the new version
-        run: |
-          git-cliff --config .github/cliff/cliff.toml --output CHANGELOG.md
-
-      - name: 🎯 Sync version from tag
+      - name: 🎯 Sync version from release-please tag
         uses: ./.github/actions/sync-version
         with:
-          tagName: ${{ github.ref_name }}
+          tagName: ${{ needs.release-please.outputs.tag_name }}
 
       - name: 📤 Upload versioned sources artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -62,26 +64,9 @@ jobs:
             crates/models/Cargo.toml
             crates/shared_constants/Cargo.toml
 
-      - name: 🗒️ Generate release notes with git-cliff
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git-cliff --offline --config .github/cliff/cliff-release.toml --current --output release-body.md
-
-      - name: 🚀 Create draft release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_NAME: ${{ github.ref_name }}
-        run: |
-          VERSION="${TAG_NAME#v}"
-          gh release create "$TAG_NAME" \
-            --title "mDNS-Browser v${VERSION}" \
-            --notes-file release-body.md \
-            --draft \
-            --latest=false
-
   source_checksums:
-    needs: [create_release_draft]
+    needs: [release-please, prepare]
+    if: needs.release-please.outputs.release_created == 'true'
     permissions:
       contents: write # to upload source checksums to release
       actions: read # to access workflow run information and secrets
@@ -89,10 +74,11 @@ jobs:
     uses: ./.github/workflows/source-checksums-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.ref_name }}
+      tagName: ${{ needs.release-please.outputs.tag_name }}
 
   build_android:
-    needs: [create_release_draft]
+    needs: [release-please, prepare]
+    if: needs.release-please.outputs.release_created == 'true'
     permissions:
       id-token: write # needed for OIDC token for attestation
       attestations: write # needed to create build attestations
@@ -102,10 +88,11 @@ jobs:
     uses: ./.github/workflows/android-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.ref_name }}
+      tagName: ${{ needs.release-please.outputs.tag_name }}
 
   build_desktop:
-    needs: [create_release_draft]
+    needs: [release-please, prepare]
+    if: needs.release-please.outputs.release_created == 'true'
     permissions:
       id-token: write # needed for OIDC token for attestation
       attestations: write # needed to create build attestations
@@ -115,6 +102,4 @@ jobs:
     uses: ./.github/workflows/desktop-reusable.yml
     secrets: inherit
     with:
-      tagName: ${{ github.ref_name }}
-
-
+      tagName: ${{ needs.release-please.outputs.tag_name }}
