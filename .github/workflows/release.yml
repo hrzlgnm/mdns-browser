@@ -39,22 +39,38 @@ jobs:
     needs: [release-please]
     if: needs.release-please.outputs.release_created == 'true'
     permissions:
-      contents: read # tag creation uses the PAT below, not GITHUB_TOKEN
-    name: "🏷️ Create release tag"
+      contents: read # push uses the PAT checkout below, not GITHUB_TOKEN
+    name: "🏷️ Create signed release tag"
     runs-on: ubuntu-slim
     env:
-      GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
       TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
       SHA: ${{ needs.release-please.outputs.sha }}
     steps:
-      - name: 🏷️ Create release tag
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.release-please.outputs.sha }}
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+
+      - name: 🔑 Set up SSH signing key
+        env:
+          SSH_SIGNING_KEY: ${{ secrets.SSH_SIGNING_KEY }}
         run: |
-          if gh api "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG_NAME}" --silent 2>/dev/null; then
+          mkdir -p ~/.ssh
+          echo "$SSH_SIGNING_KEY" > ~/.ssh/id_ed25519_signing
+          chmod 600 ~/.ssh/id_ed25519_signing
+          git config --global gpg.format ssh
+          git config --global user.signingKey ~/.ssh/id_ed25519_signing
+          git config --global user.name "hrzlgnm"
+          git config --global user.email "hrzlgnm@users.noreply.github.com"
+
+      - name: 🏷️ Create signed release tag
+        run: |
+          if git ls-remote --exit-code origin "refs/tags/${TAG_NAME}" >/dev/null 2>&1; then
             echo "Tag ${TAG_NAME} already exists, skipping creation"
           else
-            gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
-              -f "ref=refs/tags/${TAG_NAME}" \
-              -f "sha=${SHA}"
+            git tag -s -a "${TAG_NAME}" -m "Release ${TAG_NAME}" "${SHA}"
+            git push origin "refs/tags/${TAG_NAME}"
           fi
 
   approve-release-pr:
