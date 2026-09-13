@@ -1,8 +1,8 @@
 {
     "build": {
-        "beforeDevCommand": "trunk --skip-version-check serve --log debug",
-        "beforeBuildCommand": "trunk --skip-version-check build",
-        "frontendDist": "../dist",
+        "beforeDevCommand": "pnpm --dir frontend run dev",
+        "beforeBuildCommand": "pnpm --dir frontend run build",
+        "frontendDist": "../frontend/build",
         "devUrl": "http://localhost:1420"
     },
     "bundle": {
@@ -67,11 +67,10 @@
         }
     },
     "app": {
-        "withGlobalTauri": true,
         "windows": [
             {
                 "title": "Splashscreen",
-                "url": "public/splashscreen.html",
+                "url": "splashscreen.html",
                 "label": "splashscreen",
                 "width": 528,
                 "height": 297,
