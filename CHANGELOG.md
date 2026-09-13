@@ -5,6 +5,97 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.24.0](https://github.com/hrzlgnm/mdns-browser/compare/v1.23.0...v1.24.0) (2026-09-13)
+
+
+### Features
+
+* add daily retry workflow for failed CI on PRs ([#2264](https://github.com/hrzlgnm/mdns-browser/issues/2264)) ([6979c60](https://github.com/hrzlgnm/mdns-browser/commit/6979c60e14eb0f605a3f4ebb9c0c4cfb43172730))
+* add env-var debug trace to webkit2gtk-nvidia-quirk ([#2524](https://github.com/hrzlgnm/mdns-browser/issues/2524)) ([b535561](https://github.com/hrzlgnm/mdns-browser/commit/b53556171e01f1da73f8b673aef3678386f5b693))
+* add gh to ubuntu-package-builder image ([#2381](https://github.com/hrzlgnm/mdns-browser/issues/2381)) ([1f3cfd5](https://github.com/hrzlgnm/mdns-browser/commit/1f3cfd5f20e7ebc880a26bff1651af0dce8b4072))
+* Add Homebrew tap support ([#2154](https://github.com/hrzlgnm/mdns-browser/issues/2154)) ([fe003dd](https://github.com/hrzlgnm/mdns-browser/commit/fe003ddca4c3518e29699917698feb69b8d96387))
+* add JavaScript bindings for tauri-plugin-android-update ([#2591](https://github.com/hrzlgnm/mdns-browser/issues/2591)) ([1a90a04](https://github.com/hrzlgnm/mdns-browser/commit/1a90a041c9c00b9dee3ca98c8e2082d80d8d248d))
+* add opt-in verbosity flag for NVIDIA workarounds ([#2484](https://github.com/hrzlgnm/mdns-browser/issues/2484)) ([db21d7a](https://github.com/hrzlgnm/mdns-browser/commit/db21d7ada97857dc161ab2e541bbc9023f7c0d8b))
+* add selectable network interfaces ([#2403](https://github.com/hrzlgnm/mdns-browser/issues/2403)) ([bc0a1ae](https://github.com/hrzlgnm/mdns-browser/commit/bc0a1ae2525abc2f67bf76309587a83c8da3b589))
+* add tauri-gh-android-update plugin crate ([#2489](https://github.com/hrzlgnm/mdns-browser/issues/2489)) ([d7f2cd0](https://github.com/hrzlgnm/mdns-browser/commit/d7f2cd01d4725c1d10afc230b09dcfa85a64265b))
+* add workflow to keep Unreleased changelog sections up to date ([#2312](https://github.com/hrzlgnm/mdns-browser/issues/2312)) ([2644c89](https://github.com/hrzlgnm/mdns-browser/commit/2644c89896cec7168057db9f0a9530202cf5da65))
+* **aur:** add local helper to test AUR packaging against latest release ([#2440](https://github.com/hrzlgnm/mdns-browser/issues/2440)) ([ee8a903](https://github.com/hrzlgnm/mdns-browser/commit/ee8a9032a646f1763cf745f029add26dce964111))
+* **ci:** add shared retry wrapper and use for downloads ([#2573](https://github.com/hrzlgnm/mdns-browser/issues/2573)) ([c5034de](https://github.com/hrzlgnm/mdns-browser/commit/c5034de88844c131c28ca51747507e7193d13369))
+* **ci:** auto-approve workflow runs of github-actions[bot] PRs ([#2417](https://github.com/hrzlgnm/mdns-browser/issues/2417)) ([b122e62](https://github.com/hrzlgnm/mdns-browser/commit/b122e626082ad2f5e31cc60f769a3c988210423e))
+* **ci:** pin shellcheck/shfmt in AUR lint job ([#2605](https://github.com/hrzlgnm/mdns-browser/issues/2605)) ([fbd86b2](https://github.com/hrzlgnm/mdns-browser/commit/fbd86b29e23ee79111cf1ee0c057f49e4325f7b0))
+* **cliff:** move CI-related commits into dedicated Maintenance group ([#2424](https://github.com/hrzlgnm/mdns-browser/issues/2424)) ([37238b2](https://github.com/hrzlgnm/mdns-browser/commit/37238b28691d00c6881cd610d49e8e7987d45715))
+* gzip the SBOM workflow artifacts on publish ([#2527](https://github.com/hrzlgnm/mdns-browser/issues/2527)) ([a34454b](https://github.com/hrzlgnm/mdns-browser/commit/a34454b7eccb8a1229ad4c9358dbd8f9d15f82dd))
+* manage app releases with release-please ([#2621](https://github.com/hrzlgnm/mdns-browser/issues/2621)) ([b64485a](https://github.com/hrzlgnm/mdns-browser/commit/b64485aaa65649249bb0286e8fd9b189bee4d875))
+* **mobile:** implement Android auto-update via tauri plugin ([#2355](https://github.com/hrzlgnm/mdns-browser/issues/2355)) ([77565a7](https://github.com/hrzlgnm/mdns-browser/commit/77565a79e86b5e3c9107035733198c3d6f1cf38f))
+* release lib crates separately via release-please ([#2629](https://github.com/hrzlgnm/mdns-browser/issues/2629)) ([2db56c1](https://github.com/hrzlgnm/mdns-browser/commit/2db56c190dedcf7d9833bff517c1dce028d7110b))
+* **release:** use immutable releases with draft workflow ([#2354](https://github.com/hrzlgnm/mdns-browser/issues/2354)) ([#2373](https://github.com/hrzlgnm/mdns-browser/issues/2373)) ([03aa995](https://github.com/hrzlgnm/mdns-browser/commit/03aa995e3665ddfad85c676fc4a4438a39b83a86))
+* replace generate_changelog.py with git-cliff ([#2311](https://github.com/hrzlgnm/mdns-browser/issues/2311)) ([55e2e36](https://github.com/hrzlgnm/mdns-browser/commit/55e2e36aa14f44b41ba0e4ebf9dfc44de449cbb6))
+* run release-please with GITHUB_TOKEN and auto-approved Release PRs ([#2626](https://github.com/hrzlgnm/mdns-browser/issues/2626)) ([0c66a37](https://github.com/hrzlgnm/mdns-browser/commit/0c66a3731d78b0d4e670e67b16b09646d2fb638e))
+* trigger snap release after a release is published ([#2529](https://github.com/hrzlgnm/mdns-browser/issues/2529)) ([728002c](https://github.com/hrzlgnm/mdns-browser/commit/728002c42282fa84ec44e911b08d609f00c3ed38))
+* use retry-failed-ci reusable workflow ([#2271](https://github.com/hrzlgnm/mdns-browser/issues/2271)) ([9aab5a6](https://github.com/hrzlgnm/mdns-browser/commit/9aab5a6f6ba1f43fbbfa99f2095d73604dd29d26))
+* use shared release-preconditions action ([#2617](https://github.com/hrzlgnm/mdns-browser/issues/2617)) ([c9f80c9](https://github.com/hrzlgnm/mdns-browser/commit/c9f80c92ce748bddd10803710bce4d3aba1c1e5b))
+
+
+### Bug Fixes
+
+* add shell: bash to get current release body step for Windows compatibility ([#2256](https://github.com/hrzlgnm/mdns-browser/issues/2256)) ([d0c8e02](https://github.com/hrzlgnm/mdns-browser/commit/d0c8e02cf0d71ef0ac00d1d404363d4511cacfa1))
+* Address review comments missed from [#2154](https://github.com/hrzlgnm/mdns-browser/issues/2154) ([#2155](https://github.com/hrzlgnm/mdns-browser/issues/2155)) ([0e43059](https://github.com/hrzlgnm/mdns-browser/commit/0e430591b6d616379ee48d270c8472c6fe42d24c))
+* align SPDX identifiers with MIT LICENSE ([#2535](https://github.com/hrzlgnm/mdns-browser/issues/2535)) ([e04b7f1](https://github.com/hrzlgnm/mdns-browser/commit/e04b7f1cf9346010cb9b0389d123142ff4271358))
+* approve CI on the rust-strategy release branch ([#2637](https://github.com/hrzlgnm/mdns-browser/issues/2637)) ([800fc41](https://github.com/hrzlgnm/mdns-browser/commit/800fc41f1b91fc83bd456936f0ce3500b56e188c))
+* attest plain-binary provenance before bundle recompile ([#2536](https://github.com/hrzlgnm/mdns-browser/issues/2536)) ([7d5710b](https://github.com/hrzlgnm/mdns-browser/commit/7d5710becf3635295712964edf296563f4099418))
+* **aur:** copy license from the new deb location ([#2356](https://github.com/hrzlgnm/mdns-browser/issues/2356)) ([2364f08](https://github.com/hrzlgnm/mdns-browser/commit/2364f085305e79777e4d6617879a8892f1e834bc))
+* **aur:** sync release version into Cargo and tauri config ([#2434](https://github.com/hrzlgnm/mdns-browser/issues/2434)) ([725298a](https://github.com/hrzlgnm/mdns-browser/commit/725298a9755b994ac3947ccd5a577994dde09713))
+* **aur:** use correct build directory in aur source build ([#2439](https://github.com/hrzlgnm/mdns-browser/issues/2439)) ([a3b1c4e](https://github.com/hrzlgnm/mdns-browser/commit/a3b1c4e3d647cd5324c5f7f8f59fb14b6ae6233a))
+* borderless on tiling Wayland, working buttons on non-tiling ([#2475](https://github.com/hrzlgnm/mdns-browser/issues/2475)) ([cd659ba](https://github.com/hrzlgnm/mdns-browser/commit/cd659ba390b8ed1906a79f41f65ef6791d6ffc3b))
+* **ci:** force tag creation for release-please drafts ([#2625](https://github.com/hrzlgnm/mdns-browser/issues/2625)) ([e8c2dd3](https://github.com/hrzlgnm/mdns-browser/commit/e8c2dd350cb77648cdc7e7dc31ac9bdc3de706ff))
+* **ci:** generate release notes using GitHub username ([@hrzlgnm](https://github.com/hrzlgnm)) ([#2422](https://github.com/hrzlgnm/mdns-browser/issues/2422)) ([30afce6](https://github.com/hrzlgnm/mdns-browser/commit/30afce604bc0a456c67d8e728704896beb2f98a6))
+* **ci:** harden crate-publish reusable workflow from review ([#2514](https://github.com/hrzlgnm/mdns-browser/issues/2514)) ([8c1aa24](https://github.com/hrzlgnm/mdns-browser/commit/8c1aa246385fc4c3bb3fc1f129176e7ba50520cd))
+* **ci:** quote # in host-key validation case pattern ([#2575](https://github.com/hrzlgnm/mdns-browser/issues/2575)) ([2b07c09](https://github.com/hrzlgnm/mdns-browser/commit/2b07c09e1e97b3de9da985dc642ddbb2820fa28b))
+* **ci:** remove stray lines causing github-script syntax error ([#2418](https://github.com/hrzlgnm/mdns-browser/issues/2418)) ([ba8a6e1](https://github.com/hrzlgnm/mdns-browser/commit/ba8a6e1144a41c223e0aa7809bbf76ca72f20822))
+* **ci:** resolve GitHub username from noreply email in release notes ([#2425](https://github.com/hrzlgnm/mdns-browser/issues/2425)) ([ee6c8f8](https://github.com/hrzlgnm/mdns-browser/commit/ee6c8f8709ea67e8788f04c08f5725a834e95417))
+* **ci:** restore checkout credentials in update-changelog workflow ([#2620](https://github.com/hrzlgnm/mdns-browser/issues/2620)) ([4563b13](https://github.com/hrzlgnm/mdns-browser/commit/4563b134870945ffe9be4016ec2bb3be451da185))
+* **ci:** run release-please with a PAT instead of GITHUB_TOKEN ([#2624](https://github.com/hrzlgnm/mdns-browser/issues/2624)) ([cd89719](https://github.com/hrzlgnm/mdns-browser/commit/cd8971906a984068a4dd12daee938e51499ee55f))
+* **ci:** set up Rust toolchain before cargo-install git-cliff ([#2487](https://github.com/hrzlgnm/mdns-browser/issues/2487)) ([ed70c06](https://github.com/hrzlgnm/mdns-browser/commit/ed70c06ed3e28b3faf9cc3b70cb5f3535ff42738))
+* **ci:** stop writing cargo-install caches on tag refs ([#2578](https://github.com/hrzlgnm/mdns-browser/issues/2578)) ([89f9009](https://github.com/hrzlgnm/mdns-browser/commit/89f9009b5dd98d6de01063fd047ed7287bc89420))
+* disable coderabbit request changes workflow ([#2518](https://github.com/hrzlgnm/mdns-browser/issues/2518)) ([0a310b6](https://github.com/hrzlgnm/mdns-browser/commit/0a310b6f63ec6995365eb5df5e0ae9216a1d2ab4))
+* disable grype DB caching in sbom composite ([#2531](https://github.com/hrzlgnm/mdns-browser/issues/2531)) ([58a4ae9](https://github.com/hrzlgnm/mdns-browser/commit/58a4ae927a3b69afb61c411bae2c3d4e6dd9a7bb))
+* exclude removed lib crates from app release-please ([#2643](https://github.com/hrzlgnm/mdns-browser/issues/2643)) ([55a317a](https://github.com/hrzlgnm/mdns-browser/commit/55a317a8fa5872310c558477dbd5b12f4658da85))
+* fail release when a draft already exists ([#2606](https://github.com/hrzlgnm/mdns-browser/issues/2606)) ([4b4447e](https://github.com/hrzlgnm/mdns-browser/commit/4b4447e3c7f40a96854bf181cb352b791d1ed5b3))
+* harden AUR release scripts and workflow checkout ([#2603](https://github.com/hrzlgnm/mdns-browser/issues/2603)) ([9201dbd](https://github.com/hrzlgnm/mdns-browser/commit/9201dbd0a26a6450df9399ac7c65d39d21456f78))
+* let release-please own Cargo versions and lockfile ([#2634](https://github.com/hrzlgnm/mdns-browser/issues/2634)) ([e5565cd](https://github.com/hrzlgnm/mdns-browser/commit/e5565cdab72cc52170c5a0fbb971b612c9fc24f8))
+* migrate release-drafter to new category syntax ([#2275](https://github.com/hrzlgnm/mdns-browser/issues/2275)) ([63daabc](https://github.com/hrzlgnm/mdns-browser/commit/63daabc76eb7af6ae381507b5852634605f5f4b8))
+* only rerun failed jobs ([#2267](https://github.com/hrzlgnm/mdns-browser/issues/2267)) ([a1557c6](https://github.com/hrzlgnm/mdns-browser/commit/a1557c62477d023565d36af081ad8f847730ae57))
+* pass branch/number to jq via environment variables ([#2265](https://github.com/hrzlgnm/mdns-browser/issues/2265)) ([4b38afb](https://github.com/hrzlgnm/mdns-browser/commit/4b38afbcdd051519d8eb1c5a350adf38db1dfc96))
+* preserve release notes from release-drafter when tauri-action uploads artifacts ([#2253](https://github.com/hrzlgnm/mdns-browser/issues/2253)) ([52a72e7](https://github.com/hrzlgnm/mdns-browser/commit/52a72e77d9f8a7322fe369a4bbae664c98efdb84))
+* prevent mobile update prompts for older releases ([#2404](https://github.com/hrzlgnm/mdns-browser/issues/2404)) ([1b6c282](https://github.com/hrzlgnm/mdns-browser/commit/1b6c282c4f3c2198fa170e187292a848f7158a37))
+* publish gzipped SBOMs as release assets ([#2541](https://github.com/hrzlgnm/mdns-browser/issues/2541)) ([ec4dca1](https://github.com/hrzlgnm/mdns-browser/commit/ec4dca12ea9276fc9a571b1dfdef615cfb7e8976))
+* publish unbundled macOS executable on release ([#2476](https://github.com/hrzlgnm/mdns-browser/issues/2476)) ([a9649ee](https://github.com/hrzlgnm/mdns-browser/commit/a9649ee69f7f7d8b49bd2038cc43d4b49fcd97cb))
+* **release:** escape [bot] brackets and link bot authors in release notes ([#2432](https://github.com/hrzlgnm/mdns-browser/issues/2432)) ([7038be9](https://github.com/hrzlgnm/mdns-browser/commit/7038be9bcb0d6c64e8d6182985bc0fe2b7fea477))
+* **release:** order release notes sections consistently ([#2433](https://github.com/hrzlgnm/mdns-browser/issues/2433)) ([31e398a](https://github.com/hrzlgnm/mdns-browser/commit/31e398a5609d8982ade3a2a10f6489b4c969295a))
+* **release:** remove incorrect --tag flag from git-cliff changelog generation ([#2431](https://github.com/hrzlgnm/mdns-browser/issues/2431)) ([6580cf7](https://github.com/hrzlgnm/mdns-browser/commit/6580cf7a075643aee23e065667fca35e93fdbd4f))
+* **release:** replace draft input with publish and rename job ([#2377](https://github.com/hrzlgnm/mdns-browser/issues/2377)) ([e93d389](https://github.com/hrzlgnm/mdns-browser/commit/e93d389a4d2c143d08c8418c85f15cd7456d77d8))
+* **release:** replace draft input with publish in release-drafter config ([#2374](https://github.com/hrzlgnm/mdns-browser/issues/2374)) ([5854433](https://github.com/hrzlgnm/mdns-browser/commit/5854433d4809bf9269ee9451fc63668f0949d8ab))
+* **release:** replace release-downloader with gh release download in asset checksums ([#2384](https://github.com/hrzlgnm/mdns-browser/issues/2384)) ([d8c921c](https://github.com/hrzlgnm/mdns-browser/commit/d8c921cd853dee552534485480656b99f683d566))
+* **release:** set releaseDraft: true and add releaseName in desktop workflow ([#2375](https://github.com/hrzlgnm/mdns-browser/issues/2375)) ([e43d578](https://github.com/hrzlgnm/mdns-browser/commit/e43d578bd48c6894168d8cc480a128654df83e8d))
+* **release:** use gh release download for source checksum in void workflow ([#2380](https://github.com/hrzlgnm/mdns-browser/issues/2380)) ([9e1b872](https://github.com/hrzlgnm/mdns-browser/commit/9e1b872c7042d2994533d302b80103a82380831f))
+* **release:** use gh release download for source tarball checksum in void workflow ([#2376](https://github.com/hrzlgnm/mdns-browser/issues/2376)) ([fab29d4](https://github.com/hrzlgnm/mdns-browser/commit/fab29d410fb816853bf2c2ef4ae4e4b7b5a05cb7))
+* remove version-sync workaround from release actions and AUR ([#2635](https://github.com/hrzlgnm/mdns-browser/issues/2635)) ([d2ce132](https://github.com/hrzlgnm/mdns-browser/commit/d2ce1329f75d7d8d10dfc79829ea8ac0ccc0b01e))
+* restore desktop download-and-install update label ([#2411](https://github.com/hrzlgnm/mdns-browser/issues/2411)) ([705f8f0](https://github.com/hrzlgnm/mdns-browser/commit/705f8f00dae3fcba140180382e8850fdb8001a42))
+* retry browse when mdns-sd command queue is full ([#2438](https://github.com/hrzlgnm/mdns-browser/issues/2438)) ([5a02b0b](https://github.com/hrzlgnm/mdns-browser/commit/5a02b0bcff218375b8a46fad6b3954ddccf4b67c))
+* route workflow run inputs and secrets via env ([#2505](https://github.com/hrzlgnm/mdns-browser/issues/2505)) ([d57bc76](https://github.com/hrzlgnm/mdns-browser/commit/d57bc768d6dc678e916b0ab692a64e303855d4f3))
+* run npm publish from the package directory ([#2594](https://github.com/hrzlgnm/mdns-browser/issues/2594)) ([68fdda5](https://github.com/hrzlgnm/mdns-browser/commit/68fdda5b9aab2e43865733906b56bb0904f96d73))
+* specify repo for gh release download in homebrew workflow ([#2157](https://github.com/hrzlgnm/mdns-browser/issues/2157)) ([335edef](https://github.com/hrzlgnm/mdns-browser/commit/335edef7fc1dc8deb3f5bf2a016e265b6ca2a0fb))
+* stage the npm release instead of publishing directly ([#2595](https://github.com/hrzlgnm/mdns-browser/issues/2595)) ([2c3e543](https://github.com/hrzlgnm/mdns-browser/commit/2c3e543b5f5a7879ab352a3efaf9e32d703ea9c3))
+* strip duplicate (#NNN) PR refs in generated changelog ([#2430](https://github.com/hrzlgnm/mdns-browser/issues/2430)) ([332e0f5](https://github.com/hrzlgnm/mdns-browser/commit/332e0f5d3277f5eb081393ba1a8b6528bef83f46))
+* strip sha256: prefix from checksum ([#2415](https://github.com/hrzlgnm/mdns-browser/issues/2415)) ([84f966a](https://github.com/hrzlgnm/mdns-browser/commit/84f966a3ad827f1765bb21029689f3ff1c5a60de))
+* use curl instead of gh for fetching release body ([23a4b86](https://github.com/hrzlgnm/mdns-browser/commit/23a4b868b5e0524ffeae6959323b8c8444988182))
+* use github-actions[bot] identity for homebrew-tap commits ([#2385](https://github.com/hrzlgnm/mdns-browser/issues/2385)) ([afd8803](https://github.com/hrzlgnm/mdns-browser/commit/afd88030e3ff1c0cbd29ae8dd19a457e891c70ad))
+
+
+### Reverts
+
+* stop writing cargo-install caches on tag refs ([#2601](https://github.com/hrzlgnm/mdns-browser/issues/2601)) ([9c5d0df](https://github.com/hrzlgnm/mdns-browser/commit/9c5d0df9cf5327e3bd2e372614777ec30bab38db))
+
 ## [1.23.0](https://github.com/hrzlgnm/mdns-browser/compare/v1.22.0...v1.23.0) (2026-09-13)
 
 
