@@ -8,6 +8,10 @@
   "prerelease": false,
   "packages": {
     ".": {
+      "exclude-paths": [
+        "crates/webkit2gtk-nvidia-quirk",
+        "crates/tauri-plugin-android-update"
+      ],
       "extra-files": [
         {
           "type": "json",
