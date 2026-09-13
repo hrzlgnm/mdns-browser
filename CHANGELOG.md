@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.23.1](https://github.com/hrzlgnm/mdns-browser/compare/v1.23.0...v1.23.1) (2026-09-13)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate webkit2gtk-nvidia-quirk to v2.1.2 ([#2647](https://github.com/hrzlgnm/mdns-browser/issues/2647)) ([265d675](https://github.com/hrzlgnm/mdns-browser/commit/265d675cb7c1e5772c7263711b9de6de9d663f34))
+* exclude removed lib crates from app release-please ([#2643](https://github.com/hrzlgnm/mdns-browser/issues/2643)) ([55a317a](https://github.com/hrzlgnm/mdns-browser/commit/55a317a8fa5872310c558477dbd5b12f4658da85))
+
 ## [1.23.0](https://github.com/hrzlgnm/mdns-browser/compare/v1.22.0...v1.23.0) (2026-09-13)
 
 
