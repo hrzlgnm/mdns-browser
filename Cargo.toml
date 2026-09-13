@@ -1,60 +1,6 @@
 # Copyright 2026 hrzlgnm
 # SPDX-License-Identifier: MIT
 
-[package]
-name = "mdns-browser-ui"
-version = "1.23.1"
-edition = "2024"
-rust-version = "1.90"
-
-[profile.release]
-codegen-units = 1
-lto = true
-opt-level = "z"
-panic = "abort"
-debug = true
-split-debuginfo = "packed"
-strip = true
-
-[dependencies]
-# crates
-chrono = { workspace = true }
-console_error_panic_hook = "0.1"
-console_log = "1.0"
-futures = "0.3"
-icondata = "0.7"
-icondata_core = "0.1"
-js-sys = "0.3"
-leptos = { version = "0.8", features = ["csr"] }
-log = { workspace = true }
-reactive_stores = { workspace = true }
-serde = { workspace = true }
-strsim = "0.11"
-web-sys = { version = "0.3.77", features = [
-    "Window",
-    "EventTarget",
-    "AddEventListenerOptions",
-    "ScrollToOptions",
-    "ScrollBehavior",
-] }
-
-# git
-thaw = { git = "https://github.com/hrzlgnm/thaw", branch = "thaw/v0.5", package = "thaw", features = [
-    "csr",
-] }
-thaw_utils = { git = "https://github.com/hrzlgnm/thaw", branch = "thaw/v0.5", package = "thaw_utils" }
-tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", branch = "v2", features = [
-    "core",
-    "event",
-] }
-
-# local
-shared_constants = { path = "./crates/shared_constants" }
-models = { path = "./crates/models" }
-
-[dev-dependencies]
-serde_json = { workspace = true }
-
 [workspace]
 members = [
     "crates/models",
@@ -84,3 +30,12 @@ tauri-plugin-updater = "2.0"
 pnet = "0.35"
 ipconfig = "0.3"
 clap = { version = "4.5", features = ["derive"] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "z"
+panic = "abort"
+debug = true
+split-debuginfo = "packed"
+strip = true

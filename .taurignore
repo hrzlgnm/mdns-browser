@@ -1,6 +1,5 @@
 /Cargo.toml
 /crates
 /docs
+/frontend
 /packaging
-/public
-/src
