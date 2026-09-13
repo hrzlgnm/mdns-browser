@@ -1,50 +1,18 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "release-type": "rust",
-  "include-component-in-tag": true,
+  "include-component-in-tag": false,
   "include-v-in-tag": true,
   "draft": true,
   "force-tag-creation": true,
   "prerelease": false,
-  "separate-pull-requests": true,
   "packages": {
     ".": {
-      "release-type": "rust",
-      "include-component-in-tag": false,
-      "exclude-paths": [
-        "crates/webkit2gtk-nvidia-quirk",
-        "crates/tauri-plugin-android-update"
-      ],
       "extra-files": [
         {
           "type": "json",
           "path": "src-tauri/tauri.conf.json",
           "jsonpath": "$.version"
-        }
-      ]
-    },
-    "crates/webkit2gtk-nvidia-quirk": {
-      "release-type": "rust",
-      "include-component-in-tag": true
-    },
-    "crates/tauri-plugin-android-update": {
-      "release-type": "rust",
-      "include-component-in-tag": true,
-      "extra-files": [
-        {
-          "type": "json",
-          "path": "package.json",
-          "jsonpath": "$.version"
-        },
-        {
-          "type": "json",
-          "path": "package-lock.json",
-          "jsonpath": "$.version"
-        },
-        {
-          "type": "json",
-          "path": "package-lock.json",
-          "jsonpath": "$.packages[''].version"
         }
       ]
     }
