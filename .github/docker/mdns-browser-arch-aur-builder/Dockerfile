@@ -7,7 +7,6 @@ RUN pacman -Syu --noconfirm \
     appmenu-gtk-module \
     cargo \
     cargo-auditable \
-    cargo-edit \
     coreutils \
     desktop-file-utils \
     gdk-pixbuf2 \
