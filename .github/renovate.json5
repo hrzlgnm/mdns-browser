@@ -16,6 +16,7 @@
         ":prImmediately",
         ":rebaseStalePrs",
         ":semanticCommits",
+        ":semanticPrefixFixDepsChoreOthers",
         ":separateMajorReleases",
     ],
     customManagers: [
