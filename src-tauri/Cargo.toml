@@ -24,12 +24,12 @@ tauri-plugin-android-update = { workspace = true }
 log = { workspace = true }
 mdns-sd = { workspace = true }
 serde = { workspace = true }
+# required by the tauri::generate_context! macro, no direct use in code
 serde_json = { workspace = true }
 tauri = { workspace = true }
 tauri-plugin-clipboard-manager = { workspace = true }
 tauri-plugin-log = { workspace = true }
 tauri-plugin-opener = { workspace = true }
-thiserror = { workspace = true }
 tokio = { workspace = true }
 
 # local
