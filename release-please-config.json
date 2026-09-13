@@ -65,12 +65,24 @@
     },
     "crates/webkit2gtk-nvidia-quirk": {
       "release-type": "rust",
-      "include-component-in-tag": true
+      "include-component-in-tag": true,
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "/Cargo.lock",
+          "jsonpath": "$.package[?(@.name=='webkit2gtk-nvidia-quirk')].version"
+        }
+      ]
     },
     "crates/tauri-plugin-android-update": {
       "release-type": "rust",
       "include-component-in-tag": true,
       "extra-files": [
+        {
+          "type": "toml",
+          "path": "/Cargo.lock",
+          "jsonpath": "$.package[?(@.name=='tauri-plugin-android-update')].version"
+        },
         {
           "type": "json",
           "path": "package.json",
