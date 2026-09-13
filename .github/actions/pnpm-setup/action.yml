@@ -1,0 +1,38 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT
+
+name: "Setup pnpm"
+description: "Install pnpm on Node 24 via corepack and optionally restore the pnpm store via actions/cache (when inputs.cache is true) using a per-job/per-run key so parallel jobs don't collide on the same cache save."
+inputs:
+  cache:
+    description: "Whether to restore/save pnpm store via actions/cache"
+    required: false
+    default: "true"
+runs:
+  using: "composite"
+  steps:
+    - name: "⚡ Setup Node"
+      uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+      with:
+        node-version: 24
+
+    - name: "📦 Enable pnpm via corepack"
+      shell: "bash"
+      run: |
+        corepack enable
+        corepack prepare pnpm@12.4.1 --activate
+        pnpm --version
+
+    - name: "📍 Get pnpm store path"
+      if: inputs.cache == 'true'
+      id: "pnpm-store"
+      shell: "bash"
+      run: echo "path=$(pnpm store path)" >> "$GITHUB_OUTPUT"
+    - name: "💾 Cache pnpm store"
+      if: inputs.cache == 'true'
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.pnpm-store.outputs.path }}
+        key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.job }}-${{ github.run_id }}
+        restore-keys: |
+          pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-
