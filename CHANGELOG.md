@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.23.0](https://github.com/hrzlgnm/mdns-browser/compare/v1.22.0...v1.23.0) (2026-09-13)
+
+
+### Features
+
+* manage app releases with release-please ([#2621](https://github.com/hrzlgnm/mdns-browser/issues/2621)) ([b64485a](https://github.com/hrzlgnm/mdns-browser/commit/b64485aaa65649249bb0286e8fd9b189bee4d875))
+* run release-please with GITHUB_TOKEN and auto-approved Release PRs ([#2626](https://github.com/hrzlgnm/mdns-browser/issues/2626)) ([0c66a37](https://github.com/hrzlgnm/mdns-browser/commit/0c66a3731d78b0d4e670e67b16b09646d2fb638e))
+
+
+### Bug Fixes
+
+* **ci:** force tag creation for release-please drafts ([#2625](https://github.com/hrzlgnm/mdns-browser/issues/2625)) ([e8c2dd3](https://github.com/hrzlgnm/mdns-browser/commit/e8c2dd350cb77648cdc7e7dc31ac9bdc3de706ff))
+* **ci:** run release-please with a PAT instead of GITHUB_TOKEN ([#2624](https://github.com/hrzlgnm/mdns-browser/issues/2624)) ([cd89719](https://github.com/hrzlgnm/mdns-browser/commit/cd8971906a984068a4dd12daee938e51499ee55f))
+
 ## [Unreleased] [compare](https://github.com/hrzlgnm/mdns-browser/compare/v1.20.4...HEAD)
 
 ### Added
@@ -5824,5 +5838,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update description in package
 
 - Updater kung-foo ([#54](https://github.com/hrzlgnm/mdns-browser/pull/54))
-
-
