@@ -42,9 +42,15 @@ jobs:
       contents: read
       pull-requests: read
     name: "✅ Approve Release PR workflows"
+    strategy:
+      matrix:
+        branch:
+          - release-please--branches--main
+          - release-please--branches--main--components--tauri-plugin-android-update
+          - release-please--branches--main--components--webkit2gtk-nvidia-quirk
     uses: hrzlgnm/actions/.github/workflows/approve-bot-pr-reusable.yml@49f43ae74193a73b2c1e1e066bf8f31a53b96a09 # v2.14.3
     with:
-      branch: release-please--branches--main--components--mdns-browser-ui
+      branch: ${{ matrix.branch }}
 
   prepare:
     needs: [release-please]

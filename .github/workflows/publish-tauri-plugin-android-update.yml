@@ -3,30 +3,24 @@
 
 name: Publish tauri-plugin-android-update
 
-concurrency:
-  group: ruleset-modification
-  cancel-in-progress: false
+# Versions, tags, changelogs and GitHub releases are owned by
+# release-please. This workflow only publishes an already-tagged
+# release to crates.io and npm.
 
 on:
   workflow_dispatch:
     inputs:
-      bump_version:
-        description: Version bump type
+      tag:
+        description: Release tag to publish (e.g. tauri-plugin-android-update-v0.3.0)
         required: true
-        type: choice
-        options:
-          - none
-          - patch
-          - minor
-          - major
-        default: patch
+        type: string
       dry-run:
-        description: Dry run (no commits/tags/releases)
+        description: Dry run (verify versions without publishing)
         required: true
         type: boolean
         default: false
       publish:
-        description: Publish to crates.io after version bump
+        description: Publish to crates.io after verification
         required: true
         type: boolean
         default: true
@@ -34,20 +28,14 @@ on:
 jobs:
   publish:
     permissions:
-      actions: write
-      contents: write
+      contents: read
       id-token: write # required for npm trusted publishing (OIDC) in the reusable workflow
     uses: ./.github/workflows/publish-crate-reusable.yml
     with:
-      bump_version: ${{ inputs.bump_version }}
+      tag: ${{ inputs.tag }}
       dry_run: ${{ inputs.dry-run }}
       publish: ${{ inputs.publish }}
       crate_name: tauri-plugin-android-update
-      tag_prefix: tauri-plugin-android-update-v
-      git_cliff_config: .github/cliff/cliff-tauri-plugin-android-update.toml
       npm_package_dir: crates/tauri-plugin-android-update
     secrets:
-      GH_ADMIN_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
-      RULESET_ID: ${{ secrets.RULESET_ID }}
-      SSH_SIGNING_KEY: ${{ secrets.SSH_SIGNING_KEY }}
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

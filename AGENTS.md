@@ -282,4 +282,4 @@ When a task could be done by tacking onto existing code or by first restructurin
   updating an action pin, verify upstream that its runtime (`runs.using`)
   is `node24` or later. Node.js 20 and older are deprecated and emit a
   warning on every run.
-- Leave crate versions in `Cargo.toml` and `CHANGELOG.md` entries untouched: the crate publishing workflow bumps versions and generates changelogs automatically (git-cliff, based on conventional commits). Only change source, tests, and docs.
+- Release versions and `CHANGELOG.md` entries are owned by release-please, which manages the app and both library crates (`webkit2gtk-nvidia-quirk`, `tauri-plugin-android-update`) as separate packages: never bump versions or hand-edit changelogs. The crate publish workflows only publish already-tagged releases to crates.io/npm. Only change source, tests, and docs.

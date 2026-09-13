@@ -1,34 +1,104 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "release-type": "rust",
-  "include-component-in-tag": false,
+  "include-component-in-tag": true,
   "include-v-in-tag": true,
   "draft": true,
   "force-tag-creation": true,
   "prerelease": false,
-  "extra-files": [
-    {
-      "type": "json",
-      "path": "src-tauri/tauri.conf.json",
-      "jsonpath": "$.version"
-    },
-    {
-      "type": "toml",
-      "path": "src-tauri/Cargo.toml",
-      "jsonpath": "$.package.version"
-    },
-    {
-      "type": "toml",
-      "path": "crates/models/Cargo.toml",
-      "jsonpath": "$.package.version"
-    },
-    {
-      "type": "toml",
-      "path": "crates/shared_constants/Cargo.toml",
-      "jsonpath": "$.package.version"
-    }
-  ],
+  "separate-pull-requests": true,
   "packages": {
-    ".": {}
+    ".": {
+      "release-type": "simple",
+      "include-component-in-tag": false,
+      "exclude-paths": [
+        "crates/webkit2gtk-nvidia-quirk",
+        "crates/tauri-plugin-android-update"
+      ],
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "Cargo.toml",
+          "jsonpath": "$.package.version"
+        },
+        {
+          "type": "json",
+          "path": "src-tauri/tauri.conf.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "toml",
+          "path": "src-tauri/Cargo.toml",
+          "jsonpath": "$.package.version"
+        },
+        {
+          "type": "toml",
+          "path": "crates/models/Cargo.toml",
+          "jsonpath": "$.package.version"
+        },
+        {
+          "type": "toml",
+          "path": "crates/shared_constants/Cargo.toml",
+          "jsonpath": "$.package.version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name=='mdns-browser-ui')].version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name=='mdns-browser')].version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name=='models')].version"
+        },
+        {
+          "type": "toml",
+          "path": "Cargo.lock",
+          "jsonpath": "$.package[?(@.name=='shared_constants')].version"
+        }
+      ]
+    },
+    "crates/webkit2gtk-nvidia-quirk": {
+      "release-type": "rust",
+      "include-component-in-tag": true,
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "/Cargo.lock",
+          "jsonpath": "$.package[?(@.name=='webkit2gtk-nvidia-quirk')].version"
+        }
+      ]
+    },
+    "crates/tauri-plugin-android-update": {
+      "release-type": "rust",
+      "include-component-in-tag": true,
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "/Cargo.lock",
+          "jsonpath": "$.package[?(@.name=='tauri-plugin-android-update')].version"
+        },
+        {
+          "type": "json",
+          "path": "package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "package-lock.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "package-lock.json",
+          "jsonpath": "$.packages[''].version"
+        }
+      ]
+    }
   }
 }
