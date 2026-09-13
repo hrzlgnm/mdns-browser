@@ -6,7 +6,7 @@ Guidelines and commands for agentic coding agents working on the mdns-browser re
 
 This is a Tauri desktop application for browsing mDNS services with:
 - Rust backend (src-tauri/) using Tauri framework
-- Frontend (src/) built with Leptos web framework
+- Frontend (frontend/) built with SvelteKit and pnpm
 - Shared models and constants in crates/
 - Targets: Windows, macOS, Linux, Android, iOS
 
@@ -16,8 +16,11 @@ cross-platform.
 
 ## Architecture
 
-The frontend code in src/ which also includes the crate models in crates/models/src is platform agnostic.
-It is forbidden to add #[cfg(windows)] or any other platform flags to that code and tests in that code.
+The types in `frontend/src/lib/types.ts` are generated from the Rust
+boundary types in `crates/models` via ts-rs — never hand-edit them.
+Regenerate with `scripts/export-types.sh` (runs the export test plus
+prettier); CI fails on drift. Note that plain `cargo test` rewrites the
+file without prettier formatting, so always use the script.
 
 ## Essential Commands
 
@@ -52,7 +55,9 @@ cargo nextest run --profile ci test_name
 
 ```bash
 cargo fmt                                       # format Rust code
-leptosfmt src                                   # format Leptos components
+pnpm --dir frontend run format:check            # check frontend formatting
+pnpm --dir frontend run lint                    # lint frontend (eslint)
+pnpm --dir frontend run check                   # type-check frontend (svelte-check)
 cargo clippy --workspace --tests -- -D warnings # lint
 
 # Validate renovate configuration (when .github/renovate.json5 changed)
@@ -64,10 +69,13 @@ npx --yes -p renovate@latest renovate-config-validator .github/renovate.json5
 ```bash
 cargo fmt -- --check && \
 cargo fmt --manifest-path src-tauri/Cargo.toml -- --check && \
-leptosfmt --check src && \
+pnpm --dir frontend run format:check && \
+pnpm --dir frontend run lint && \
+pnpm --dir frontend run check && \
 cargo clippy --workspace --tests -- -D warnings && \
 cargo clippy --release --workspace --tests -- -D warnings && \
 cargo nextest run --profile ci --workspace && \
+./scripts/export-types.sh && git diff --exit-code frontend/src/lib/types.ts && \
 actionlint .github/workflows/*.yml
 ```
 
@@ -105,13 +113,16 @@ All source files must include:
 - Use workspace dependencies defined in root Cargo.toml
 - Keep imports at file level, not inside functions
 
-### Leptos Frontend Style
+### JavaScript / TypeScript / Svelte
 
-- Use `leptosfmt` for component formatting
-- Files in `src/app/` are organized by feature
-- Use leptos `prelude::*` imports consistently
-- Prefer `<Show>` over conditional rendering in view! macros
-- Use `view! { }` macro for all UI components
+- Use no semicolons, single quotes, 2-space indentation, and trailing commas in multiline constructs.
+- Name components in PascalCase (`NodeDetail.svelte`), utilities in kebab-case (`store.ts`), functions and variables in camelCase, and types in PascalCase.
+- Group imports as Svelte, third-party, then local. Use `import type { ... }` for type-only imports.
+- Use Svelte 5 runes such as `$state()` and `$effect()`, `onclick` rather than `on:click`, and SvelteKit `+page.svelte` / `+layout.ts` conventions.
+- Build event-driven stores with `writable`, `derived`, and `get` from `svelte/store`.
+- Pin devDependencies exactly (`"3.0.10"`) and runtime dependencies with a caret (`"^2"`).
+- Prefix frontend logs with `[mdns-browser]`. Use `console.debug` for startup diagnostics, `console.warn` for caught non-fatal errors, and `console.error` for failures; do not commit `console.log` calls.
+- Text inputs (`<input type="text|search|email|url">`, `<textarea>`) must include `autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false"` unless capitalization is explicitly desired.
 
 ### Error Handling
 
@@ -136,6 +147,10 @@ All source files must include:
 - All structs crossing the frontend-backend boundary need `#[derive(Serialize, Deserialize)]`
 - Use `serde(rename_all = "camelCase")` for frontend compatibility
 - Dates use microsecond timestamps with `serde_with::DisplayFromStr`
+- Every boundary struct/enum additionally derives `ts_rs::TS` so
+  `scripts/export-types.sh` regenerates `frontend/src/lib/types.ts`;
+  fields whose wire type differs from the Rust type (e.g. micros-as-string)
+  need an explicit `#[ts(type = "string")]` override
 
 ### Testing Guidelines
 
@@ -156,9 +171,12 @@ All source files must include:
 ## Project Structure
 
 ```text
-├── src/                          # Leptos frontend
-│   ├── app/                      # Feature modules
-│   └── main.rs                   # Frontend entry point
+├── frontend/                     # SvelteKit frontend (pnpm)
+│   ├── src/
+│   │   ├── routes/               # +page.svelte, +layout.ts (ssr = false)
+│   │   └── lib/                  # api.ts, store.ts, types.ts (generated), components/
+│   ├── static/                   # splashscreen.html
+│   └── package.json
 ├── src-tauri/                    # Tauri backend
 │   ├── src/                      # Rust backend code
 │   ├── tauri.conf.json           # Tauri configuration
@@ -167,7 +185,7 @@ All source files must include:
 │   ├── models/                   # Data structures and validation
 │   └── shared_constants/         # Constants shared across crates
 ├── docs/agents/                  # Task-specific agent guides
-├── Trunk.toml                    # Frontend build configuration
+├── scripts/export-types.sh       # Regenerate frontend types via ts-rs
 ├── Cargo.toml                    # Workspace configuration
 └── .config/nextest.toml          # Test configuration
 ```
@@ -237,7 +255,7 @@ findings are fixed.
 
 - **When:** after all checks pass on the final commit(s), before
   `git push` and before `gh pr create`. Re-run after every fixup that
-  touches `src/`, `src-tauri/`, `crates/`, or docs.
+  touches `frontend/`, `src-tauri/`, `crates/`, or docs.
 - **How:** load the `code-review` skill (skill tool `name: "code-review"`).
   Pin the fixed point to `main` (use `origin/main` if `main` is stale)
   and pass `git diff main...HEAD` (three-dot, merge-base) plus

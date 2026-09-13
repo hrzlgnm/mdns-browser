@@ -20,7 +20,7 @@ cat <<EOF
 pkgname=mdns-browser-bin
 pkgver=$version
 pkgrel=1
-pkgdesc="A cross platform mDNS browsing app written in Rust using tauri and leptos "
+pkgdesc="A cross platform mDNS browsing app written in Rust using tauri and svelte "
 arch=('x86_64')
 url="https://github.com/hrzlgnm/mdns-browser"
 license=('MIT')

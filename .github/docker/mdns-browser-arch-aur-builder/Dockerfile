@@ -18,12 +18,12 @@ RUN pacman -Syu --noconfirm \
     libappindicator-gtk3 \
     librsvg \
     namcap \
+    nodejs \
     openssh \
+    pnpm \
     rust \
-    rust-wasm \
     webkit2gtk-4.1 \
     sudo \
-    trunk \
     wget \
     libsoup3 \
     && useradd -m -G wheel -s /bin/bash runner \
