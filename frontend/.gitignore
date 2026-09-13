@@ -1,0 +1,4 @@
+/build/
+/.svelte-kit/
+/package/
+node_modules

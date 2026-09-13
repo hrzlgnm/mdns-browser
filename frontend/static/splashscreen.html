@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<!--
+ Copyright 2024-2025 hrzlgnm
+ SPDX-License-Identifier: MIT
+-->
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mDNS-Browser loading...</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgb(41, 41, 41);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+        .splash-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: rgb(255, 255, 255);
+        }
+        .spinner {
+            border: 12px solid rgb(17, 94, 163);
+            border-top: 12px solid rgb(24, 24, 24);
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            animation: spin 1.25s linear infinite;
+            margin-top: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-screen">
+        <div class="spinner"></div>
+        <div id="loading-text" style="padding-top: 10px;"/>
+    </div>
+    <script>
+        const loadingMessages = [
+            "Resolving hostname to IP address...",
+            "Sending multicast DNS query...",
+            "Listening for mDNS responses...",
+            "Joining multicast group...",
+            "Waiting for service discovery...",
+            "Parsing DNS-SD records...",
+            "Verifying service instance names...",
+            "Checking for duplicate responses...",
+            "Processing SRV records...",
+            "Updating service cache...",
+            "Decoding TXT records...",
+            "Awaiting multicast traffic...",
+            "Detecting new mDNS responders...",
+            "Synchronizing service records...",
+            "Refreshing DNS cache...",
+            "Resolving service names...",
+            "Handling mDNS probe packets...",
+            "Confirming network visibility...",
+            "Renewing multicast group membership...",
+            "Handling TTL expiration...",
+            "Synchronizing with peer responders...",
+            "Processing AAAA records...",
+            "Propagating service updates...",
+            "Detecting network changes...",
+            "Synchronizing cache with peers...",
+            "Handling interface changes...",
+            "Parsing multicast packets...",
+            "Resolving IPv4 and IPv6 addresses...",
+            "Processing incoming service announcements...",
+            "Confirming service visibility...",
+            "Listening for service queries...",
+            "Parsing incoming PTR records...",
+            "Decoding incoming SRV records...",
+            "Handling cache synchronization...",
+            "Processing service instance updates...",
+            "Revalidating service records...",
+            "Handling service deregistrations...",
+            "Counting to infinity...",
+            "Locating the nearest pizza...",
+            "Pretending to work...",
+            "Finding the end of the internet...",
+            "Casting packets into the void...",
+            "Setting up IPC channels with backend...",
+            "Enumerating service types..."
+        ];
+
+        function changeLoadingText() {
+            const loadingTextElement = document.getElementById('loading-text');
+            const randomIndex = Math.floor(Math.random() * loadingMessages.length);
+            loadingTextElement.textContent = loadingMessages[randomIndex];
+            const randomDelay = Math.floor(Math.random() * 100) + 75;
+            setTimeout(changeLoadingText, randomDelay);
+        }
+        changeLoadingText();
+    </script>
+</body>
+</html>
