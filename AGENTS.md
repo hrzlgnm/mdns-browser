@@ -56,7 +56,7 @@ leptosfmt src                                   # format Leptos components
 cargo clippy --workspace --tests -- -D warnings # lint
 
 # Validate renovate configuration (when .github/renovate.json5 changed)
-docker run --rm --volume=$(pwd)/.github/renovate.json5:/github/renovate.json5:ro --workdir=/github kokuwaio/renovate-config-validator:latest
+npx --yes -p renovate@latest renovate-config-validator .github/renovate.json5
 ```
 
 ### Full check (run before every commit)
