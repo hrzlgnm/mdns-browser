@@ -45,7 +45,7 @@ jobs:
     strategy:
       matrix:
         branch:
-          - release-please--branches--main
+          - release-please--branches--main--components--mdns-browser-ui
           - release-please--branches--main--components--tauri-plugin-android-update
           - release-please--branches--main--components--webkit2gtk-nvidia-quirk
     uses: hrzlgnm/actions/.github/workflows/approve-bot-pr-reusable.yml@275b5f2d90d762bd71567db08b250d8ba7cdb274 # v2.14.4
