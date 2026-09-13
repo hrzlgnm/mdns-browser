@@ -71,7 +71,7 @@
     const added = current.filter((st) => !previousTypes.has(st))
     previousTypes = new Set(current)
     if (added.length > 0 && $browsing && serviceTypeInput === '') {
-      console.info('[mdns-browser] added services while browsing all:', added)
+      console.debug('[mdns-browser] added services while browsing all:', added)
       void browseMany(added)
     }
   })
