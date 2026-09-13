@@ -1,9 +1,8 @@
 # Hack to make ripgrep and other tools not to ignore .github directory
 !.github/
 
-/dist/
-/target/
 /.idea
+/target/
 
 # Gradle build output inside Tauri plugin android modules
 **/android/build/

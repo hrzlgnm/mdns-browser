@@ -34,7 +34,7 @@ jobs:
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
         with:
-          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
+          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: 🛠️ nextest
         uses: baptiste0928/cargo-install@f204293d9709061b7bc1756fec3ec4e2cd57dec0 # v3

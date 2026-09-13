@@ -4,16 +4,17 @@
 
 Before you begin, make sure you meet the necessary prerequisites. You can find more details in the official [Tauri Guide](https://tauri.app/start/prerequisites/).
 
-### Rust Additional Targets
+### Node.js and pnpm
 
-You'll need to add an additional Rust target:
+The frontend is a SvelteKit app in `frontend/`. You'll need:
 
-- **Target**: `wasm32-unknown-unknown`
+- **Node.js**: version 24 or newer
+- **pnpm**: version 12 (see the `packageManager` field in `frontend/package.json`)
 
-To install it, run the following command using `rustup`:
+Install frontend dependencies with:
 
 ```console
-rustup target add wasm32-unknown-unknown
+pnpm --dir frontend install --frozen-lockfile
 ```
 
 ### Development Libraries
@@ -53,14 +54,12 @@ sudo pacman -S --needed \
 
 ### Rust Crates
 
-You'll also need the following Rust crates:
+You'll also need the following Rust crate:
 
-- `trunk`
 - `tauri-cli`
 
-You can install them using `cargo` with the command:
+You can install it using `cargo` with the command:
 
 ```console
-cargo install --locked trunk tauri-cli
-
+cargo install --locked tauri-cli
 ```

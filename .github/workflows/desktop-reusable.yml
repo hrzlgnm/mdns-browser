@@ -60,7 +60,7 @@ jobs:
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
         with:
-          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
+          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
           save-cache: ${{ inputs.branch == 'main' }}
 
       - name: 📝 Extract version from tauri.conf.json
@@ -78,6 +78,14 @@ jobs:
 
       - name: 🛠️🐂
         uses: ./.github/actions/setup-tauri
+
+      - name: ⚡ Setup pnpm and cache store
+        uses: ./.github/actions/pnpm-setup
+
+      - name: 📦 Install frontend dependencies
+        uses: hrzlgnm/actions/.github/actions/retry@275b5f2d90d762bd71567db08b250d8ba7cdb274 # v2.14.4
+        with:
+          command: pnpm --dir frontend install --frozen-lockfile
 
       - name: 🛠️🚀
         if: (!inputs.tagName && runner.os != 'Windows')
