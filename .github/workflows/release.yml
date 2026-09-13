@@ -52,43 +52,8 @@ jobs:
     with:
       branch: ${{ matrix.branch }}
 
-  prepare:
-    needs: [release-please]
-    if: needs.release-please.outputs.release_created == 'true'
-    permissions:
-      contents: read # checkout only; version sync is applied to the working tree, not committed
-    runs-on: ubuntu-slim
-    name: 📦 Prepare versioned sources
-    steps:
-      - name: 🔄 Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: ${{ needs.release-please.outputs.sha }}
-          persist-credentials: false
-
-      - name: 🦀 Install Rust toolchain for cargo-edit
-        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
-
-      - name: 🎯 Sync version from release-please tag
-        uses: ./.github/actions/sync-version
-        with:
-          tagName: ${{ needs.release-please.outputs.tag_name }}
-
-      - name: 📤 Upload versioned sources artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: versioned-sources
-          path: |
-            CHANGELOG.md
-            Cargo.toml
-            Cargo.lock
-            src-tauri/Cargo.toml
-            src-tauri/tauri.conf.json
-            crates/models/Cargo.toml
-            crates/shared_constants/Cargo.toml
-
   source_checksums:
-    needs: [release-please, prepare]
+    needs: [release-please]
     if: needs.release-please.outputs.release_created == 'true'
     permissions:
       contents: write # to upload source checksums to release
@@ -100,13 +65,12 @@ jobs:
       tagName: ${{ needs.release-please.outputs.tag_name }}
 
   build_android:
-    needs: [release-please, prepare]
+    needs: [release-please]
     if: needs.release-please.outputs.release_created == 'true'
     permissions:
       id-token: write # needed for OIDC token for attestation
       attestations: write # needed to create build attestations
       contents: write # needed to upload build artifacts
-      actions: read # needed to download workflow artifacts
     name: 🔨 Build Android
     uses: ./.github/workflows/android-reusable.yml
     secrets: inherit
@@ -114,13 +78,12 @@ jobs:
       tagName: ${{ needs.release-please.outputs.tag_name }}
 
   build_desktop:
-    needs: [release-please, prepare]
+    needs: [release-please]
     if: needs.release-please.outputs.release_created == 'true'
     permissions:
       id-token: write # needed for OIDC token for attestation
       attestations: write # needed to create build attestations
       contents: write # needed to upload build artifacts
-      actions: read # needed to download workflow artifacts
     name: 🔨 Build Desktop
     uses: ./.github/workflows/desktop-reusable.yml
     secrets: inherit
