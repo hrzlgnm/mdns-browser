@@ -60,8 +60,6 @@ serde_json = { workspace = true }
 members = [
     "crates/models",
     "crates/shared_constants",
-    "crates/tauri-plugin-android-update",
-    "crates/webkit2gtk-nvidia-quirk",
     "src-tauri",
 ]
 resolver = "2"
@@ -72,21 +70,17 @@ reactive_stores = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_with = "3"
-semver = "1.0"
 log = "0.4"
 thiserror = "2.0"
 tokio = { version = "1.45", features = ["time"] }
 mdns-sd = "0.21"
 tauri = { version = "2.0", features = ["devtools"] }
 tauri-plugin = "2"
-tauri-plugin-android-update = { path = "crates/tauri-plugin-android-update" }
+tauri-plugin-android-update = "0.2"
 tauri-plugin-clipboard-manager = "2.2"
 tauri-plugin-log = { version = "2.4", features = ["colored"] }
 tauri-plugin-opener = "2.2"
 tauri-plugin-updater = "2.0"
-reqwest = { version = "0.12", default-features = false, features = [
-    "rustls-tls",
-] }
 pnet = "0.35"
 ipconfig = "0.3"
 clap = { version = "4.5", features = ["derive"] }

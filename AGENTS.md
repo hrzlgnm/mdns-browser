@@ -163,10 +163,9 @@ All source files must include:
 │   ├── src/                      # Rust backend code
 │   ├── tauri.conf.json           # Tauri configuration
 │   └── Cargo.toml                # Backend dependencies
-├── crates/                       # Shared libraries and custom Tauri plugins
+├── crates/                       # Shared libraries
 │   ├── models/                   # Data structures and validation
-│   ├── shared_constants/         # Constants shared across crates
-│   └── webkit2gtk-nvidia-quirk/  # WebKit2Gtk NVIDIA quirk
+│   └── shared_constants/         # Constants shared across crates
 ├── docs/agents/                  # Task-specific agent guides
 ├── Trunk.toml                    # Frontend build configuration
 ├── Cargo.toml                    # Workspace configuration
@@ -282,4 +281,4 @@ When a task could be done by tacking onto existing code or by first restructurin
   updating an action pin, verify upstream that its runtime (`runs.using`)
   is `node24` or later. Node.js 20 and older are deprecated and emit a
   warning on every run.
-- Release versions and `CHANGELOG.md` entries are owned by release-please, which manages the app and both library crates (`webkit2gtk-nvidia-quirk`, `tauri-plugin-android-update`) as separate packages: never bump versions or hand-edit changelogs. The crate publish workflows only publish already-tagged releases to crates.io/npm. Only change source, tests, and docs.
+- Release versions and `CHANGELOG.md` entries are owned by release-please: never bump versions or hand-edit changelogs. The former in-repo library crates (`webkit2gtk-nvidia-quirk`, `tauri-plugin-android-update`) now release from their own repositories; updates arrive here as crates.io version bumps (Renovate proposes them). Only change source, tests, and docs.

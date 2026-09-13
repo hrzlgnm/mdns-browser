@@ -50,7 +50,6 @@ jobs:
       branch: ${{ steps.branch.outputs.branch }}
       desktop: ${{ steps.filter.outputs.desktop }}
       docker: ${{ steps.filter.outputs.docker }}
-      js: ${{ steps.filter.outputs.js }}
       lint: ${{ steps.filter.outputs.lint }}
       tauri: ${{ steps.filter.outputs.tauri }}
       tests: ${{ steps.filter.outputs.tests }}
@@ -89,13 +88,6 @@ jobs:
               - 'src-tauri/tauri.conf.json'
             docker:
               - '.github/docker/**'
-            js:
-              - '.github/workflows/js-reusable.yml'
-              - 'crates/tauri-plugin-android-update/guest-js/**'
-              - 'crates/tauri-plugin-android-update/package.json'
-              - 'crates/tauri-plugin-android-update/package-lock.json'
-              - 'crates/tauri-plugin-android-update/rollup.config.js'
-              - 'crates/tauri-plugin-android-update/tsconfig.json'
             tauri:
               - '.github/actions/setup-*/**'
               - 'crates/**/src/**'
@@ -156,13 +148,6 @@ jobs:
       - actionlint
     if: needs.changes.outputs.tauri == 'true' || needs.changes.outputs.lint == 'true'
     uses: ./.github/workflows/lint-reusable.yml
-
-  js:
-    needs:
-      - changes
-      - actionlint
-    if: needs.changes.outputs.js == 'true'
-    uses: ./.github/workflows/js-reusable.yml
 
   tests:
     permissions:
@@ -232,7 +217,6 @@ jobs:
       - aur
       - winget
       - lint
-      - js
       - tests
       - android
       - desktop
@@ -247,7 +231,6 @@ jobs:
             aur,
             winget,
             lint,
-            js,
             tests,
             android,
             desktop,

@@ -5730,7 +5730,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-android-update"
-version = "0.2.0"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "096510de0ace24d78ea52f047a24515c4a9d874cf9a9fb30bcdf9cb75788c33a"
 dependencies = [
  "log",
  "reqwest 0.12.28",
@@ -6870,7 +6872,9 @@ dependencies = [
 
 [[package]]
 name = "webkit2gtk-nvidia-quirk"
-version = "2.1.0"
+version = "2.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed50f048442dcab3701ac8d0867a7cfedd88947cd54b240e6e02f284c8acb09a"
 
 [[package]]
 name = "webkit2gtk-sys"
