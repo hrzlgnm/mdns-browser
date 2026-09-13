@@ -40,7 +40,7 @@ export async function downloadAndInstall(desktop: boolean, rid: number | null): 
     if (rid === null) throw new Error('there is no pending update')
     const onEvent = new Channel<DownloadEvent>()
     onEvent.onmessage = (event) => {
-      console.info('[mdns-browser] update download event:', event)
+      console.debug('[mdns-browser] update download event:', event)
     }
     await invoke('plugin:updater|download_and_install', { rid, onEvent })
     await invoke('restart')
