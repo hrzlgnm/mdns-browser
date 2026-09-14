@@ -33,3 +33,9 @@
 {:else}
   <div class="hidden"></div>
 {/if}
+
+<style>
+  th {
+    text-align: center;
+  }
+</style>
