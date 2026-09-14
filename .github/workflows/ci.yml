@@ -91,16 +91,13 @@ jobs:
             tauri:
               - '.github/actions/setup-*/**'
               - 'crates/**/src/**'
-              - 'public/**'
-              - 'src/**'
+              - 'frontend/**'
+              - 'scripts/export-types.sh'
               - 'src-tauri/Cargo.toml'
               - 'src-tauri/src/**'
               - 'src-tauri/build.rs'
-              - 'index.html'
-              - 'index.js'
               - 'Cargo.toml'
               - 'Cargo.lock'
-              - 'style.css'
               - '.taurignore'
             lint:
               - '.github/workflows/lint-reusable.yml'

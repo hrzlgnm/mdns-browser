@@ -9,14 +9,6 @@ runs:
   steps:
     - uses: baptiste0928/cargo-install@8195d4f734a149db85385bb4102b42efcd373759 # v3
       with:
-        crate: trunk
-        version: 0.21.14
-        locked: true
-        args: --no-default-features
-        features: rustls
-
-    - uses: baptiste0928/cargo-install@8195d4f734a149db85385bb4102b42efcd373759 # v3
-      with:
         crate: cargo-auditable
         version: 0.7.6
         locked: true

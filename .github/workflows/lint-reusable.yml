@@ -28,7 +28,7 @@ jobs:
           cargo fmt -- --check
           cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 
-  leptosfmt:
+  prettier:
     runs-on: ubuntu-latest
     steps:
       - name: 🔄 Checkout
@@ -37,16 +37,88 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - name: 📥 Cached install leptosfmt
-        uses: baptiste0928/cargo-install@8195d4f734a149db85385bb4102b42efcd373759 # v3
-        with:
-          crate: leptosfmt
-          version: 0.1.33
-          locked: true
+      - name: ⚡ Setup pnpm and cache store
+        uses: ./.github/actions/pnpm-setup
 
-      - name: 📐 Run leptosfmt and fail if any warnings
+      - name: 📦 Install dependencies
+        uses: hrzlgnm/actions/.github/actions/retry@275b5f2d90d762bd71567db08b250d8ba7cdb274 # v2.14.4
+        with:
+          command: pnpm --dir frontend install --frozen-lockfile
+
+      - name: 🎨 Run prettier and fail if any warnings
+        shell: bash
         run: |
-          leptosfmt --check src
+          pnpm --dir frontend run format:check
+
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: ⚡ Setup pnpm and cache store
+        uses: ./.github/actions/pnpm-setup
+
+      - name: 📦 Install dependencies
+        uses: hrzlgnm/actions/.github/actions/retry@275b5f2d90d762bd71567db08b250d8ba7cdb274 # v2.14.4
+        with:
+          command: pnpm --dir frontend install --frozen-lockfile
+
+      - name: 🧹 Run eslint and fail if any warnings
+        shell: bash
+        run: |
+          pnpm --dir frontend run lint
+
+  svelte-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: ⚡ Setup pnpm and cache store
+        uses: ./.github/actions/pnpm-setup
+
+      - name: 📦 Install dependencies
+        uses: hrzlgnm/actions/.github/actions/retry@275b5f2d90d762bd71567db08b250d8ba7cdb274 # v2.14.4
+        with:
+          command: pnpm --dir frontend install --frozen-lockfile
+
+      - name: 🔍 Run svelte-check and fail if any warnings
+        shell: bash
+        run: |
+          pnpm --dir frontend run check
+
+  types-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
+
+      - name: ⚡ Setup pnpm and cache store
+        uses: ./.github/actions/pnpm-setup
+
+      - name: 📦 Install dependencies
+        uses: hrzlgnm/actions/.github/actions/retry@275b5f2d90d762bd71567db08b250d8ba7cdb274 # v2.14.4
+        with:
+          command: pnpm --dir frontend install --frozen-lockfile
+
+      - name: 📝 Regenerate types and fail on drift
+        shell: bash
+        run: |
+          ./scripts/export-types.sh
+          git diff --exit-code frontend/src/lib/types.ts
 
   clippy:
     strategy:
@@ -75,7 +147,7 @@ jobs:
         uses: ./.github/actions/setup-rust-cache
         with:
           components: clippy
-          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin,wasm32-unknown-unknown' || 'wasm32-unknown-unknown' }}
+          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       # Clippy emits metadata only, which sccache cannot cache.
       - name: 📎 Run clippy and fail if any warnings

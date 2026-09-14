@@ -3,6 +3,7 @@
     extends: [
         "config:best-practices",
         "monorepo:tauri",
+        "group:tauriMonorepo",
         "security:openssf-scorecard",
         ":automergeDigest",
         ":automergeMinor",
@@ -20,6 +21,20 @@
         ":separateMajorReleases",
     ],
     packageRules: [
+        {
+            description: "Remove 3-day minimumReleaseAge for Tauri npm packages to stay in sync with Cargo crates (config:best-practices delays npm 3 days, crate 0 days)",
+            matchDatasources: ["npm"],
+            matchSourceUrls: [
+                "https://github.com/tauri-apps/tauri",
+                "https://github.com/tauri-apps/plugins-workspace",
+            ],
+            minimumReleaseAge: null,
+        },
+        {
+            description: "Group Tauri plugins-workspace with tauri monorepo (group:tauriMonorepo only covers tauri, not plugins)",
+            matchSourceUrls: ["https://github.com/tauri-apps/plugins-workspace"],
+            groupName: "tauri monorepo",
+        },
         {
             description: "Use fix prefix for direct cargo dependency updates, including lockfile-only ones",
             matchManagers: ["cargo"],

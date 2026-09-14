@@ -19,13 +19,13 @@ cat <<EOF
 pkgname=mdns-browser
 pkgver=$version
 pkgrel=1
-pkgdesc="A cross platform mDNS browsing app written in Rust using tauri and leptos"
+pkgdesc="A cross platform mDNS browsing app written in Rust using tauri and svelte"
 arch=('x86_64')
 url="https://github.com/hrzlgnm/mdns-browser"
 license=('MIT')
 depends=('cairo' 'desktop-file-utils' 'gdk-pixbuf2' 'glib2' 'gtk3' 'hicolor-icon-theme' 'libsoup3' 'pango' 'webkit2gtk-4.1' 'openssl')
 conflicts=('mdns-browser-bin')
-makedepends=('cargo' 'cargo-auditable' 'git' 'file' 'appmenu-gtk-module' 'libappindicator-gtk3' 'librsvg' 'base-devel' 'curl' 'wget' 'rust' 'rust-wasm' 'trunk')
+makedepends=('cargo' 'cargo-auditable' 'git' 'file' 'appmenu-gtk-module' 'libappindicator-gtk3' 'librsvg' 'base-devel' 'curl' 'wget' 'rust' 'nodejs' 'pnpm')
 options=('!strip' '!emptydirs')
 source=("$tag.tar.gz::https://github.com/hrzlgnm/\$pkgname/archive/refs/tags/$tag.tar.gz")
 sha256sums=('$sha256sum')
@@ -34,7 +34,7 @@ prepare() {
     cd "\$srcdir/\$_builddir" || exit 1
     cargo --locked install tauri-cli@2.11.4
     cargo fetch --locked --target "\$(rustc -vV | sed -n 's/host: //p')"
-    cargo fetch --locked --target wasm32-unknown-unknown
+    pnpm --dir frontend install --frozen-lockfile
 }
 build() {
     cd "\$srcdir/\$_builddir" || exit 1
