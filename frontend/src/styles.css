@@ -54,10 +54,10 @@ body {
   overflow: auto;
 }
 .resolved-service-dead {
-  color: var(--colorPaletteDarkOrangeForeground1);
+  color: var(--colorPaletteDarkOrangeForeground1, #d83b01);
 }
 .resolved-service-alive {
-  color: var(--colorBrandForeground1);
+  color: var(--colorBrandForeground1, #0078d4);
 }
 .theme-switcher {
   cursor: pointer;
@@ -80,6 +80,8 @@ body {
 }
 .mobile-resolved-service-card {
   width: 480px;
+  border: 1px solid var(--colorNeutralStroke1, #808080);
+  border-radius: 4px;
 }
 .mobile-resolved-service-grid {
   display: grid;
@@ -119,6 +121,8 @@ body {
 }
 .desktop-resolved-service-card {
   width: 520px;
+  border: 1px solid var(--colorNeutralStroke1, #808080);
+  border-radius: 4px;
 }
 .desktop-resolved-service-grid {
   display: grid;
