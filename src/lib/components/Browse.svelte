@@ -130,7 +130,7 @@
       <button type="button" class="themed-button" onclick={onStop} disabled={!$browsing}>
         Stop
       </button>
-      <span>{filtered.length}/{sortedServices.length}</span>
+      <span class="themed-badge">{filtered.length}/{sortedServices.length}</span>
     </div>
     <div>
       <span>Sort by</span>

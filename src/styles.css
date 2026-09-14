@@ -331,3 +331,14 @@ body {
 input[type='checkbox'] {
   accent-color: var(--accent);
 }
+.themed-badge {
+  display: inline-block;
+  padding: 0.1em 0.6em;
+  border: 1px solid var(--service-type-border);
+  border-radius: 1em;
+  background: var(--service-type-bg);
+  color: var(--service-type-font);
+  font-size: 0.9em;
+  font-weight: 600;
+  white-space: nowrap;
+}
