@@ -9,10 +9,11 @@ use std::{
     net::IpAddr,
     time::SystemTime,
 };
+use ts_rs::TS;
 
 pub type ServiceTypes = Vec<String>;
 
-#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, Store)]
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, Store, TS)]
 pub struct TxtRecord {
     pub key: String,
     pub val: Option<String>,
@@ -38,13 +39,13 @@ impl TxtRecord {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Store)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Store, TS)]
 pub struct InterfaceScope {
     pub name: String,
     pub index: u32,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Store)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Store, TS)]
 pub struct ScopedAddr {
     pub addr: IpAddr,
     pub interfaces: BTreeSet<InterfaceScope>,
@@ -86,7 +87,7 @@ impl ScopedAddr {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Store)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Store, TS)]
 pub struct ResolvedService {
     pub instance_fullname: String,
     pub service_type: String,
@@ -96,6 +97,7 @@ pub struct ResolvedService {
     pub subtype: Option<String>,
     pub txt: Vec<TxtRecord>,
     #[serde(with = "serde_with::As::<serde_with::DisplayFromStr>")]
+    #[ts(type = "string")]
     pub updated_at_micros: u64,
     pub dead: bool,
 }
@@ -188,7 +190,7 @@ fn byte_array_hexlified(byte_array: &[u8]) -> String {
 }
 
 /// A network interface that can be selected for mDNS browsing.
-#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug, Store)]
+#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug, Store, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct NetworkInterface {
     pub name: String,
@@ -197,40 +199,41 @@ pub struct NetworkInterface {
 }
 
 /// Event emitted when the set of mDNS-capable network interfaces changes.
-#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug)]
+#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfacesChangedEvent {
     pub interfaces: Vec<NetworkInterface>,
 }
 
-#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug)]
+#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug, TS)]
 pub struct MetricsChangedEvent {
     pub metrics: HashMap<String, i64>,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug, TS)]
 pub struct ServiceResolvedEvent {
     pub service: ResolvedService,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug, TS)]
 pub struct ServiceTypeFoundEvent {
     pub service_type: String,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug, TS)]
 pub struct ServiceRemovedEvent {
     pub instance_name: String,
     #[serde(with = "serde_with::As::<serde_with::DisplayFromStr>")]
+    #[ts(type = "string")]
     pub at_micros: u64,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug, TS)]
 pub struct ThemeChangedEvent {
     pub theme: String,
 }
 
-#[derive(Deserialize, Serialize, Clone, Eq, PartialEq, Debug, Store)]
+#[derive(Deserialize, Serialize, Clone, Eq, PartialEq, Debug, Store, TS)]
 pub struct ProtocolFlags {
     pub ipv4: bool,
     pub ipv6: bool,
@@ -245,7 +248,7 @@ impl Default for ProtocolFlags {
     }
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateMetadata {
     pub version: String,
@@ -371,6 +374,60 @@ pub fn check_service_type_fully_qualified(service_type: &str) -> Result<MdnsLabe
     }
 
     Ok(MdnsLabelType::ServiceType)
+}
+
+#[cfg(test)]
+mod ts_export {
+    use super::*;
+    use std::fs;
+    use std::path::PathBuf;
+    use ts_rs::{Config, TS};
+
+    /// Regenerates `frontend/src/lib/types.ts` from the boundary types.
+    /// Run via `scripts/export-types.sh`; CI fails on drift with
+    /// `git diff --exit-code frontend/src/lib/types.ts`.
+    #[test]
+    fn export_types() {
+        // `u64` micros fields are strings on the wire (`DisplayFromStr`,
+        // overridden per-field); remaining large ints (metrics values) are
+        // JSON numbers.
+        let config = Config::new().with_large_int("number");
+        let decls = [
+            TxtRecord::decl(&config),
+            InterfaceScope::decl(&config),
+            ScopedAddr::decl(&config),
+            ResolvedService::decl(&config),
+            NetworkInterface::decl(&config),
+            InterfacesChangedEvent::decl(&config),
+            MetricsChangedEvent::decl(&config),
+            ServiceResolvedEvent::decl(&config),
+            ServiceTypeFoundEvent::decl(&config),
+            ServiceRemovedEvent::decl(&config),
+            ThemeChangedEvent::decl(&config),
+            ProtocolFlags::decl(&config),
+            UpdateMetadata::decl(&config),
+        ];
+        let mut out = String::from(
+            "// GENERATED by ts-rs — do not edit. Regenerate with scripts/export-types.sh.\n",
+        );
+        out.push_str("export type ServiceTypes = Array<string>;\n");
+        for decl in decls {
+            let decl = decl.trim();
+            if let Some(rest) = decl.strip_prefix("type ") {
+                out.push_str("export type ");
+                out.push_str(rest);
+            } else {
+                out.push_str(decl);
+            }
+            out.push('\n');
+        }
+        let path =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../frontend/src/lib/types.ts");
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent).expect("To create frontend/src/lib");
+        }
+        fs::write(&path, out).expect("To write types.ts");
+    }
 }
 
 #[cfg(test)]
