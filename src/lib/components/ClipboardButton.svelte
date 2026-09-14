@@ -30,10 +30,10 @@
 
 <button type="button" class={cls} onclick={onClick} title={buttonText}>
   {#if iconOnly}
-    <MdiClipboardText class="clipboard-icon" width="1em" height="1em" aria-hidden="true" />
+    <MdiClipboardText class="clipboard-icon" width="1.2em" height="1.2em" aria-hidden="true" />
   {:else if iconClass}
     <span class="clipboard-icon {iconClass}" aria-hidden="true">
-      <MdiCircle width="1em" height="1em" aria-hidden="true" />
+      <MdiCircle width="1.2em" height="1.2em" aria-hidden="true" />
     </span>
   {/if}
   {#if !iconOnly}

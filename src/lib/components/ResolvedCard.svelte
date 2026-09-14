@@ -128,7 +128,7 @@
             class="themed-button themed-button-small"
             onclick={() => (showDetails = true)}
           >
-            <MdiListBox width="1em" height="1em" aria-hidden="true" />
+            <MdiListBox width="1.2em" height="1.2em" aria-hidden="true" />
             Details
           </button>
         </td>
@@ -139,7 +139,7 @@
             onclick={onVerify}
             disabled={cannotVerify}
           >
-            <MdiCheckAll width="1em" height="1em" aria-hidden="true" />
+            <MdiCheckAll width="1.2em" height="1.2em" aria-hidden="true" />
             {verifying ? 'Verifying…' : 'Verify'}
           </button>
           <button
@@ -150,7 +150,7 @@
             }}
             disabled={url === null}
           >
-            <MdiOpenInNew width="1em" height="1em" aria-hidden="true" />
+            <MdiOpenInNew width="1.2em" height="1.2em" aria-hidden="true" />
             Open
           </button>
         </td>
@@ -177,7 +177,7 @@
     >
       <div class="dialog-header">
         <span class={deadOrAliveClass} aria-hidden="true">
-          <MdiCircle width="1em" height="1em" aria-hidden="true" />
+          <MdiCircle width="1.2em" height="1.2em" aria-hidden="true" />
         </span>
         <span class="resolved-service-details-dialog-title">{title}</span>
         <button
@@ -186,7 +186,7 @@
           onclick={() => (showDetails = false)}
           aria-label="Close details"
         >
-          <MdiClose width="1em" height="1em" aria-hidden="true" />
+          <MdiClose width="1.2em" height="1.2em" aria-hidden="true" />
         </button>
       </div>
       <div class="resolved-service-details-dialog-scrollarea">

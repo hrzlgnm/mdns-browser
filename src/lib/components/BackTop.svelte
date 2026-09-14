@@ -23,7 +23,7 @@
 <div class="back-top-container">
   {#if visible}
     <button type="button" class="back-top-button" onclick={scrollTop} aria-label="Back to top">
-      <MdiFormatVerticalAlignTop width="1em" height="1em" aria-hidden="true" />
+      <MdiFormatVerticalAlignTop width="1.2em" height="1.2em" aria-hidden="true" />
     </button>
   {/if}
 </div>
