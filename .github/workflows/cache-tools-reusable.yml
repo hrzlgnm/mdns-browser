@@ -62,3 +62,6 @@ jobs:
         with:
           targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
           save-cache: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: 🛠️🐂
+        uses: ./.github/actions/setup-tauri

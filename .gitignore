@@ -2,7 +2,6 @@
 !.github/
 
 /.idea
-/target/
 /build/
 /.svelte-kit/
 /package/

@@ -6,8 +6,8 @@ Guidelines and commands for agentic coding agents working on the mdns-browser re
 
 This is a Tauri desktop application for browsing mDNS services with:
 - Rust backend (src-tauri/) using Tauri framework
-- Frontend (frontend/) built with SvelteKit and pnpm
-- Shared models and constants in crates/
+- Frontend at the repository root built with SvelteKit and pnpm
+- Shared models in src-tauri/crates/
 - Targets: Windows, macOS, Linux, Android, iOS
 
 mDNS functionality uses the `mdns-sd` crate. Release binaries are auditable
@@ -16,7 +16,7 @@ cross-platform.
 
 ## Architecture
 
-The types in `frontend/src/lib/types.ts` are generated from the Rust
+The types in `src/lib/types.ts` are generated from the Rust
 boundary types in `crates/models` via ts-rs — never hand-edit them.
 Regenerate with `scripts/export-types.sh` (runs the export test plus
 prettier); CI fails on drift. Note that plain `cargo test` rewrites the
@@ -24,17 +24,18 @@ file without prettier formatting, so always use the script.
 
 ## Essential Commands
 
-This is a workspace with multiple crates - always run commands from the root.
+This is a workspace with multiple crates - run pnpm commands from the
+repo root and cargo commands from `src-tauri/` (the workspace root).
 
 ### Build and Run
 
 ```bash
-# Build the entire application (frontend + Tauri app)
-cargo --locked tauri build --no-bundle --no-sign
+# Build the entire application (frontend + Tauri app, auditable via scripts/cargo on PATH)
+PATH="$PWD/scripts:$PATH" pnpm tauri build --no-bundle --no-sign
 
 # Development build with hot reload (optional args after --)
-cargo tauri dev
-cargo tauri dev -- --log-level debug --enable-devtools
+pnpm tauri dev
+pnpm tauri dev -- --log-level debug --enable-devtools
 ```
 
 ### Test
@@ -55,9 +56,9 @@ cargo nextest run --profile ci test_name
 
 ```bash
 cargo fmt                                       # format Rust code
-pnpm --dir frontend run format:check            # check frontend formatting
-pnpm --dir frontend run lint                    # lint frontend (eslint)
-pnpm --dir frontend run check                   # type-check frontend (svelte-check)
+pnpm run format:check                         # check frontend formatting
+pnpm run lint                                 # lint frontend (eslint)
+pnpm run check                                # type-check frontend (svelte-check)
 cargo clippy --workspace --tests -- -D warnings # lint
 
 # Validate renovate configuration (when .github/renovate.json5 changed)
@@ -67,15 +68,14 @@ npx --yes -p renovate@latest renovate-config-validator .github/renovate.json5
 ### Full check (run before every commit)
 
 ```bash
-cargo fmt -- --check && \
-cargo fmt --manifest-path src-tauri/Cargo.toml -- --check && \
-pnpm --dir frontend run format:check && \
-pnpm --dir frontend run lint && \
-pnpm --dir frontend run check && \
-cargo clippy --workspace --tests -- -D warnings && \
-cargo clippy --release --workspace --tests -- -D warnings && \
-cargo nextest run --profile ci --workspace && \
-./scripts/export-types.sh && git diff --exit-code frontend/src/lib/types.ts && \
+(cd src-tauri && cargo fmt -- --check) && \
+pnpm run format:check && \
+pnpm run lint && \
+pnpm run check && \
+(cd src-tauri && cargo clippy --workspace --tests -- -D warnings) && \
+(cd src-tauri && cargo clippy --release --workspace --tests -- -D warnings) && \
+(cd src-tauri && cargo nextest run --profile ci --workspace) && \
+./scripts/export-types.sh && git diff --exit-code src/lib/types.ts && \
 actionlint .github/workflows/*.yml
 ```
 
@@ -90,7 +90,7 @@ actionlint .github/workflows/*.yml
 1. Create a branch for your changes (see [Git Conventions](#git-conventions))
 2. Make your changes
 3. Run the [full check](#full-check-run-before-every-commit); also run
-   `cargo --locked tauri build --no-bundle --no-sign` to verify the release build
+   `PATH="$PWD/scripts:$PATH" pnpm tauri build --no-bundle --no-sign` to verify the release build
 4. Conditional checks: renovate config validator if `.github/renovate.json5`
    changed; if README.md changed, update the manpage (`docs/mdns-browser.1`)
 5. Commit only when all checks pass, then push and open a PR (see
@@ -110,7 +110,7 @@ All source files must include:
 
 - `cargo fmt` applies and checks formatting; no need to review formatting or import style, the formatter covers it
 - Prefer explicit error handling over `unwrap()`
-- Use workspace dependencies defined in root Cargo.toml
+- Use workspace dependencies defined in src-tauri/Cargo.toml
 - Keep imports at file level, not inside functions
 
 ### JavaScript / TypeScript / Svelte
@@ -148,7 +148,7 @@ All source files must include:
 - Use `serde(rename_all = "camelCase")` for frontend compatibility
 - Dates use microsecond timestamps with `serde_with::DisplayFromStr`
 - Every boundary struct/enum additionally derives `ts_rs::TS` so
-  `scripts/export-types.sh` regenerates `frontend/src/lib/types.ts`;
+  `scripts/export-types.sh` regenerates `src/lib/types.ts`;
   fields whose wire type differs from the Rust type (e.g. micros-as-string)
   need an explicit `#[ts(type = "string")]` override
 
@@ -171,23 +171,21 @@ All source files must include:
 ## Project Structure
 
 ```text
-├── frontend/                     # SvelteKit frontend (pnpm)
-│   ├── src/
-│   │   ├── routes/               # +page.svelte, +layout.ts (ssr = false)
-│   │   └── lib/                  # api.ts, store.ts, types.ts (generated), components/
-│   ├── static/                   # splashscreen.html
-│   └── package.json
-├── src-tauri/                    # Tauri backend
+├── src/                          # SvelteKit frontend (pnpm)
+│   ├── routes/                   # +page.svelte, +layout.ts (ssr = false)
+│   └── lib/                      # api.ts, store.ts, types.ts (generated), components/
+├── static/                       # splashscreen.html, app icons source
+├── src-tauri/                    # Tauri backend (cargo workspace root)
 │   ├── src/                      # Rust backend code
+│   ├── crates/models/            # Shared data structures and validation
 │   ├── tauri.conf.json           # Tauri configuration
-│   └── Cargo.toml                # Backend dependencies
-├── crates/                       # Shared libraries
-│   ├── models/                   # Data structures and validation
-│   └── shared_constants/         # Constants shared across crates
+│   ├── Cargo.toml                # Workspace configuration
+│   └── .config/nextest.toml      # Test configuration
 ├── docs/agents/                  # Task-specific agent guides
-├── scripts/export-types.sh       # Regenerate frontend types via ts-rs
-├── Cargo.toml                    # Workspace configuration
-└── .config/nextest.toml          # Test configuration
+├── scripts/
+│   ├── cargo / cargo.bat         # Auditable cargo wrapper for `pnpm tauri` builds
+│   └── export-types.sh           # Regenerate frontend types via ts-rs
+├── package.json                  # Frontend dependencies and scripts
 ```
 
 ## Git Conventions
@@ -255,7 +253,7 @@ findings are fixed.
 
 - **When:** after all checks pass on the final commit(s), before
   `git push` and before `gh pr create`. Re-run after every fixup that
-  touches `frontend/`, `src-tauri/`, `crates/`, or docs.
+  touches `src/`, `src-tauri/`, or docs.
 - **How:** load the `code-review` skill (skill tool `name: "code-review"`).
   Pin the fixed point to `main` (use `origin/main` if `main` is stale)
   and pass `git diff main...HEAD` (three-dot, merge-base) plus

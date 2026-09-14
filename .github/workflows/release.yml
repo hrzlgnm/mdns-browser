@@ -57,13 +57,13 @@ jobs:
         run: |
           python3 -c "
           import re
-          path = 'crates/models/Cargo.toml'
+          path = 'src-tauri/crates/models/Cargo.toml'
           text = open(path).read()
           new, count = re.subn(r'(?m)^version = \".*\"', 'version = \"${VERSION}\"', text, count=1)
           assert count == 1, 'expected exactly one version field'
           open(path, 'w').write(new)
           "
-          cargo update -p mdns-browser -p models
+          cargo update --manifest-path src-tauri/Cargo.toml -p mdns-browser -p models
 
       - name: 📤 Commit synced files if changed
         shell: bash
@@ -72,7 +72,7 @@ jobs:
           BRANCH: release-please--branches--main--components--mdns-browser-frontend
         run: |
           CHANGED=()
-          for FILE_PATH in Cargo.lock crates/models/Cargo.toml; do
+          for FILE_PATH in src-tauri/Cargo.lock src-tauri/crates/models/Cargo.toml; do
             if git diff --quiet -- "$FILE_PATH"; then
               continue
             fi

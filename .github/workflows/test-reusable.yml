@@ -49,6 +49,7 @@ jobs:
 
       - name: ✅ Run tests with nextest
         shell: bash
+        working-directory: src-tauri
         run: |
           cargo --locked nextest run --workspace --profile ci
 

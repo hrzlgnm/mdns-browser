@@ -55,6 +55,12 @@ jobs:
           artifact-name: "sbom.android.spdx.json.gz"
           current-version: ${{ steps.get-version.outputs.current-version }}
 
+      - name: 🛠️🐂
+        uses: ./.github/actions/setup-tauri
+
+      - name: 🛠️ Add auditable cargo wrapper to PATH
+        run: echo "$GITHUB_WORKSPACE/scripts" >> "$GITHUB_PATH"
+
       - name: ⚡ Setup pnpm and cache store
         uses: ./.github/actions/pnpm-setup
 
@@ -89,9 +95,9 @@ jobs:
           TAG_NAME: ${{ inputs.tagName }}
         run: |
           pnpm tauri android init
-          cp -a src-tauri/icons/android/mipmap-* src-tauri/gen/android/app/src/main/res/
+          pnpm tauri icon src-tauri/icons/icon.png
           if [[ -n "$TAG_NAME" ]]; then
-            cargo --locked auditable tauri android build
+            pnpm tauri android build
           else
             pnpm tauri android build --debug -t x86_64
           fi

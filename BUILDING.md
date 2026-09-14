@@ -6,15 +6,15 @@ Before you begin, make sure you meet the necessary prerequisites. You can find m
 
 ### Node.js and pnpm
 
-The frontend is a SvelteKit app in `frontend/`. You'll need:
+The frontend is a SvelteKit app at the repository root. You'll need:
 
 - **Node.js**: version 24 or newer
-- **pnpm**: version 12 (see the `packageManager` field in `frontend/package.json`)
+- **pnpm**: version 12 (see the `packageManager` field in `package.json`)
 
 Install frontend dependencies with:
 
 ```console
-pnpm --dir frontend install --frozen-lockfile
+pnpm install --frozen-lockfile
 ```
 
 ### Development Libraries
@@ -52,14 +52,13 @@ sudo pacman -S --needed \
  pkgconf
 ```
 
-### Rust Crates
+### Rust Toolchain
 
-You'll also need the following Rust crate:
-
-- `tauri-cli`
-
-You can install it using `cargo` with the command:
+The Tauri CLI is provided via pnpm (`pnpm tauri`), so no `cargo install`
+is needed for a regular build. For auditable release builds, route `cargo`
+through `scripts/cargo` (which delegates to `cargo-auditable`):
 
 ```console
-cargo install --locked tauri-cli
+cargo install --locked cargo-auditable
+PATH="$PWD/scripts:$PATH" pnpm tauri build
 ```

@@ -420,8 +420,7 @@ mod ts_export {
             }
             out.push('\n');
         }
-        let path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../src/lib/types.ts");
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../src/lib/types.ts");
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent).expect("To create frontend/src/lib");
         }
