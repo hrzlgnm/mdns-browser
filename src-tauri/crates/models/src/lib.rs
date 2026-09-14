@@ -227,11 +227,6 @@ pub struct ServiceRemovedEvent {
     pub at_micros: u64,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug, TS)]
-pub struct ThemeChangedEvent {
-    pub theme: String,
-}
-
 #[derive(Deserialize, Serialize, Clone, Eq, PartialEq, Debug, TS)]
 pub struct ProtocolFlags {
     pub ipv4: bool,
@@ -403,7 +398,6 @@ mod ts_export {
             ServiceResolvedEvent::decl(&config),
             ServiceTypeFoundEvent::decl(&config),
             ServiceRemovedEvent::decl(&config),
-            ThemeChangedEvent::decl(&config),
             ProtocolFlags::decl(&config),
             UpdateMetadata::decl(&config),
         ];

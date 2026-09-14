@@ -20,7 +20,7 @@ use std::{
         Arc, Mutex,
     },
 };
-use tauri::{AppHandle, Emitter, Manager, State, Theme, Window};
+use tauri::{AppHandle, Emitter, Manager, State, Window};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_opener::OpenerExt;
 #[cfg(all(target_os = "linux", desktop))]
@@ -946,18 +946,6 @@ fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
 
 #[cfg(desktop)]
 #[tauri::command]
-fn theme(window: Window) -> Theme {
-    match window.theme() {
-        Ok(theme) => theme,
-        Err(err) => {
-            log::error!("Failed to get theme: {err:?}, using dark");
-            Theme::Dark
-        }
-    }
-}
-
-#[cfg(desktop)]
-#[tauri::command]
 fn close_splashscreen(app: AppHandle, state: State<ManagedState>) {
     if let Some(w) = app.get_webview_window("main") {
         let _ = w.show();
@@ -973,12 +961,6 @@ fn close_splashscreen(app: AppHandle, state: State<ManagedState>) {
     if let Some(w) = app.get_webview_window("splashscreen") {
         let _ = w.close();
     }
-}
-
-#[cfg(mobile)]
-#[tauri::command]
-fn theme() -> Theme {
-    Theme::Dark
 }
 
 #[cfg(desktop)]
@@ -1252,7 +1234,6 @@ pub fn run() {
             subscribe_interfaces,
             subscribe_metrics,
             stop_browse,
-            theme,
             verify,
             version,
         ])
@@ -1309,7 +1290,6 @@ pub fn run_mobile() {
             subscribe_interfaces,
             subscribe_metrics,
             stop_browse,
-            theme,
             verify,
             version,
         ])
