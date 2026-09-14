@@ -140,11 +140,13 @@ body {
   max-height: 90vh;
   overflow: auto;
 }
+/* Color-blind-safe status pair (Okabe-Ito blue/vermillion): fixed across
+   presets so the alive/dead distinction survives common vision deficiencies. */
 .resolved-service-dead {
-  color: var(--offline-bg);
+  color: #d55e00;
 }
 .resolved-service-alive {
-  color: var(--instance-bg);
+  color: #0072b2;
 }
 .theme-switcher {
   cursor: pointer;
