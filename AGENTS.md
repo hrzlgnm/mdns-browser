@@ -18,9 +18,9 @@ cross-platform.
 
 The types in `src/lib/types.ts` are generated from the Rust
 boundary types in `src-tauri/crates/models` via ts-rs — never hand-edit them.
-Regenerate with `scripts/export-types.sh` (runs the export test plus
-prettier as a fallback); CI fails on drift. The export test itself runs
-prettier when pnpm is available and warns otherwise.
+Regenerate with `cargo test --manifest-path src-tauri/Cargo.toml -p models --lib ts_export::export_types`;
+the test runs prettier when pnpm is available and warns otherwise.
+CI fails on drift.
 
 ## Essential Commands
 
@@ -75,7 +75,7 @@ pnpm run check && \
 (cd src-tauri && cargo clippy --workspace --tests -- -D warnings) && \
 (cd src-tauri && cargo clippy --release --workspace --tests -- -D warnings) && \
 (cd src-tauri && cargo nextest run --profile ci --workspace) && \
-./scripts/export-types.sh && git diff --exit-code src/lib/types.ts && \
+cargo test --manifest-path src-tauri/Cargo.toml -p models --lib ts_export::export_types && git diff --exit-code src/lib/types.ts && \
 actionlint .github/workflows/*.yml
 ```
 
@@ -148,7 +148,7 @@ All source files must include:
 - Use `serde(rename_all = "camelCase")` for frontend compatibility
 - Dates use microsecond timestamps with `serde_with::DisplayFromStr`
 - Every boundary struct/enum additionally derives `ts_rs::TS` so
-  `scripts/export-types.sh` regenerates `src/lib/types.ts`;
+  the `ts_export::export_types` test regenerates `src/lib/types.ts`;
   fields whose wire type differs from the Rust type (e.g. micros-as-string)
   need an explicit `#[ts(type = "string")]` override
 
@@ -182,9 +182,7 @@ All source files must include:
 │   ├── Cargo.toml                # Workspace configuration
 │   └── .config/nextest.toml      # Test configuration
 ├── docs/agents/                  # Task-specific agent guides
-├── scripts/
-│   ├── cargo / cargo.bat         # Auditable cargo wrapper for `pnpm tauri` builds
-│   └── export-types.sh           # Regenerate frontend types via ts-rs
+├── scripts/cargo / cargo.bat         # Auditable cargo wrapper for `pnpm tauri` builds
 ├── package.json                  # Frontend dependencies and scripts
 ```
 

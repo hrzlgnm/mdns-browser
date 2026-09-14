@@ -117,7 +117,7 @@ jobs:
       - name: 📝 Regenerate types and fail on drift
         shell: bash
         run: |
-          ./scripts/export-types.sh
+          cargo test --manifest-path src-tauri/Cargo.toml -p models --lib ts_export::export_types
           git diff --exit-code src/lib/types.ts
 
   clippy:

@@ -99,7 +99,7 @@ jobs:
               - 'vite.config.js'
               - 'tsconfig.json'
               - 'eslint.config.js'
-              - 'scripts/export-types.sh'
+              - 'src-tauri/crates/models/src/lib.rs'
               - 'src-tauri/Cargo.toml'
               - 'src-tauri/Cargo.lock'
               - 'src-tauri/src/**'
