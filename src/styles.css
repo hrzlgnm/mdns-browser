@@ -337,6 +337,10 @@ body {
   cursor: not-allowed;
   opacity: 0.6;
 }
+/* Breathing room between adjacent normal-sized buttons. */
+.themed-button:not(.themed-button-small) {
+  margin: 2px 4px;
+}
 /* Thaw small variant for buttons inside cards. */
 .themed-button-small {
   min-width: 64px;
