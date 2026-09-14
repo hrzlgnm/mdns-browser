@@ -77,13 +77,6 @@ jobs:
             '{message: "chore: sync Cargo.lock", content: $content, sha: $sha, branch: $branch}' > /tmp/body.json
           gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/${FILE_PATH}" --input /tmp/body.json
 
-      - name: ⏳ Allow GitHub to register the pushed run before approval
-        shell: bash
-        # The approve job queries for action_required runs as soon as this
-        # job completes; without a delay it can approve the stale run from
-        # release-please's push and exit before the new run registers.
-        run: sleep 60
-
   approve-release-pr:
     needs: [release-please, sync-cargo-lock]
     if: needs.release-please.outputs.prs_created == 'true'
