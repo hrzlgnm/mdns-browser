@@ -400,7 +400,7 @@ input[type='checkbox'] {
   padding: 0.1em 0.6em;
   border: 1px solid var(--service-type-border);
   border-radius: 1em;
-  background: var(--service-type-bg);
+  background: var(--bg-primary);
   color: var(--service-type-font);
   font-size: 0.9em;
   font-weight: 600;
