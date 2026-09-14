@@ -82,6 +82,7 @@ body {
   width: 480px;
 }
 .mobile-resolved-service-grid {
+  display: grid;
   grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)) !important;
   grid-gap: 8px !important;
 }
@@ -120,6 +121,7 @@ body {
   width: 520px;
 }
 .desktop-resolved-service-grid {
+  display: grid;
   grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)) !important;
   grid-gap: 10px !important;
 }
