@@ -215,6 +215,12 @@ body {
   border-radius: 4px;
   box-shadow: var(--shadow8, 0 2px 8px rgba(0, 0, 0, 0.4));
 }
+/* A black shadow is invisible on the near-black surface, so lift dark
+   cards onto the thaw background-6 surface instead. */
+:root[data-theme='dark'] .desktop-resolved-service-card,
+:root[data-theme='dark'] .mobile-resolved-service-card {
+  background-color: #333333;
+}
 .desktop-resolved-service-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)) !important;
