@@ -11,7 +11,7 @@ runs:
       with:
         # Pin the binary: the action pin fixes the action, the binary floats on default.
         # renovate: datasource=github-releases depName=mozilla/sccache versioning=semver
-        version: "v0.17.0"
+        version: "v0.18.0"
 
     - shell: bash
       run: |
