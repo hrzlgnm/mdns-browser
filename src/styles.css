@@ -459,7 +459,7 @@ input[type='checkbox']:focus-visible {
   border-collapse: collapse;
 }
 .card-table tr + tr > td {
-  border-top: 1px solid var(--border-primary);
+  border-top: 1px solid var(--bg-tertiary);
 }
 .themed-badge {
   display: inline-block;
