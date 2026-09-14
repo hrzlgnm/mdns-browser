@@ -399,6 +399,13 @@ body {
 input[type='checkbox'] {
   accent-color: var(--accent);
 }
+/* Match the primary button blue on the dark and light presets. */
+:root[data-theme='dark'] input[type='checkbox'] {
+  accent-color: #115ea3;
+}
+:root[data-theme='light'] input[type='checkbox'] {
+  accent-color: #0f6cbd;
+}
 .themed-badge {
   display: inline-block;
   padding: 0.1em 0.6em;
