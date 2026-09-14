@@ -309,14 +309,24 @@ body {
 }
 .themed-button {
   font: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  box-sizing: border-box;
+  padding: 5px 12px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
   background: var(--bg-primary);
-  color: var(--accent);
+  color: var(--text-primary);
   border: 1px solid var(--border-primary);
   border-radius: 4px;
-  padding: 4px 10px;
-  font-size: 13px;
-  font-weight: 600;
   cursor: pointer;
+  transition:
+    background-color 0.1s,
+    border-color 0.1s,
+    color 0.1s;
 }
 .themed-button:hover {
   background: var(--bg-secondary);
@@ -324,9 +334,41 @@ body {
 }
 .themed-button:disabled {
   color: var(--text-muted);
-  border-color: var(--border-primary);
   cursor: not-allowed;
   opacity: 0.6;
+}
+/* Thaw-exact interaction states for the dark and light presets. */
+:root[data-theme='dark'] .themed-button:hover {
+  background-color: #3d3d3d;
+  color: #ffffff;
+  border-color: #757575;
+}
+:root[data-theme='dark'] .themed-button:hover:active {
+  background-color: #1f1f1f;
+  color: #ffffff;
+  border-color: #6b6b6b;
+}
+:root[data-theme='dark'] .themed-button:disabled {
+  color: #5c5c5c;
+  background-color: #141414;
+  border-color: #424242;
+  opacity: 1;
+}
+:root[data-theme='light'] .themed-button:hover {
+  background-color: #f5f5f5;
+  color: #242424;
+  border-color: #c7c7c7;
+}
+:root[data-theme='light'] .themed-button:hover:active {
+  background-color: #e0e0e0;
+  color: #242424;
+  border-color: #b3b3b3;
+}
+:root[data-theme='light'] .themed-button:disabled {
+  color: #bdbdbd;
+  background-color: #f0f0f0;
+  border-color: #e0e0e0;
+  opacity: 1;
 }
 input[type='checkbox'] {
   accent-color: var(--accent);

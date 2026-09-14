@@ -49,6 +49,7 @@ export const resolvedTheme = derived([currentTheme, systemTheme], ([$curr, $sys]
 function applyThemeToCss(colors: ThemeColors, resolvedName: string) {
   if (typeof document === 'undefined') return
   const root = document.documentElement
+  root.dataset.theme = resolvedName
   for (const [key, varName] of Object.entries(cssVarMap) as [keyof ThemeColors, string][]) {
     root.style.setProperty(varName, colors[key])
   }
