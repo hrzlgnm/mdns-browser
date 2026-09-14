@@ -19,6 +19,7 @@
 <label class="theme-switcher">
   Theme
   <select
+    class="themed-select"
     value={$currentTheme}
     onchange={(e) => {
       const t = e.target as HTMLSelectElement

@@ -73,36 +73,45 @@
       {#if $desktop}
         <button
           type="button"
+          class="themed-button"
           onclick={() => void openUrl(`${GITHUB_BASE_URL}/releases/tag/v${version}`)}
         >
           Release Notes
         </button>
         <button
           type="button"
+          class="themed-button"
           onclick={() => void openUrl(`${GITHUB_BASE_URL}/issues/new?template=bug_report.yml`)}
         >
           Report an Issue
         </button>
         <button
           type="button"
+          class="themed-button"
           onclick={() =>
             void openUrl(`${GITHUB_BASE_URL}/issues?q=is%3Aopen+is%3Aissue+label%3Abug`)}
         >
           Known Issues
         </button>
-        <button type="button" onclick={() => void openUrl(`${GITHUB_BASE_URL}/releases/`)}>
+        <button
+          type="button"
+          class="themed-button"
+          onclick={() => void openUrl(`${GITHUB_BASE_URL}/releases/`)}
+        >
           Releases
         </button>
       {/if}
       {#if showNoUpdate}
-        <button type="button">{version} is the latest version</button>
+        <button type="button" class="themed-button">{version} is the latest version</button>
       {:else if canUpdate}
         {#if update}
-          <button type="button" onclick={() => void onInstallUpdate()}>
+          <button type="button" class="themed-button" onclick={() => void onInstallUpdate()}>
             {$desktop ? 'Download and Install ' : 'Open release page '}{update.version}
           </button>
         {:else}
-          <button type="button" onclick={() => void onCheckUpdate()}>Check for updates</button>
+          <button type="button" class="themed-button" onclick={() => void onCheckUpdate()}>
+            Check for updates
+          </button>
         {/if}
       {/if}
     </div>
