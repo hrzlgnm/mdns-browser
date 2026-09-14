@@ -37,7 +37,7 @@ jobs:
   sync-cargo-lock:
     needs: [release-please]
     if: needs.release-please.outputs.prs_created == 'true'
-    name: "🔒 Sync member versions and Cargo.lock"
+    name: "🔒 Sync Cargo.lock"
     runs-on: ubuntu-slim
     permissions:
       contents: write # update the Release PR branch via the Contents API so the commit carries GitHub's verified signature
@@ -50,36 +50,19 @@ jobs:
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
 
-      - name: 🔒 Sync member versions and Cargo.lock with the release version
+      - name: 🔒 Sync Cargo.lock with the bumped Cargo.toml files
         shell: bash
-        env:
-          VERSION: ${{ needs.release-please.outputs.version }}
-        run: |
-          python3 -c "
-          import re
-          path = 'src-tauri/crates/models/Cargo.toml'
-          text = open(path).read()
-          new, count = re.subn(r'(?m)^version = \".*\"', 'version = \"${VERSION}\"', text, count=1)
-          assert count == 1, 'expected exactly one version field'
-          open(path, 'w').write(new)
-          "
-          cargo update --manifest-path src-tauri/Cargo.toml -p mdns-browser -p models
+        run: cargo update --workspace --manifest-path src-tauri/Cargo.toml
 
-      - name: 📤 Commit synced files if changed
+      - name: 📤 Commit Cargo.lock if changed
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: release-please--branches--main--components--mdns-browser-frontend
+          FILE_PATH: src-tauri/Cargo.lock
         run: |
-          CHANGED=()
-          for FILE_PATH in src-tauri/Cargo.lock src-tauri/crates/models/Cargo.toml; do
-            if git diff --quiet -- "$FILE_PATH"; then
-              continue
-            fi
-            CHANGED+=("$FILE_PATH")
-          done
-          if [ "${#CHANGED[@]}" -eq 0 ]; then
-            echo "Versions and Cargo.lock already in sync"
+          if git diff --quiet -- "$FILE_PATH"; then
+            echo "Cargo.lock already in sync"
             exit 0
           fi
           # Pushes via `git commit` + `git push` are unsigned and violate
@@ -88,13 +71,11 @@ jobs:
           # carry GitHub's verified signature, so use `gh api` instead.
           # The base64 payload (~200 KB) exceeds the 128 KB single-argument
           # limit, so stream the request body from files instead of argv.
-          for FILE_PATH in "${CHANGED[@]}"; do
-            SHA=$(gh api "repos/${GITHUB_REPOSITORY}/contents/${FILE_PATH}?ref=${BRANCH}" --jq .sha)
-            base64 -w0 "$FILE_PATH" > /tmp/payload.b64
-            jq -n --rawfile content /tmp/payload.b64 --arg sha "$SHA" --arg branch "$BRANCH" \
-              '{message: "chore: sync member versions and Cargo.lock", content: $content, sha: $sha, branch: $branch}' > /tmp/body.json
-            gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/${FILE_PATH}" --input /tmp/body.json
-          done
+          SHA=$(gh api "repos/${GITHUB_REPOSITORY}/contents/${FILE_PATH}?ref=${BRANCH}" --jq .sha)
+          base64 -w0 "$FILE_PATH" > /tmp/payload.b64
+          jq -n --rawfile content /tmp/payload.b64 --arg sha "$SHA" --arg branch "$BRANCH" \
+            '{message: "chore: sync Cargo.lock", content: $content, sha: $sha, branch: $branch}' > /tmp/body.json
+          gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/${FILE_PATH}" --input /tmp/body.json
 
   approve-release-pr:
     needs: [release-please, sync-cargo-lock]
