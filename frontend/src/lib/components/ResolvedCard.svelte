@@ -155,7 +155,7 @@
       aria-modal="true"
       aria-label={title}
     >
-      <div>
+      <div class="dialog-header">
         <span class={deadOrAliveClass} aria-hidden="true">●</span>
         <span class="resolved-service-details-dialog-title">{title}</span>
         <button type="button" onclick={() => (showDetails = false)} aria-label="Close details">
@@ -187,5 +187,15 @@
     border: 1px solid #808080;
     border-radius: 8px;
     padding: 1rem;
+  }
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .dialog-header .resolved-service-details-dialog-title {
+    flex: 1;
+    min-width: 0;
   }
 </style>
