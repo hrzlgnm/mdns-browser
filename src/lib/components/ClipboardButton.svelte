@@ -58,6 +58,17 @@
     gap: 0.25rem;
     max-width: 100%;
     overflow: hidden;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 1px 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  button:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--border-primary);
+    color: var(--text-primary);
   }
   .clipboard-icon {
     flex-shrink: 0;

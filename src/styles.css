@@ -264,6 +264,7 @@ body {
 
 /* Theme-aware form controls (preset CSS variables, after the zux recipes). */
 .themed-select {
+  font: inherit;
   appearance: none;
   background: var(--bg-primary)
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6' fill='currentColor'/%3E%3C/svg%3E")
@@ -280,6 +281,7 @@ body {
   outline: none;
 }
 .themed-input {
+  font: inherit;
   background: var(--bg-primary);
   color: var(--text-primary);
   border: 1px solid var(--border-primary);
@@ -298,6 +300,7 @@ body {
   border-color: var(--colorStatusDangerBorder1, #d13438);
 }
 .themed-button {
+  font: inherit;
   background: var(--bg-primary);
   color: var(--accent);
   border: 1px solid var(--border-primary);
