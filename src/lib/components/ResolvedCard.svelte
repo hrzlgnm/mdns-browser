@@ -143,8 +143,8 @@
               <span class="spinner" role="status" aria-label="Verifying"></span>
             {:else}
               <MdiCheckAll width="1.2em" height="1.2em" aria-hidden="true" />
-              Verify
             {/if}
+            Verify
           </button>
           <button
             type="button"
