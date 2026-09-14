@@ -103,7 +103,7 @@ jobs:
           PNPM_PACKAGE_NAME: mdns-browser-frontend
         run: |
           pnpm tauri android init
-          pnpm tauri icon src-tauri/icons/icon.png
+          cp -a src-tauri/icons/android/mipmap-* src-tauri/gen/android/app/src/main/res/
           if [[ -n "$TAG_NAME" ]]; then
             pnpm tauri android build
           else
