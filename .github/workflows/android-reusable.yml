@@ -40,7 +40,7 @@ jobs:
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
         with:
-          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown
+          targets: ${{ inputs.tagName && 'aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown' || 'x86_64-linux-android,wasm32-unknown-unknown' }}
           save-cache: ${{ inputs.branch == 'main' }}
 
       - name: 📝 Extract version from tauri.conf.json
@@ -76,16 +76,23 @@ jobs:
       - name: 🛠️ Install NDK
         run: android sdk install "ndk;$NDK_VERSION"
 
-      - name: 🔨 Build app bundle
-        run: |
-          cargo --locked auditable tauri android init
-          cp -a src-tauri/icons/android/mipmap-* src-tauri/gen/android/app/src/main/res/
-          cargo --locked auditable tauri android build
+      - name: 🔨 Build app bundle (debug x86_64 in PRs, release otherwise)
+        shell: bash
         env:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
           RUSTFLAGS: "-D warnings"
+          TAG_NAME: ${{ inputs.tagName }}
+        run: |
+          cargo --locked auditable tauri android init
+          cp -a src-tauri/icons/android/mipmap-* src-tauri/gen/android/app/src/main/res/
+          if [[ -n "$TAG_NAME" ]]; then
+            cargo --locked auditable tauri android build
+          else
+            cargo --locked auditable tauri android build --debug -t x86_64
+          fi
 
       - name: 🔑 Extract android signing key
+        if: inputs.tagName
         env:
           ANDROID_RELEASE_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
         run: |
@@ -93,6 +100,7 @@ jobs:
           base64 -d src-tauri/gen/android/release.jks.base64 > src-tauri/gen/android/release.decrypted.jks
 
       - name: 🔏 Sign APK
+        if: inputs.tagName
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
           ANDROID_RELEASE_KEY: ${{ secrets.ANDROID_RELEASE_KEY }}
@@ -106,15 +114,8 @@ jobs:
             --out src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk \
             src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
 
-      - name: 📤 Upload build artifacts (if not publishing)
-        if: (!inputs.tagName)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: "signed-apk"
-          path: |
-            src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-signed.apk
-
       - name: ✏️ Rename APK file
+        if: inputs.tagName
         env:
           CURRENT_VERSION: ${{ steps.get-version.outputs.current-version }}
         run: |

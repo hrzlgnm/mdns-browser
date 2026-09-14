@@ -114,7 +114,7 @@ jobs:
             echo "BODYEOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: 🔨 Build plain executables using tauri action (publish artifacts on release)
+      - name: 🔨 Build executables using tauri action (debug in PRs, release otherwise)
         uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
         env:
           RUSTFLAGS: "-D warnings"
@@ -128,7 +128,7 @@ jobs:
           releaseDraft: true
           prerelease: false
           tauriScript: cargo --locked auditable tauri
-          args: ${{ matrix.args }} --no-bundle
+          args: ${{ matrix.args }} --no-bundle${{ !inputs.tagName && ' --debug' || '' }}
           retryAttempts: 1
           uploadPlainBinary: true
 
@@ -149,7 +149,8 @@ jobs:
             target/release/mdns-browser.exe
           sbom-path: "sbom.spdx.json"
 
-      - name: 🔨 Build bundles using tauri action (publish artifacts on release)
+      - name: 🔨 Build bundles using tauri action (release only)
+        if: inputs.tagName
         uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
         env:
           RUSTFLAGS: "-D warnings"
@@ -167,17 +168,8 @@ jobs:
           args: ${{ matrix.args }}
           retryAttempts: 1
 
-      - name: 📤 Upload build artifacts (push or pr builds only)
-        if: (!inputs.tagName)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: "bundles-${{matrix.os}}${{matrix.args}}"
-          path: |
-            target/**/release/bundle
-            target/**/release/mdns-browser*
-
       - name: 📦 Compress debug symbols (Windows)
-        if: contains(matrix.os, 'windows')
+        if: inputs.tagName && contains(matrix.os, 'windows')
         shell: pwsh
         env:
           VERSION: ${{ steps.get-version.outputs.current-version }}
@@ -186,7 +178,7 @@ jobs:
           Write-Output "Compressed target/release/mdns_browser.pdb -> target/release/mdns-browser-$env:VERSION-debug-symbols-windows.zip"
 
       - name: 📦 Compress debug symbols (Linux)
-        if: contains(matrix.os, 'ubuntu')
+        if: inputs.tagName && contains(matrix.os, 'ubuntu')
         shell: bash
         env:
           VERSION: ${{ steps.get-version.outputs.current-version }}
@@ -195,7 +187,7 @@ jobs:
           echo "Compressed target/release/mdns-browser.dwp -> target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz"
 
       - name: 📦 Compress debug symbols (macOS)
-        if: contains(matrix.os, 'macos')
+        if: inputs.tagName && contains(matrix.os, 'macos')
         shell: bash
         env:
           VERSION: ${{ steps.get-version.outputs.current-version }}
@@ -216,18 +208,6 @@ jobs:
             tar -czf "target/$ARCH/release/deps/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz" -C "target/$ARCH/release/deps" "$BASE"
             echo "Compressed $REAL_DSYM -> target/$ARCH/release/deps/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz"
           done
-
-      - name: 📤 Upload debug symbols
-        if: (!inputs.tagName)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: "debug-symbols-${{matrix.os}}${{matrix.args}}"
-          if-no-files-found: warn
-          path: |
-            target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-windows.zip
-            target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-linux.tar.gz
-            target/x86_64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-x86_64.tar.gz
-            target/aarch64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-aarch64.tar.gz
 
       - name: 🛑 Prepare debug symbol paths
         id: debug-symbols
