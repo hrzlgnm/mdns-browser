@@ -4,6 +4,14 @@
  */
 
 /** common styles for all components **/
+/* Accordion spacing. */
+details {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+details > summary {
+  cursor: pointer;
+}
 :root {
   color-scheme: dark;
   --bg-primary: #292929;
