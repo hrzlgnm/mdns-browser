@@ -34,8 +34,51 @@ jobs:
           # release-please (force-tag-creation) alongside the draft.
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  approve-release-pr:
+  sync-cargo-lock:
     needs: [release-please]
+    if: needs.release-please.outputs.prs_created == 'true'
+    name: "🔒 Sync Cargo.lock"
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write # update the Release PR branch via the Contents API so the commit carries GitHub's verified signature
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: release-please--branches--main--components--mdns-browser-frontend
+          persist-credentials: false
+
+      - name: 🦀🚀
+        uses: ./.github/actions/setup-rust-cache
+
+      - name: 🔒 Sync Cargo.lock with the bumped Cargo.toml
+        shell: bash
+        run: cargo update -p mdns-browser
+
+      - name: 📤 Commit Cargo.lock if changed
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: release-please--branches--main--components--mdns-browser-frontend
+          FILE_PATH: Cargo.lock
+        run: |
+          if git diff --quiet -- "$FILE_PATH"; then
+            echo "Cargo.lock already in sync"
+            exit 0
+          fi
+          # Pushes via `git commit` + `git push` are unsigned and violate
+          # the `required_signatures` ruleset on main. Commits created
+          # through the Contents API on behalf of github-actions[bot]
+          # carry GitHub's verified signature, so use `gh api` instead.
+          # The base64 payload (~200 KB) exceeds the 128 KB single-argument
+          # limit, so stream the request body from files instead of argv.
+          SHA=$(gh api "repos/${GITHUB_REPOSITORY}/contents/${FILE_PATH}?ref=${BRANCH}" --jq .sha)
+          base64 -w0 "$FILE_PATH" > /tmp/cargo-lock.b64
+          jq -n --rawfile content /tmp/cargo-lock.b64 --arg sha "$SHA" --arg branch "$BRANCH" \
+            '{message: "chore: sync Cargo.lock", content: $content, sha: $sha, branch: $branch}' > /tmp/body.json
+          gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/${FILE_PATH}" --input /tmp/body.json
+
+  approve-release-pr:
+    needs: [release-please, sync-cargo-lock]
     if: needs.release-please.outputs.prs_created == 'true'
     permissions:
       actions: write # needed to approve workflow runs
@@ -44,7 +87,7 @@ jobs:
     name: "✅ Approve Release PR workflows"
     uses: hrzlgnm/actions/.github/workflows/approve-bot-pr-reusable.yml@275b5f2d90d762bd71567db08b250d8ba7cdb274 # v2.14.4
     with:
-      branch: release-please--branches--main--components--mdns-browser-ui
+      branch: release-please--branches--main--components--mdns-browser-frontend
 
   source_checksums:
     needs: [release-please]
