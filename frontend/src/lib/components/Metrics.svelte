@@ -12,7 +12,7 @@
 </script>
 
 <div class={$layoutClass}>
-  <details open>
+  <details>
     <summary>mDNS-SD-metrics</summary>
     <div class="metrics-grid">
       {#each sorted as [name, value] (name)}
