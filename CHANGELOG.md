@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.0.0...v2.0.1) (2026-09-14)
+
+
+### Bug Fixes
+
+* remove sync-push registration delay from release workflow ([#2683](https://github.com/hrzlgnm/mdns-browser/issues/2683)) ([215e0aa](https://github.com/hrzlgnm/mdns-browser/commit/215e0aa65bde9720f804735eba310026e1394925))
+
 ## [2.0.0](https://github.com/hrzlgnm/mdns-browser/compare/v1.23.1...v2.0.0) (2026-09-14)
 
 
