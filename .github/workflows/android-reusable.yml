@@ -96,6 +96,11 @@ jobs:
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
           RUSTFLAGS: "-D warnings"
           TAG_NAME: ${{ inputs.tagName }}
+          # Force tauri's package-manager detection down its pnpm branch:
+          # since pnpm 12 (native binary) npm_execpath points at pnpm-native,
+          # which would otherwise end up as the re-invocation command in
+          # gen/android BuildTask.kt and fail to spawn under Gradle.
+          PNPM_PACKAGE_NAME: mdns-browser-frontend
         run: |
           pnpm tauri android init
           pnpm tauri icon src-tauri/icons/icon.png
