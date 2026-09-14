@@ -380,6 +380,7 @@ mod ts_export {
     use super::*;
     use std::fs;
     use std::path::PathBuf;
+    use std::process::Command;
     use ts_rs::{Config, TS};
 
     /// Regenerates `src/lib/types.ts` from the boundary types.
@@ -428,14 +429,19 @@ mod ts_export {
         // Format with the project's prettier so the output matches what CI
         // checks in. Skip (with a warning) when pnpm is unavailable, e.g.
         // in Rust-only environments.
-        // Runs from the workspace root so `pnpm exec` resolves node_modules.
+        // Runs from the workspace root so `pnpm exec` resolves node_modules;
+        // on Windows go through cmd so pnpm.cmd/bat shims resolve.
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
-        match std::process::Command::new("pnpm")
-            .current_dir(&root)
-            .args(["exec", "prettier", "--write"])
-            .arg(&path)
-            .output()
-        {
+        let mut prettier = if cfg!(windows) {
+            let mut cmd = Command::new("cmd");
+            cmd.args(["/C", "pnpm", "exec", "prettier", "--write"]);
+            cmd
+        } else {
+            let mut cmd = Command::new("pnpm");
+            cmd.args(["exec", "prettier", "--write"]);
+            cmd
+        };
+        match prettier.current_dir(&root).arg(&path).output() {
             Ok(output) if output.status.success() => {}
             Ok(output) => panic!(
                 "prettier failed: {}",
