@@ -1,11 +1,5 @@
-<main>
-  <h1>mDNS Browser</h1>
-  <p>SvelteKit frontend scaffold — UI ports land in PR4.</p>
-</main>
+<script lang="ts">
+  import Main from '$lib/components/Main.svelte'
+</script>
 
-<style>
-  main {
-    font-family: system-ui, sans-serif;
-    padding: 1rem;
-  }
-</style>
+<Main />
