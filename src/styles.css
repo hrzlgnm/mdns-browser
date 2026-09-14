@@ -397,14 +397,35 @@ body {
   opacity: 1;
 }
 input[type='checkbox'] {
-  accent-color: var(--accent);
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 16px;
+  margin: 0 4px 0 0;
+  vertical-align: middle;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 3px;
+  cursor: pointer;
 }
-/* Match the primary button blue on the dark and light presets. */
-:root[data-theme='dark'] input[type='checkbox'] {
-  accent-color: #115ea3;
+input[type='checkbox']::before {
+  content: '✓';
+  color: #000000;
+  font-size: 12px;
+  line-height: 1;
+  transform: scale(0);
 }
-:root[data-theme='light'] input[type='checkbox'] {
-  accent-color: #0f6cbd;
+input[type='checkbox']:checked {
+  background: #ffffff;
+}
+input[type='checkbox']:checked::before {
+  transform: scale(1);
+}
+input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 .themed-badge {
   display: inline-block;
