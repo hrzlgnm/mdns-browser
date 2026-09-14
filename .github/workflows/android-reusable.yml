@@ -40,7 +40,7 @@ jobs:
       - name: 🦀🚀
         uses: ./.github/actions/setup-rust-cache
         with:
-          targets: ${{ inputs.tagName && 'aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android' || 'x86_64-linux-android' }}
+          targets: ${{ inputs.tagName && 'aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android,wasm32-unknown-unknown' || 'x86_64-linux-android,wasm32-unknown-unknown' }}
           save-cache: ${{ inputs.branch == 'main' }}
 
       - name: 📝 Extract version from tauri.conf.json
