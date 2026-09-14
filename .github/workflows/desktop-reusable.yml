@@ -128,7 +128,7 @@ jobs:
           releaseDraft: true
           prerelease: false
           tauriScript: cargo --locked auditable tauri
-          args: ${{ matrix.args }} --no-bundle${{ inputs.tagName && '' || ' --debug' }}
+          args: ${{ matrix.args }} --no-bundle${{ !inputs.tagName && ' --debug' || '' }}
           retryAttempts: 1
           uploadPlainBinary: true
 
