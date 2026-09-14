@@ -91,6 +91,7 @@ jobs:
             tauri:
               - '.github/actions/setup-*/**'
               - 'src-tauri/crates/**/src/**'
+              - 'src-tauri/crates/**/Cargo.toml'
               - 'src/**'
               - 'static/**'
               - 'package.json'

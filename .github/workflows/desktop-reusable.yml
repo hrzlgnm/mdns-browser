@@ -80,6 +80,7 @@ jobs:
         uses: ./.github/actions/setup-tauri
 
       - name: 🛠️ Add auditable cargo wrapper to PATH
+        shell: bash
         run: echo "$GITHUB_WORKSPACE/scripts" >> "$GITHUB_PATH"
 
       - name: ⚡ Setup pnpm and cache store
