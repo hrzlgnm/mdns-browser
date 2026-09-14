@@ -4,10 +4,45 @@
  */
 
 /** common styles for all components **/
+:root {
+  color-scheme: dark;
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-tertiary: #1a1a2e;
+  --border-primary: #0f3460;
+  --border-accent: #4fc3f7;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0bec5;
+  --text-muted: #78909c;
+  --text-tertiary: #90a4ae;
+  --text-placeholder: #546e7a;
+  --accent: #4fc3f7;
+  --accent-hover: #81d4fa;
+  --service-type-bg: #5cbeea;
+  --service-type-border: #26a8e3;
+  --service-type-font: #f2f6f7;
+  --instance-bg: #6cda88;
+  --instance-border: #3bce60;
+  --instance-font: #f3f7f4;
+  --host-bg: #daa36c;
+  --host-border: #ce843b;
+  --host-font: #f7f5f3;
+  --address-bg: #b56cda;
+  --address-border: #9c3bce;
+  --address-font: #f5f3f7;
+  --edge-type-instance: #90a4ae;
+  --edge-instance-host: #78909c;
+  --edge-host-address: #b39ddb;
+  --offline-bg: #616161;
+  --offline-border: #424242;
+  --offline-font: #9e9e9e;
+}
 body {
   margin: 0;
   padding: 0;
   border: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 .hidden {
   display: none;

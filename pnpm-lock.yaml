@@ -169,6 +169,9 @@ importers:
       '@tauri-apps/api':
         specifier: ^2
         version: 2.11.1
+      '@tauri-apps/plugin-store':
+        specifier: ^2
+        version: 2.4.4
       '@tauri-apps/plugin-updater':
         specifier: ^2.10.1
         version: 2.11.0
@@ -540,6 +543,9 @@ packages:
     resolution: {integrity: sha512-R8xGtMpwyetawSqm9kYOuMmEqkhUbvcUy8n0aNXIxollKBLESUu5f4Fx+64hgASYm1H+jSWq6jCW6zqTnH6hqQ==}
     engines: {node: '>= 10'}
     hasBin: true
+
+  '@tauri-apps/plugin-store@2.4.4':
+    resolution: {integrity: sha512-oxSMaj/QpVfJcBMYX5aOQV94fWvga0MwQMfD6TLlbK2dh+ShPWAzefd8HWXhvOKjPRJdGVAkW7ZGO76JzzjaDA==}
 
   '@tauri-apps/plugin-updater@2.11.0':
     resolution: {integrity: sha512-AE36XkOoSna24G40jZMY15nzAnkXEPL/73tGoseGrtGOHuI/cZwWzHpZFLjKXDPgzYZ435z1gHu28LgrsBwIxQ==}
@@ -1480,6 +1486,10 @@ snapshots:
       '@tauri-apps/cli-win32-arm64-msvc': 2.11.4
       '@tauri-apps/cli-win32-ia32-msvc': 2.11.4
       '@tauri-apps/cli-win32-x64-msvc': 2.11.4
+
+  '@tauri-apps/plugin-store@2.4.4':
+    dependencies:
+      '@tauri-apps/api': 2.11.1
 
   '@tauri-apps/plugin-updater@2.11.0':
     dependencies:

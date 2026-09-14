@@ -9,7 +9,8 @@
         "core:default",
         "updater:default",
         "clipboard-manager:allow-write-text",
-        "opener:allow-open-url"
+        "opener:allow-open-url",
+        "store:default"
     ],
     "platforms": [
         "macOS",

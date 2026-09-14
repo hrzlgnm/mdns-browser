@@ -14,7 +14,7 @@
   import ClipboardButton from '$lib/components/ClipboardButton.svelte'
   import ValuesTable from '$lib/components/ValuesTable.svelte'
   import { cssClass } from '$lib/css'
-  import { browsing, theme } from '$lib/store'
+  import { browsing } from '$lib/store'
   import type { ResolvedService } from '$lib/types'
 
   // Matches VERIFY_TIMEOUT in src-tauri (5s).
@@ -149,8 +149,8 @@
   >
     <div
       class="resolved-service-details-dialog-body dialog-panel"
-      style:background-color={$theme === 'dark' ? '#242424' : '#ffffff'}
-      style:color={$theme === 'dark' ? '#ffffff' : '#000000'}
+      style:background-color="var(--bg-secondary)"
+      style:color="var(--text-primary)"
       role="dialog"
       aria-modal="true"
       aria-label={title}

@@ -1212,6 +1212,7 @@ pub fn run() {
         )
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(ManagedState::new(args.enable_devtools))
         .setup(move |app| {
@@ -1286,6 +1287,7 @@ pub fn run_mobile() {
         )
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(
             tauri_plugin_android_update::Builder::new()
                 .owner("hrzlgnm")
