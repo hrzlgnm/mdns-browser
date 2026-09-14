@@ -418,10 +418,18 @@ input[type='checkbox']::before {
   transform: scale(0);
 }
 input[type='checkbox']:checked {
-  background: #ffffff;
+  background: var(--accent);
+  border-color: transparent;
 }
 input[type='checkbox']:checked::before {
   transform: scale(1);
+}
+/* Match the primary button fill on the dark and light presets. */
+:root[data-theme='dark'] input[type='checkbox']:checked {
+  background-color: #115ea3;
+}
+:root[data-theme='light'] input[type='checkbox']:checked {
+  background-color: #0f6cbd;
 }
 input[type='checkbox']:focus-visible {
   outline: 2px solid var(--accent);
