@@ -288,6 +288,10 @@ body {
   border-color: var(--accent);
   outline: none;
 }
+.sort-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
 .themed-input {
   font: inherit;
   background: var(--bg-primary);

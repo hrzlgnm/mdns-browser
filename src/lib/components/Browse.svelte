@@ -133,7 +133,7 @@
       <span class="themed-badge">{filtered.length}/{sortedServices.length}</span>
     </div>
     <div>
-      <span>Sort by</span>
+      <span class="sort-label">Sort by</span>
       <select class="themed-select" bind:value={sortValue}>
         <option value="InstanceAsc">Instance (Ascending)</option>
         <option value="InstanceDesc">Instance (Descending)</option>
