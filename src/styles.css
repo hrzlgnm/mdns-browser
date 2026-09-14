@@ -456,10 +456,11 @@ input[type='checkbox']:focus-visible {
   outline-offset: 1px;
 }
 .card-table {
+  width: 100%;
   border-collapse: collapse;
 }
 .card-table tr + tr > td {
-  border-top: 1px solid var(--bg-tertiary);
+  border-top: 1px solid var(--bg-secondary);
 }
 .themed-badge {
   display: inline-block;
