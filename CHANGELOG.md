@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0](https://github.com/hrzlgnm/mdns-browser/compare/v1.23.1...v2.0.0) (2026-09-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* cut over to the SvelteKit frontend ([#2660](https://github.com/hrzlgnm/mdns-browser/issues/2660))
+
+### Features
+
+* add theme presets ported from zux ([#2679](https://github.com/hrzlgnm/mdns-browser/issues/2679)) ([f163a0d](https://github.com/hrzlgnm/mdns-browser/commit/f163a0d019d7befd114b81e86a1a7159a4fb53b0))
+* add typed Tauri API layer and Svelte stores ([#2655](https://github.com/hrzlgnm/mdns-browser/issues/2655)) ([4dfb3c1](https://github.com/hrzlgnm/mdns-browser/commit/4dfb3c13cbe42460727cb5119715d2ec546fafb9))
+* cut over to the SvelteKit frontend ([#2660](https://github.com/hrzlgnm/mdns-browser/issues/2660)) ([b6773b6](https://github.com/hrzlgnm/mdns-browser/commit/b6773b671cb5d7406931a22aef2ca64aa22a4c0d))
+* generate frontend types from Rust via ts-rs ([#2654](https://github.com/hrzlgnm/mdns-browser/issues/2654)) ([6215abc](https://github.com/hrzlgnm/mdns-browser/commit/6215abc752c0abe1f8cffeb0710ebe8e6f69d793))
+* port About component and updater flow to Svelte ([#2658](https://github.com/hrzlgnm/mdns-browser/issues/2658)) ([659f0a5](https://github.com/hrzlgnm/mdns-browser/commit/659f0a54ff7c49a0b5117a21c99dca01af5dcee6))
+* port Browse, service cards and Main shell to Svelte ([#2659](https://github.com/hrzlgnm/mdns-browser/issues/2659)) ([4ae5c73](https://github.com/hrzlgnm/mdns-browser/commit/4ae5c738fcd553795cff6be8c8aa25308a2e0f46))
+* port leaf UI components to Svelte ([#2656](https://github.com/hrzlgnm/mdns-browser/issues/2656)) ([02deb37](https://github.com/hrzlgnm/mdns-browser/commit/02deb3799d39c3652976b96c71d06b66dd06b3c9))
+* port NetworkInterfaces and ProtocolFlags to Svelte ([#2657](https://github.com/hrzlgnm/mdns-browser/issues/2657)) ([639a740](https://github.com/hrzlgnm/mdns-browser/commit/639a7403c53a6dcf36ad94b21c824d7798946dd9))
+* scaffold SvelteKit frontend side-by-side with Leptos ([#2653](https://github.com/hrzlgnm/mdns-browser/issues/2653)) ([6a1a903](https://github.com/hrzlgnm/mdns-browser/commit/6a1a903d30d4f34e46f56289f9525a78fcff692f))
+
+
+### Bug Fixes
+
+* **android:** restore committed launcher icons and copy step ([#2685](https://github.com/hrzlgnm/mdns-browser/issues/2685)) ([4ea4490](https://github.com/hrzlgnm/mdns-browser/commit/4ea449017c69270f3408638177d434c29df411d0))
+* delay approval until GitHub registers the sync push ([#2678](https://github.com/hrzlgnm/mdns-browser/issues/2678)) ([4ba02ce](https://github.com/hrzlgnm/mdns-browser/commit/4ba02cef0f0c8ce34dbeb7a29ff97f5de5280ecc))
+* **deps:** update rust crate clap to v4.6.7 ([#2671](https://github.com/hrzlgnm/mdns-browser/issues/2671)) ([53421b7](https://github.com/hrzlgnm/mdns-browser/commit/53421b7a3875fa1aef26a73097ec8d9fe06061aa))
+* let release-please bump the models member version ([#2677](https://github.com/hrzlgnm/mdns-browser/issues/2677)) ([8770e41](https://github.com/hrzlgnm/mdns-browser/commit/8770e41e076bedb5a082964b6c36a88e6e711266))
+* remove sync-push registration delay from release workflow ([#2683](https://github.com/hrzlgnm/mdns-browser/issues/2683)) ([215e0aa](https://github.com/hrzlgnm/mdns-browser/commit/215e0aa65bde9720f804735eba310026e1394925))
+* retarget release-please to the frontend package with node strategy ([#2672](https://github.com/hrzlgnm/mdns-browser/issues/2672)) ([42bb1cc](https://github.com/hrzlgnm/mdns-browser/commit/42bb1ccc63679b603c772b7f2dc5339b3a4fe180))
+
 ## [1.23.1](https://github.com/hrzlgnm/mdns-browser/compare/v1.23.0...v1.23.1) (2026-09-13)
 
 
