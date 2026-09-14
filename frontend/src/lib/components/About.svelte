@@ -66,7 +66,7 @@
 </script>
 
 <div>
-  <details open>
+  <details>
     <summary>About</summary>
     <div>
       <span>Version {version}</span>
