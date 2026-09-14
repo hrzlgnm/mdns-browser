@@ -14,7 +14,7 @@
   import ClipboardButton from '$lib/components/ClipboardButton.svelte'
   import ValuesTable from '$lib/components/ValuesTable.svelte'
   import { cssClass } from '$lib/css'
-  import { browsing } from '$lib/store'
+  import { browsing, theme } from '$lib/store'
   import type { ResolvedService } from '$lib/types'
 
   // VERIFY_TIMEOUT in crates/shared_constants is 5s.
@@ -148,7 +148,9 @@
     }}
   >
     <div
-      class="resolved-service-details-dialog-body"
+      class="resolved-service-details-dialog-body dialog-panel"
+      style:background-color={$theme === 'dark' ? '#242424' : '#ffffff'}
+      style:color={$theme === 'dark' ? '#ffffff' : '#000000'}
       role="dialog"
       aria-modal="true"
       aria-label={title}
@@ -180,5 +182,10 @@
     padding: 1rem;
     overflow: auto;
     background: rgba(0, 0, 0, 0.45);
+  }
+  .dialog-panel {
+    border: 1px solid #808080;
+    border-radius: 8px;
+    padding: 1rem;
   }
 </style>
