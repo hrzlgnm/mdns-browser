@@ -337,37 +337,47 @@ body {
   cursor: not-allowed;
   opacity: 0.6;
 }
-/* Thaw-exact interaction states for the dark and light presets. */
-:root[data-theme='dark'] .themed-button:hover {
-  background-color: #3d3d3d;
+/* Thaw primary-button treatment for the dark and light presets. */
+:root[data-theme='dark'] .themed-button {
+  background-color: #115ea3;
   color: #ffffff;
-  border-color: #757575;
+  border-color: transparent;
+}
+:root[data-theme='dark'] .themed-button:hover {
+  background-color: #0f6cbd;
+  color: #ffffff;
+  border-color: transparent;
 }
 :root[data-theme='dark'] .themed-button:hover:active {
-  background-color: #1f1f1f;
+  background-color: #0c3b5e;
   color: #ffffff;
-  border-color: #6b6b6b;
+  border-color: transparent;
 }
 :root[data-theme='dark'] .themed-button:disabled {
   color: #5c5c5c;
   background-color: #141414;
-  border-color: #424242;
+  border-color: transparent;
   opacity: 1;
 }
+:root[data-theme='light'] .themed-button {
+  background-color: #0f6cbd;
+  color: #ffffff;
+  border-color: transparent;
+}
 :root[data-theme='light'] .themed-button:hover {
-  background-color: #f5f5f5;
-  color: #242424;
-  border-color: #c7c7c7;
+  background-color: #115ea3;
+  color: #ffffff;
+  border-color: transparent;
 }
 :root[data-theme='light'] .themed-button:hover:active {
-  background-color: #e0e0e0;
-  color: #242424;
-  border-color: #b3b3b3;
+  background-color: #0c3b5e;
+  color: #ffffff;
+  border-color: transparent;
 }
 :root[data-theme='light'] .themed-button:disabled {
   color: #bdbdbd;
   background-color: #f0f0f0;
-  border-color: #e0e0e0;
+  border-color: transparent;
   opacity: 1;
 }
 input[type='checkbox'] {
