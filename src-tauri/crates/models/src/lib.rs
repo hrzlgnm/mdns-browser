@@ -427,27 +427,39 @@ mod ts_export {
         }
         fs::write(&path, out).expect("To write types.ts");
         // Format with the project's prettier so the output matches what CI
-        // checks in. Skip (with a warning) when pnpm is unavailable, e.g.
-        // in Rust-only environments.
+        // checks in. Probe first and skip (with a warning) when the
+        // toolchain is unavailable, e.g. in Rust-only environments without
+        // pnpm or without installed frontend dependencies; fail only when
+        // prettier itself runs and reports an error.
         // Runs from the workspace root so `pnpm exec` resolves node_modules;
         // on Windows go through cmd so pnpm.cmd/bat shims resolve.
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
-        let mut prettier = if cfg!(windows) {
-            let mut cmd = Command::new("cmd");
-            cmd.args(["/C", "pnpm", "exec", "prettier", "--write"]);
-            cmd
-        } else {
-            let mut cmd = Command::new("pnpm");
-            cmd.args(["exec", "prettier", "--write"]);
-            cmd
+        let prettier_cmd = || {
+            if cfg!(windows) {
+                let mut cmd = Command::new("cmd");
+                cmd.args(["/C", "pnpm", "exec", "prettier"]);
+                cmd
+            } else {
+                let mut cmd = Command::new("pnpm");
+                cmd.args(["exec", "prettier"]);
+                cmd
+            }
         };
-        match prettier.current_dir(&root).arg(&path).output() {
-            Ok(output) if output.status.success() => {}
-            Ok(output) => panic!(
-                "prettier failed: {}",
-                String::from_utf8_lossy(&output.stderr)
-            ),
-            Err(e) => eprintln!("warning: skipping prettier ({e})"),
+        match prettier_cmd().current_dir(&root).arg("--version").output() {
+            Ok(probe) if probe.status.success() => {
+                let output = prettier_cmd()
+                    .current_dir(&root)
+                    .arg("--write")
+                    .arg(&path)
+                    .output()
+                    .expect("To run prettier");
+                assert!(
+                    output.status.success(),
+                    "prettier failed: {}",
+                    String::from_utf8_lossy(&output.stderr)
+                );
+            }
+            _ => eprintln!("warning: skipping prettier; CI fails on drift"),
         }
     }
 }
