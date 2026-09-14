@@ -24,9 +24,9 @@ jobs:
 
       - name: 📐 Run rustfmt and fail if any warnings
         shell: bash
+        working-directory: src-tauri
         run: |
           cargo fmt -- --check
-          cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 
   prettier:
     runs-on: ubuntu-latest
@@ -152,5 +152,6 @@ jobs:
       # Clippy emits metadata only, which sccache cannot cache.
       - name: 📎 Run clippy and fail if any warnings
         shell: bash
+        working-directory: src-tauri
         run: |
           cargo clippy --workspace --tests -- -D warnings
