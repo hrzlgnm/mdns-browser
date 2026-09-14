@@ -18,7 +18,7 @@ body {
   gap: 0px;
 }
 .metric-item {
-  border: var(--strokeWidthThin) solid var(--colorNeutralStroke2);
+  border: 1px solid #808080;
   padding: 2px 5px 2px 5px;
   min-width: 160px;
 }
@@ -27,7 +27,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   display: inline-block;
-  font-size: var(--fontSizeBase400);
+  font-size: var(--fontSizeBase400, 14px);
 }
 .resolved-service-details-dialog-title {
   max-width: 75vw;
@@ -39,11 +39,11 @@ body {
 .thaw-card-header__header {
   justify-content: space-between;
 }
-.service-type-invalid > .thaw-input {
-  border: 2px groove var(--colorStatusDangerBorder1);
+.service-type-invalid > input {
+  border: 2px groove var(--colorStatusDangerBorder1, #d13438);
 }
-.service-type-valid > .thaw-input {
-  outline: 1px solid var(--colorTransparentStroke);
+.service-type-valid > input {
+  outline: 1px solid var(--colorTransparentStroke, transparent);
 }
 .resolved-service-details-dialog-body {
   display: flex;
@@ -163,9 +163,9 @@ body {
   border-radius: 22px;
   height: 44px;
   min-width: 44px;
-  box-shadow: var(--shadow4);
-  color: var(--colorNeutralForeground2);
-  background-color: var(--colorNeutralBackground1);
+  box-shadow: var(--shadow4, 0 1px 4px rgba(0, 0, 0, 0.4));
+  color: var(--colorNeutralForeground2, #ffffff);
+  background-color: var(--colorNeutralBackground1, #605e5c);
 }
 
 .back-top-button > svg {
@@ -174,11 +174,11 @@ body {
 }
 .back-top-button:hover,
 .back-top-button:active {
-  box-shadow: var(--shadow16);
+  box-shadow: var(--shadow16, 0 4px 16px rgba(0, 0, 0, 0.5));
 }
 .back-top-button:hover > svg {
-  color: var(--colorBrandBackgroundHover);
+  color: var(--colorBrandBackgroundHover, #106ebe);
 }
 .back-top-button:active svg {
-  color: var(--colorBrandBackgroundPressed);
+  color: var(--colorBrandBackgroundPressed, #005a9e);
 }
