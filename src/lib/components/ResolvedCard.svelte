@@ -139,8 +139,12 @@
             onclick={onVerify}
             disabled={cannotVerify}
           >
-            <MdiCheckAll width="1.2em" height="1.2em" aria-hidden="true" />
-            {verifying ? 'Verifying…' : 'Verify'}
+            {#if verifying}
+              <span class="spinner" role="status" aria-label="Verifying"></span>
+            {:else}
+              <MdiCheckAll width="1.2em" height="1.2em" aria-hidden="true" />
+              Verify
+            {/if}
           </button>
           <button
             type="button"

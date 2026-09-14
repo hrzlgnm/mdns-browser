@@ -356,6 +356,20 @@ body {
   line-height: 16px;
   font-weight: 400;
 }
+.spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid var(--border-primary);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 /* Thaw primary-button treatment for the dark and light presets. */
 :root[data-theme='dark'] .themed-button {
   background-color: #115ea3;
