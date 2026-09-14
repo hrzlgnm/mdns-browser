@@ -17,7 +17,7 @@
   import { browsing, theme } from '$lib/store'
   import type { ResolvedService } from '$lib/types'
 
-  // VERIFY_TIMEOUT in crates/shared_constants is 5s.
+  // Matches VERIFY_TIMEOUT in src-tauri (5s).
   const VERIFY_TIMEOUT_MS = 5000
 
   let { service }: { service: ResolvedService } = $props()

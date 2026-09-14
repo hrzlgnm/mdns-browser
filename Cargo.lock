@@ -2557,7 +2557,6 @@ dependencies = [
  "pnet",
  "serde",
  "serde_json",
- "shared_constants",
  "tauri",
  "tauri-build",
  "tauri-plugin-android-update",
@@ -4259,10 +4258,6 @@ dependencies = [
  "cpufeatures 0.2.17",
  "digest",
 ]
-
-[[package]]
-name = "shared_constants"
-version = "1.23.1"
 
 [[package]]
 name = "shlex"

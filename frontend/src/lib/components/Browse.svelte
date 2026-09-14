@@ -14,7 +14,7 @@
   import { cssClass } from '$lib/css'
   import { browsing, hasEnabledInterfaces, resolved, resolvedList, serviceTypes } from '$lib/store'
 
-  // AUTO_COMPLETE_AUTO_FOCUS_DELAY in crates/shared_constants is 5s.
+  // Matches the backend auto-focus delay (5s).
   const AUTO_FOCUS_DELAY_MS = 5000
 
   const layoutClass = cssClass('browse-layout')
