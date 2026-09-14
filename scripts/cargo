@@ -1,0 +1,45 @@
+#!/bin/sh
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT
+# Route `cargo` invocations through cargo-auditable so release binaries built
+# via `pnpm tauri` (which spawns `cargo` itself, as does cargo-mobile2 for
+# Android) stay auditable.
+#
+# The wrapper's own directory is stripped from PATH before delegating:
+# without that, `cargo` would resolve back to this script and recurse until
+# the argument list overflows (and cargo-auditable's inner `cargo` inherits
+# the stripped PATH, so it can only reach the real binary either). If no
+# other cargo binary remains on PATH the script aborts instead of recursing.
+
+here=$(dirname "$0")
+case "$here" in
+  /*) ;;
+  *) here="$PWD/$here" ;;
+esac
+
+stripped=""
+old_ifs=$IFS
+IFS=:
+for dir in $PATH; do
+  if [ "$dir" != "$here" ]; then
+    stripped="${stripped:+$stripped:}$dir"
+  fi
+done
+IFS=$old_ifs
+PATH=$stripped
+export PATH
+
+real_cargo=$(command -v cargo)
+if [ -z "$real_cargo" ] || [ "$real_cargo" = "$0" ]; then
+  echo "scripts/cargo: no real cargo binary found on PATH (aborting to avoid recursion)" >&2
+  exit 1
+fi
+
+# A leading rustup `+toolchain` selector must stay ahead of the subcommand.
+if [ "${1-}" != "${1#+}" ]; then
+  toolchain=$1
+  shift
+  exec "$real_cargo" "$toolchain" auditable "$@"
+fi
+
+exec "$real_cargo" auditable "$@"

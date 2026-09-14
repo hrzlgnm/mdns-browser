@@ -1,0 +1,13 @@
+build/
+.svelte-kit/
+package/
+node_modules/
+src-tauri/
+packaging/
+docs/
+static/
+.github/
+pnpm-lock.yaml
+*.md
+*.yaml
+*.yml

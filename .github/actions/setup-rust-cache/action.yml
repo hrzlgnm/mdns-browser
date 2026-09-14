@@ -42,3 +42,4 @@ runs:
         cache-targets: false
         prefix-key: "v1-rust"
         shared-key: "shared"
+        workspaces: "src-tauri"

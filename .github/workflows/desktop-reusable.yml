@@ -79,13 +79,17 @@ jobs:
       - name: 🛠️🐂
         uses: ./.github/actions/setup-tauri
 
+      - name: 🛠️ Add auditable cargo wrapper to PATH
+        shell: bash
+        run: echo "$GITHUB_WORKSPACE/scripts" >> "$GITHUB_PATH"
+
       - name: ⚡ Setup pnpm and cache store
         uses: ./.github/actions/pnpm-setup
 
       - name: 📦 Install frontend dependencies
         uses: hrzlgnm/actions/.github/actions/retry@275b5f2d90d762bd71567db08b250d8ba7cdb274 # v2.14.4
         with:
-          command: pnpm --dir frontend install --frozen-lockfile
+          command: pnpm install --frozen-lockfile
 
       - name: 🛠️🚀
         if: (!inputs.tagName && runner.os != 'Windows')
@@ -135,7 +139,7 @@ jobs:
           releaseBody: ${{ steps.current-release.outputs.body }}
           releaseDraft: true
           prerelease: false
-          tauriScript: cargo --locked auditable tauri
+          tauriScript: pnpm tauri
           args: ${{ matrix.args }} --no-bundle${{ !inputs.tagName && ' --debug' || '' }}
           retryAttempts: 1
           uploadPlainBinary: true
@@ -145,16 +149,16 @@ jobs:
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
         with:
           subject-path: |
-            target/**/release/mdns-browser
-            target/release/mdns-browser.exe
+            src-tauri/target/**/release/mdns-browser
+            src-tauri/target/release/mdns-browser.exe
 
       - name: 🛡️ Attest SBOM (plain binary)
         if: inputs.tagName
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
         with:
           subject-path: |
-            target/**/release/mdns-browser
-            target/release/mdns-browser.exe
+            src-tauri/target/**/release/mdns-browser
+            src-tauri/target/release/mdns-browser.exe
           sbom-path: "sbom.spdx.json"
 
       - name: 🔨 Build bundles using tauri action (release only)
@@ -172,7 +176,7 @@ jobs:
           releaseBody: ${{ steps.current-release.outputs.body }}
           releaseDraft: true
           prerelease: false
-          tauriScript: cargo --locked auditable tauri
+          tauriScript: pnpm tauri
           args: ${{ matrix.args }}
           retryAttempts: 1
 
@@ -182,8 +186,8 @@ jobs:
         env:
           VERSION: ${{ steps.get-version.outputs.current-version }}
         run: |
-          Compress-Archive -Path "target/release/mdns_browser.pdb" -DestinationPath "target/release/mdns-browser-$env:VERSION-debug-symbols-windows.zip" -Force
-          Write-Output "Compressed target/release/mdns_browser.pdb -> target/release/mdns-browser-$env:VERSION-debug-symbols-windows.zip"
+          Compress-Archive -Path "src-tauri/target/release/mdns_browser.pdb" -DestinationPath "src-tauri/target/release/mdns-browser-$env:VERSION-debug-symbols-windows.zip" -Force
+          Write-Output "Compressed src-tauri/target/release/mdns_browser.pdb -> src-tauri/target/release/mdns-browser-$env:VERSION-debug-symbols-windows.zip"
 
       - name: 📦 Compress debug symbols (Linux)
         if: inputs.tagName && contains(matrix.os, 'ubuntu')
@@ -191,8 +195,8 @@ jobs:
         env:
           VERSION: ${{ steps.get-version.outputs.current-version }}
         run: |
-          tar -czf "target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz" -C target/release mdns-browser.dwp
-          echo "Compressed target/release/mdns-browser.dwp -> target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz"
+          tar -czf "src-tauri/target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz" -C src-tauri/target/release mdns-browser.dwp
+          echo "Compressed src-tauri/target/release/mdns-browser.dwp -> src-tauri/target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz"
 
       - name: 📦 Compress debug symbols (macOS)
         if: inputs.tagName && contains(matrix.os, 'macos')
@@ -201,7 +205,7 @@ jobs:
           VERSION: ${{ steps.get-version.outputs.current-version }}
         run: |
           for ARCH in x86_64-apple-darwin aarch64-apple-darwin; do
-            DSYM_LINK="target/$ARCH/release/mdns-browser.dSYM"
+            DSYM_LINK="src-tauri/target/$ARCH/release/mdns-browser.dSYM"
             if [ ! -L "$DSYM_LINK" ]; then
               echo "Error: dSYM symlink not found for $ARCH: $DSYM_LINK" >&2
               exit 1
@@ -213,8 +217,8 @@ jobs:
             fi
             BASE=$(basename "$REAL_DSYM")
             INFIX="${ARCH//-apple-darwin/}"
-            tar -czf "target/$ARCH/release/deps/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz" -C "target/$ARCH/release/deps" "$BASE"
-            echo "Compressed $REAL_DSYM -> target/$ARCH/release/deps/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz"
+            tar -czf "src-tauri/target/$ARCH/release/deps/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz" -C "src-tauri/target/$ARCH/release/deps" "$BASE"
+            echo "Compressed $REAL_DSYM -> src-tauri/target/$ARCH/release/deps/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz"
           done
 
       - name: 🛑 Prepare debug symbol paths
@@ -226,10 +230,10 @@ jobs:
         run: |
           {
             echo "paths<<EOF"
-            echo "target/release/mdns-browser-$VERSION-debug-symbols-windows.zip"
-            echo "target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz"
-            echo "target/x86_64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-x86_64.tar.gz"
-            echo "target/aarch64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-aarch64.tar.gz"
+            echo "src-tauri/target/release/mdns-browser-$VERSION-debug-symbols-windows.zip"
+            echo "src-tauri/target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz"
+            echo "src-tauri/target/x86_64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-x86_64.tar.gz"
+            echo "src-tauri/target/aarch64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-aarch64.tar.gz"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -243,10 +247,10 @@ jobs:
         run: |
           ASSETS=()
           for file in \
-            "target/release/mdns-browser-$VERSION-debug-symbols-windows.zip" \
-            "target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz" \
-            "target/x86_64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-x86_64.tar.gz" \
-            "target/aarch64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-aarch64.tar.gz"; do
+            "src-tauri/target/release/mdns-browser-$VERSION-debug-symbols-windows.zip" \
+            "src-tauri/target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz" \
+            "src-tauri/target/x86_64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-x86_64.tar.gz" \
+            "src-tauri/target/aarch64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-aarch64.tar.gz"; do
             if [[ -n "$file" && -f "$file" ]]; then
               ASSETS+=("$file")
             fi
@@ -274,17 +278,17 @@ jobs:
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
         with:
           subject-path: |
-            target/release/bundle/nsis/*
-            target/release/bundle/msi/*
-            target/**/release/bundle/macos/*.tar.gz*
-            target/**/release/bundle/dmg/*.dmg
-            target/release/bundle/deb/*.deb
-            target/release/bundle/rpm/*.rpm
-            target/release/mdns_browser.pdb
-            target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-windows.zip
-            target/release/mdns-browser.dwp
-            target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-linux.tar.gz
-            target/x86_64-apple-darwin/release/deps/mdns-browser-*.dSYM
-            target/x86_64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-x86_64.tar.gz
-            target/aarch64-apple-darwin/release/deps/mdns-browser-*.dSYM
-            target/aarch64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-aarch64.tar.gz
+            src-tauri/target/release/bundle/nsis/*
+            src-tauri/target/release/bundle/msi/*
+            src-tauri/target/**/release/bundle/macos/*.tar.gz*
+            src-tauri/target/**/release/bundle/dmg/*.dmg
+            src-tauri/target/release/bundle/deb/*.deb
+            src-tauri/target/release/bundle/rpm/*.rpm
+            src-tauri/target/release/mdns_browser.pdb
+            src-tauri/target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-windows.zip
+            src-tauri/target/release/mdns-browser.dwp
+            src-tauri/target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-linux.tar.gz
+            src-tauri/target/x86_64-apple-darwin/release/deps/mdns-browser-*.dSYM
+            src-tauri/target/x86_64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-x86_64.tar.gz
+            src-tauri/target/aarch64-apple-darwin/release/deps/mdns-browser-*.dSYM
+            src-tauri/target/aarch64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-aarch64.tar.gz

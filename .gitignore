@@ -2,7 +2,9 @@
 !.github/
 
 /.idea
-/target/
+/build/
+/.svelte-kit/
+/package/
 
 # Gradle build output inside Tauri plugin android modules
 **/android/build/

@@ -1,7 +1,7 @@
 {
   "name": "mdns-browser-frontend",
   "version": "1.23.1",
-  "description": "SvelteKit frontend for mdns-browser (side-by-side with Leptos until cutover)",
+  "description": "SvelteKit frontend for mdns-browser",
   "packageManager": "pnpm@12.4.1",
   "type": "module",
   "scripts": {

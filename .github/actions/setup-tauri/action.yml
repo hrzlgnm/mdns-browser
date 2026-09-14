@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 name: Setup tauri
-description: Sets up tauri
+description: Installs cargo-auditable for auditable release builds (invoked through the scripts/cargo wrapper on PATH)
 
 runs:
   using: "composite"
@@ -11,10 +11,4 @@ runs:
       with:
         crate: cargo-auditable
         version: 0.7.6
-        locked: true
-
-    - uses: baptiste0928/cargo-install@8195d4f734a149db85385bb4102b42efcd373759 # v3
-      with:
-        crate: tauri-cli
-        version: 2.11.4
         locked: true

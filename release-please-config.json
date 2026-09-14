@@ -7,17 +7,16 @@
   "force-tag-creation": true,
   "prerelease": false,
   "packages": {
-    "frontend": {
-      "changelog-path": "/CHANGELOG.md",
+    ".": {
       "extra-files": [
         {
           "type": "json",
-          "path": "/src-tauri/tauri.conf.json",
+          "path": "src-tauri/tauri.conf.json",
           "jsonpath": "$.version"
         },
         {
           "type": "toml",
-          "path": "/src-tauri/Cargo.toml",
+          "path": "src-tauri/Cargo.toml",
           "jsonpath": "$.package.version"
         }
       ]
