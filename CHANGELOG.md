@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.24.0](https://github.com/hrzlgnm/mdns-browser/compare/v1.23.1...v1.24.0) (2026-09-14)
+
+
+### Features
+
+* add typed Tauri API layer and Svelte stores ([#2655](https://github.com/hrzlgnm/mdns-browser/issues/2655)) ([4dfb3c1](https://github.com/hrzlgnm/mdns-browser/commit/4dfb3c13cbe42460727cb5119715d2ec546fafb9))
+* generate frontend types from Rust via ts-rs ([#2654](https://github.com/hrzlgnm/mdns-browser/issues/2654)) ([6215abc](https://github.com/hrzlgnm/mdns-browser/commit/6215abc752c0abe1f8cffeb0710ebe8e6f69d793))
+* port About component and updater flow to Svelte ([#2658](https://github.com/hrzlgnm/mdns-browser/issues/2658)) ([659f0a5](https://github.com/hrzlgnm/mdns-browser/commit/659f0a54ff7c49a0b5117a21c99dca01af5dcee6))
+* port Browse, service cards and Main shell to Svelte ([#2659](https://github.com/hrzlgnm/mdns-browser/issues/2659)) ([4ae5c73](https://github.com/hrzlgnm/mdns-browser/commit/4ae5c738fcd553795cff6be8c8aa25308a2e0f46))
+* port leaf UI components to Svelte ([#2656](https://github.com/hrzlgnm/mdns-browser/issues/2656)) ([02deb37](https://github.com/hrzlgnm/mdns-browser/commit/02deb3799d39c3652976b96c71d06b66dd06b3c9))
+* port NetworkInterfaces and ProtocolFlags to Svelte ([#2657](https://github.com/hrzlgnm/mdns-browser/issues/2657)) ([639a740](https://github.com/hrzlgnm/mdns-browser/commit/639a7403c53a6dcf36ad94b21c824d7798946dd9))
+* scaffold SvelteKit frontend side-by-side with Leptos ([#2653](https://github.com/hrzlgnm/mdns-browser/issues/2653)) ([6a1a903](https://github.com/hrzlgnm/mdns-browser/commit/6a1a903d30d4f34e46f56289f9525a78fcff692f))
+
 ## [1.23.1](https://github.com/hrzlgnm/mdns-browser/compare/v1.23.0...v1.23.1) (2026-09-13)
 
 
