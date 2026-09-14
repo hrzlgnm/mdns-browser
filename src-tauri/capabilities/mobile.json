@@ -9,6 +9,7 @@
         "core:default",
         "clipboard-manager:allow-write-text",
         "opener:allow-open-url",
+        "store:default",
         "android-update:default"
     ],
     "platforms": [

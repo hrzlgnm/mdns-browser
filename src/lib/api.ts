@@ -8,7 +8,6 @@ import type {
   ServiceResolvedEvent,
   ServiceTypeFoundEvent,
   ServiceTypes,
-  ThemeChangedEvent,
 } from './types'
 
 // Typed wrappers for the Tauri commands in src-tauri/src/lib.rs.
@@ -66,10 +65,6 @@ export function copyToClipboard(contents: string): Promise<void> {
   return invoke<void>('copy_to_clipboard', { contents })
 }
 
-export function getTheme(): Promise<string> {
-  return invoke<string>('theme')
-}
-
 export function closeSplashscreen(): Promise<void> {
   return invoke<void>('close_splashscreen')
 }
@@ -110,8 +105,4 @@ export function onInterfacesChanged(
 
 export function onMetricsChanged(cb: (payload: MetricsChangedEvent) => void): Promise<UnlistenFn> {
   return listen<MetricsChangedEvent>('metrics-changed', (event) => cb(event.payload))
-}
-
-export function onThemeChanged(cb: (payload: ThemeChangedEvent) => void): Promise<UnlistenFn> {
-  return listen<ThemeChangedEvent>('theme-changed', (event) => cb(event.payload))
 }

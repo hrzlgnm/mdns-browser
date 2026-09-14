@@ -15,7 +15,6 @@
     initProtocolFlags,
     initTheme,
     setupEventListeners,
-    theme,
   } from '$lib/store'
 
   const layoutClass = cssClass('outer-layout')
@@ -30,12 +29,6 @@
   }
 
   onMount(() => {
-    // Keep the thaw dark/light page background behavior without thaw:
-    // sync the body background with the current theme name.
-    $effect(() => {
-      document.body.style.backgroundColor = $theme === 'dark' ? '#1b1a19' : '#ffffff'
-    })
-
     // Block drop navigation for http links dropped outside editable fields.
     const onDragOver = (e: DragEvent) => {
       if (shouldBlock(e)) e.preventDefault()

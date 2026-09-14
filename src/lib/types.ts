@@ -24,6 +24,5 @@ export type MetricsChangedEvent = { metrics: { [key in string]: number } }
 export type ServiceResolvedEvent = { service: ResolvedService }
 export type ServiceTypeFoundEvent = { service_type: string }
 export type ServiceRemovedEvent = { instance_name: string; at_micros: string }
-export type ThemeChangedEvent = { theme: string }
 export type ProtocolFlags = { ipv4: boolean; ipv6: boolean }
 export type UpdateMetadata = { version: string; currentVersion: string }

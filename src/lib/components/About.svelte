@@ -1,5 +1,9 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte'
+  import MdiCheckCircleOutline from '~icons/mdi/check-circle-outline'
+  import MdiDownloadCircleOutline from '~icons/mdi/download-circle-outline'
+  import MdiGithub from '~icons/mdi/github'
+  import MdiInboxArrowDown from '~icons/mdi/inbox-arrow-down'
   import { canAutoUpdate, getVersion, openUrl } from '$lib/api'
   import { desktop } from '$lib/store'
   import { pushToast } from '$lib/toast'
@@ -73,36 +77,54 @@
       {#if $desktop}
         <button
           type="button"
+          class="themed-button"
           onclick={() => void openUrl(`${GITHUB_BASE_URL}/releases/tag/v${version}`)}
         >
+          <MdiGithub width="1.2em" height="1.2em" aria-hidden="true" />
           Release Notes
         </button>
         <button
           type="button"
+          class="themed-button"
           onclick={() => void openUrl(`${GITHUB_BASE_URL}/issues/new?template=bug_report.yml`)}
         >
+          <MdiGithub width="1.2em" height="1.2em" aria-hidden="true" />
           Report an Issue
         </button>
         <button
           type="button"
+          class="themed-button"
           onclick={() =>
             void openUrl(`${GITHUB_BASE_URL}/issues?q=is%3Aopen+is%3Aissue+label%3Abug`)}
         >
+          <MdiGithub width="1.2em" height="1.2em" aria-hidden="true" />
           Known Issues
         </button>
-        <button type="button" onclick={() => void openUrl(`${GITHUB_BASE_URL}/releases/`)}>
+        <button
+          type="button"
+          class="themed-button"
+          onclick={() => void openUrl(`${GITHUB_BASE_URL}/releases/`)}
+        >
+          <MdiGithub width="1.2em" height="1.2em" aria-hidden="true" />
           Releases
         </button>
       {/if}
       {#if showNoUpdate}
-        <button type="button">{version} is the latest version</button>
+        <button type="button" class="themed-button">
+          <MdiCheckCircleOutline width="1.2em" height="1.2em" aria-hidden="true" />
+          {version} is the latest version
+        </button>
       {:else if canUpdate}
         {#if update}
-          <button type="button" onclick={() => void onInstallUpdate()}>
+          <button type="button" class="themed-button" onclick={() => void onInstallUpdate()}>
+            <MdiInboxArrowDown width="1.2em" height="1.2em" aria-hidden="true" />
             {$desktop ? 'Download and Install ' : 'Open release page '}{update.version}
           </button>
         {:else}
-          <button type="button" onclick={() => void onCheckUpdate()}>Check for updates</button>
+          <button type="button" class="themed-button" onclick={() => void onCheckUpdate()}>
+            <MdiDownloadCircleOutline width="1.2em" height="1.2em" aria-hidden="true" />
+            Check for updates
+          </button>
         {/if}
       {/if}
     </div>

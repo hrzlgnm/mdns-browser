@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import MdiFormatVerticalAlignTop from '~icons/mdi/format-vertical-align-top'
 
   let { threshold = 300 }: { threshold?: number } = $props()
 
@@ -22,19 +23,7 @@
 <div class="back-top-container">
   {#if visible}
     <button type="button" class="back-top-button" onclick={scrollTop} aria-label="Back to top">
-      <svg
-        viewBox="0 0 24 24"
-        width="24"
-        height="24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <polyline points="18 15 12 9 6 15" />
-      </svg>
+      <MdiFormatVerticalAlignTop width="1.2em" height="1.2em" aria-hidden="true" />
     </button>
   {/if}
 </div>

@@ -103,6 +103,7 @@
     <div>
       <span class={`${inputStateClass} ${$inputClass}`}>
         <input
+          class="themed-input"
           bind:this={inputEl}
           type="text"
           placeholder="Service type..."
@@ -123,13 +124,17 @@
           {/each}
         </datalist>
       </span>
-      <button type="button" onclick={onBrowse} disabled={browseDisabled}>Browse</button>
-      <button type="button" onclick={onStop} disabled={!$browsing}>Stop</button>
-      <span>{filtered.length}/{sortedServices.length}</span>
+      <button type="button" class="themed-button" onclick={onBrowse} disabled={browseDisabled}>
+        Browse
+      </button>
+      <button type="button" class="themed-button" onclick={onStop} disabled={!$browsing}>
+        Stop
+      </button>
+      <span class="themed-badge">{filtered.length}/{sortedServices.length}</span>
     </div>
     <div>
-      <span>Sort by</span>
-      <select bind:value={sortValue}>
+      <span class="sort-label">Sort by</span>
+      <select class="themed-select" bind:value={sortValue}>
         <option value="InstanceAsc">Instance (Ascending)</option>
         <option value="InstanceDesc">Instance (Descending)</option>
         <option value="HostnameAsc">Hostname (Ascending)</option>
@@ -150,7 +155,7 @@
         autocomplete="off"
         autocorrect="off"
         spellcheck="false"
-        class={$inputClass}
+        class={`${$inputClass} themed-input`}
         bind:value={query}
         onfocus={() => clearFocusTimer()}
         onkeydown={(e) => {

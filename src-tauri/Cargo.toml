@@ -31,6 +31,7 @@ tauri-plugin-android-update = "0.2"
 tauri-plugin-clipboard-manager = "2.2"
 tauri-plugin-log = { version = "2.4", features = ["colored"] }
 tauri-plugin-opener = "2.2"
+tauri-plugin-store = "2"
 tauri-plugin-updater = "2.0"
 pnet = "0.35"
 ipconfig = "0.3"
@@ -58,6 +59,7 @@ tauri = { workspace = true }
 tauri-plugin-clipboard-manager = { workspace = true }
 tauri-plugin-log = { workspace = true }
 tauri-plugin-opener = { workspace = true }
+tauri-plugin-store = { workspace = true }
 tokio = { workspace = true }
 
 # local

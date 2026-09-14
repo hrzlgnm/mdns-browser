@@ -1,5 +1,10 @@
 <script lang="ts">
   import { onDestroy } from 'svelte'
+  import MdiCheckAll from '~icons/mdi/check-all'
+  import MdiCircle from '~icons/mdi/circle'
+  import MdiClose from '~icons/mdi/close'
+  import MdiListBox from '~icons/mdi/list-box'
+  import MdiOpenInNew from '~icons/mdi/open-in-new'
   import { openUrl, verifyInstance } from '$lib/api'
   import {
     addrDisplay,
@@ -14,7 +19,7 @@
   import ClipboardButton from '$lib/components/ClipboardButton.svelte'
   import ValuesTable from '$lib/components/ValuesTable.svelte'
   import { cssClass } from '$lib/css'
-  import { browsing, theme } from '$lib/store'
+  import { browsing } from '$lib/store'
   import type { ResolvedService } from '$lib/types'
 
   // Matches VERIFY_TIMEOUT in src-tauri (5s).
@@ -80,7 +85,7 @@
       iconClass={deadOrAliveClass}
     />
   </div>
-  <table>
+  <table class="card-table">
     <tbody>
       <tr>
         <td><em>Hostname</em></td>
@@ -118,19 +123,38 @@
       </tr>
       <tr>
         <td>
-          <button type="button" onclick={() => (showDetails = true)}>Details</button>
+          <button
+            type="button"
+            class="themed-button themed-button-small"
+            onclick={() => (showDetails = true)}
+          >
+            <MdiListBox width="1.2em" height="1.2em" aria-hidden="true" />
+            Details
+          </button>
         </td>
         <td class={$valueCellClass}>
-          <button type="button" onclick={onVerify} disabled={cannotVerify}>
-            {verifying ? 'Verifying…' : 'Verify'}
+          <button
+            type="button"
+            class="themed-button themed-button-small"
+            onclick={onVerify}
+            disabled={cannotVerify}
+          >
+            {#if verifying}
+              <span class="spinner" role="status" aria-label="Verifying"></span>
+            {:else}
+              <MdiCheckAll width="1.2em" height="1.2em" aria-hidden="true" />
+            {/if}
+            Verify
           </button>
           <button
             type="button"
+            class="themed-button themed-button-small"
             onclick={() => {
               if (url !== null) void openUrl(url)
             }}
             disabled={url === null}
           >
+            <MdiOpenInNew width="1.2em" height="1.2em" aria-hidden="true" />
             Open
           </button>
         </td>
@@ -149,17 +173,24 @@
   >
     <div
       class="resolved-service-details-dialog-body dialog-panel"
-      style:background-color={$theme === 'dark' ? '#242424' : '#ffffff'}
-      style:color={$theme === 'dark' ? '#ffffff' : '#000000'}
+      style:background-color="var(--bg-secondary)"
+      style:color="var(--text-primary)"
       role="dialog"
       aria-modal="true"
       aria-label={title}
     >
       <div class="dialog-header">
-        <span class={deadOrAliveClass} aria-hidden="true">●</span>
+        <span class={deadOrAliveClass} aria-hidden="true">
+          <MdiCircle width="1.2em" height="1.2em" aria-hidden="true" />
+        </span>
         <span class="resolved-service-details-dialog-title">{title}</span>
-        <button type="button" onclick={() => (showDetails = false)} aria-label="Close details">
-          ✕
+        <button
+          type="button"
+          class="themed-button themed-button-small"
+          onclick={() => (showDetails = false)}
+          aria-label="Close details"
+        >
+          <MdiClose width="1.2em" height="1.2em" aria-hidden="true" />
         </button>
       </div>
       <div class="resolved-service-details-dialog-scrollarea">
