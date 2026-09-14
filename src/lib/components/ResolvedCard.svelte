@@ -118,17 +118,26 @@
       </tr>
       <tr>
         <td>
-          <button type="button" class="themed-button" onclick={() => (showDetails = true)}>
+          <button
+            type="button"
+            class="themed-button themed-button-small"
+            onclick={() => (showDetails = true)}
+          >
             Details
           </button>
         </td>
         <td class={$valueCellClass}>
-          <button type="button" class="themed-button" onclick={onVerify} disabled={cannotVerify}>
+          <button
+            type="button"
+            class="themed-button themed-button-small"
+            onclick={onVerify}
+            disabled={cannotVerify}
+          >
             {verifying ? 'Verifying…' : 'Verify'}
           </button>
           <button
             type="button"
-            class="themed-button"
+            class="themed-button themed-button-small"
             onclick={() => {
               if (url !== null) void openUrl(url)
             }}
@@ -163,7 +172,7 @@
         <span class="resolved-service-details-dialog-title">{title}</span>
         <button
           type="button"
-          class="themed-button"
+          class="themed-button themed-button-small"
           onclick={() => (showDetails = false)}
           aria-label="Close details"
         >

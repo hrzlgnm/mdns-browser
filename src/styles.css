@@ -337,6 +337,14 @@ body {
   cursor: not-allowed;
   opacity: 0.6;
 }
+/* Thaw small variant for buttons inside cards. */
+.themed-button-small {
+  min-width: 64px;
+  padding: 3px 8px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
 /* Thaw primary-button treatment for the dark and light presets. */
 :root[data-theme='dark'] .themed-button {
   background-color: #115ea3;
