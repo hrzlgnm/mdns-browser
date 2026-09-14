@@ -295,7 +295,7 @@ body {
   border: 1px solid var(--border-primary);
   border-radius: 4px;
   padding: 4px 6px;
-  font-size: 13px;
+  font-size: 14px;
   outline: none;
 }
 .themed-input::placeholder {
