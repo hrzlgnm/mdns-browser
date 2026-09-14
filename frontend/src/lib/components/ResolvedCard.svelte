@@ -65,6 +65,12 @@
   }
 </script>
 
+<svelte:window
+  onkeydown={(e) => {
+    if (e.key === 'Escape' && showDetails) showDetails = false
+  }}
+/>
+
 <div class={$cardClass}>
   <div>
     <ClipboardButton
@@ -135,22 +141,44 @@
 
 {#if showDetails}
   <div
-    class="resolved-service-details-dialog-body"
-    role="dialog"
-    aria-modal="true"
-    aria-label={title}
+    class="dialog-overlay"
+    role="presentation"
+    onclick={(e) => {
+      if (e.target === e.currentTarget) showDetails = false
+    }}
   >
-    <div>
-      <span class={deadOrAliveClass} aria-hidden="true">●</span>
-      <span class="resolved-service-details-dialog-title">{title}</span>
-      <button type="button" onclick={() => (showDetails = false)} aria-label="Close details">
-        ✕
-      </button>
-    </div>
-    <div class="resolved-service-details-dialog-scrollarea">
-      <ValuesTable values={subtype} title="Subtype" />
-      <ValuesTable values={addrs} title="IPs" copyValues={addrsForCopy} />
-      <ValuesTable values={txts} title="TXT" />
+    <div
+      class="resolved-service-details-dialog-body"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+    >
+      <div>
+        <span class={deadOrAliveClass} aria-hidden="true">●</span>
+        <span class="resolved-service-details-dialog-title">{title}</span>
+        <button type="button" onclick={() => (showDetails = false)} aria-label="Close details">
+          ✕
+        </button>
+      </div>
+      <div class="resolved-service-details-dialog-scrollarea">
+        <ValuesTable values={subtype} title="Subtype" />
+        <ValuesTable values={addrs} title="IPs" copyValues={addrsForCopy} />
+        <ValuesTable values={txts} title="TXT" />
+      </div>
     </div>
   </div>
 {/if}
+
+<style>
+  .dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    overflow: auto;
+    background: rgba(0, 0, 0, 0.45);
+  }
+</style>
