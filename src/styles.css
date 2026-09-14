@@ -169,8 +169,9 @@ body {
 }
 .mobile-resolved-service-card {
   width: 480px;
-  border: 1px solid var(--colorNeutralStroke1, #808080);
+  border: 1px solid transparent;
   border-radius: 4px;
+  box-shadow: var(--shadow8, 0 2px 8px rgba(0, 0, 0, 0.4));
 }
 .mobile-resolved-service-grid {
   display: grid;
@@ -210,8 +211,9 @@ body {
 }
 .desktop-resolved-service-card {
   width: 520px;
-  border: 1px solid var(--colorNeutralStroke1, #808080);
+  border: 1px solid transparent;
   border-radius: 4px;
+  box-shadow: var(--shadow8, 0 2px 8px rgba(0, 0, 0, 0.4));
 }
 .desktop-resolved-service-grid {
   display: grid;
