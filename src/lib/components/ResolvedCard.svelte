@@ -1,5 +1,10 @@
 <script lang="ts">
   import { onDestroy } from 'svelte'
+  import MdiCheckAll from '~icons/mdi/check-all'
+  import MdiCircle from '~icons/mdi/circle'
+  import MdiClose from '~icons/mdi/close'
+  import MdiListBox from '~icons/mdi/list-box'
+  import MdiOpenInNew from '~icons/mdi/open-in-new'
   import { openUrl, verifyInstance } from '$lib/api'
   import {
     addrDisplay,
@@ -123,6 +128,7 @@
             class="themed-button themed-button-small"
             onclick={() => (showDetails = true)}
           >
+            <MdiListBox width="1em" height="1em" aria-hidden="true" />
             Details
           </button>
         </td>
@@ -133,6 +139,7 @@
             onclick={onVerify}
             disabled={cannotVerify}
           >
+            <MdiCheckAll width="1em" height="1em" aria-hidden="true" />
             {verifying ? 'Verifying…' : 'Verify'}
           </button>
           <button
@@ -143,6 +150,7 @@
             }}
             disabled={url === null}
           >
+            <MdiOpenInNew width="1em" height="1em" aria-hidden="true" />
             Open
           </button>
         </td>
@@ -168,7 +176,9 @@
       aria-label={title}
     >
       <div class="dialog-header">
-        <span class={deadOrAliveClass} aria-hidden="true">●</span>
+        <span class={deadOrAliveClass} aria-hidden="true">
+          <MdiCircle width="1em" height="1em" aria-hidden="true" />
+        </span>
         <span class="resolved-service-details-dialog-title">{title}</span>
         <button
           type="button"
@@ -176,7 +186,7 @@
           onclick={() => (showDetails = false)}
           aria-label="Close details"
         >
-          ✕
+          <MdiClose width="1em" height="1em" aria-hidden="true" />
         </button>
       </div>
       <div class="resolved-service-details-dialog-scrollarea">

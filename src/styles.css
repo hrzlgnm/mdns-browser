@@ -318,6 +318,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.35em;
   min-width: 96px;
   box-sizing: border-box;
   padding: 5px 12px;
