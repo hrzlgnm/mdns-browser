@@ -17,10 +17,10 @@ cross-platform.
 ## Architecture
 
 The types in `src/lib/types.ts` are generated from the Rust
-boundary types in `crates/models` via ts-rs — never hand-edit them.
+boundary types in `src-tauri/crates/models` via ts-rs — never hand-edit them.
 Regenerate with `scripts/export-types.sh` (runs the export test plus
-prettier); CI fails on drift. Note that plain `cargo test` rewrites the
-file without prettier formatting, so always use the script.
+prettier as a fallback); CI fails on drift. The export test itself runs
+prettier when pnpm is available and warns otherwise.
 
 ## Essential Commands
 

@@ -1,4 +1,6 @@
 @echo off
+rem Copyright 2026 hrzlgnm
+rem SPDX-License-Identifier: MIT
 rem Route `cargo` invocations through cargo-auditable so release binaries built
 rem via `pnpm tauri` (which spawns `cargo` itself) stay auditable.
 rem Uses where.exe to find the first cargo binary outside this wrapper's own

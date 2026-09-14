@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Regenerates src/lib/types.ts from the Rust boundary types (ts-rs).
-# NOTE: plain `cargo test` / `nextest` also rewrites types.ts but without
-# prettier formatting — always use this script, then check formatting.
+# The export test already runs prettier when pnpm is available; the
+# explicit call below covers Rust-only environments where it was skipped.
 # CI fails on drift: run this script, then
 # git diff --exit-code src/lib/types.ts
 set -euo pipefail

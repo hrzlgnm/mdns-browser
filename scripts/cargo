@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT
 # Route `cargo` invocations through cargo-auditable so release binaries built
 # via `pnpm tauri` (which spawns `cargo` itself, as does cargo-mobile2 for
 # Android) stay auditable.

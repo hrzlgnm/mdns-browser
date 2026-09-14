@@ -422,9 +422,27 @@ mod ts_export {
         }
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../src/lib/types.ts");
         if let Some(parent) = path.parent() {
-            fs::create_dir_all(parent).expect("To create frontend/src/lib");
+            fs::create_dir_all(parent).expect("To create src/lib");
         }
         fs::write(&path, out).expect("To write types.ts");
+        // Format with the project's prettier so the output matches what CI
+        // checks in. Skip (with a warning) when pnpm is unavailable, e.g.
+        // in Rust-only environments; scripts/export-types.sh covers that gap.
+        // Runs from the workspace root so `pnpm exec` resolves node_modules.
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
+        match std::process::Command::new("pnpm")
+            .current_dir(&root)
+            .args(["exec", "prettier", "--write"])
+            .arg(&path)
+            .output()
+        {
+            Ok(output) if output.status.success() => {}
+            Ok(output) => panic!(
+                "prettier failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            ),
+            Err(e) => eprintln!("warning: skipping prettier ({e}); run scripts/export-types.sh"),
+        }
     }
 }
 
