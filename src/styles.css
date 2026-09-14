@@ -424,6 +424,9 @@ input[type='checkbox']:checked {
 input[type='checkbox']:checked::before {
   transform: scale(1);
 }
+:root[data-theme='light'] input[type='checkbox']::before {
+  color: #ffffff;
+}
 /* Match the primary button fill on the dark and light presets. */
 :root[data-theme='dark'] input[type='checkbox']:checked {
   background-color: #115ea3;
