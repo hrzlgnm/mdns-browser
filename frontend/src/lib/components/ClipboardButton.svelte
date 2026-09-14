@@ -29,6 +29,7 @@
 <button type="button" class={cls} onclick={onClick} title={buttonText}>
   {#if iconOnly}
     <svg
+      class="clipboard-icon"
       viewBox="0 0 24 24"
       width="1em"
       height="1em"
@@ -43,9 +44,28 @@
       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
     </svg>
   {:else if iconClass}
-    <span class={iconClass} aria-hidden="true">●</span>
+    <span class="clipboard-icon {iconClass}" aria-hidden="true">●</span>
   {/if}
   {#if !iconOnly}
-    {buttonText}
+    <span class="clipboard-text">{buttonText}</span>
   {/if}
 </button>
+
+<style>
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .clipboard-icon {
+    flex-shrink: 0;
+  }
+  .clipboard-text {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+</style>
