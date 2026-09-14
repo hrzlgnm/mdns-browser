@@ -34,7 +34,6 @@ tokio = { workspace = true }
 
 # local
 models = { path = "../crates/models" }
-shared_constants = { path = "../crates/shared_constants" }
 webkit2gtk-nvidia-quirk = "2"
 
 [features]

@@ -12,10 +12,6 @@ use models::check_service_type_fully_qualified;
 use models::*;
 #[cfg(not(windows))]
 use pnet::datalink;
-use shared_constants::{
-    INTERFACES_LIST_CHECK_INTERVAL, MDNS_SD_IP_CHECK_INTERVAL, MDNS_SD_META_SERVICE,
-    METRICS_CHECK_INTERVAL, VERIFY_TIMEOUT,
-};
 use std::{
     collections::{BTreeSet, HashMap, HashSet},
     net::IpAddr,
@@ -34,6 +30,11 @@ type SharedServiceDaemon = Arc<Mutex<ServiceDaemon>>;
 
 const BROWSE_RETRY_DELAY: std::time::Duration = std::time::Duration::from_millis(20);
 const BROWSE_RETRY_ATTEMPTS: usize = 100;
+const MDNS_SD_META_SERVICE: &str = "_services._dns-sd._udp.local.";
+const MDNS_SD_IP_CHECK_INTERVAL: std::time::Duration = std::time::Duration::from_secs(1);
+const METRICS_CHECK_INTERVAL: std::time::Duration = std::time::Duration::from_secs(1);
+const INTERFACES_LIST_CHECK_INTERVAL: std::time::Duration = std::time::Duration::from_secs(1);
+const VERIFY_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
 
 async fn browse_with_retry(
     daemon: &ServiceDaemon,
