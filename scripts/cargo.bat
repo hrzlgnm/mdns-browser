@@ -21,4 +21,11 @@ if not defined REAL (
   echo scripts/cargo.bat: no real cargo binary found on PATH 1>&2
   exit /b 1
 )
-"%REAL%" auditable %*
+rem A leading rustup `+toolchain` selector must stay ahead of the subcommand.
+set "TOOLCHAIN="
+echo %~1 | findstr /b /c:"+" >nul
+if not errorlevel 1 (
+  set "TOOLCHAIN=%~1"
+  shift /1
+)
+"%REAL%" %TOOLCHAIN% auditable %*

@@ -35,4 +35,11 @@ if [ -z "$real_cargo" ] || [ "$real_cargo" = "$0" ]; then
   exit 1
 fi
 
+# A leading rustup `+toolchain` selector must stay ahead of the subcommand.
+if [ "${1-}" != "${1#+}" ]; then
+  toolchain=$1
+  shift
+  exec "$real_cargo" "$toolchain" auditable "$@"
+fi
+
 exec "$real_cargo" auditable "$@"
