@@ -83,6 +83,9 @@ jobs:
         uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4
         with:
           cmdline-tools-version: 15859902
+          # The action defaults to `tools platform-tools`, but Google removed
+          # the legacy `tools` package, so sdkmanager exits 1 on it.
+          packages: platform-tools
 
       - name: 🛠️ Install NDK
         run: android sdk install "ndk;$NDK_VERSION"
