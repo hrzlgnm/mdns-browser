@@ -85,7 +85,7 @@
       iconClass={deadOrAliveClass}
     />
   </div>
-  <table>
+  <table class="card-table">
     <tbody>
       <tr>
         <td><em>Hostname</em></td>
