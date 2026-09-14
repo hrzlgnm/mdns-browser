@@ -1,8 +1,8 @@
 {
     "build": {
-        "beforeDevCommand": "pnpm --dir frontend run dev",
-        "beforeBuildCommand": "pnpm --dir frontend run build",
-        "frontendDist": "../frontend/build",
+        "beforeDevCommand": "pnpm run dev",
+        "beforeBuildCommand": "pnpm run build",
+        "frontendDist": "../build",
         "devUrl": "http://localhost:1420"
     },
     "bundle": {

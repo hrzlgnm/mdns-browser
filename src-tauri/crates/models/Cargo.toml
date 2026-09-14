@@ -4,7 +4,6 @@ version = "1.23.1"
 edition = "2021"
 
 [dependencies]
-reactive_stores = { workspace = true }
 serde = { workspace = true }
 serde_with = { workspace = true }
 thiserror = { workspace = true }

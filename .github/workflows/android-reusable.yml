@@ -55,16 +55,13 @@ jobs:
           artifact-name: "sbom.android.spdx.json.gz"
           current-version: ${{ steps.get-version.outputs.current-version }}
 
-      - name: 🛠️🐂
-        uses: ./.github/actions/setup-tauri
-
       - name: ⚡ Setup pnpm and cache store
         uses: ./.github/actions/pnpm-setup
 
       - name: 📦 Install frontend dependencies
         uses: hrzlgnm/actions/.github/actions/retry@275b5f2d90d762bd71567db08b250d8ba7cdb274 # v2.14.4
         with:
-          command: pnpm --dir frontend install --frozen-lockfile
+          command: pnpm install --frozen-lockfile
 
       - name: 🛠️🚀
         if: (!inputs.tagName)
@@ -91,12 +88,12 @@ jobs:
           RUSTFLAGS: "-D warnings"
           TAG_NAME: ${{ inputs.tagName }}
         run: |
-          cargo --locked auditable tauri android init
+          pnpm tauri android init
           cp -a src-tauri/icons/android/mipmap-* src-tauri/gen/android/app/src/main/res/
           if [[ -n "$TAG_NAME" ]]; then
             cargo --locked auditable tauri android build
           else
-            cargo --locked auditable tauri android build --debug -t x86_64
+            pnpm tauri android build --debug -t x86_64
           fi
 
       - name: 🔑 Extract android signing key

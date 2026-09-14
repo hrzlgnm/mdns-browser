@@ -76,9 +76,6 @@ jobs:
           artifact-name: "sbom.${{ matrix.platform }}.spdx.json.gz"
           current-version: ${{ steps.get-version.outputs.current-version }}
 
-      - name: 🛠️🐂
-        uses: ./.github/actions/setup-tauri
-
       - name: ⚡ Setup pnpm and cache store
         uses: ./.github/actions/pnpm-setup
 
@@ -135,7 +132,7 @@ jobs:
           releaseBody: ${{ steps.current-release.outputs.body }}
           releaseDraft: true
           prerelease: false
-          tauriScript: cargo --locked auditable tauri
+          tauriScript: pnpm tauri
           args: ${{ matrix.args }} --no-bundle${{ !inputs.tagName && ' --debug' || '' }}
           retryAttempts: 1
           uploadPlainBinary: true

@@ -1,7 +1,6 @@
 // Copyright 2026 hrzlgnm
 // SPDX-License-Identifier: MIT
 
-use reactive_stores::Store;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::{BTreeSet, HashMap},
@@ -13,7 +12,7 @@ use ts_rs::TS;
 
 pub type ServiceTypes = Vec<String>;
 
-#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, Store, TS)]
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, TS)]
 pub struct TxtRecord {
     pub key: String,
     pub val: Option<String>,
@@ -39,13 +38,13 @@ impl TxtRecord {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Store, TS)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, TS)]
 pub struct InterfaceScope {
     pub name: String,
     pub index: u32,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Store, TS)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, TS)]
 pub struct ScopedAddr {
     pub addr: IpAddr,
     pub interfaces: BTreeSet<InterfaceScope>,
@@ -87,7 +86,7 @@ impl ScopedAddr {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, Store, TS)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, TS)]
 pub struct ResolvedService {
     pub instance_fullname: String,
     pub service_type: String,
@@ -190,7 +189,7 @@ fn byte_array_hexlified(byte_array: &[u8]) -> String {
 }
 
 /// A network interface that can be selected for mDNS browsing.
-#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug, Store, TS)]
+#[derive(Deserialize, Serialize, PartialEq, Eq, Clone, Debug, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct NetworkInterface {
     pub name: String,
@@ -233,7 +232,7 @@ pub struct ThemeChangedEvent {
     pub theme: String,
 }
 
-#[derive(Deserialize, Serialize, Clone, Eq, PartialEq, Debug, Store, TS)]
+#[derive(Deserialize, Serialize, Clone, Eq, PartialEq, Debug, TS)]
 pub struct ProtocolFlags {
     pub ipv4: bool,
     pub ipv6: bool,
@@ -383,9 +382,9 @@ mod ts_export {
     use std::path::PathBuf;
     use ts_rs::{Config, TS};
 
-    /// Regenerates `frontend/src/lib/types.ts` from the boundary types.
+    /// Regenerates `src/lib/types.ts` from the boundary types.
     /// Run via `scripts/export-types.sh`; CI fails on drift with
-    /// `git diff --exit-code frontend/src/lib/types.ts`.
+    /// `git diff --exit-code src/lib/types.ts`.
     #[test]
     fn export_types() {
         // `u64` micros fields are strings on the wire (`DisplayFromStr`,
@@ -422,7 +421,7 @@ mod ts_export {
             out.push('\n');
         }
         let path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../frontend/src/lib/types.ts");
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../src/lib/types.ts");
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent).expect("To create frontend/src/lib");
         }
