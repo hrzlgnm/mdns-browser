@@ -42,7 +42,7 @@
 </script>
 
 <div class={$layoutClass}>
-  <details open>
+  <details>
     <summary>Network interfaces</summary>
     <div class="interfaces-list">
       {#each items as iface (iface.name)}
