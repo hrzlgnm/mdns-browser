@@ -49,6 +49,7 @@
   async function onCheckUpdate() {
     try {
       await closeUpdate(update)
+      update = null
       const checked = await checkUpdate($desktop)
       if (checked === null) flashNoUpdate()
       update = checked
