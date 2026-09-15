@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.0.1...v2.1.0) (2026-09-15)
+
+
+### Features
+
+* migrate updater to JS plugin frontends with manual check ([#2695](https://github.com/hrzlgnm/mdns-browser/issues/2695)) ([168e98d](https://github.com/hrzlgnm/mdns-browser/commit/168e98d420cc15b3c85f30a1fd675be16ef9ad2e))
+
+
+### Bug Fixes
+
+* show disabled state on checkboxes ([#2699](https://github.com/hrzlgnm/mdns-browser/issues/2699)) ([49fa0f9](https://github.com/hrzlgnm/mdns-browser/commit/49fa0f964b82d44acf2232cb7deb2176b0333395))
+
 ## [2.0.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.0.0...v2.0.1) (2026-09-15)
 
 
