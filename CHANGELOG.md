@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.1.0...v2.2.0) (2026-09-15)
+
+
+### Features
+
+* forward frontend logs to the backend logger ([#2701](https://github.com/hrzlgnm/mdns-browser/issues/2701)) ([9728fe5](https://github.com/hrzlgnm/mdns-browser/commit/9728fe50503c50f60ba4e1b85c47605468083be8))
+
+
+### Dependencies
+
+* update hrzlgnm/actions action to v2.14.6 ([#2710](https://github.com/hrzlgnm/mdns-browser/issues/2710)) ([f76ee16](https://github.com/hrzlgnm/mdns-browser/commit/f76ee16e271af8b176efcf03fdef2c4701e8e0da))
+
+
+### Documentation
+
+* document release-please JSON formatting rule ([#2708](https://github.com/hrzlgnm/mdns-browser/issues/2708)) ([212be56](https://github.com/hrzlgnm/mdns-browser/commit/212be56e806078d7b7b816816a2955b4926bb7c8))
+
+
+### Miscellaneous Chores
+
+* bump on any commit so deps trigger releases ([#2702](https://github.com/hrzlgnm/mdns-browser/issues/2702)) ([0092573](https://github.com/hrzlgnm/mdns-browser/commit/00925734ad35e50ea79891f365b79ce0ecf48967))
+* release dep updates via deps commit type ([#2706](https://github.com/hrzlgnm/mdns-browser/issues/2706)) ([5bc2491](https://github.com/hrzlgnm/mdns-browser/commit/5bc249140af77489a5b3dc565423bc55d86f5263))
+* show all commit types in release notes ([#2709](https://github.com/hrzlgnm/mdns-browser/issues/2709)) ([58565f7](https://github.com/hrzlgnm/mdns-browser/commit/58565f7827d87b9d777eaabe538742dd7555333b))
+
+
+### Code Refactoring
+
+* open URLs and copy text via plugin JS APIs ([#2700](https://github.com/hrzlgnm/mdns-browser/issues/2700)) ([bbe73de](https://github.com/hrzlgnm/mdns-browser/commit/bbe73de1d28aaa11feda6ce06d30cabcd01f3413))
+
 ## [2.1.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.0.1...v2.1.0) (2026-09-15)
 
 
