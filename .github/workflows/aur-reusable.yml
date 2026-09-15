@@ -112,7 +112,7 @@ jobs:
           RELEASE_VERSION: ${{ needs.release-info.outputs.version }}
           SHA256: ${{ steps.sha256sums.outputs.sha256 }}
         with:
-          # Source package builds from scratch (tauri build twice + tests),
+          # Source package builds from scratch (full release build + tests),
           # which exceeds the retry action's 5 min default.
           timeout_minutes: 30
           command: su runner -c "./packaging/aur/publish-aur.sh"
