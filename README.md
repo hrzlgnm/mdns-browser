@@ -11,7 +11,7 @@
 
 # mDNS-Browser
 
-This application allows you to browse services using mDNS. For a force-directed graph visualizer of the same services, check out [zux](https://github.com/hrzlgnm/zux). For an alternative running in a terminal, check out [mDNS-TUI-Browser](https://github.com/hrzlgnm/mdns-tui-browser)
+This application allows you to browse services using mDNS. Built with a Rust/Tauri backend and a SvelteKit frontend; the frontend was migrated from Leptos to SvelteKit in [v2.0.0](https://github.com/hrzlgnm/mdns-browser/releases/tag/v2.0.0). For a force-directed graph visualizer of the same services, check out [zux](https://github.com/hrzlgnm/zux). For an alternative running in a terminal, check out [mDNS-TUI-Browser](https://github.com/hrzlgnm/mdns-tui-browser)
 
 Screenshots from [v0.11.28](https://github.com/hrzlgnm/mdns-browser/releases/tag/mdns-browser-v0.11.28)
 
