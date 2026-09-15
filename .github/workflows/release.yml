@@ -130,7 +130,7 @@ jobs:
   publish:
     # Flips the draft live only when every build job succeeded. A cancelled
     # or failed build skips this job, so a partial release never goes live.
-    # This job is the only proper publisher: hands off the draft.
+    # This job is the only proper publisher: leave the draft alone.
     needs: [release-please, source_checksums, build_android, build_desktop]
     if: needs.release-please.outputs.release_created == 'true'
     name: "📢 Publish Release"
