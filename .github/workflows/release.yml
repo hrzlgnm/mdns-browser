@@ -85,7 +85,7 @@ jobs:
       contents: read
       pull-requests: read
     name: "✅ Approve Release PR workflows"
-    uses: hrzlgnm/actions/.github/workflows/approve-bot-pr-reusable.yml@734ad7f0736bb6962bec60339da9febcbdab1357 # v2.14.6
+    uses: hrzlgnm/actions/.github/workflows/approve-bot-pr-reusable.yml@03b79955b43e4b4ae1678541e9d315d4f24c847d # v2.14.8
     with:
       branch: release-please--branches--main--components--mdns-browser-frontend
 

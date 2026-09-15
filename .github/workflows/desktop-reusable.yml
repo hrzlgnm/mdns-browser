@@ -87,7 +87,7 @@ jobs:
         uses: ./.github/actions/pnpm-setup
 
       - name: 📦 Install frontend dependencies
-        uses: hrzlgnm/actions/.github/actions/retry@734ad7f0736bb6962bec60339da9febcbdab1357 # v2.14.6
+        uses: hrzlgnm/actions/.github/actions/retry@03b79955b43e4b4ae1678541e9d315d4f24c847d # v2.14.8
         with:
           command: pnpm install --frozen-lockfile
 
