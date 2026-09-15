@@ -9,6 +9,7 @@
   import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte'
   import Toasts from '$lib/components/Toasts.svelte'
   import { cssClass } from '$lib/css'
+  import { initLogger } from '$lib/logger'
   import {
     browsing,
     initDesktop,
@@ -40,10 +41,11 @@
     window.addEventListener('drop', onDrop)
 
     void (async () => {
+      const unlistenLogger = await initLogger()
       await initDesktop()
       await initTheme()
       await initProtocolFlags()
-      unlisteners = await setupEventListeners()
+      unlisteners = [unlistenLogger, ...(await setupEventListeners())]
       await closeSplashscreen()
     })()
 
