@@ -1080,13 +1080,6 @@ mod foreign_crate {
 #[cfg(desktop)]
 mod autoupdate {
     use tauri::utils::platform::bundle_type;
-    use tauri::AppHandle;
-
-    #[tauri::command]
-    pub fn restart(app: AppHandle) -> Result<(), String> {
-        log::info!("restarting to apply the installed update");
-        app.restart()
-    }
 
     #[tauri::command]
     pub fn can_auto_update() -> bool {
@@ -1193,6 +1186,7 @@ pub fn run() {
                 .build(),
         )
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -1220,7 +1214,6 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            autoupdate::restart,
             autoupdate::can_auto_update,
             browse_many,
             browse_types,

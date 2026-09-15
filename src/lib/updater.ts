@@ -1,9 +1,9 @@
+import { relaunch } from '@tauri-apps/plugin-process'
 import { check as checkDesktopUpdate, Update } from '@tauri-apps/plugin-updater'
 import {
   check as checkAndroidUpdate,
   downloadAndInstall as installAndroidUpdate,
 } from 'tauri-plugin-android-update-api'
-import { restartApp } from './api'
 import type { UpdateMetadata } from './types'
 
 // Pending update handle. Desktop carries the `Update` resource (which owns
@@ -27,7 +27,7 @@ export async function downloadAndInstall(desktop: boolean, update: PendingUpdate
     } finally {
       await update.close()
     }
-    await restartApp()
+    await relaunch()
     return
   }
   await installAndroidUpdate()
