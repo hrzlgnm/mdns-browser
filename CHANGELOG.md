@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.2](https://github.com/hrzlgnm/mdns-browser/compare/v2.2.1...v2.2.2) (2026-09-15)
+
+
+### Bug Fixes
+
+* add missing checkout step to publish job in release workflow ([#2715](https://github.com/hrzlgnm/mdns-browser/issues/2715)) ([2850ce7](https://github.com/hrzlgnm/mdns-browser/commit/2850ce7778e622712417a304f9723969c1a6baa6))
+* drop persisted credentials from publish job checkout ([#2718](https://github.com/hrzlgnm/mdns-browser/issues/2718)) ([7eebaaf](https://github.com/hrzlgnm/mdns-browser/commit/7eebaaf7deefc2f781d12524c56c3745eed10471))
+
+
+### Dependencies
+
+* update hrzlgnm/actions action to v2.14.8 ([#2716](https://github.com/hrzlgnm/mdns-browser/issues/2716)) ([593cd67](https://github.com/hrzlgnm/mdns-browser/commit/593cd671af6b9190003dfe2fbbfd482119443a69))
+
 ## [2.2.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.2.0...v2.2.1) (2026-09-15)
 
 
