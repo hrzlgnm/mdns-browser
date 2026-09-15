@@ -30,7 +30,7 @@ jobs:
 
   lint-scripts:
     name: "🧹 Lint shell scripts"
-    uses: hrzlgnm/actions/.github/workflows/shell-lint-reusable.yml@5a1b0f0b3df2b3a73f472ae833f1fbc78d61b815 # v2.14.5
+    uses: hrzlgnm/actions/.github/workflows/shell-lint-reusable.yml@734ad7f0736bb6962bec60339da9febcbdab1357 # v2.14.6
     with:
       runs-on: ubuntu-latest
       scripts-dir: packaging/aur
@@ -76,7 +76,7 @@ jobs:
           command: ./packaging/aur/resolve-sha256.sh
 
       - name: 📐 Generate PKGBUILD
-        uses: hrzlgnm/actions/.github/actions/retry@5a1b0f0b3df2b3a73f472ae833f1fbc78d61b815 # v2.14.5
+        uses: hrzlgnm/actions/.github/actions/retry@734ad7f0736bb6962bec60339da9febcbdab1357 # v2.14.6
         env:
           SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}
@@ -90,12 +90,12 @@ jobs:
           command: su runner -c "./packaging/aur/lint-pkgbuild.sh"
 
       - name: 🧹 Check generated PKGBUILD
-        uses: hrzlgnm/actions/.github/actions/aur-makepkg-lint@5a1b0f0b3df2b3a73f472ae833f1fbc78d61b815 # v2.14.5
+        uses: hrzlgnm/actions/.github/actions/aur-makepkg-lint@734ad7f0736bb6962bec60339da9febcbdab1357 # v2.14.6
         with:
           workdir: ~/lint
       - name: 🛠️ Setup AUR packaging
         if: github.event.release.tag_name
-        uses: hrzlgnm/actions/.github/actions/aur-setup@5a1b0f0b3df2b3a73f472ae833f1fbc78d61b815 # v2.14.5
+        uses: hrzlgnm/actions/.github/actions/aur-setup@734ad7f0736bb6962bec60339da9febcbdab1357 # v2.14.6
         with:
           package-name: ${{ matrix.package.name }}
           release-version: ${{ needs.release-info.outputs.version }}
@@ -103,7 +103,7 @@ jobs:
 
       - name: 🌀 Generate PKGBUILD update and publish
         if: github.event.release.tag_name
-        uses: hrzlgnm/actions/.github/actions/retry@5a1b0f0b3df2b3a73f472ae833f1fbc78d61b815 # v2.14.5
+        uses: hrzlgnm/actions/.github/actions/retry@734ad7f0736bb6962bec60339da9febcbdab1357 # v2.14.6
         env:
           SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}
