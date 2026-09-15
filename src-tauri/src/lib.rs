@@ -20,7 +20,9 @@ use std::{
         Arc, Mutex,
     },
 };
-use tauri::{AppHandle, Emitter, Manager, State, Window};
+#[cfg(desktop)]
+use tauri::{AppHandle, Manager};
+use tauri::{Emitter, State, Window};
 #[cfg(all(target_os = "linux", desktop))]
 use webkit2gtk_nvidia_quirk::{apply_workaround_with_options, ApplyWorkaroundOptions};
 
