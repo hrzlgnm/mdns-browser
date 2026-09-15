@@ -28,14 +28,7 @@ export async function initLogger(): Promise<UnlistenFn> {
     } as const
     type ConsoleMethod = keyof typeof original
     const forwarders = { debug, info, warn, error } as const
-    const methods: Array<ConsoleMethod> = ['debug', 'info', 'warn', 'error']
-    for (const method of methods) {
-      console[method] = (...args: Array<unknown>) => {
-        original[method](...args)
-        void forwarders[method](formatArgs(args))
-      }
-    }
-    return await attachLogger(({ level, message }) => {
+    const unlisten = await attachLogger(({ level, message }) => {
       switch (level) {
         case LogLevel.Trace:
         case LogLevel.Debug:
@@ -52,7 +45,16 @@ export async function initLogger(): Promise<UnlistenFn> {
           break
       }
     })
-  } catch {
+    const methods: Array<ConsoleMethod> = ['debug', 'info', 'warn', 'error']
+    for (const method of methods) {
+      console[method] = (...args: Array<unknown>) => {
+        original[method](...args)
+        void forwarders[method](formatArgs(args))
+      }
+    }
+    return unlisten
+  } catch (e) {
+    console.warn('[mdns-browser] failed to initialize logger:', e)
     return noop
   }
 }
