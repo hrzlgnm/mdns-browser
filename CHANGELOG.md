@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.0.0...v2.0.1) (2026-09-15)
+
+
+### Bug Fixes
+
+* make BackTop follow theme presets ([#2689](https://github.com/hrzlgnm/mdns-browser/issues/2689)) ([e61324d](https://github.com/hrzlgnm/mdns-browser/commit/e61324d4bc6cac402249e2c04323844be4b9ba11))
+* raise AUR publish timeout so source builds fit ([#2693](https://github.com/hrzlgnm/mdns-browser/issues/2693)) ([1c915a7](https://github.com/hrzlgnm/mdns-browser/commit/1c915a746c6cd3c570fb5d5215a463dc483502f0))
+
 ## [2.0.0](https://github.com/hrzlgnm/mdns-browser/compare/v1.23.1...v2.0.0) (2026-09-14)
 
 
