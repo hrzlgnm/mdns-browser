@@ -1,50 +1,38 @@
-import { Channel, invoke } from '@tauri-apps/api/core'
+import { relaunch } from '@tauri-apps/plugin-process'
+import { check as checkDesktopUpdate, Update } from '@tauri-apps/plugin-updater'
+import {
+  check as checkAndroidUpdate,
+  downloadAndInstall as installAndroidUpdate,
+} from 'tauri-plugin-android-update-api'
 import type { UpdateMetadata } from './types'
 
-// Mirrors the update flow in the former Leptos `src/app/about.rs`.
-// Desktop goes through the `plugin:updater` commands directly; the pending
-// update is identified by the resource id (`rid`) that `download_and_install`
-// must be given together with a progress channel.
+// Pending update handle. Desktop carries the `Update` resource (which owns
+// the backend `rid`); Android carries plain metadata since the pending
+// update is tracked Rust-side by the plugin.
+export type PendingUpdate = Update | UpdateMetadata | null
 
-interface UpdaterMetadata {
-  rid: number
-  version: string
-  currentVersion: string
+export async function checkUpdate(desktop: boolean): Promise<PendingUpdate> {
+  if (desktop) return checkDesktopUpdate()
+  return checkAndroidUpdate()
 }
 
-type DownloadEvent =
-  | { event: 'Started'; data: { contentLength?: number } }
-  | { event: 'Progress'; data: { chunkLength: number } }
-  | { event: 'Finished' }
-
-export interface CheckedUpdate {
-  update: UpdateMetadata | null
-  rid: number | null
-}
-
-export async function checkUpdate(desktop: boolean): Promise<CheckedUpdate> {
+export async function downloadAndInstall(desktop: boolean, update: PendingUpdate): Promise<void> {
+  if (update === null) throw new Error('there is no pending update')
   if (desktop) {
-    const metadata = await invoke<UpdaterMetadata | null>('plugin:updater|check')
-    if (metadata === null) return { update: null, rid: null }
-    return {
-      update: { version: metadata.version, currentVersion: metadata.currentVersion },
-      rid: metadata.rid,
+    if (!(update instanceof Update)) throw new Error('there is no pending update')
+    try {
+      await update.downloadAndInstall((event) => {
+        console.debug('[mdns-browser] update download event:', event)
+      })
+    } finally {
+      await update.close()
     }
-  }
-  const metadata = await invoke<UpdateMetadata | null>('plugin:android-update|check')
-  return { update: metadata, rid: null }
-}
-
-export async function downloadAndInstall(desktop: boolean, rid: number | null): Promise<void> {
-  if (desktop) {
-    if (rid === null) throw new Error('there is no pending update')
-    const onEvent = new Channel<DownloadEvent>()
-    onEvent.onmessage = (event) => {
-      console.debug('[mdns-browser] update download event:', event)
-    }
-    await invoke('plugin:updater|download_and_install', { rid, onEvent })
-    await invoke('restart')
+    await relaunch()
     return
   }
-  await invoke('plugin:android-update|download_and_install')
+  await installAndroidUpdate()
+}
+
+export async function closeUpdate(update: PendingUpdate): Promise<void> {
+  if (update instanceof Update) await update.close()
 }

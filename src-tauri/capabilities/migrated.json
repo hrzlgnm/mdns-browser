@@ -10,6 +10,7 @@
         "updater:default",
         "clipboard-manager:allow-write-text",
         "opener:allow-open-url",
+        "process:allow-restart",
         "store:default"
     ],
     "platforms": [

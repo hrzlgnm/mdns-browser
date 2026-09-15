@@ -69,10 +69,6 @@ export function closeSplashscreen(): Promise<void> {
   return invoke<void>('close_splashscreen')
 }
 
-export function restartApp(): Promise<void> {
-  return invoke<void>('restart')
-}
-
 export function canAutoUpdate(): Promise<boolean> {
   return invoke<boolean>('can_auto_update')
 }
