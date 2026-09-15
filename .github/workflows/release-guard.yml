@@ -1,0 +1,32 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT
+
+name: Release Guard
+
+# Backstop for the immutable-release flow: the publish job in release.yml is
+# the only proper publisher. If a human publishes a draft by hand while builds
+# are still running (or were cancelled), demote it to pre-release so the
+# updater keeps serving the last good release. The publish job promotes fully
+# once every build job is green.
+on:
+  release:
+    types: [published]
+
+jobs:
+  demote-manual-publish:
+    # Releases published by the automation arrive with a Bot sender; a human
+    # click arrives with a User sender.
+    if: github.event.sender.type != 'Bot'
+    name: "🛡️ Demote Manual Publish"
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write # to demote the release to pre-release
+    steps:
+      - name: 🛡️ Demote to pre-release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          echo "Release $TAG_NAME was published by hand; demoting to pre-release until the release workflow promotes it."
+          gh release edit "$TAG_NAME" --prerelease
