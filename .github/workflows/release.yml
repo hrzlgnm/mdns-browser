@@ -130,13 +130,17 @@ jobs:
   publish:
     # Flips the draft live only when every build job succeeded. A cancelled
     # or failed build skips this job, so a partial release never goes live.
-    # This job is the only proper publisher: leave the draft alone.
+    # This job is the only proper publisher: leave the draft alone. Events
+    # fired with GITHUB_TOKEN never create workflow runs, so the downstream
+    # packaging workflows are dispatched explicitly below instead of relying
+    # on the `release: [released]` trigger.
     needs: [release-please, source_checksums, build_android, build_desktop]
     if: needs.release-please.outputs.release_created == 'true'
     name: "📢 Publish Release"
     runs-on: ubuntu-slim
     permissions:
       contents: write # to publish the draft release
+      actions: write # to dispatch the downstream packaging workflows
     steps:
       - name: 🔄 Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -149,3 +153,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
         run: gh release edit "$TAG_NAME" --draft=false --prerelease=false
+
+      - name: 🚀 Dispatch downstream packaging workflows
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          for workflow in aur-reusable.yml winget-reusable.yml homebrew-reusable.yml snap-reusable.yml; do
+            gh workflow run "$workflow" --ref "$REF_NAME"
+          done
