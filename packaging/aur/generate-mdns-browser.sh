@@ -45,8 +45,9 @@ build() {
     export CARGO_NET_OFFLINE=true
     # build the normal binary without bundling first
     pnpm tauri build --no-bundle
-    # bundle as deb to get required icons and desktop file for packaging
-    pnpm tauri build -b deb --no-sign
+    # bundle the already-built binary as deb to get required icons and
+    # desktop file for packaging, without building a second time
+    pnpm tauri bundle -b deb --no-sign
 }
 check() {
     cd "\$srcdir/\$_builddir" || exit 1
