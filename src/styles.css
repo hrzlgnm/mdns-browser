@@ -519,6 +519,32 @@ input[type='checkbox']:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
+/* Theme-aware via CSS variables so switching presets updates the
+   disabled treatment automatically with no per-theme rules. The :root
+   prefix outranks the existing per-theme :checked/::before rules so a
+   disabled-checked box stays muted. Opacity lives on the label to avoid
+   double-dimming nested inputs (0.6 x 0.6). */
+:root input[type='checkbox']:disabled {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-primary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+:root input[type='checkbox']:disabled:checked {
+  background-color: var(--bg-tertiary);
+  border-color: transparent;
+}
+:root input[type='checkbox']:disabled::before {
+  color: var(--text-muted);
+}
+label:has(input[type='checkbox']:disabled) {
+  cursor: not-allowed;
+  opacity: 0.6;
+  color: var(--text-muted);
+}
+label:has(input[type='checkbox']:disabled) input[type='checkbox']:disabled {
+  opacity: 1;
+}
 .card-table {
   width: 100%;
   border-collapse: collapse;
