@@ -17,7 +17,7 @@
         ":prImmediately",
         ":rebaseStalePrs",
         ":semanticCommits",
-        ":semanticPrefixFixDepsChoreOthers",
+        ":semanticCommitTypeAll(chore)",
         ":separateMajorReleases",
     ],
     packageRules: [
@@ -34,12 +34,6 @@
             description: "Group Tauri plugins-workspace with tauri monorepo (group:tauriMonorepo only covers tauri, not plugins)",
             matchSourceUrls: ["https://github.com/tauri-apps/plugins-workspace"],
             groupName: "tauri monorepo",
-        },
-        {
-            description: "Use fix prefix for direct cargo dependency updates, including lockfile-only ones",
-            matchManagers: ["cargo"],
-            matchDepTypes: ["dependencies", "workspace.dependencies"],
-            semanticCommitType: "fix",
         },
     ],
     customManagers: [

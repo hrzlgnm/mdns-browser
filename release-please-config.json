@@ -8,6 +8,7 @@
   "prerelease": false,
   "packages": {
     ".": {
+      "versioning": "always-bump-patch",
       "extra-files": [
         {
           "type": "json",
