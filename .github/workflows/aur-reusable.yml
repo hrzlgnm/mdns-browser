@@ -6,6 +6,11 @@ name: Arch linux AUR
 on:
   workflow_call:
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Republish AUR packages for an existing release tag (must be the latest release). Empty runs checks only."
+        required: false
+        default: ""
   release:
     types: [released]
 
@@ -94,7 +99,7 @@ jobs:
         with:
           workdir: ~/lint
       - name: 🛠️ Setup AUR packaging
-        if: github.event.release.tag_name
+        if: github.event.release.tag_name || inputs.tag_name
         uses: hrzlgnm/actions/.github/actions/aur-setup@03b79955b43e4b4ae1678541e9d315d4f24c847d # v2.14.8
         with:
           package-name: ${{ matrix.package.name }}
@@ -102,7 +107,7 @@ jobs:
           deploy-key: ${{ secrets.AUR_DEPLOY_KEY }}
 
       - name: 🌀 Generate PKGBUILD update and publish
-        if: github.event.release.tag_name
+        if: github.event.release.tag_name || inputs.tag_name
         uses: hrzlgnm/actions/.github/actions/retry@03b79955b43e4b4ae1678541e9d315d4f24c847d # v2.14.8
         env:
           SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
