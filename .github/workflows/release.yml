@@ -158,14 +158,19 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
           REF_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           failed=0
-          for workflow in aur-reusable.yml winget-reusable.yml homebrew-reusable.yml snap-reusable.yml; do
+          for workflow in winget-reusable.yml homebrew-reusable.yml snap-reusable.yml; do
             if ! gh workflow run "$workflow" --ref "$REF_NAME"; then
               echo "::error::Failed to dispatch $workflow"
               failed=1
             fi
           done
+          if ! gh workflow run aur-reusable.yml --ref "$REF_NAME" -f tag_name="$TAG_NAME"; then
+            echo "::error::Failed to dispatch aur-reusable.yml"
+            failed=1
+          fi
           exit "$failed"
