@@ -161,6 +161,11 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
+          failed=0
           for workflow in aur-reusable.yml winget-reusable.yml homebrew-reusable.yml snap-reusable.yml; do
-            gh workflow run "$workflow" --ref "$REF_NAME"
+            if ! gh workflow run "$workflow" --ref "$REF_NAME"; then
+              echo "::error::Failed to dispatch $workflow"
+              failed=1
+            fi
           done
+          exit "$failed"
