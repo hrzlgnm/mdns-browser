@@ -37,10 +37,6 @@ export function subscribeMetrics(): Promise<void> {
   return invoke<void>('subscribe_metrics')
 }
 
-export function openUrl(url: string): Promise<void> {
-  return invoke<void>('open_url', { url })
-}
-
 export function getVersion(): Promise<string> {
   return invoke<string>('version')
 }
@@ -59,10 +55,6 @@ export function setInterfaces(enabled: Array<string>): Promise<void> {
 
 export function isDesktop(): Promise<boolean> {
   return invoke<boolean>('is_desktop')
-}
-
-export function copyToClipboard(contents: string): Promise<void> {
-  return invoke<void>('copy_to_clipboard', { contents })
 }
 
 export function closeSplashscreen(): Promise<void> {

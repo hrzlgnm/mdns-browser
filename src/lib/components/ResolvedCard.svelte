@@ -1,11 +1,12 @@
 <script lang="ts">
   import { onDestroy } from 'svelte'
+  import { openUrl } from '@tauri-apps/plugin-opener'
   import MdiCheckAll from '~icons/mdi/check-all'
   import MdiCircle from '~icons/mdi/circle'
   import MdiClose from '~icons/mdi/close'
   import MdiListBox from '~icons/mdi/list-box'
   import MdiOpenInNew from '~icons/mdi/open-in-new'
-  import { openUrl, verifyInstance } from '$lib/api'
+  import { verifyInstance } from '$lib/api'
   import {
     addrDisplay,
     addrIpString,
