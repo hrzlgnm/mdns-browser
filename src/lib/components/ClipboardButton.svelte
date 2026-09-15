@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { writeText } from '@tauri-apps/plugin-clipboard-manager'
   import MdiCircle from '~icons/mdi/circle'
   import MdiClipboardText from '~icons/mdi/clipboard-text'
-  import { copyToClipboard } from '$lib/api'
   import { desktop } from '$lib/store'
   import { copyToast } from '$lib/toast'
 
@@ -23,7 +23,7 @@
 
   function onClick() {
     const value = copyText ?? text
-    void copyToClipboard(value)
+    void writeText(value)
     if ($desktop) copyToast(value)
   }
 </script>

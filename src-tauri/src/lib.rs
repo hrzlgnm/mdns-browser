@@ -21,8 +21,6 @@ use std::{
     },
 };
 use tauri::{AppHandle, Emitter, Manager, State, Window};
-use tauri_plugin_clipboard_manager::ClipboardExt;
-use tauri_plugin_opener::OpenerExt;
 #[cfg(all(target_os = "linux", desktop))]
 use webkit2gtk_nvidia_quirk::{apply_workaround_with_options, ApplyWorkaroundOptions};
 
@@ -793,15 +791,6 @@ fn subscribe_metrics(window: Window, state: State<ManagedState>) {
 }
 
 #[tauri::command]
-fn open_url(app: AppHandle, url: String) -> Result<(), String> {
-    let opener = app.opener();
-    opener
-        .open_url(url.clone(), None::<String>)
-        .map_err(|e| format!("Failed to open URL {url}: {e:?}"))?;
-    Ok(())
-}
-
-#[tauri::command]
 fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
@@ -933,15 +922,6 @@ fn is_desktop() -> bool {
 #[cfg(desktop)]
 fn is_desktop() -> bool {
     true
-}
-
-#[tauri::command]
-fn copy_to_clipboard(window: Window, contents: String) -> Result<(), String> {
-    let app = window.app_handle();
-    app.clipboard()
-        .write_text(contents)
-        .map_err(|e| format!("Failed to copy to clipboard: {e:?}"))?;
-    Ok(())
 }
 
 #[cfg(desktop)]
@@ -1218,10 +1198,8 @@ pub fn run() {
             browse_many,
             browse_types,
             close_splashscreen,
-            copy_to_clipboard,
             get_protocol_flags,
             is_desktop,
-            open_url,
             set_interfaces,
             set_protocol_flags,
             subscribe_interfaces,
@@ -1274,10 +1252,8 @@ pub fn run_mobile() {
             browse_types,
             can_auto_update,
             close_splashscreen,
-            copy_to_clipboard,
             get_protocol_flags,
             is_desktop,
-            open_url,
             set_interfaces,
             set_protocol_flags,
             subscribe_interfaces,

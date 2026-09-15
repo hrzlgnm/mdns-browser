@@ -1,10 +1,11 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte'
+  import { openUrl } from '@tauri-apps/plugin-opener'
   import MdiCheckCircleOutline from '~icons/mdi/check-circle-outline'
   import MdiDownloadCircleOutline from '~icons/mdi/download-circle-outline'
   import MdiGithub from '~icons/mdi/github'
   import MdiInboxArrowDown from '~icons/mdi/inbox-arrow-down'
-  import { canAutoUpdate, getVersion, openUrl } from '$lib/api'
+  import { canAutoUpdate, getVersion } from '$lib/api'
   import { desktop } from '$lib/store'
   import { pushToast } from '$lib/toast'
   import { checkUpdate, closeUpdate, downloadAndInstall, type PendingUpdate } from '$lib/updater'
