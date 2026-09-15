@@ -7,15 +7,13 @@
   import { canAutoUpdate, getVersion, openUrl } from '$lib/api'
   import { desktop } from '$lib/store'
   import { pushToast } from '$lib/toast'
-  import { checkUpdate, downloadAndInstall } from '$lib/updater'
-  import type { UpdateMetadata } from '$lib/types'
+  import { checkUpdate, closeUpdate, downloadAndInstall, type PendingUpdate } from '$lib/updater'
 
   const GITHUB_BASE_URL = 'https://github.com/hrzlgnm/mdns-browser'
   const SHOW_NO_UPDATE_DURATION_MS = 3000
 
   let version = $state('')
-  let update = $state<UpdateMetadata | null>(null)
-  let pendingRid = $state<number | null>(null)
+  let update = $state<PendingUpdate>(null)
   let canUpdate = $state(false)
   let showNoUpdate = $state(false)
   let timer: ReturnType<typeof setTimeout> | undefined = undefined
@@ -37,6 +35,7 @@
 
   onDestroy(() => {
     clearTimeout(timer)
+    if (update !== null) void closeUpdate(update).catch(() => {})
   })
 
   function flashNoUpdate() {
@@ -49,10 +48,10 @@
 
   async function onCheckUpdate() {
     try {
+      await closeUpdate(update)
       const checked = await checkUpdate($desktop)
-      if (checked.update === null) flashNoUpdate()
-      pendingRid = checked.rid
-      update = checked.update
+      if (checked === null) flashNoUpdate()
+      update = checked
     } catch (e) {
       console.error('[mdns-browser] failed to check for updates:', e)
       pushToast('Update failed', String(e))
@@ -61,7 +60,7 @@
 
   async function onInstallUpdate() {
     try {
-      await downloadAndInstall($desktop, pendingRid)
+      await downloadAndInstall($desktop, update)
     } catch (e) {
       console.error('[mdns-browser] failed to install update:', e)
       pushToast('Update failed', String(e))
