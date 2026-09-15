@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.2.0...v2.2.1) (2026-09-15)
+
+
+### Dependencies
+
+* lock file maintenance ([#2711](https://github.com/hrzlgnm/mdns-browser/issues/2711)) ([bebed9c](https://github.com/hrzlgnm/mdns-browser/commit/bebed9c4fc361cba5c969d3c840b061d64f591ed))
+
+
+### Continuous Integration
+
+* guard releases against manual mid-build publish ([#2712](https://github.com/hrzlgnm/mdns-browser/issues/2712)) ([0a602a8](https://github.com/hrzlgnm/mdns-browser/commit/0a602a8485089daf878a78105ec41a613ca907f8))
+
 ## [2.2.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.1.0...v2.2.0) (2026-09-15)
 
 
