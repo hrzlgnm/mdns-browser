@@ -11,7 +11,8 @@
         "clipboard-manager:allow-write-text",
         "opener:allow-open-url",
         "process:allow-restart",
-        "store:default"
+        "store:default",
+        "log:default"
     ],
     "platforms": [
         "macOS",
