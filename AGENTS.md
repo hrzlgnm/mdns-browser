@@ -92,7 +92,9 @@ actionlint .github/workflows/*.yml
 3. Run the [full check](#full-check-run-before-every-commit); also run
    `PATH="$PWD/scripts:$PATH" pnpm tauri build --no-bundle --no-sign` to verify the release build
 4. Conditional checks: renovate config validator if `.github/renovate.json5`
-   changed; if README.md changed, update the manpage (`docs/mdns-browser.1`)
+   changed; if README.md changed, update the manpage (`docs/mdns-browser.1`);
+   keep `release-please-config.json` and `.release-please-manifest.json`
+   prettier-clean (both are covered by `format:check`)
 5. Commit only when all checks pass, then push and open a PR (see
    [After Completion](#after-completion))
 
