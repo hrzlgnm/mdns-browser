@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.2.2...v2.3.0) (2026-09-15)
+
+
+### Features
+
+* dispatch downstream packaging workflows explicitly after publish ([#2719](https://github.com/hrzlgnm/mdns-browser/issues/2719)) ([484a93c](https://github.com/hrzlgnm/mdns-browser/commit/484a93cc216450f7c563172f8a4f8068ea1c2fe0))
+
 ## [2.2.2](https://github.com/hrzlgnm/mdns-browser/compare/v2.2.1...v2.2.2) (2026-09-15)
 
 
