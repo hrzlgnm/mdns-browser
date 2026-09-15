@@ -252,32 +252,88 @@ body {
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  border: none;
   transition:
     color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 22px;
   height: 44px;
   min-width: 44px;
   box-shadow: var(--shadow4, 0 1px 4px rgba(0, 0, 0, 0.4));
-  color: var(--colorNeutralForeground2, #ffffff);
-  background-color: var(--colorNeutralBackground1, #605e5c);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
 }
 
 .back-top-button > svg {
   font-size: 24px;
   transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.back-top-button:hover,
-.back-top-button:active {
+.back-top-button:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--accent);
   box-shadow: var(--shadow16, 0 4px 16px rgba(0, 0, 0, 0.5));
 }
-.back-top-button:hover > svg {
-  color: var(--colorBrandBackgroundHover, #106ebe);
+.back-top-button:hover:active,
+.back-top-button:active {
+  background-color: var(--bg-tertiary);
+  border-color: var(--accent);
+  box-shadow: var(--shadow16, 0 4px 16px rgba(0, 0, 0, 0.5));
 }
-.back-top-button:active svg {
-  color: var(--colorBrandBackgroundPressed, #005a9e);
+.back-top-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.back-top-button:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+/* Match the primary-button treatment of .themed-button. */
+:root[data-theme='dark'] .back-top-button {
+  background-color: #115ea3;
+  color: #ffffff;
+  border-color: transparent;
+}
+:root[data-theme='dark'] .back-top-button:hover {
+  background-color: #0f6cbd;
+  color: #ffffff;
+  border-color: transparent;
+}
+:root[data-theme='dark'] .back-top-button:hover:active,
+:root[data-theme='dark'] .back-top-button:active {
+  background-color: #0c3b5e;
+  color: #ffffff;
+  border-color: transparent;
+}
+:root[data-theme='dark'] .back-top-button:disabled {
+  color: #5c5c5c;
+  background-color: #141414;
+  border-color: transparent;
+  opacity: 1;
+}
+:root[data-theme='light'] .back-top-button {
+  background-color: #0f6cbd;
+  color: #ffffff;
+  border-color: transparent;
+}
+:root[data-theme='light'] .back-top-button:hover {
+  background-color: #115ea3;
+  color: #ffffff;
+  border-color: transparent;
+}
+:root[data-theme='light'] .back-top-button:hover:active,
+:root[data-theme='light'] .back-top-button:active {
+  background-color: #0c3b5e;
+  color: #ffffff;
+  border-color: transparent;
+}
+:root[data-theme='light'] .back-top-button:disabled {
+  color: #bdbdbd;
+  background-color: #f0f0f0;
+  border-color: transparent;
+  opacity: 1;
 }
 
 /* Theme-aware form controls (preset CSS variables, after the zux recipes). */
