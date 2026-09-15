@@ -126,3 +126,21 @@ jobs:
     secrets: inherit
     with:
       tagName: ${{ needs.release-please.outputs.tag_name }}
+
+  publish:
+    # Flips the draft live only when every build job succeeded. A cancelled
+    # or failed build skips this job, so a partial release never goes live.
+    # This job is the only proper publisher: hands off the draft.
+    needs: [release-please, source_checksums, build_android, build_desktop]
+    if: needs.release-please.outputs.release_created == 'true'
+    name: "📢 Publish Release"
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write # to publish the draft release
+    steps:
+      - name: 📢 Publish draft release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
+        run: gh release edit "$TAG_NAME" --draft=false --prerelease=false
