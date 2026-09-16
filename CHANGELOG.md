@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.3.0...v2.3.1) (2026-09-16)
+
+
+### Bug Fixes
+
+* detect release-please commits in CI skip check ([#2729](https://github.com/hrzlgnm/mdns-browser/issues/2729)) ([fbd3a9d](https://github.com/hrzlgnm/mdns-browser/commit/fbd3a9d20c50e2e8316dc043fe079a894b30eff4))
+* exclude tauri packages from release age restrictions ([#2722](https://github.com/hrzlgnm/mdns-browser/issues/2722)) ([bbf321f](https://github.com/hrzlgnm/mdns-browser/commit/bbf321f9a460fa185423b12553b7477e8cd3b78b))
+
+
+### Dependencies
+
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 5d2ed62 ([#2728](https://github.com/hrzlgnm/mdns-browser/issues/2728)) ([dd379e4](https://github.com/hrzlgnm/mdns-browser/commit/dd379e449386204531e1e1e3cdcdfea9dccd623c))
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 715bfd8 ([#2726](https://github.com/hrzlgnm/mdns-browser/issues/2726)) ([de7d844](https://github.com/hrzlgnm/mdns-browser/commit/de7d844cef4258c5cb3cc97ce408191ed08bed83))
+* update tauri monorepo to v2.4.5 ([#2721](https://github.com/hrzlgnm/mdns-browser/issues/2721)) ([1d92af3](https://github.com/hrzlgnm/mdns-browser/commit/1d92af357e76cfe9b73ec56d685b15e3e8a60683))
+* update ubuntu:latest docker digest to 5cf058a ([#2724](https://github.com/hrzlgnm/mdns-browser/issues/2724)) ([506cc9b](https://github.com/hrzlgnm/mdns-browser/commit/506cc9b2e7ceeb2c71bccd3d74be98d2a1c60d2f))
+* update ubuntu:latest docker digest to cd21a4f ([#2727](https://github.com/hrzlgnm/mdns-browser/issues/2727)) ([d51369b](https://github.com/hrzlgnm/mdns-browser/commit/d51369b1e1fc384d6050580037d559e511a4e406))
+
+
+### Continuous Integration
+
+* skip heavy jobs on release-tag pushes ([#2725](https://github.com/hrzlgnm/mdns-browser/issues/2725)) ([2f0b68c](https://github.com/hrzlgnm/mdns-browser/commit/2f0b68c952f438d329c98a6184743e148cb08270))
+
 ## [2.3.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.2.2...v2.3.0) (2026-09-15)
 
 
