@@ -54,17 +54,24 @@ jobs:
           fetch-tags: true
           persist-credentials: false
 
-      - name: 🏷️ Check for release tag
+      - name: 🏷️ Check for release
         id: check
         shell: bash
         env:
           EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "$EVENT_NAME" = "push" ] && git tag --points-at HEAD | grep -q '^v'; then
-            echo "is_release=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "is_release=false" >> "$GITHUB_OUTPUT"
+          is_release=false
+          if [ "$EVENT_NAME" = "push" ]; then
+            # The tag does not exist yet when CI starts: release-please
+            # creates it after this same push, so fall back to matching
+            # the release-please commit message.
+            if git tag --points-at HEAD | grep -q '^v'; then
+              is_release=true
+            elif git log -1 --pretty=%B | grep -qE '^chore(\(main\))?: release '; then
+              is_release=true
+            fi
           fi
+          echo "is_release=$is_release" >> "$GITHUB_OUTPUT"
 
   changes:
     name: "🔍 Detect Changes"
