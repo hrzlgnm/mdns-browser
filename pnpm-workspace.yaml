@@ -1,0 +1,4 @@
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - "@tauri-apps/*"
+  - "tauri-plugin-android-update-api"
