@@ -57,8 +57,10 @@ jobs:
       - name: 🏷️ Check for release tag
         id: check
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if git tag --points-at HEAD | grep -q '^v'; then
+          if [ "$EVENT_NAME" = "push" ] && git tag --points-at HEAD | grep -q '^v'; then
             echo "is_release=true" >> "$GITHUB_OUTPUT"
           else
             echo "is_release=false" >> "$GITHUB_OUTPUT"
