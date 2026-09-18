@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.2](https://github.com/hrzlgnm/mdns-browser/compare/v2.3.1...v2.3.2) (2026-09-18)
+
+
+### Bug Fixes
+
+* allow window and app theme sync via ACL ([#2739](https://github.com/hrzlgnm/mdns-browser/issues/2739)) ([f68299a](https://github.com/hrzlgnm/mdns-browser/commit/f68299a188971384c9f53588848ffa3b3851aff3))
+
+
+### Dependencies
+
+* update android-actions/setup-android digest to be39fa8 ([#2732](https://github.com/hrzlgnm/mdns-browser/issues/2732)) ([eb9c73b](https://github.com/hrzlgnm/mdns-browser/commit/eb9c73bd004031f07c4f126c3eb58c2a3c8a8c6f))
+* update archlinux:base-devel docker digest to 4894f5a ([#2733](https://github.com/hrzlgnm/mdns-browser/issues/2733)) ([e32a208](https://github.com/hrzlgnm/mdns-browser/commit/e32a20859e37b50457dc88ce3814fb1ae77aeddc))
+* update dependency @tauri-apps/plugin-store to v2.4.5 ([#2738](https://github.com/hrzlgnm/mdns-browser/issues/2738)) ([89e49ca](https://github.com/hrzlgnm/mdns-browser/commit/89e49ca88a6bddb70ab3bc1ed20406da412476a2))
+* update dependency cargo-nextest to v0.9.145 ([#2730](https://github.com/hrzlgnm/mdns-browser/issues/2730)) ([60d656d](https://github.com/hrzlgnm/mdns-browser/commit/60d656d339a16eda83ef4cd401d8fc72c96a4d3b))
+* update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 405ef58 ([#2735](https://github.com/hrzlgnm/mdns-browser/issues/2735)) ([1de4a7c](https://github.com/hrzlgnm/mdns-browser/commit/1de4a7cb336ed0128d775ac00d36033dbcf3d546))
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to b7b5414 ([#2736](https://github.com/hrzlgnm/mdns-browser/issues/2736)) ([8963c80](https://github.com/hrzlgnm/mdns-browser/commit/8963c80d0240ac8f3c8e417784ff0112bc871850))
+* update pnpm to v12.4.2 ([#2737](https://github.com/hrzlgnm/mdns-browser/issues/2737)) ([19d1e17](https://github.com/hrzlgnm/mdns-browser/commit/19d1e17d8607ef1f53c14dbd32480272662a5126))
+* update ubuntu:latest docker digest to 9559ceb ([#2734](https://github.com/hrzlgnm/mdns-browser/issues/2734)) ([8f3e6fd](https://github.com/hrzlgnm/mdns-browser/commit/8f3e6fd1d34b0c0af3e4f1f3545509ceb875477f))
+
 ## [2.3.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.3.0...v2.3.1) (2026-09-16)
 
 
