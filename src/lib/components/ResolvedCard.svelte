@@ -46,7 +46,8 @@
   const title = $derived(getInstanceName(service))
   const urls = $derived(getOpenUrls(service))
   const alternativeUrls = $derived(urls.slice(1))
-  const menuVisible = $derived(menuOpen && urls.length > 1)
+  const hasMoreUrls = $derived(urls.length > 1)
+  const menuVisible = $derived(menuOpen && hasMoreUrls)
   const updatedAt = $derived(toLocalTimestamp(service.updated_at_micros))
   const addrs = $derived(service.addresses.map((addr) => addrDisplay(addr)))
   const addrsForCopy = $derived(service.addresses.map((addr) => addrIpString(addr)))
@@ -176,7 +177,7 @@
               <MdiOpenInNew width="1.2em" height="1.2em" aria-hidden="true" />
               Open
             </button>
-            {#if urls.length > 1}
+            {#if hasMoreUrls}
               <button
                 type="button"
                 class="themed-button themed-button-small url-toggle"

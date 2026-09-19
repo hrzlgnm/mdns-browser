@@ -153,7 +153,8 @@ function formatAddress(ip: string): string {
 
 function normalizePath(rawPath: string | null | undefined): string {
   if (rawPath === null || rawPath === undefined) return '/'
-  return rawPath.startsWith('/') ? rawPath : `/${rawPath}`
+  const trimmed = rawPath.trim()
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`
 }
 
 // Applies to the plain `_http._tcp.local.` / `_https._tcp.local.` services
