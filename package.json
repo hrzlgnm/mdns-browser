@@ -1,6 +1,6 @@
 {
   "name": "mdns-browser-frontend",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "SvelteKit frontend for mdns-browser",
   "packageManager": "pnpm@12.4.2",
   "type": "module",
@@ -39,7 +39,7 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-svelte": "3.23.0",
     "globals": "17.12.0",
-    "prettier": "3.9.6",
+    "prettier": "3.9.7",
     "prettier-plugin-svelte": "4.1.1",
     "svelte": "5.57.0",
     "svelte-check": "4.7.6",
