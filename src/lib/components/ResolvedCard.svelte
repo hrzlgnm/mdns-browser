@@ -6,6 +6,7 @@
   import MdiClose from '~icons/mdi/close'
   import MdiListBox from '~icons/mdi/list-box'
   import MdiOpenInNew from '~icons/mdi/open-in-new'
+  import MdiUnfoldMoreVertical from '~icons/mdi/unfold-more-vertical'
   import { verifyInstance } from '$lib/api'
   import {
     addrDisplay,
@@ -13,7 +14,7 @@
     dropLocalAndTrailingDot,
     dropTrailingDot,
     getInstanceName,
-    getOpenUrl,
+    getOpenUrls,
     toLocalTimestamp,
     txtDisplay,
   } from '$lib/browse-utils'
@@ -27,12 +28,15 @@
   const VERIFY_TIMEOUT_MS = 5000
 
   let { service }: { service: ResolvedService } = $props()
+  const urlMenuId = $props.id()
 
   const cardClass = cssClass('resolved-service-card')
   const valueCellClass = cssClass('resolved-service-value-cell')
   const cardTitleClass = cssClass('resolved-service-card-title')
 
   let showDetails = $state(false)
+  let menuOpen = $state(false)
+  let menuContainer: HTMLSpanElement | undefined
   let verifying = $state(false)
   let verifyTimer: ReturnType<typeof setTimeout> | undefined = undefined
 
@@ -41,7 +45,10 @@
   })
 
   const title = $derived(getInstanceName(service))
-  const url = $derived(getOpenUrl(service))
+  const urls = $derived(getOpenUrls(service))
+  const alternativeUrls = $derived(urls.slice(1))
+  const hasMoreUrls = $derived(urls.length > 1)
+  const menuVisible = $derived(menuOpen && hasMoreUrls)
   const updatedAt = $derived(toLocalTimestamp(service.updated_at_micros))
   const addrs = $derived(service.addresses.map((addr) => addrDisplay(addr)))
   const addrsForCopy = $derived(service.addresses.map((addr) => addrIpString(addr)))
@@ -69,11 +76,24 @@
       verifying = false
     }, VERIFY_TIMEOUT_MS)
   }
+
+  function openServiceUrl(url: string) {
+    menuOpen = false
+    void openUrl(url).catch((e) => console.warn('[mdns-browser] failed to open URL:', e))
+  }
 </script>
 
 <svelte:window
   onkeydown={(e) => {
-    if (e.key === 'Escape' && showDetails) showDetails = false
+    if (e.key === 'Escape' && (showDetails || menuOpen)) {
+      showDetails = false
+      menuOpen = false
+    }
+  }}
+  onclick={(e) => {
+    if (menuVisible && menuContainer !== undefined && !menuContainer.contains(e.target as Node)) {
+      menuOpen = false
+    }
   }}
 />
 
@@ -147,17 +167,47 @@
             {/if}
             Verify
           </button>
-          <button
-            type="button"
-            class="themed-button themed-button-small"
-            onclick={() => {
-              if (url !== null) void openUrl(url)
-            }}
-            disabled={url === null}
-          >
-            <MdiOpenInNew width="1.2em" height="1.2em" aria-hidden="true" />
-            Open
-          </button>
+          <span class="url-menu-container" bind:this={menuContainer}>
+            <button
+              type="button"
+              class="themed-button themed-button-small"
+              onclick={() => {
+                if (urls.length > 0) openServiceUrl(urls[0])
+              }}
+              disabled={urls.length === 0}
+            >
+              <MdiOpenInNew width="1.2em" height="1.2em" aria-hidden="true" />
+              Open
+            </button>
+            {#if hasMoreUrls}
+              <button
+                type="button"
+                class="themed-button themed-button-small url-toggle"
+                aria-controls={urlMenuId}
+                aria-expanded={menuVisible}
+                aria-label="Choose a different URL"
+                onclick={() => (menuOpen = !menuOpen)}
+              >
+                <MdiUnfoldMoreVertical width="1.2em" height="1.2em" aria-hidden="true" />
+              </button>
+            {/if}
+            {#if menuVisible}
+              <div id={urlMenuId} class="url-menu">
+                {#each alternativeUrls as url (url)}
+                  <button
+                    type="button"
+                    class="url-menu-item"
+                    onclick={() => {
+                      menuOpen = false
+                      openServiceUrl(url)
+                    }}
+                  >
+                    {url}
+                  </button>
+                {/each}
+              </div>
+            {/if}
+          </span>
         </td>
       </tr>
     </tbody>
@@ -204,6 +254,49 @@
 {/if}
 
 <style>
+  .url-menu-container {
+    position: relative;
+    display: inline-block;
+  }
+  .url-toggle {
+    margin-left: 2px;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+  .url-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    z-index: 10000;
+    min-width: 220px;
+    max-width: 340px;
+    padding: 4px;
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    box-shadow: var(--shadow16, 0 4px 16px rgba(0, 0, 0, 0.5));
+  }
+  .url-menu-item {
+    display: block;
+    width: 100%;
+    padding: 4px 8px;
+    border: none;
+    background: none;
+    color: var(--text-primary);
+    font: inherit;
+    text-align: left;
+    white-space: normal;
+    word-break: break-all;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .url-menu-item:hover,
+  .url-menu-item:focus-visible {
+    background: var(--bg-secondary);
+    color: var(--accent);
+    outline: none;
+  }
   .dialog-overlay {
     position: fixed;
     inset: 0;

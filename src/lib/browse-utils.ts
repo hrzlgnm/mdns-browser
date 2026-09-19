@@ -147,40 +147,66 @@ function isUnicastLinkLocalV6(ip: string): boolean {
   return (value & 0xffc0) === 0xfe80
 }
 
-function firstUsableAddress(service: ResolvedService): string | null {
-  for (const addr of service.addresses) {
-    const ip = addrIpString(addr).split('%')[0] ?? ''
-    if (!ip.includes(':')) return ip
-    if (!isUnicastLinkLocalV6(ip)) return ip
-  }
-  return null
-}
-
 function formatAddress(ip: string): string {
   return ip.includes(':') ? `[${ip}]` : ip
 }
 
-export function getOpenUrl(service: ResolvedService): string | null {
-  const rawPath = service.txt.find((record) => record.key === 'path')?.val
-  const path =
-    rawPath === null || rawPath === undefined
-      ? null
-      : rawPath.startsWith('/')
-        ? rawPath
-        : `/${rawPath}`
-  const address = firstUsableAddress(service)
-  if (address === null) return null
-  const internalUrl = service.txt.find((record) => record.key === 'internal_url')?.val
-  switch (service.service_type) {
-    case '_http._tcp.local.':
-      return `http://${formatAddress(address)}:${service.port}${path ?? '/'}`
-    case '_https._tcp.local.':
-      return `https://${formatAddress(address)}:${service.port}${path ?? '/'}`
-    case '_home-assistant._tcp.local.':
-      return internalUrl === null || internalUrl === undefined ? null : internalUrl
-    default:
-      return null
+function normalizePath(rawPath: string | null | undefined): string {
+  if (rawPath === null || rawPath === undefined) return '/'
+  const trimmed = rawPath.trim()
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+}
+
+// Applies to the plain `_http._tcp.local.` / `_https._tcp.local.` services
+// as well as `_sub` subtype services.
+function httpScheme(serviceType: string): 'http' | 'https' | null {
+  if (serviceType.includes('_https._tcp')) return 'https'
+  if (serviceType.includes('_http._tcp')) return 'http'
+  return null
+}
+
+function isHttpUrl(value: string): boolean {
+  if (!/^https?:\/\//i.test(value)) return false
+  try {
+    new URL(value)
+    return true
+  } catch {
+    return false
   }
+}
+
+// The address as a host string (scope stripped), or null when link-local v6.
+function usableIp(address: ScopedAddr): string | null {
+  const ip = addrIpString(address).split('%')[0]
+  if (ip.includes(':') && isUnicastLinkLocalV6(ip)) return null
+  return ip
+}
+
+// Gathers every URL a service can be opened with, in priority order: for
+// http(s) services one per usable address (the first is the primary), then
+// any http(s) TXT values. Deduplicated in insertion order; empty when the
+// service is not openable.
+export function getOpenUrls(service: ResolvedService): string[] {
+  const urls = new Set<string>()
+
+  const scheme = httpScheme(service.service_type)
+  if (scheme !== null) {
+    const path = normalizePath(service.txt.find((record) => record.key === 'path')?.val)
+    for (const addr of service.addresses) {
+      const ip = usableIp(addr)
+      if (ip === null) continue
+      urls.add(`${scheme}://${formatAddress(ip)}:${service.port}${path}`)
+    }
+  }
+
+  for (const record of service.txt) {
+    const value = record.val
+    if (value === null || value === undefined) continue
+    const candidate = value.trim()
+    if (isHttpUrl(candidate)) urls.add(candidate)
+  }
+
+  return [...urls]
 }
 
 export function matchesQuery(service: ResolvedService, rawQuery: string): boolean {
