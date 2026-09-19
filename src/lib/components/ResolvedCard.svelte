@@ -157,17 +157,25 @@
               type="button"
               class="themed-button themed-button-small"
               onclick={() => {
-                if (urls.length === 1) void openUrl(urls[0])
-                else if (urls.length > 1) menuOpen = !menuOpen
+                if (urls.length > 0) void openUrl(urls[0])
               }}
               disabled={urls.length === 0}
             >
               <MdiOpenInNew width="1.2em" height="1.2em" aria-hidden="true" />
-              {#if urls.length > 1}
-                <MdiUnfoldMoreVertical width="1.2em" height="1.2em" aria-hidden="true" />
-              {/if}
               Open
             </button>
+            {#if urls.length > 1}
+              <button
+                type="button"
+                class="themed-button themed-button-small url-toggle"
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+                aria-label="Choose a different URL"
+                onclick={() => (menuOpen = !menuOpen)}
+              >
+                <MdiUnfoldMoreVertical width="1.2em" height="1.2em" aria-hidden="true" />
+              </button>
+            {/if}
             {#if menuOpen}
               <div
                 class="url-menu-overlay"
@@ -239,6 +247,11 @@
   .url-menu-container {
     position: relative;
     display: inline-block;
+  }
+  .url-toggle {
+    margin-left: 2px;
+    padding-left: 6px;
+    padding-right: 6px;
   }
   .url-menu {
     position: absolute;

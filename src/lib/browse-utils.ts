@@ -176,20 +176,15 @@ function isHttpUrl(value: string): boolean {
 
 // The address as a host string (scope stripped), or null when link-local v6.
 function usableIp(address: ScopedAddr): string | null {
-  const ip = addrIpString(address).split('%')[0] ?? ''
+  const ip = addrIpString(address).split('%')[0]
   if (ip.includes(':') && isUnicastLinkLocalV6(ip)) return null
   return ip
 }
 
-// The first URL `getOpenUrls` yields: for plain http(s) services that is the
-// first usable address, for Home Assistant the `internal_url` TXT value.
-export function getOpenUrl(service: ResolvedService): string | null {
-  return getOpenUrls(service)[0] ?? null
-}
-
-// Gathers every URL a service can be opened with: for http(s) services one
-// per usable address, then any http(s) TXT values, then the Home Assistant
-// `internal_url`. Deduplicated in insertion order; empty when unopenable.
+// Gathers every URL a service can be opened with, in priority order: the
+// primary first (first usable address for http(s) services, `internal_url`
+// for Home Assistant), then any http(s) TXT values. Deduplicated in
+// insertion order; empty when the service is not openable.
 export function getOpenUrls(service: ResolvedService): string[] {
   const urls = new Set<string>()
 
@@ -203,16 +198,16 @@ export function getOpenUrls(service: ResolvedService): string[] {
     }
   }
 
+  if (service.service_type === '_home-assistant._tcp.local.') {
+    const internalUrl = service.txt.find((record) => record.key === 'internal_url')?.val?.trim()
+    if (internalUrl !== undefined && internalUrl !== '') urls.add(internalUrl)
+  }
+
   for (const record of service.txt) {
     const value = record.val
     if (value === null || value === undefined) continue
     const candidate = value.trim()
     if (isHttpUrl(candidate)) urls.add(candidate)
-  }
-
-  if (service.service_type === '_home-assistant._tcp.local.') {
-    const internalUrl = service.txt.find((record) => record.key === 'internal_url')?.val?.trim()
-    if (internalUrl !== undefined && internalUrl !== '') urls.add(internalUrl)
   }
 
   return [...urls]
