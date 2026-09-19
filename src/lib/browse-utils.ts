@@ -160,27 +160,80 @@ function formatAddress(ip: string): string {
   return ip.includes(':') ? `[${ip}]` : ip
 }
 
+function normalizePath(rawPath: string | null | undefined): string {
+  if (rawPath === null || rawPath === undefined) return '/'
+  return rawPath.startsWith('/') ? rawPath : `/${rawPath}`
+}
+
+// Mirrors the `contains("http")` check in mdns-tui-browser: applies to the
+// plain services as well as `_sub` subtype services.
+function httpScheme(serviceType: string): 'http' | 'https' | null {
+  if (serviceType.includes('_https._tcp')) return 'https'
+  if (serviceType.includes('_http._tcp')) return 'http'
+  return null
+}
+
+function isHttpUrl(value: string): boolean {
+  if (!value.startsWith('http://') && !value.startsWith('https://')) return false
+  try {
+    new URL(value)
+    return true
+  } catch {
+    return false
+  }
+}
+
+function usableIp(addr: ScopedAddr): string | null {
+  const ip = addrIpString(addr).split('%')[0] ?? ''
+  if (ip.includes(':') && isUnicastLinkLocalV6(ip)) return null
+  return ip
+}
+
 export function getOpenUrl(service: ResolvedService): string | null {
-  const rawPath = service.txt.find((record) => record.key === 'path')?.val
-  const path =
-    rawPath === null || rawPath === undefined
-      ? null
-      : rawPath.startsWith('/')
-        ? rawPath
-        : `/${rawPath}`
+  const path = normalizePath(service.txt.find((record) => record.key === 'path')?.val)
   const address = firstUsableAddress(service)
   if (address === null) return null
   const internalUrl = service.txt.find((record) => record.key === 'internal_url')?.val
   switch (service.service_type) {
     case '_http._tcp.local.':
-      return `http://${formatAddress(address)}:${service.port}${path ?? '/'}`
+      return `http://${formatAddress(address)}:${service.port}${path}`
     case '_https._tcp.local.':
-      return `https://${formatAddress(address)}:${service.port}${path ?? '/'}`
+      return `https://${formatAddress(address)}:${service.port}${path}`
     case '_home-assistant._tcp.local.':
       return internalUrl === null || internalUrl === undefined ? null : internalUrl
     default:
       return null
   }
+}
+
+// Gathers every URL a service can be opened with: the primary URL (same as
+// `getOpenUrl`) plus any http(s) TXT values and, for http(s) services, one
+// URL per usable address. Deduplicated in insertion order so the primary
+// stays first; empty when the service is not openable.
+export function getOpenUrls(service: ResolvedService): string[] {
+  const urls = new Set<string>()
+
+  const primary = getOpenUrl(service)
+  if (primary !== null) urls.add(primary)
+
+  for (const record of service.txt) {
+    const value = record.val
+    if (value === null || value === undefined) continue
+    const candidate = value.trim()
+    if (isHttpUrl(candidate)) urls.add(candidate)
+  }
+
+  const scheme = httpScheme(service.service_type)
+  if (scheme !== null) {
+    const path = normalizePath(service.txt.find((record) => record.key === 'path')?.val)
+    for (const addr of service.addresses) {
+      const ip = usableIp(addr)
+      if (ip === null) continue
+      urls.add(`${scheme}://${formatAddress(ip)}:${service.port}${path}`)
+    }
+  }
+
+  return [...urls]
 }
 
 export function matchesQuery(service: ResolvedService, rawQuery: string): boolean {
