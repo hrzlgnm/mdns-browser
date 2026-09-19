@@ -77,6 +77,7 @@
   }
 
   function openServiceUrl(url: string) {
+    menuOpen = false
     void openUrl(url).catch((e) => console.warn('[mdns-browser] failed to open URL:', e))
   }
 </script>
