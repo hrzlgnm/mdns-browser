@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte'
-  import { browseMany, browseTypes, stopBrowse } from '$lib/api'
+  import { browseMany, stopBrowse } from '$lib/api'
   import {
     compareServices,
     isValidServiceType,
@@ -40,12 +40,6 @@
   }
 
   onMount(() => {
-    // Stop any previously started browsing so a frontend reload never
-    // resumes it, then trigger service-type discovery for the autocomplete.
-    void (async () => {
-      await stopBrowse()
-      await browseTypes()
-    })()
     startFocusTimer()
   })
 

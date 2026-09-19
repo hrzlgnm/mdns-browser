@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte'
   import type { UnlistenFn } from '@tauri-apps/api/event'
-  import { closeSplashscreen } from '$lib/api'
+  import { browseTypes, closeSplashscreen, stopBrowse } from '$lib/api'
   import About from '$lib/components/About.svelte'
   import Browse from '$lib/components/Browse.svelte'
   import Metrics from '$lib/components/Metrics.svelte'
@@ -46,6 +46,17 @@
       await initTheme()
       await initProtocolFlags()
       unlisteners = [unlistenLogger, ...(await setupEventListeners())]
+      try {
+        // Stop any previously started browsing so a reload never resumes it,
+        // then trigger service-type discovery. This must happen after the
+        // service-type-found listener exists, otherwise the initial
+        // _services._dns-sd._udp.local. answers are dropped and the types
+        // never show up.
+        await stopBrowse()
+        await browseTypes()
+      } catch (e) {
+        console.warn('[mdns-browser] failed to start service type discovery:', e)
+      }
       await closeSplashscreen()
     })()
 
