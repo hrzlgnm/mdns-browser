@@ -44,6 +44,8 @@
 
   const title = $derived(getInstanceName(service))
   const urls = $derived(getOpenUrls(service))
+  const alternativeUrls = $derived(urls.slice(1))
+  const menuVisible = $derived(menuOpen && urls.length > 1)
   const updatedAt = $derived(toLocalTimestamp(service.updated_at_micros))
   const addrs = $derived(service.addresses.map((addr) => addrDisplay(addr)))
   const addrsForCopy = $derived(service.addresses.map((addr) => addrIpString(addr)))
@@ -169,21 +171,21 @@
                 type="button"
                 class="themed-button themed-button-small url-toggle"
                 aria-haspopup="menu"
-                aria-expanded={menuOpen}
+                aria-expanded={menuVisible}
                 aria-label="Choose a different URL"
                 onclick={() => (menuOpen = !menuOpen)}
               >
                 <MdiUnfoldMoreVertical width="1.2em" height="1.2em" aria-hidden="true" />
               </button>
             {/if}
-            {#if menuOpen}
+            {#if menuVisible}
               <div
                 class="url-menu-overlay"
                 role="presentation"
                 onclick={() => (menuOpen = false)}
               ></div>
               <div class="url-menu">
-                {#each urls as url (url)}
+                {#each alternativeUrls as url (url)}
                   <button
                     type="button"
                     class="url-menu-item"

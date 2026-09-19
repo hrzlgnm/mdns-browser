@@ -181,10 +181,10 @@ function usableIp(address: ScopedAddr): string | null {
   return ip
 }
 
-// Gathers every URL a service can be opened with, in priority order: the
-// primary first (first usable address for http(s) services, `internal_url`
-// for Home Assistant), then any http(s) TXT values. Deduplicated in
-// insertion order; empty when the service is not openable.
+// Gathers every URL a service can be opened with, in priority order: for
+// http(s) services one per usable address (the first is the primary), the
+// Home Assistant `internal_url` when present, then any http(s) TXT values.
+// Deduplicated in insertion order; empty when the service is not openable.
 export function getOpenUrls(service: ResolvedService): string[] {
   const urls = new Set<string>()
 
