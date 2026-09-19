@@ -28,6 +28,7 @@
   const VERIFY_TIMEOUT_MS = 5000
 
   let { service }: { service: ResolvedService } = $props()
+  const urlMenuId = $props.id()
 
   const cardClass = cssClass('resolved-service-card')
   const valueCellClass = cssClass('resolved-service-value-cell')
@@ -182,7 +183,7 @@
               <button
                 type="button"
                 class="themed-button themed-button-small url-toggle"
-                aria-haspopup="menu"
+                aria-controls={urlMenuId}
                 aria-expanded={menuVisible}
                 aria-label="Choose a different URL"
                 onclick={() => (menuOpen = !menuOpen)}
@@ -191,7 +192,7 @@
               </button>
             {/if}
             {#if menuVisible}
-              <div class="url-menu">
+              <div id={urlMenuId} class="url-menu">
                 {#each alternativeUrls as url (url)}
                   <button
                     type="button"

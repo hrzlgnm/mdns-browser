@@ -166,7 +166,7 @@ function httpScheme(serviceType: string): 'http' | 'https' | null {
 }
 
 function isHttpUrl(value: string): boolean {
-  if (!value.startsWith('http://') && !value.startsWith('https://')) return false
+  if (!/^https?:\/\//i.test(value)) return false
   try {
     new URL(value)
     return true
