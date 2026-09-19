@@ -147,15 +147,6 @@ function isUnicastLinkLocalV6(ip: string): boolean {
   return (value & 0xffc0) === 0xfe80
 }
 
-function firstUsableAddress(service: ResolvedService): string | null {
-  for (const addr of service.addresses) {
-    const ip = addrIpString(addr).split('%')[0] ?? ''
-    if (!ip.includes(':')) return ip
-    if (!isUnicastLinkLocalV6(ip)) return ip
-  }
-  return null
-}
-
 function formatAddress(ip: string): string {
   return ip.includes(':') ? `[${ip}]` : ip
 }
@@ -165,8 +156,8 @@ function normalizePath(rawPath: string | null | undefined): string {
   return rawPath.startsWith('/') ? rawPath : `/${rawPath}`
 }
 
-// Mirrors the `contains("http")` check in mdns-tui-browser: applies to the
-// plain services as well as `_sub` subtype services.
+// Applies to the plain `_http._tcp.local.` / `_https._tcp.local.` services
+// as well as `_sub` subtype services.
 function httpScheme(serviceType: string): 'http' | 'https' | null {
   if (serviceType.includes('_https._tcp')) return 'https'
   if (serviceType.includes('_http._tcp')) return 'http'
@@ -183,45 +174,24 @@ function isHttpUrl(value: string): boolean {
   }
 }
 
-function usableIp(addr: ScopedAddr): string | null {
-  const ip = addrIpString(addr).split('%')[0] ?? ''
+// The address as a host string (scope stripped), or null when link-local v6.
+function usableIp(address: ScopedAddr): string | null {
+  const ip = addrIpString(address).split('%')[0] ?? ''
   if (ip.includes(':') && isUnicastLinkLocalV6(ip)) return null
   return ip
 }
 
+// The first URL `getOpenUrls` yields: for plain http(s) services that is the
+// first usable address, for Home Assistant the `internal_url` TXT value.
 export function getOpenUrl(service: ResolvedService): string | null {
-  const path = normalizePath(service.txt.find((record) => record.key === 'path')?.val)
-  const address = firstUsableAddress(service)
-  if (address === null) return null
-  const internalUrl = service.txt.find((record) => record.key === 'internal_url')?.val
-  switch (service.service_type) {
-    case '_http._tcp.local.':
-      return `http://${formatAddress(address)}:${service.port}${path}`
-    case '_https._tcp.local.':
-      return `https://${formatAddress(address)}:${service.port}${path}`
-    case '_home-assistant._tcp.local.':
-      return internalUrl === null || internalUrl === undefined ? null : internalUrl
-    default:
-      return null
-  }
+  return getOpenUrls(service)[0] ?? null
 }
 
-// Gathers every URL a service can be opened with: the primary URL (same as
-// `getOpenUrl`) plus any http(s) TXT values and, for http(s) services, one
-// URL per usable address. Deduplicated in insertion order so the primary
-// stays first; empty when the service is not openable.
+// Gathers every URL a service can be opened with: for http(s) services one
+// per usable address, then any http(s) TXT values, then the Home Assistant
+// `internal_url`. Deduplicated in insertion order; empty when unopenable.
 export function getOpenUrls(service: ResolvedService): string[] {
   const urls = new Set<string>()
-
-  const primary = getOpenUrl(service)
-  if (primary !== null) urls.add(primary)
-
-  for (const record of service.txt) {
-    const value = record.val
-    if (value === null || value === undefined) continue
-    const candidate = value.trim()
-    if (isHttpUrl(candidate)) urls.add(candidate)
-  }
 
   const scheme = httpScheme(service.service_type)
   if (scheme !== null) {
@@ -231,6 +201,18 @@ export function getOpenUrls(service: ResolvedService): string[] {
       if (ip === null) continue
       urls.add(`${scheme}://${formatAddress(ip)}:${service.port}${path}`)
     }
+  }
+
+  for (const record of service.txt) {
+    const value = record.val
+    if (value === null || value === undefined) continue
+    const candidate = value.trim()
+    if (isHttpUrl(candidate)) urls.add(candidate)
+  }
+
+  if (service.service_type === '_home-assistant._tcp.local.') {
+    const internalUrl = service.txt.find((record) => record.key === 'internal_url')?.val?.trim()
+    if (internalUrl !== undefined && internalUrl !== '') urls.add(internalUrl)
   }
 
   return [...urls]

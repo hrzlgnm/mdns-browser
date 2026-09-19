@@ -157,7 +157,7 @@
               type="button"
               class="themed-button themed-button-small"
               onclick={() => {
-                if (urls.length === 1) void openUrl(urls[0] ?? '')
+                if (urls.length === 1) void openUrl(urls[0])
                 else if (urls.length > 1) menuOpen = !menuOpen
               }}
               disabled={urls.length === 0}
@@ -174,12 +174,11 @@
                 role="presentation"
                 onclick={() => (menuOpen = false)}
               ></div>
-              <div class="url-menu" role="menu">
+              <div class="url-menu">
                 {#each urls as url (url)}
                   <button
                     type="button"
                     class="url-menu-item"
-                    role="menuitem"
                     onclick={() => {
                       menuOpen = false
                       void openUrl(url)
