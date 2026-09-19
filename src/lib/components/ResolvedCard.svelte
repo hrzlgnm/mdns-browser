@@ -35,6 +35,7 @@
 
   let showDetails = $state(false)
   let menuOpen = $state(false)
+  let menuContainer: HTMLSpanElement | undefined
   let verifying = $state(false)
   let verifyTimer: ReturnType<typeof setTimeout> | undefined = undefined
 
@@ -73,12 +74,21 @@
       verifying = false
     }, VERIFY_TIMEOUT_MS)
   }
+
+  function openServiceUrl(url: string) {
+    void openUrl(url).catch((e) => console.warn('[mdns-browser] failed to open URL:', e))
+  }
 </script>
 
 <svelte:window
   onkeydown={(e) => {
     if (e.key === 'Escape' && (showDetails || menuOpen)) {
       showDetails = false
+      menuOpen = false
+    }
+  }}
+  onclick={(e) => {
+    if (menuVisible && menuContainer !== undefined && !menuContainer.contains(e.target as Node)) {
       menuOpen = false
     }
   }}
@@ -154,12 +164,12 @@
             {/if}
             Verify
           </button>
-          <span class="url-menu-container">
+          <span class="url-menu-container" bind:this={menuContainer}>
             <button
               type="button"
               class="themed-button themed-button-small"
               onclick={() => {
-                if (urls.length > 0) void openUrl(urls[0])
+                if (urls.length > 0) openServiceUrl(urls[0])
               }}
               disabled={urls.length === 0}
             >
@@ -179,11 +189,6 @@
               </button>
             {/if}
             {#if menuVisible}
-              <div
-                class="url-menu-overlay"
-                role="presentation"
-                onclick={() => (menuOpen = false)}
-              ></div>
               <div class="url-menu">
                 {#each alternativeUrls as url (url)}
                   <button
@@ -191,7 +196,7 @@
                     class="url-menu-item"
                     onclick={() => {
                       menuOpen = false
-                      void openUrl(url)
+                      openServiceUrl(url)
                     }}
                   >
                     {url}
@@ -288,11 +293,6 @@
     background: var(--bg-secondary);
     color: var(--accent);
     outline: none;
-  }
-  .url-menu-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
   }
   .dialog-overlay {
     position: fixed;
