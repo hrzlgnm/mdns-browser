@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.3](https://github.com/hrzlgnm/mdns-browser/compare/v2.3.2...v2.3.3) (2026-09-19)
+
+
+### Bug Fixes
+
+* allow opening http(s) urls via the opener plugin ([#2745](https://github.com/hrzlgnm/mdns-browser/issues/2745)) ([1325207](https://github.com/hrzlgnm/mdns-browser/commit/1325207ad327c858125377ef500be54b83d8a330))
+* start type discovery only after listeners attach ([#2746](https://github.com/hrzlgnm/mdns-browser/issues/2746)) ([efb64c2](https://github.com/hrzlgnm/mdns-browser/commit/efb64c229762d1f1c575fa843fad0a131f376705))
+
+
+### Dependencies
+
+* update dependency prettier to v3.9.7 ([#2748](https://github.com/hrzlgnm/mdns-browser/issues/2748)) ([0ce093d](https://github.com/hrzlgnm/mdns-browser/commit/0ce093da2f73cd2a2215f45403ddd8fb4c766113))
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 6c55263 ([#2744](https://github.com/hrzlgnm/mdns-browser/issues/2744)) ([22ef495](https://github.com/hrzlgnm/mdns-browser/commit/22ef495e780207520e4e1f05fb17e406106a4f0f))
+* update hrzlgnm/actions action to v2.14.9 ([#2743](https://github.com/hrzlgnm/mdns-browser/issues/2743)) ([b990e61](https://github.com/hrzlgnm/mdns-browser/commit/b990e617f30a407a49e29075b4a77a76b405ff3b))
+* update rust crate webkit2gtk-nvidia-quirk to v2.2.0 ([#2740](https://github.com/hrzlgnm/mdns-browser/issues/2740)) ([debc572](https://github.com/hrzlgnm/mdns-browser/commit/debc57208395f4cacc5b89c1ca20a65e26a4ed62))
+* update ubuntu:latest docker digest to da6fc2b ([#2742](https://github.com/hrzlgnm/mdns-browser/issues/2742)) ([32da99f](https://github.com/hrzlgnm/mdns-browser/commit/32da99f3293b9eaf812609e935ad092909925263))
+
 ## [2.3.2](https://github.com/hrzlgnm/mdns-browser/compare/v2.3.1...v2.3.2) (2026-09-18)
 
 
