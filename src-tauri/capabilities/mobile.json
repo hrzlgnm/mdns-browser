@@ -11,6 +11,7 @@
         "core:window:allow-set-theme",
         "clipboard-manager:allow-write-text",
         "opener:allow-open-url",
+        "opener:allow-default-urls",
         "store:default",
         "android-update:default",
         "log:default"
