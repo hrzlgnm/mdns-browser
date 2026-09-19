@@ -159,13 +159,13 @@ jobs:
     needs:
       - check-release
     if: always() && needs.check-release.outputs.is_release != 'true'
-    uses: hrzlgnm/actions/.github/workflows/typos-reusable.yml@03b79955b43e4b4ae1678541e9d315d4f24c847d # v2.14.8
+    uses: hrzlgnm/actions/.github/workflows/typos-reusable.yml@0bb9559803ab259be48398d4137dcec658d45bf9 # v2.14.9
 
   actionlint:
     needs:
       - check-release
     if: always() && needs.check-release.outputs.is_release != 'true'
-    uses: hrzlgnm/actions/.github/workflows/actionlint-reusable.yml@03b79955b43e4b4ae1678541e9d315d4f24c847d # v2.14.8
+    uses: hrzlgnm/actions/.github/workflows/actionlint-reusable.yml@0bb9559803ab259be48398d4137dcec658d45bf9 # v2.14.9
 
   aur:
     name: AUR
@@ -247,7 +247,7 @@ jobs:
       contents: read # needed to checkout code for docker build
       packages: write # needed to push to GHCR
 
-    uses: hrzlgnm/actions/.github/workflows/docker-reusable.yml@03b79955b43e4b4ae1678541e9d315d4f24c847d # v2.14.8
+    uses: hrzlgnm/actions/.github/workflows/docker-reusable.yml@0bb9559803ab259be48398d4137dcec658d45bf9 # v2.14.9
     with:
       branch: ${{ needs.changes.outputs.branch }}
 
