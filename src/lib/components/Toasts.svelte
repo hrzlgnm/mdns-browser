@@ -28,9 +28,9 @@
     gap: 0.25rem;
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
-    background: var(--colorNeutralBackground1, #605e5c);
-    color: var(--colorNeutralForeground1, #fff);
-    box-shadow: var(--shadow16, 0 0 8px rgba(0, 0, 0, 0.4));
+    background: var(--accent);
+    color: var(--button-font);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
     overflow-wrap: anywhere;
   }
 </style>
