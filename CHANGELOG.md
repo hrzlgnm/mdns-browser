@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.0...v2.5.1) (2026-09-20)
+
+
+### Bug Fixes
+
+* balance card table label/value hierarchy ([#2755](https://github.com/hrzlgnm/mdns-browser/issues/2755)) ([8012b13](https://github.com/hrzlgnm/mdns-browser/commit/8012b138e6c58527095edd304adaabe2e21e11b2))
+* theme buttons for all presets ([#2754](https://github.com/hrzlgnm/mdns-browser/issues/2754)) ([8a1ff60](https://github.com/hrzlgnm/mdns-browser/commit/8a1ff6012c641ca3d5d641b161a7365f7358c77c))
+
 ## [2.5.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.4.0...v2.5.0) (2026-09-20)
 
 
