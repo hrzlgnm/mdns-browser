@@ -184,8 +184,8 @@ function usableIp(address: ScopedAddr): string | null {
 
 // Gathers every URL a service can be opened with, in priority order: for
 // http(s) services one per usable address (the first is the primary), then
-// any http(s) TXT values. Deduplicated in insertion order; empty when the
-// service is not openable.
+// the hostname variant, then any http(s) TXT values. Deduplicated in
+// insertion order; empty when the service is not openable.
 export function getOpenUrls(service: ResolvedService): string[] {
   const urls = new Set<string>()
 
@@ -196,6 +196,10 @@ export function getOpenUrls(service: ResolvedService): string[] {
       const ip = usableIp(addr)
       if (ip === null) continue
       urls.add(`${scheme}://${formatAddress(ip)}:${service.port}${path}`)
+    }
+    const hostname = dropTrailingDot(service.hostname)
+    if (hostname !== '') {
+      urls.add(`${scheme}://${hostname}:${service.port}${path}`)
     }
   }
 
