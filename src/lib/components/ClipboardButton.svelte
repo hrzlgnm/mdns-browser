@@ -52,7 +52,7 @@
     border: 1px solid transparent;
     border-radius: 4px;
     padding: 1px 4px;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     cursor: pointer;
   }
   button:hover {
