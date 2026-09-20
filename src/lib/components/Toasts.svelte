@@ -30,7 +30,7 @@
     border-radius: 0.5rem;
     background: var(--colorNeutralBackground1, #605e5c);
     color: var(--colorNeutralForeground1, #fff);
-    box-shadow: var(--shadow16, 0 0 8px rgba(0, 0, 0, 0.4));
+    box-shadow: var(--shadow-toast);
     overflow-wrap: anywhere;
   }
 </style>

@@ -275,7 +275,7 @@
     border-radius: 4px;
     background: var(--bg-primary);
     color: var(--text-primary);
-    box-shadow: var(--shadow16, 0 4px 16px rgba(0, 0, 0, 0.5));
+    box-shadow: var(--shadow-elevated);
   }
   .url-menu-item {
     display: block;
