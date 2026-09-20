@@ -13,3 +13,6 @@
 # Node dependencies and built JS bindings inside Tauri plugin packages
 **/node_modules/
 **/dist-js/
+
+# Frontend unit test reports (consumed by the CI JUnit Report step)
+/test-results/

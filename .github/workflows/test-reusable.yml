@@ -84,3 +84,13 @@ jobs:
         shell: bash
         run: |
           pnpm run test
+
+      - name: 📋 JUnit Report
+        if: always()
+        uses: mikepenz/action-junit-report@a9170d5795813c01ab4901ffb045b52bab4ab09d # v6
+        with:
+          report_paths: "**/junit.xml"
+          fail_on_parse_error: true
+          require_tests: true
+          include_passed: true
+          check_name: "🌐 JUnit Report"
