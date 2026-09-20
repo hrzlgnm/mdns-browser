@@ -30,7 +30,7 @@
     border-radius: 0.5rem;
     background: var(--accent);
     color: var(--button-font);
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow16, 0 0 8px rgba(0, 0, 0, 0.4));
     overflow-wrap: anywhere;
   }
 </style>
