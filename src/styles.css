@@ -554,6 +554,7 @@ label:has(input[type='checkbox']:disabled) input[type='checkbox']:disabled {
 }
 .card-table td:first-child {
   color: var(--text-muted);
+  font-size: 0.85em;
 }
 .themed-badge {
   display: inline-block;
