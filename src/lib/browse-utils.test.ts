@@ -91,6 +91,31 @@ describe('getOpenUrls', () => {
     ])
   })
 
+  it('skips link-local IPv6 addresses alongside usable ones', () => {
+    expect(getOpenUrls(service({ addresses: [addr('fe80::1'), addr('192.168.1.10')] }))).toEqual([
+      'http://192.168.1.10:8080/',
+      'http://test.local:8080/',
+    ])
+  })
+
+  it('treats the full fe80::/10 range as link-local', () => {
+    expect(
+      getOpenUrls(
+        service({
+          addresses: [addr('fe80::1'), addr('febf::1234'), addr('192.168.1.10')],
+        }),
+      ),
+    ).toEqual(['http://192.168.1.10:8080/', 'http://test.local:8080/'])
+  })
+
+  it('keeps non-link-local fe-prefixed IPv6 addresses', () => {
+    expect(getOpenUrls(service({ addresses: [addr('fec0::1'), addr('fe7f::1')] }))).toEqual([
+      'http://[fec0::1]:8080/',
+      'http://[fe7f::1]:8080/',
+      'http://test.local:8080/',
+    ])
+  })
+
   it('strips the scope id from scoped addresses', () => {
     expect(getOpenUrls(service({ addresses: [addr('192.168.1.10', '3')] }))).toEqual([
       'http://192.168.1.10:8080/',
