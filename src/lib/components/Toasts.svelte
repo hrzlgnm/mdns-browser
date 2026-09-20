@@ -28,9 +28,12 @@
     gap: 0.25rem;
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
-    background: var(--colorNeutralBackground1, #605e5c);
-    color: var(--colorNeutralForeground1, #fff);
+    border: 1px solid var(--border-primary);
+    background: var(--bg-secondary);
     box-shadow: var(--shadow-toast);
-    overflow-wrap: anywhere;
+    color: var(--text-secondary);
+  }
+  .toast strong {
+    color: var(--accent);
   }
 </style>
