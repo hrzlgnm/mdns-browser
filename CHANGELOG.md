@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.2](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.1...v2.5.2) (2026-09-20)
+
+
+### Bug Fixes
+
+* theme the toast with the selected theme's accent color ([#2757](https://github.com/hrzlgnm/mdns-browser/issues/2757)) ([e8fb1c9](https://github.com/hrzlgnm/mdns-browser/commit/e8fb1c9dcd2e2207e01a69bc5e48a8dc71d2db12))
+
+
+### Code Refactoring
+
+* replace dead shadow CSS variables with semantic ones ([#2758](https://github.com/hrzlgnm/mdns-browser/issues/2758)) ([6a85d8e](https://github.com/hrzlgnm/mdns-browser/commit/6a85d8e1af8e38fa3500162985ca57bedee3e330))
+
 ## [2.5.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.0...v2.5.1) (2026-09-20)
 
 
