@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.4.0...v2.5.0) (2026-09-20)
+
+
+### Features
+
+* harden updater with signed versions and no downgrades ([#2752](https://github.com/hrzlgnm/mdns-browser/issues/2752)) ([f047255](https://github.com/hrzlgnm/mdns-browser/commit/f047255d6b332e03be98eed878fa33dc63483ea4))
+* offer hostname URL in the extended URL menu ([#2753](https://github.com/hrzlgnm/mdns-browser/issues/2753)) ([04e0e86](https://github.com/hrzlgnm/mdns-browser/commit/04e0e86205e928ec34c59e911b8eda5bee28fa26))
+
+
+### Dependencies
+
+* update tauri monorepo ([#2750](https://github.com/hrzlgnm/mdns-browser/issues/2750)) ([f497f16](https://github.com/hrzlgnm/mdns-browser/commit/f497f1672483fedc41b0edc53b8e83f5da52581f))
+
 ## [2.4.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.3.3...v2.4.0) (2026-09-19)
 
 
