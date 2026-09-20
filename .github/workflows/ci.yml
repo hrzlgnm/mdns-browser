@@ -145,6 +145,7 @@ jobs:
             tests:
               - '.github/workflows/test-reusable.yml'
               - 'src-tauri/.config/nextest.toml'
+              - 'vitest.config.ts'
             winget:
               - '.github/workflows/winget-reusable.yml'
               - '.github/actions/latest-release-info/action.yml'
