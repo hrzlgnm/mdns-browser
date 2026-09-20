@@ -30,8 +30,11 @@
     border-radius: 0.5rem;
     border: 1px solid var(--border-primary);
     background: var(--bg-secondary);
-    box-shadow: var(--shadow-toast);
     color: var(--text-secondary);
+    box-shadow:
+      inset 5px 0 0 var(--accent),
+      var(--shadow-toast);
+    overflow-wrap: anywhere;
   }
   .toast strong {
     color: var(--accent);
