@@ -243,7 +243,7 @@ const catppuccinLatte: ThemePreset = {
     accent: '#1e66f5',
     accentHover: '#8839ef',
     buttonBg: '#2c56aa',
-    buttonHover: '#1e66f5',
+    buttonHover: '#3a6bc4',
     buttonActive: '#25488f',
     buttonFont: '#ffffff',
     serviceTypeBg: '#4472cf',
