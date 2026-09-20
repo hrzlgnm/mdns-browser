@@ -33,7 +33,7 @@
     color: var(--text-secondary);
     box-shadow:
       inset 5px 0 0 var(--accent),
-      var(--shadow16, 0 0 8px rgba(0, 0, 0, 0.4));
+      var(--shadow-toast);
     overflow-wrap: anywhere;
   }
   .toast strong {

@@ -48,6 +48,10 @@ details > summary {
   --offline-bg: #616161;
   --offline-border: #424242;
   --offline-font: #9e9e9e;
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-button: 0 1px 4px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-toast: 0 0 8px rgba(0, 0, 0, 0.4);
 }
 /* First-paint fallback for light OS themes before initTheme runs. */
 @media (prefers-color-scheme: light) {
@@ -179,7 +183,7 @@ body {
   width: 480px;
   border: 1px solid transparent;
   border-radius: 4px;
-  box-shadow: var(--shadow8, 0 2px 8px rgba(0, 0, 0, 0.4));
+  box-shadow: var(--shadow-card);
 }
 .mobile-resolved-service-grid {
   display: grid;
@@ -221,7 +225,7 @@ body {
   width: 520px;
   border: 1px solid transparent;
   border-radius: 4px;
-  box-shadow: var(--shadow8, 0 2px 8px rgba(0, 0, 0, 0.4));
+  box-shadow: var(--shadow-card);
 }
 /* A black shadow is invisible on the near-black surface, so lift dark
    cards onto the thaw background-6 surface instead. */
@@ -268,7 +272,7 @@ body {
   border-radius: 22px;
   height: 44px;
   min-width: 44px;
-  box-shadow: var(--shadow4, 0 1px 4px rgba(0, 0, 0, 0.4));
+  box-shadow: var(--shadow-button);
   background-color: var(--button-bg);
   color: var(--button-font);
   border: 1px solid transparent;
@@ -282,14 +286,14 @@ body {
   background-color: var(--button-hover);
   color: var(--button-font);
   border-color: transparent;
-  box-shadow: var(--shadow16, 0 4px 16px rgba(0, 0, 0, 0.5));
+  box-shadow: var(--shadow-elevated);
 }
 .back-top-button:hover:active,
 .back-top-button:active {
   background-color: var(--button-active);
   color: var(--button-font);
   border-color: transparent;
-  box-shadow: var(--shadow16, 0 4px 16px rgba(0, 0, 0, 0.5));
+  box-shadow: var(--shadow-elevated);
 }
 .back-top-button:focus-visible {
   outline: 2px solid var(--accent);
