@@ -552,6 +552,10 @@ label:has(input[type='checkbox']:disabled) input[type='checkbox']:disabled {
 .card-table tr + tr > td {
   border-top: 1px solid var(--bg-secondary);
 }
+.card-table .card-table-label {
+  color: var(--text-muted);
+  font-size: 0.85em;
+}
 .themed-badge {
   display: inline-block;
   padding: 0.1em 0.6em;
