@@ -426,25 +426,37 @@ input[type='checkbox'] {
 }
 input[type='checkbox']::before {
   content: '✓';
-  color: var(--button-font);
+  color: #000000;
   font-size: 12px;
   line-height: 1;
   transform: scale(0);
 }
 input[type='checkbox']:checked {
-  background: var(--button-bg);
+  background: var(--accent);
   border-color: transparent;
 }
 input[type='checkbox']:checked::before {
   transform: scale(1);
+}
+:root[data-theme='light'] input[type='checkbox']::before {
+  color: #ffffff;
+}
+/* Match the primary button fill on the dark and light presets. */
+:root[data-theme='dark'] input[type='checkbox']:checked {
+  background-color: #115ea3;
+}
+:root[data-theme='light'] input[type='checkbox']:checked {
+  background-color: #0f6cbd;
 }
 input[type='checkbox']:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
 /* Theme-aware via CSS variables so switching presets updates the
-   disabled treatment automatically with no per-theme rules. Opacity
-   lives on the label to avoid double-dimming nested inputs (0.6 x 0.6). */
+   disabled treatment automatically with no per-theme rules. The :root
+   prefix outranks the existing per-theme :checked/::before rules so a
+   disabled-checked box stays muted. Opacity lives on the label to avoid
+   double-dimming nested inputs (0.6 x 0.6). */
 :root input[type='checkbox']:disabled {
   background-color: var(--bg-tertiary);
   border-color: var(--border-primary);
