@@ -552,7 +552,7 @@ label:has(input[type='checkbox']:disabled) input[type='checkbox']:disabled {
 .card-table tr + tr > td {
   border-top: 1px solid var(--bg-secondary);
 }
-.card-table em {
+.card-table td:first-child {
   color: var(--text-muted);
 }
 .themed-badge {
