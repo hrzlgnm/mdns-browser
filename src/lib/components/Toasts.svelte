@@ -28,9 +28,15 @@
     gap: 0.25rem;
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
-    background: var(--accent);
-    color: var(--button-font);
-    box-shadow: var(--shadow16, 0 0 8px rgba(0, 0, 0, 0.4));
+    border: 1px solid var(--border-primary);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    box-shadow:
+      inset 5px 0 0 var(--accent),
+      var(--shadow16, 0 0 8px rgba(0, 0, 0, 0.4));
     overflow-wrap: anywhere;
+  }
+  .toast strong {
+    color: var(--accent);
   }
 </style>
