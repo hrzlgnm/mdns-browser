@@ -109,25 +109,25 @@
   <table class="card-table">
     <tbody>
       <tr>
-        <td>Hostname</td>
+        <td class="card-table-label">Hostname</td>
         <td class={$valueCellClass}>
           <ClipboardButton text={service.hostname} buttonText={hostnameDisplay} />
         </td>
       </tr>
       <tr>
-        <td>Port</td>
+        <td class="card-table-label">Port</td>
         <td class={$valueCellClass}>
           <ClipboardButton text={String(service.port)} buttonText={String(service.port)} />
         </td>
       </tr>
       <tr>
-        <td>Type</td>
+        <td class="card-table-label">Type</td>
         <td class={$valueCellClass}>
           <ClipboardButton text={service.service_type} buttonText={serviceTypeDisplay} />
         </td>
       </tr>
       <tr>
-        <td>IP</td>
+        <td class="card-table-label">IP</td>
         <td class={$valueCellClass}>
           <ClipboardButton
             text={firstAddress}
@@ -137,7 +137,7 @@
         </td>
       </tr>
       <tr>
-        <td>Updated at</td>
+        <td class="card-table-label">Updated at</td>
         <td class={$valueCellClass}>
           <ClipboardButton text={updatedAt} buttonText={updatedAt} />
         </td>
