@@ -2,7 +2,7 @@
   "name": "mdns-browser-frontend",
   "version": "2.5.2",
   "description": "SvelteKit frontend for mdns-browser",
-  "packageManager": "pnpm@12.4.2",
+  "packageManager": "pnpm@12.5.0",
   "type": "module",
   "scripts": {
     "dev": "vite dev",
