@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.3](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.2...v2.5.3) (2026-09-22)
+
+
+### Dependencies
+
+* lock file maintenance ([#2761](https://github.com/hrzlgnm/mdns-browser/issues/2761)) ([f9b9763](https://github.com/hrzlgnm/mdns-browser/commit/f9b97637a9c3457bb2a408e7eb144054ac8ce77f))
+* update archlinux:base-devel docker digest to 8745817 ([#2764](https://github.com/hrzlgnm/mdns-browser/issues/2764)) ([18028b0](https://github.com/hrzlgnm/mdns-browser/commit/18028b06623f99cf4aa601bf404ea8c45372ec93))
+* update dependency cargo-nextest to v0.9.146 ([#2765](https://github.com/hrzlgnm/mdns-browser/issues/2765)) ([c6a7a4c](https://github.com/hrzlgnm/mdns-browser/commit/c6a7a4c16ac81b84fb1e858ebdb3869f75bafad6))
+* update dependency eslint to v10.11.0 ([#2766](https://github.com/hrzlgnm/mdns-browser/issues/2766)) ([d07eb0f](https://github.com/hrzlgnm/mdns-browser/commit/d07eb0f7b87c0f5beb94f6bc4918101f56cba49e))
+* update dependency prettier to v3.9.8 ([#2760](https://github.com/hrzlgnm/mdns-browser/issues/2760)) ([0ffa39a](https://github.com/hrzlgnm/mdns-browser/commit/0ffa39abc426f9609978e2143abe3eb83dd47a59))
+* update dependency svelte to v5.57.1 ([#2769](https://github.com/hrzlgnm/mdns-browser/issues/2769)) ([a253a18](https://github.com/hrzlgnm/mdns-browser/commit/a253a1804692f5b8b1dfa645eb0014772c746092))
+* update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to dcf9a1a ([#2768](https://github.com/hrzlgnm/mdns-browser/issues/2768)) ([c58758b](https://github.com/hrzlgnm/mdns-browser/commit/c58758b6fa10a99bc1f4a5ee35bad1607f99a5b8))
+* update pnpm to v12.5.0 ([#2767](https://github.com/hrzlgnm/mdns-browser/issues/2767)) ([e7c4bbc](https://github.com/hrzlgnm/mdns-browser/commit/e7c4bbc342e8fd6f7af7e96bb79fddf41f33a26f))
+* update rust crate mdns-sd to v0.21.4 ([#2763](https://github.com/hrzlgnm/mdns-browser/issues/2763)) ([59b2e3a](https://github.com/hrzlgnm/mdns-browser/commit/59b2e3ac1711a54c330d81c140f063eafdbd0231))
+
 ## [2.5.2](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.1...v2.5.2) (2026-09-20)
 
 
