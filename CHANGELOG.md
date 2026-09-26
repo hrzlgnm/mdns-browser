@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.4](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.3...v2.5.4) (2026-09-26)
+
+
+### Dependencies
+
+* update dependency @sveltejs/vite-plugin-svelte to v7.3.1 ([#2777](https://github.com/hrzlgnm/mdns-browser/issues/2777)) ([5e912e9](https://github.com/hrzlgnm/mdns-browser/commit/5e912e94ee9f1c19d2fa3af244ca21a270a377de))
+* update dependency @tauri-apps/api to v2.12.0 ([#2778](https://github.com/hrzlgnm/mdns-browser/issues/2778)) ([a73de08](https://github.com/hrzlgnm/mdns-browser/commit/a73de081ac4c7d17c3e2a25dc4269cd6c0c62908))
+* update dependency prettier to v3.9.9 ([#2776](https://github.com/hrzlgnm/mdns-browser/issues/2776)) ([fb8b329](https://github.com/hrzlgnm/mdns-browser/commit/fb8b329795bac5d1073d13c9f0055371d6cb7f59))
+* update dependency typescript-eslint to v8.70.1 ([#2773](https://github.com/hrzlgnm/mdns-browser/issues/2773)) ([22d7caa](https://github.com/hrzlgnm/mdns-browser/commit/22d7caa7e2819a596b0ddb8043c795d5de7f734e))
+* update hrzlgnm/actions action to v2.14.10 ([#2774](https://github.com/hrzlgnm/mdns-browser/issues/2774)) ([cb8b952](https://github.com/hrzlgnm/mdns-browser/commit/cb8b95227660cd1050d6ca92325629e95d0e4bfe))
+* update pnpm to v12.5.1 ([#2770](https://github.com/hrzlgnm/mdns-browser/issues/2770)) ([15e3cfa](https://github.com/hrzlgnm/mdns-browser/commit/15e3cfad9e11c395ef7dc14cd2d70baac38a8e48))
+* update pnpm to v12.6.0 ([#2775](https://github.com/hrzlgnm/mdns-browser/issues/2775)) ([abad72d](https://github.com/hrzlgnm/mdns-browser/commit/abad72d3899081054ece76ddab6a7ae339895ff5))
+* update rust crate thiserror to v2.0.21 ([#2772](https://github.com/hrzlgnm/mdns-browser/issues/2772)) ([ffbb376](https://github.com/hrzlgnm/mdns-browser/commit/ffbb376382dfe1fc4a3e751e93a0fe00d3720951))
+
 ## [2.5.3](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.2...v2.5.3) (2026-09-22)
 
 
