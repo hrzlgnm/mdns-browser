@@ -2473,7 +2473,7 @@ dependencies = [
 
 [[package]]
 name = "mdns-browser"
-version = "2.5.3"
+version = "2.5.4"
 dependencies = [
  "chrono",
  "clap",
@@ -2573,7 +2573,7 @@ dependencies = [
 
 [[package]]
 name = "models"
-version = "2.5.3"
+version = "2.5.4"
 dependencies = [
  "serde",
  "serde_with",
