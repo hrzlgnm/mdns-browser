@@ -46,7 +46,7 @@ jobs:
       - lint-scripts
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:dcf9a1a944d438b4824ff851e5c4fc6d267b5b69f389d86e27a6455cfa693e79
+      image: ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1@sha256:56fbd743aaae1e694ef271187584f5922f34742b323c1814a21987e53bed154c
     strategy:
       fail-fast: false
       matrix:
