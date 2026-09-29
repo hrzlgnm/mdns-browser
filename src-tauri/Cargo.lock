@@ -4571,9 +4571,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-android-update"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "096510de0ace24d78ea52f047a24515c4a9d874cf9a9fb30bcdf9cb75788c33a"
+checksum = "9c33024f47780b93b44c20749e7507a7df58c997fab1304a40a93e6ec3cedf38"
 dependencies = [
  "log",
  "reqwest 0.12.28",
