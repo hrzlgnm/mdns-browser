@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.4](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.3...v2.5.4) (2026-09-29)
+
+
+### Dependencies
+
+* lock file maintenance ([#2782](https://github.com/hrzlgnm/mdns-browser/issues/2782)) ([52647f6](https://github.com/hrzlgnm/mdns-browser/commit/52647f638d4383a45198afa455e9900878738166))
+* update archlinux:base-devel docker digest to 51dd3d2 ([#2784](https://github.com/hrzlgnm/mdns-browser/issues/2784)) ([726cf5c](https://github.com/hrzlgnm/mdns-browser/commit/726cf5c30baf9900f14cbf5a673371a62c456c72))
+* update dependency @sveltejs/vite-plugin-svelte to v7.3.1 ([#2777](https://github.com/hrzlgnm/mdns-browser/issues/2777)) ([5e912e9](https://github.com/hrzlgnm/mdns-browser/commit/5e912e94ee9f1c19d2fa3af244ca21a270a377de))
+* update dependency @tauri-apps/api to v2.12.0 ([#2778](https://github.com/hrzlgnm/mdns-browser/issues/2778)) ([a73de08](https://github.com/hrzlgnm/mdns-browser/commit/a73de081ac4c7d17c3e2a25dc4269cd6c0c62908))
+* update dependency prettier to v3.9.9 ([#2776](https://github.com/hrzlgnm/mdns-browser/issues/2776)) ([fb8b329](https://github.com/hrzlgnm/mdns-browser/commit/fb8b329795bac5d1073d13c9f0055371d6cb7f59))
+* update dependency typescript-eslint to v8.70.1 ([#2773](https://github.com/hrzlgnm/mdns-browser/issues/2773)) ([22d7caa](https://github.com/hrzlgnm/mdns-browser/commit/22d7caa7e2819a596b0ddb8043c795d5de7f734e))
+* update dependency vite to v8.3.1 ([#2781](https://github.com/hrzlgnm/mdns-browser/issues/2781)) ([9b279e5](https://github.com/hrzlgnm/mdns-browser/commit/9b279e53094e6373967af999fa00e05a1272fb1f))
+* update dependency vitest to v5.0.2 ([#2783](https://github.com/hrzlgnm/mdns-browser/issues/2783)) ([c5a6951](https://github.com/hrzlgnm/mdns-browser/commit/c5a6951f52aed0e1565dff7747375cada54c4570))
+* update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 56fbd74 ([#2785](https://github.com/hrzlgnm/mdns-browser/issues/2785)) ([94d2dd7](https://github.com/hrzlgnm/mdns-browser/commit/94d2dd7f1b6d36d0b1de58b5ab96f4a47a1c303b))
+* update hrzlgnm/actions action to v2.14.10 ([#2774](https://github.com/hrzlgnm/mdns-browser/issues/2774)) ([cb8b952](https://github.com/hrzlgnm/mdns-browser/commit/cb8b95227660cd1050d6ca92325629e95d0e4bfe))
+* update pnpm to v12.5.1 ([#2770](https://github.com/hrzlgnm/mdns-browser/issues/2770)) ([15e3cfa](https://github.com/hrzlgnm/mdns-browser/commit/15e3cfad9e11c395ef7dc14cd2d70baac38a8e48))
+* update pnpm to v12.6.0 ([#2775](https://github.com/hrzlgnm/mdns-browser/issues/2775)) ([abad72d](https://github.com/hrzlgnm/mdns-browser/commit/abad72d3899081054ece76ddab6a7ae339895ff5))
+* update pnpm to v12.7.0 ([#2786](https://github.com/hrzlgnm/mdns-browser/issues/2786)) ([de0683a](https://github.com/hrzlgnm/mdns-browser/commit/de0683a48f8891be49ce35cd262544f8afcc7e12))
+* update rust crate serde_with to v3.24.0 ([#2779](https://github.com/hrzlgnm/mdns-browser/issues/2779)) ([51081da](https://github.com/hrzlgnm/mdns-browser/commit/51081dad1705e5a3e21420f0c6b25a3047dc1901))
+* update rust crate tauri-plugin-android-update to 0.3 ([#2787](https://github.com/hrzlgnm/mdns-browser/issues/2787)) ([e9ef209](https://github.com/hrzlgnm/mdns-browser/commit/e9ef2097c64eb036ed5e53b088ba1c792d02014e))
+* update rust crate thiserror to v2.0.21 ([#2772](https://github.com/hrzlgnm/mdns-browser/issues/2772)) ([ffbb376](https://github.com/hrzlgnm/mdns-browser/commit/ffbb376382dfe1fc4a3e751e93a0fe00d3720951))
+* update tauri monorepo ([#2780](https://github.com/hrzlgnm/mdns-browser/issues/2780)) ([6c31844](https://github.com/hrzlgnm/mdns-browser/commit/6c318441f1eb92738cbffac4405d9871547ef5d5))
+* update tauri monorepo ([#2788](https://github.com/hrzlgnm/mdns-browser/issues/2788)) ([7733bd1](https://github.com/hrzlgnm/mdns-browser/commit/7733bd1f44482f700d4803ff22bf027a3f4efa63))
+
 ## [2.5.3](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.2...v2.5.3) (2026-09-22)
 
 
