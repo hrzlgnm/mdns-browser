@@ -9,6 +9,18 @@ pnpm tauri android init
 # Overlay the committed launcher icons (also runs in CI after every init)
 cp -a src-tauri/icons/android/mipmap-* src-tauri/gen/android/app/src/main/res/
 
+# Hold targetSdk at 36 (also runs in CI after every init; re-run it against
+# an existing gen/ too). The Tauri 2.12 template bumps targetSdk to 37
+# (Android 17), which makes ACCESS_LOCAL_NETWORK mandatory and blocks
+# mDNS/local-network access by default. We do not publish to the Play Store,
+# so stay on 36 and keep the implicit local-network grant instead of
+# implementing the permission flow. compileSdk stays on the template default
+# (newer is fine); only targetSdk gates the enforcement.
+# Portable across GNU/BSD sed, then verify the pin took effect.
+sed -i.bak -E 's/targetSdk = [0-9]+/targetSdk = 36/' src-tauri/gen/android/app/build.gradle.kts
+rm -f src-tauri/gen/android/app/build.gradle.kts.bak
+grep -q 'targetSdk = 36' src-tauri/gen/android/app/build.gradle.kts
+
 # Build the Android app (APK + AAB)
 # The Tauri CLI sets up the NDK cross-compilation environment - always build via this
 # Restrict to the x86_64 ABI to keep local verification builds quick (only used for local verification;
