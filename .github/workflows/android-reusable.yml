@@ -108,7 +108,10 @@ jobs:
           # (Android 17), which makes ACCESS_LOCAL_NETWORK mandatory and
           # blocks mDNS/local-network access by default. We do not publish
           # to the Play Store, so stay on 36 and keep the implicit grant.
-          sed -E -i 's/targetSdk = [0-9]+/targetSdk = 36/' src-tauri/gen/android/app/build.gradle.kts
+          # Portable across GNU/BSD sed; fail loudly if the pin did not take.
+          sed -i.bak -E 's/targetSdk = [0-9]+/targetSdk = 36/' src-tauri/gen/android/app/build.gradle.kts
+          rm -f src-tauri/gen/android/app/build.gradle.kts.bak
+          grep -q 'targetSdk = 36' src-tauri/gen/android/app/build.gradle.kts || { echo "::error::targetSdk pin to 36 did not take effect" >&2; exit 1; }
           if [[ -n "$TAG_NAME" ]]; then
             pnpm tauri android build
           else
