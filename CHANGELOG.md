@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.6.0...v2.6.1) (2026-10-04)
+
+
+### Bug Fixes
+
+* group hrzlgnm plugin crate + npm API updates in one Renovate PR ([#2821](https://github.com/hrzlgnm/mdns-browser/issues/2821)) ([f3e545d](https://github.com/hrzlgnm/mdns-browser/commit/f3e545d0ee6a20bdb84f47482df6579715cd5a30))
+
+
+### Dependencies
+
+* update tauri-plugin-mdns to v0.3.2 ([#2823](https://github.com/hrzlgnm/mdns-browser/issues/2823)) ([1702bea](https://github.com/hrzlgnm/mdns-browser/commit/1702beac990c9855ef55de32656e2d9175890940))
+
 ## [2.6.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.6...v2.6.0) (2026-10-04)
 
 
