@@ -2,8 +2,8 @@
   import { writeText } from '@tauri-apps/plugin-clipboard-manager'
   import MdiCircle from '~icons/mdi/circle'
   import MdiClipboardText from '~icons/mdi/clipboard-text'
-  import { desktop } from '$lib/store'
-  import { copyToast } from '$lib/toast'
+  import { desktop } from '#lib/store.js'
+  import { copyToast } from '#lib/toast.js'
 
   let {
     text,

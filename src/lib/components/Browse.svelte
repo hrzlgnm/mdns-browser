@@ -1,18 +1,18 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte'
   import { get } from 'svelte/store'
-  import { browseMany, stopBrowse } from '$lib/api'
+  import { browseMany, stopBrowse } from '#lib/api.js'
   import {
     compareServices,
     isValidServiceType,
     matchesQuery,
     serviceTypeMatches,
     type SortKind,
-  } from '$lib/browse-utils'
-  import BackTop from '$lib/components/BackTop.svelte'
-  import ProtocolFlags from '$lib/components/ProtocolFlags.svelte'
-  import ResolvedCard from '$lib/components/ResolvedCard.svelte'
-  import { cssClass } from '$lib/css'
+  } from '#lib/browse-utils.js'
+  import BackTop from '#lib/components/BackTop.svelte'
+  import ProtocolFlags from '#lib/components/ProtocolFlags.svelte'
+  import ResolvedCard from '#lib/components/ResolvedCard.svelte'
+  import { cssClass } from '#lib/css.js'
   import {
     browsing,
     hasEnabledInterfaces,
@@ -20,7 +20,7 @@
     resolved,
     resolvedList,
     serviceTypes,
-  } from '$lib/store'
+  } from '#lib/store.js'
 
   // Matches the backend auto-focus delay (5s).
   const AUTO_FOCUS_DELAY_MS = 5000

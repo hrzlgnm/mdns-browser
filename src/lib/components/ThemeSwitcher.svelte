@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { currentTheme, setTheme, systemTheme } from '$lib/store'
-  import { themes } from '$lib/themes'
-  import type { ThemeName } from '$lib/themes'
+  import { currentTheme, setTheme, systemTheme } from '#lib/store.js'
+  import { themes } from '#lib/themes.js'
+  import type { ThemeName } from '#lib/themes.js'
 
   // Initialized and kept in sync by `initTheme` (called from Main);
   // this component only changes the selection.

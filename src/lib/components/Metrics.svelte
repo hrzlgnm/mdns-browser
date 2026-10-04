@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { cssClass } from '$lib/css'
-  import { metrics } from '$lib/store'
+  import { cssClass } from '#lib/css.js'
+  import { metrics } from '#lib/store.js'
 
   const layoutClass = cssClass('metrics-layout')
 
