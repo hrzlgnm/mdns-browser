@@ -7,7 +7,7 @@
   import MdiListBox from '~icons/mdi/list-box'
   import MdiOpenInNew from '~icons/mdi/open-in-new'
   import MdiUnfoldMoreVertical from '~icons/mdi/unfold-more-vertical'
-  import { verifyInstance } from '$lib/api'
+  import { verifyInstance } from '#lib/api.js'
   import {
     addrDisplay,
     addrIpString,
@@ -17,11 +17,11 @@
     getOpenUrls,
     toLocalTimestamp,
     txtDisplay,
-  } from '$lib/browse-utils'
-  import ClipboardButton from '$lib/components/ClipboardButton.svelte'
-  import ValuesTable from '$lib/components/ValuesTable.svelte'
-  import { cssClass } from '$lib/css'
-  import { browsing } from '$lib/store'
+  } from '#lib/browse-utils.js'
+  import ClipboardButton from '#lib/components/ClipboardButton.svelte'
+  import ValuesTable from '#lib/components/ValuesTable.svelte'
+  import { cssClass } from '#lib/css.js'
+  import { browsing } from '#lib/store.js'
   import type { ResolvedService } from 'tauri-plugin-mdns-api'
 
   // Matches VERIFY_TIMEOUT in src-tauri (5s).

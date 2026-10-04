@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { cssClass } from '$lib/css'
-  import { setInterfaces } from '$lib/api'
-  import { interfaces } from '$lib/store'
-  import { pushToast } from '$lib/toast'
+  import { cssClass } from '#lib/css.js'
+  import { setInterfaces } from '#lib/api.js'
+  import { interfaces } from '#lib/store.js'
+  import { pushToast } from '#lib/toast.js'
   import type { NetworkInterface } from 'tauri-plugin-mdns-api'
 
   let { disabled = false }: { disabled?: boolean } = $props()

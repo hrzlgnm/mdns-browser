@@ -129,7 +129,6 @@ jobs:
               - 'static/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
-              - 'svelte.config.js'
               - 'vite.config.js'
               - 'tsconfig.json'
               - 'eslint.config.js'

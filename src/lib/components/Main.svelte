@@ -1,15 +1,20 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte'
   import type { UnlistenFn } from '@tauri-apps/api/event'
-  import { browseTypes, closeSplashscreen, requestLocalNetworkAccess, stopBrowse } from '$lib/api'
-  import About from '$lib/components/About.svelte'
-  import Browse from '$lib/components/Browse.svelte'
-  import Metrics from '$lib/components/Metrics.svelte'
-  import NetworkInterfaces from '$lib/components/NetworkInterfaces.svelte'
-  import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte'
-  import Toasts from '$lib/components/Toasts.svelte'
-  import { cssClass } from '$lib/css'
-  import { initLogger } from '$lib/logger'
+  import {
+    browseTypes,
+    closeSplashscreen,
+    requestLocalNetworkAccess,
+    stopBrowse,
+  } from '#lib/api.js'
+  import About from '#lib/components/About.svelte'
+  import Browse from '#lib/components/Browse.svelte'
+  import Metrics from '#lib/components/Metrics.svelte'
+  import NetworkInterfaces from '#lib/components/NetworkInterfaces.svelte'
+  import ThemeSwitcher from '#lib/components/ThemeSwitcher.svelte'
+  import Toasts from '#lib/components/Toasts.svelte'
+  import { cssClass } from '#lib/css.js'
+  import { initLogger } from '#lib/logger.js'
   import {
     browsing,
     initDesktop,
@@ -18,7 +23,7 @@
     initTheme,
     localNetworkAccess,
     setupEventListeners,
-  } from '$lib/store'
+  } from '#lib/store.js'
 
   const layoutClass = cssClass('outer-layout')
 

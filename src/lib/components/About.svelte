@@ -5,10 +5,10 @@
   import MdiDownloadCircleOutline from '~icons/mdi/download-circle-outline'
   import MdiGithub from '~icons/mdi/github'
   import MdiInboxArrowDown from '~icons/mdi/inbox-arrow-down'
-  import { canAutoUpdate, getVersion } from '$lib/api'
-  import { desktop } from '$lib/store'
-  import { pushToast } from '$lib/toast'
-  import { checkUpdate, closeUpdate, downloadAndInstall, type PendingUpdate } from '$lib/updater'
+  import { canAutoUpdate, getVersion } from '#lib/api.js'
+  import { desktop } from '#lib/store.js'
+  import { pushToast } from '#lib/toast.js'
+  import { checkUpdate, closeUpdate, downloadAndInstall, type PendingUpdate } from '#lib/updater.js'
 
   const GITHUB_BASE_URL = 'https://github.com/hrzlgnm/mdns-browser'
   const SHOW_NO_UPDATE_DURATION_MS = 3000
