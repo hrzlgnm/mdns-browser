@@ -1179,6 +1179,10 @@ pub fn run() {
             // time. Runtime decoration changes do not take effect on
             // Wayland/GTK (and X11) once the window is mapped, so tiling
             // Wayland compositors must start borderless from the start.
+            // The splashscreen is defined with `visible: false` and shown
+            // here so its titlebar state is set before it is first realized:
+            // on Wayland tao sets the titlebar after visibility, and
+            // gtk_window_set_titlebar() on a realized window warns.
             let main_window = create_main_window(app.handle())?;
 
             // Due to peculiarities of `tauri dev` mode, we need to close the
@@ -1192,6 +1196,8 @@ pub fn run() {
                         let _ = main_window.show();
                     });
                 }
+            } else if let Some(splashscreen_window) = app.get_webview_window("splashscreen") {
+                let _ = splashscreen_window.show();
             }
             Ok(())
         })
