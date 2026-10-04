@@ -1,5 +1,23 @@
 # Android Builds
 
+## Local-network permission in dev
+
+Android 17 blocks local-network access by default for apps targeting
+SDK 37, and in `android dev` even the frontend bootstrap goes through
+the LAN (Tauri proxies the dev server through `tauri://localhost`, so
+the Rust side fetches it over the network). Until the permission is
+granted the app cannot load at all — and the consent UI lives behind
+that same load — so grant it once per fresh install before starting:
+
+```bash
+# Install first (dev deploys com.github.hrzlgnm.mdns_browser.debug),
+# then grant; reinstalls preserve the grant, full uninstalls wipe it.
+adb shell pm grant com.github.hrzlgnm.mdns_browser.debug android.permission.ACCESS_LOCAL_NETWORK
+```
+
+Release builds bundle the frontend locally and always reach the
+in-app consent flow, so they need no such step.
+
 ## Commands
 
 ```bash

@@ -4581,9 +4581,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-mdns"
-version = "0.2.1"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f1de82a32c4e15d117aeea978013c499102dca582f2a0951f0b488569e5014d"
+checksum = "218694b49f89c1a85c62efa21c7a5493e759e812bdce6e2fdc5ca682677bbf72"
 dependencies = [
  "ipconfig",
  "log",

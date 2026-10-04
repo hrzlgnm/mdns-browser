@@ -1,7 +1,6 @@
 // Copyright 2026 hrzlgnm
 // SPDX-License-Identifier: MIT
-// Theme presets ported from zux. The types live here (rather than in
-// types.ts) because that file is generated from the Rust boundary types.
+// Theme presets ported from zux.
 
 export type PresetName =
   | 'dark'

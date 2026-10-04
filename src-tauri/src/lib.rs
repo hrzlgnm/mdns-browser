@@ -229,44 +229,6 @@ fn create_main_window(app: &AppHandle) -> Result<tauri::WebviewWindow, tauri::Er
 }
 
 #[cfg(desktop)]
-#[cfg(test)]
-mod args_tests {
-    use super::{foreign_crate::LevelFilter, Args};
-    use clap::Parser;
-
-    #[test]
-    fn test_log_level_parses_known_levels() {
-        assert_eq!("trace".parse(), Ok(LevelFilter::Trace));
-        assert_eq!("debug".parse(), Ok(LevelFilter::Debug));
-        assert_eq!("info".parse(), Ok(LevelFilter::Info));
-        assert_eq!("warn".parse(), Ok(LevelFilter::Warn));
-        assert_eq!("error".parse(), Ok(LevelFilter::Error));
-    }
-
-    #[test]
-    fn test_log_level_rejects_unknown_levels() {
-        assert!("verbose".parse::<LevelFilter>().is_err());
-        assert!("INFO".parse::<LevelFilter>().is_err());
-    }
-
-    #[test]
-    fn test_args_default_to_info_without_devtools_or_file_logging() {
-        let args = Args::try_parse_from(["mdns-browser"]).expect("To parse empty args");
-        assert_eq!(args.log_level, LevelFilter::Info);
-        assert!(!args.enable_devtools);
-        assert!(!args.log_to_file);
-    }
-
-    #[test]
-    fn test_args_enable_devtools_and_debug_logging() {
-        let args = Args::try_parse_from(["mdns-browser", "-D", "-l", "debug"])
-            .expect("To parse devtools args");
-        assert!(args.enable_devtools);
-        assert_eq!(args.log_level, LevelFilter::Debug);
-    }
-}
-
-#[cfg(desktop)]
 pub fn run() {
     use chrono::Utc;
     use tauri_plugin_log::{Target, TargetKind};
@@ -335,6 +297,8 @@ pub fn run() {
                         let _ = main_window.show();
                     });
                 }
+            } else if let Some(splashscreen_window) = app.get_webview_window("splashscreen") {
+                let _ = splashscreen_window.show();
             }
             Ok(())
         })
@@ -391,4 +355,42 @@ pub fn run_mobile() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(desktop)]
+#[cfg(test)]
+mod args_tests {
+    use super::{foreign_crate::LevelFilter, Args};
+    use clap::Parser;
+
+    #[test]
+    fn test_log_level_parses_known_levels() {
+        assert_eq!("trace".parse(), Ok(LevelFilter::Trace));
+        assert_eq!("debug".parse(), Ok(LevelFilter::Debug));
+        assert_eq!("info".parse(), Ok(LevelFilter::Info));
+        assert_eq!("warn".parse(), Ok(LevelFilter::Warn));
+        assert_eq!("error".parse(), Ok(LevelFilter::Error));
+    }
+
+    #[test]
+    fn test_log_level_rejects_unknown_levels() {
+        assert!("verbose".parse::<LevelFilter>().is_err());
+        assert!("INFO".parse::<LevelFilter>().is_err());
+    }
+
+    #[test]
+    fn test_args_default_to_info_without_devtools_or_file_logging() {
+        let args = Args::try_parse_from(["mdns-browser"]).expect("To parse empty args");
+        assert_eq!(args.log_level, LevelFilter::Info);
+        assert!(!args.enable_devtools);
+        assert!(!args.log_to_file);
+    }
+
+    #[test]
+    fn test_args_enable_devtools_and_debug_logging() {
+        let args = Args::try_parse_from(["mdns-browser", "-D", "-l", "debug"])
+            .expect("To parse devtools args");
+        assert!(args.enable_devtools);
+        assert_eq!(args.log_level, LevelFilter::Debug);
+    }
 }
