@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.6...v2.6.0) (2026-10-04)
+
+
+### Features
+
+* browse via tauri-plugin-mdns ([#2811](https://github.com/hrzlgnm/mdns-browser/issues/2811)) ([04ef9d2](https://github.com/hrzlgnm/mdns-browser/commit/04ef9d2c266da4dd4417aaea3362e82bf2b8aa9d))
+* migrate to SvelteKit v3 ([#2818](https://github.com/hrzlgnm/mdns-browser/issues/2818)) ([27d4384](https://github.com/hrzlgnm/mdns-browser/commit/27d4384f7f52d1f3762f397a0257a07c18357908))
+
+
+### Bug Fixes
+
+* exempt hrzlgnm plugin npm packages from Renovate minimum release age ([#2817](https://github.com/hrzlgnm/mdns-browser/issues/2817)) ([35fd14d](https://github.com/hrzlgnm/mdns-browser/commit/35fd14d05f6cbc3e35655df7cf930033451f33e9))
+
+
+### Dependencies
+
+* update dependency @sveltejs/adapter-static to v4 ([#2814](https://github.com/hrzlgnm/mdns-browser/issues/2814)) ([b6e2461](https://github.com/hrzlgnm/mdns-browser/commit/b6e246119c5079c4c2c1a050f9336a9cf46670e7))
+* update dependency tauri-plugin-mdns-api to v0.3.1 ([#2815](https://github.com/hrzlgnm/mdns-browser/issues/2815)) ([a696292](https://github.com/hrzlgnm/mdns-browser/commit/a696292357602ffa7bb09ed555d67e8d69590487))
+* update dependency vite to v8.3.2 ([#2809](https://github.com/hrzlgnm/mdns-browser/issues/2809)) ([3f4a379](https://github.com/hrzlgnm/mdns-browser/commit/3f4a37996b7f40cd3b85cc9291238717190d2e79))
+* update rust crate tauri-plugin-mdns to v0.3.1 ([#2813](https://github.com/hrzlgnm/mdns-browser/issues/2813)) ([5b67b27](https://github.com/hrzlgnm/mdns-browser/commit/5b67b2775afc796e39fc730dc1f5c6589d7a1f00))
+
+
+### Miscellaneous Chores
+
+* build Android releases on Java 21 ([#2812](https://github.com/hrzlgnm/mdns-browser/issues/2812)) ([a9f1dab](https://github.com/hrzlgnm/mdns-browser/commit/a9f1dabebc7e461a37be56328f2194898533cd9c))
+
 ## [2.5.6](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.5...v2.5.6) (2026-10-04)
 
 
