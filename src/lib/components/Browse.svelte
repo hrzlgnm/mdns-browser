@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte'
+  import { get } from 'svelte/store'
   import { browseMany, stopBrowse } from '$lib/api'
   import {
     compareServices,
@@ -89,6 +90,8 @@
         browsing.set(false)
         return
       }
+      // The user may have pressed Stop while the access check was pending.
+      if (!get(browsing)) return
       if (serviceTypeInput === '') {
         void browseMany($serviceTypes)
       } else {
