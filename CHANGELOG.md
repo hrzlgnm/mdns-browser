@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.6](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.5...v2.5.6) (2026-10-04)
+
+
+### Dependencies
+
+* update dependency globals to v17.13.0 ([#2804](https://github.com/hrzlgnm/mdns-browser/issues/2804)) ([9e2280a](https://github.com/hrzlgnm/mdns-browser/commit/9e2280abbd851afabe616b29cbd9fa6b5d1c3140))
+* update pnpm to v12.8.2 ([#2802](https://github.com/hrzlgnm/mdns-browser/issues/2802)) ([e0afa4b](https://github.com/hrzlgnm/mdns-browser/commit/e0afa4b130cdb53da210e7fa502b76f87e9e02e0))
+* update ubuntu:latest docker digest to f144425 ([#2803](https://github.com/hrzlgnm/mdns-browser/issues/2803)) ([6d5a213](https://github.com/hrzlgnm/mdns-browser/commit/6d5a2135d6015be7867ce32c13da9850ba5ac770))
+
 ## [2.5.5](https://github.com/hrzlgnm/mdns-browser/compare/v2.5.4...v2.5.5) (2026-10-03)
 
 
