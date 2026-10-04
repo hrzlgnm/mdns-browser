@@ -105,26 +105,20 @@
   })
 </script>
 
-{#if $localNetworkAccess === 'granted'}
-  <div class={$layoutClass}>
-    <div class="top-row">
-      <About />
-      <div class="theme-slot">
-        <ThemeSwitcher />
-      </div>
+<div class={$layoutClass}>
+  <div class="top-row">
+    <About />
+    <div class="theme-slot">
+      <ThemeSwitcher />
     </div>
+  </div>
+  {#if $localNetworkAccess === null}
+    <!-- Permission state still resolving; render nothing yet. -->
+  {:else if $localNetworkAccess === 'granted'}
     <Metrics />
     <NetworkInterfaces disabled={$browsing} />
     <Browse />
-  </div>
-{:else}
-  <div class={$layoutClass}>
-    <div class="top-row">
-      <About />
-      <div class="theme-slot">
-        <ThemeSwitcher />
-      </div>
-    </div>
+  {:else}
     <div class="access-panel">
       <h2>Local network access needed</h2>
       <p>
@@ -144,8 +138,8 @@
         <button type="button" class="themed-button" onclick={onRetryAccess}> Retry </button>
       </div>
     </div>
-  </div>
-{/if}
+  {/if}
+</div>
 <Toasts />
 
 <style>
