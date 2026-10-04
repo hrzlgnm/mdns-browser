@@ -79,7 +79,7 @@
                 "decorations": false,
                 "resizable": false,
                 "transparent": true,
-                "visible": true,
+                "visible": false,
                 "center": true,
                 "focus": false
             }
