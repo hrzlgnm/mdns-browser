@@ -45,6 +45,16 @@
             matchSourceUrls: ["https://github.com/tauri-apps/plugins-workspace"],
             groupName: "tauri monorepo",
         },
+        {
+            description: "Group tauri-plugin-mdns crate + JS API together (same release)",
+            matchSourceUrls: ["https://github.com/hrzlgnm/tauri-plugin-mdns"],
+            groupName: "tauri-plugin-mdns",
+        },
+        {
+            description: "Group tauri-plugin-android-update crate + JS API together (same release)",
+            matchSourceUrls: ["https://github.com/hrzlgnm/tauri-plugin-android-update"],
+            groupName: "tauri-plugin-android-update",
+        },
     ],
     customManagers: [
         {
