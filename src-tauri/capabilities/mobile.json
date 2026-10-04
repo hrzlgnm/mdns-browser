@@ -14,6 +14,7 @@
         "opener:allow-default-urls",
         "store:default",
         "android-update:default",
+        "mdns:default",
         "log:default"
     ],
     "platforms": [

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { dropLocalAndTrailingDot, dropTrailingDot, getOpenUrls } from './browse-utils'
-import type { ResolvedService, ScopedAddr } from './types'
+import type { ResolvedService, ScopedAddr } from 'tauri-plugin-mdns-api'
 
 function addr(ip: string, scope_id?: string): ScopedAddr {
   return { addr: ip, interfaces: [], scope_id: scope_id ?? null }

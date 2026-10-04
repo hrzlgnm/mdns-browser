@@ -15,6 +15,7 @@
         "opener:allow-default-urls",
         "process:allow-restart",
         "store:default",
+        "mdns:default",
         "log:default"
     ],
     "platforms": [

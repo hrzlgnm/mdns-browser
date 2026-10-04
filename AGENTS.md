@@ -7,25 +7,25 @@ Guidelines and commands for agentic coding agents working on the mdns-browser re
 This is a Tauri desktop application for browsing mDNS services with:
 - Rust backend (src-tauri/) using Tauri framework
 - Frontend at the repository root built with SvelteKit and pnpm
-- Shared models in src-tauri/crates/
 - Targets: Windows, macOS, Linux, Android, iOS
 
-mDNS functionality uses the `mdns-sd` crate. Release binaries are auditable
-(`cargo-auditable`). CI runs on Ubuntu, macOS, and Windows - keep changes
-cross-platform.
+mDNS functionality comes from the `tauri-plugin-mdns` crate
+(`tauri-plugin-mdns-api` on npm), which owns the discovery engine, the
+wire types, and the Android local-network permission handling. Release
+binaries are auditable (`cargo-auditable`). CI runs on Ubuntu, macOS,
+and Windows - keep changes cross-platform.
 
 ## Architecture
 
-The types in `src/lib/types.ts` are generated from the Rust
-boundary types in `src-tauri/crates/models` via ts-rs — never hand-edit them.
-Regenerate with `cargo test --manifest-path src-tauri/Cargo.toml -p models --lib ts_export::export_types`;
-the test runs prettier when pnpm is available and warns otherwise.
-CI fails on drift.
+The mDNS commands, events, and TypeScript types are owned by
+`tauri-plugin-mdns` — never reimplement them here. `src/lib/api.ts`
+re-exports the plugin's API so frontend imports keep a single seam;
+`ServiceTypes` is the only local alias (mirroring the plugin's Rust
+alias until the JS package exports it).
 
 ## Essential Commands
 
-This is a workspace with multiple crates - run pnpm commands from the
-repo root and cargo commands from `src-tauri/` (the workspace root).
+Run pnpm commands from the repo root and cargo commands from `src-tauri/`.
 
 ### Build and Run
 
@@ -46,7 +46,6 @@ cargo nextest run --profile ci --workspace
 
 # Run specific package tests
 cargo nextest run -p mdns-browser --profile ci
-cargo nextest run -p models --profile ci
 
 # Run a single test
 cargo nextest run --profile ci test_name
@@ -75,7 +74,6 @@ pnpm run check && \
 (cd src-tauri && cargo clippy --workspace --tests -- -D warnings) && \
 (cd src-tauri && cargo clippy --release --workspace --tests -- -D warnings) && \
 (cd src-tauri && cargo nextest run --profile ci --workspace) && \
-cargo test --manifest-path src-tauri/Cargo.toml -p models --lib ts_export::export_types && git diff --exit-code src/lib/types.ts && \
 actionlint .github/workflows/*.yml
 ```
 
@@ -149,10 +147,8 @@ All source files must include:
 - All structs crossing the frontend-backend boundary need `#[derive(Serialize, Deserialize)]`
 - Use `serde(rename_all = "camelCase")` for frontend compatibility
 - Dates use microsecond timestamps with `serde_with::DisplayFromStr`
-- Every boundary struct/enum additionally derives `ts_rs::TS` so
-  the `ts_export::export_types` test regenerates `src/lib/types.ts`;
-  fields whose wire type differs from the Rust type (e.g. micros-as-string)
-  need an explicit `#[ts(type = "string")]` override
+- mDNS wire types live in `tauri-plugin-mdns`; app-level boundary types
+  follow the same camelCase/micros-as-string conventions for consistency
 
 ### Testing Guidelines
 
@@ -175,11 +171,10 @@ All source files must include:
 ```text
 ├── src/                          # SvelteKit frontend (pnpm)
 │   ├── routes/                   # +page.svelte, +layout.ts (ssr = false)
-│   └── lib/                      # api.ts, store.ts, types.ts (generated), components/
+│   └── lib/                      # api.ts, store.ts, components/
 ├── static/                       # splashscreen.html, app icons source
 ├── src-tauri/                    # Tauri backend (cargo workspace root)
 │   ├── src/                      # Rust backend code
-│   ├── crates/models/            # Shared data structures and validation
 │   ├── tauri.conf.json           # Tauri configuration
 │   ├── Cargo.toml                # Workspace configuration
 │   └── .config/nextest.toml      # Test configuration

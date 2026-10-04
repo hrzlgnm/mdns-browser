@@ -1,7 +1,7 @@
 <script lang="ts">
   import { browseTypes, setProtocolFlags } from '$lib/api'
   import { protocolFlags } from '$lib/store'
-  import type { ProtocolFlags } from '$lib/types'
+  import type { ProtocolFlags } from 'tauri-plugin-mdns-api'
 
   let { disabled = false }: { disabled?: boolean } = $props()
 
