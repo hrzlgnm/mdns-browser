@@ -31,12 +31,9 @@ export type {
   ServiceRemovedEvent,
   ServiceResolvedEvent,
   ServiceTypeFoundEvent,
+  ServiceTypes,
   TxtRecord,
 } from 'tauri-plugin-mdns-api'
-
-// Mirrors the plugin's `ServiceTypes` Rust alias until
-// tauri-plugin-mdns-api exports it.
-export type ServiceTypes = Array<string>
 
 // App commands still implemented by the backend itself.
 

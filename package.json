@@ -28,7 +28,7 @@
     "@tauri-apps/plugin-store": "^2",
     "@tauri-apps/plugin-updater": "^2.10.1",
     "tauri-plugin-android-update-api": "^0.3.0",
-    "tauri-plugin-mdns-api": "^0.2.4"
+    "tauri-plugin-mdns-api": "^0.3.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
