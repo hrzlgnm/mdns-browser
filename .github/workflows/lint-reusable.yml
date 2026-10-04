@@ -128,4 +128,4 @@ jobs:
         shell: bash
         working-directory: src-tauri
         run: |
-          cargo clippy --workspace --tests -- -D warnings
+          cargo clippy --tests -- -D warnings

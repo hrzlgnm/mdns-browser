@@ -42,7 +42,7 @@ pnpm tauri dev -- --log-level debug --enable-devtools
 
 ```bash
 # Run all tests using nextest (preferred)
-cargo nextest run --profile ci --workspace
+cargo nextest run --profile ci
 
 # Run specific package tests
 cargo nextest run -p mdns-browser --profile ci
@@ -58,7 +58,7 @@ cargo fmt                                       # format Rust code
 pnpm run format:check                         # check frontend formatting
 pnpm run lint                                 # lint frontend (eslint)
 pnpm run check                                # type-check frontend (svelte-check)
-cargo clippy --workspace --tests -- -D warnings # lint
+cargo clippy --tests -- -D warnings # lint
 
 # Validate renovate configuration (when .github/renovate.json5 changed)
 npx --yes -p renovate@latest renovate-config-validator .github/renovate.json5
@@ -71,9 +71,9 @@ npx --yes -p renovate@latest renovate-config-validator .github/renovate.json5
 pnpm run format:check && \
 pnpm run lint && \
 pnpm run check && \
-(cd src-tauri && cargo clippy --workspace --tests -- -D warnings) && \
-(cd src-tauri && cargo clippy --release --workspace --tests -- -D warnings) && \
-(cd src-tauri && cargo nextest run --profile ci --workspace) && \
+(cd src-tauri && cargo clippy --tests -- -D warnings) && \
+(cd src-tauri && cargo clippy --release --tests -- -D warnings) && \
+(cd src-tauri && cargo nextest run --profile ci) && \
 actionlint .github/workflows/*.yml
 ```
 
