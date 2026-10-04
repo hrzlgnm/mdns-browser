@@ -2,7 +2,10 @@
   "extends": "$app/tsconfig",
   "compilerOptions": {
     "sourceMap": true,
-    "strict": true
+    "strict": true,
+    // $app/tsconfig sets types to ["$app/types"] only, which hides the
+    // @types/node globals used by the root config files in include above
+    "types": ["node", "$app/types"]
   },
   "include": ["src", "vite.config.js"]
 }

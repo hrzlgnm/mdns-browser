@@ -3,6 +3,9 @@
   "version": "2.5.6",
   "description": "SvelteKit frontend for mdns-browser",
   "packageManager": "pnpm@12.8.2",
+  "engines": {
+    "node": ">=22.17"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite dev",
@@ -38,6 +41,7 @@
     "@sveltejs/load-config": "0.2.3",
     "@sveltejs/vite-plugin-svelte": "7.3.1",
     "@tauri-apps/cli": "2.12.1",
+    "@types/node": "26.6.4",
     "eslint": "10.11.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-svelte": "3.23.0",
