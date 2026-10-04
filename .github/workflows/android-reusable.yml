@@ -104,18 +104,20 @@ jobs:
         run: |
           pnpm tauri android init
           cp -a src-tauri/icons/android/mipmap-* src-tauri/gen/android/app/src/main/res/
-          # Hold targetSdk at 36: the Tauri 2.12 template bumps it to 37
-          # (Android 17), which makes ACCESS_LOCAL_NETWORK mandatory and
-          # blocks mDNS/local-network access by default. We do not publish
-          # to the Play Store, so stay on 36 and keep the implicit grant.
-          # Portable across GNU/BSD sed; fail loudly if the pin did not take.
-          sed -i.bak -E 's/targetSdk = [0-9]+/targetSdk = 36/' src-tauri/gen/android/app/build.gradle.kts
-          rm -f src-tauri/gen/android/app/build.gradle.kts.bak
-          grep -q 'targetSdk = 36' src-tauri/gen/android/app/build.gradle.kts || { echo "::error::targetSdk pin to 36 did not take effect" >&2; exit 1; }
           if [[ -n "$TAG_NAME" ]]; then
             pnpm tauri android build
           else
             pnpm tauri android build --debug -t x86_64
+          fi
+          # The mDNS plugin declares ACCESS_LOCAL_NETWORK (mandatory on
+          # Android 17+ targeting SDK 37); fail loudly if the merged
+          # manifest lost it. (-r: GNU xargs, this job runs ubuntu-only;
+          # trailing grep requires at least one matching manifest.)
+          if ! find src-tauri/gen/android/app/build/intermediates -name AndroidManifest.xml -print0 \
+            | xargs -r -0 grep -l 'android.permission.ACCESS_LOCAL_NETWORK' \
+            | grep -q .; then
+            echo "::error::merged Android manifest lacks ACCESS_LOCAL_NETWORK" >&2
+            exit 1
           fi
 
       - name: 🔑 Extract android signing key

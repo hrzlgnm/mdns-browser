@@ -52,7 +52,7 @@ jobs:
 
       - name: 🔒 Sync Cargo.lock with the bumped Cargo.toml files
         shell: bash
-        run: cargo update --workspace --manifest-path src-tauri/Cargo.toml
+        run: cargo update --manifest-path src-tauri/Cargo.toml
 
       - name: 📤 Commit Cargo.lock if changed
         shell: bash

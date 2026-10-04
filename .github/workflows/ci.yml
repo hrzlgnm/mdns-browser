@@ -125,8 +125,6 @@ jobs:
               - '.github/docker/**'
             tauri:
               - '.github/actions/setup-*/**'
-              - 'src-tauri/crates/**/src/**'
-              - 'src-tauri/crates/**/Cargo.toml'
               - 'src/**'
               - 'static/**'
               - 'package.json'
@@ -135,7 +133,6 @@ jobs:
               - 'vite.config.js'
               - 'tsconfig.json'
               - 'eslint.config.js'
-              - 'src-tauri/crates/models/src/lib.rs'
               - 'src-tauri/Cargo.toml'
               - 'src-tauri/Cargo.lock'
               - 'src-tauri/src/**'

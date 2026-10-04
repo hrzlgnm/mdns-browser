@@ -1,5 +1,23 @@
 # Android Builds
 
+## Local-network permission in dev
+
+Android 17 blocks local-network access by default for apps targeting
+SDK 37, and in `android dev` even the frontend bootstrap goes through
+the LAN (Tauri proxies the dev server through `tauri://localhost`, so
+the Rust side fetches it over the network). Until the permission is
+granted the app cannot load at all — and the consent UI lives behind
+that same load — so grant it once per fresh install before starting:
+
+```bash
+# Install first (dev deploys com.github.hrzlgnm.mdns_browser.debug),
+# then grant; reinstalls preserve the grant, full uninstalls wipe it.
+adb shell pm grant com.github.hrzlgnm.mdns_browser.debug android.permission.ACCESS_LOCAL_NETWORK
+```
+
+Release builds bundle the frontend locally and always reach the
+in-app consent flow, so they need no such step.
+
 ## Commands
 
 ```bash
@@ -8,18 +26,6 @@ pnpm tauri android init
 
 # Overlay the committed launcher icons (also runs in CI after every init)
 cp -a src-tauri/icons/android/mipmap-* src-tauri/gen/android/app/src/main/res/
-
-# Hold targetSdk at 36 (also runs in CI after every init; re-run it against
-# an existing gen/ too). The Tauri 2.12 template bumps targetSdk to 37
-# (Android 17), which makes ACCESS_LOCAL_NETWORK mandatory and blocks
-# mDNS/local-network access by default. We do not publish to the Play Store,
-# so stay on 36 and keep the implicit local-network grant instead of
-# implementing the permission flow. compileSdk stays on the template default
-# (newer is fine); only targetSdk gates the enforcement.
-# Portable across GNU/BSD sed, then verify the pin took effect.
-sed -i.bak -E 's/targetSdk = [0-9]+/targetSdk = 36/' src-tauri/gen/android/app/build.gradle.kts
-rm -f src-tauri/gen/android/app/build.gradle.kts.bak
-grep -q 'targetSdk = 36' src-tauri/gen/android/app/build.gradle.kts
 
 # Build the Android app (APK + AAB)
 # The Tauri CLI sets up the NDK cross-compilation environment - always build via this

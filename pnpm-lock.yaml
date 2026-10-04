@@ -193,6 +193,9 @@ importers:
       tauri-plugin-android-update-api:
         specifier: ^0.3.0
         version: 0.3.0
+      tauri-plugin-mdns-api:
+        specifier: ^0.3.0
+        version: 0.3.0
     devDependencies:
       '@eslint/js':
         specifier: 10.0.1
@@ -1276,6 +1279,9 @@ packages:
 
   tauri-plugin-android-update-api@0.3.0:
     resolution: {integrity: sha512-hn8mgrByDSjjsjaZEZa6V+y405z9zqWxcAhLC8itnvDTgwnLUTmmkqzCMBppgA4SonFy1+nzyNrxsoZIag+VIQ==}
+
+  tauri-plugin-mdns-api@0.3.0:
+    resolution: {integrity: sha512-jy2O9des7HEGeO8rtCb8oNxPIb+FskWQLgwd9+0/Zs0zippl8of4Vz4kLnBkG8fPSH8ILmV7ded/wk6xRIPD1Q==}
 
   tinybench@6.2.0:
     resolution: {integrity: sha512-78U2TlB2CnVenajOFzf3BKSm0J6oz5L0NV7g32LCPccvYc0lbWvys4d3uUUCS2B1N8PAf2+aekR8i1KbC3HO7Q==}
@@ -2437,6 +2443,10 @@ snapshots:
       - '@typescript-eslint/types'
 
   tauri-plugin-android-update-api@0.3.0:
+    dependencies:
+      '@tauri-apps/api': 2.12.1
+
+  tauri-plugin-mdns-api@0.3.0:
     dependencies:
       '@tauri-apps/api': 2.12.1
 

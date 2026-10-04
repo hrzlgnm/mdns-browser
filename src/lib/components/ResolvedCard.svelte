@@ -22,7 +22,7 @@
   import ValuesTable from '$lib/components/ValuesTable.svelte'
   import { cssClass } from '$lib/css'
   import { browsing } from '$lib/store'
-  import type { ResolvedService } from '$lib/types'
+  import type { ResolvedService } from 'tauri-plugin-mdns-api'
 
   // Matches VERIFY_TIMEOUT in src-tauri (5s).
   const VERIFY_TIMEOUT_MS = 5000

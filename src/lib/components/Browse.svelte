@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte'
+  import { get } from 'svelte/store'
   import { browseMany, stopBrowse } from '$lib/api'
   import {
     compareServices,
@@ -12,7 +13,14 @@
   import ProtocolFlags from '$lib/components/ProtocolFlags.svelte'
   import ResolvedCard from '$lib/components/ResolvedCard.svelte'
   import { cssClass } from '$lib/css'
-  import { browsing, hasEnabledInterfaces, resolved, resolvedList, serviceTypes } from '$lib/store'
+  import {
+    browsing,
+    hasEnabledInterfaces,
+    initLocalNetworkAccess,
+    resolved,
+    resolvedList,
+    serviceTypes,
+  } from '$lib/store'
 
   // Matches the backend auto-focus delay (5s).
   const AUTO_FOCUS_DELAY_MS = 5000
@@ -75,11 +83,21 @@
     clearFocusTimer()
     resolved.set(new Map())
     browsing.set(true)
-    if (serviceTypeInput === '') {
-      void browseMany($serviceTypes)
-    } else {
-      void browseMany([serviceTypeInput])
-    }
+    void (async () => {
+      // Re-check access: a revocation mid-session silently starves
+      // discovery, so surface the blocking panel instead of browsing.
+      if ((await initLocalNetworkAccess()) !== 'granted') {
+        browsing.set(false)
+        return
+      }
+      // The user may have pressed Stop while the access check was pending.
+      if (!get(browsing)) return
+      if (serviceTypeInput === '') {
+        void browseMany($serviceTypes)
+      } else {
+        void browseMany([serviceTypeInput])
+      }
+    })()
   }
 
   function onStop() {

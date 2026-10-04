@@ -2,9 +2,16 @@ import { derived, get, writable } from 'svelte/store'
 import type { UnlistenFn } from '@tauri-apps/api/event'
 import { isTauri } from '@tauri-apps/api/core'
 import { Store } from '@tauri-apps/plugin-store'
+import type {
+  LocalNetworkState,
+  NetworkInterface,
+  ProtocolFlags,
+  ResolvedService,
+} from 'tauri-plugin-mdns-api'
 import {
   getProtocolFlags,
   isDesktop,
+  localNetworkStatus,
   onInterfacesChanged,
   onMetricsChanged,
   onServiceRemoved,
@@ -13,7 +20,7 @@ import {
   subscribeInterfaces,
   subscribeMetrics,
 } from './api'
-import type { NetworkInterface, ProtocolFlags, ResolvedService, ServiceTypes } from './types'
+import type { ServiceTypes } from './api'
 import { cssVarMap, defaultTheme, getThemeByName, isDarkTheme, themes } from './themes'
 import type { ThemeColors, ThemeName } from './themes'
 
@@ -27,6 +34,25 @@ export const metrics = writable<Record<string, number>>({})
 export const protocolFlags = writable<ProtocolFlags>({ ipv4: true, ipv6: true })
 export const desktop = writable<boolean>(true)
 export const browsing = writable<boolean>(false)
+
+// Local-network access gate (Android 17+ targeting SDK 37). `null` while
+// the native state is still being queried, so neither the app UI nor the
+// blocking panel flashes prematurely. Discovery only starts while granted;
+// anything else renders the blocking panel in Main.svelte. Off Android the
+// backend always reports granted.
+export const localNetworkAccess = writable<LocalNetworkState | null>(null)
+
+export async function initLocalNetworkAccess(): Promise<LocalNetworkState> {
+  try {
+    const state = await localNetworkStatus()
+    localNetworkAccess.set(state)
+    return state
+  } catch (e) {
+    console.warn('[mdns-browser] failed to query local network access:', e)
+    localNetworkAccess.set('denied')
+    return 'denied'
+  }
+}
 
 // ── Theme ──────────────────────────────────────────────────────────────────
 

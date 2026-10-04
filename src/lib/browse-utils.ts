@@ -1,7 +1,7 @@
-import type { ResolvedService, ScopedAddr, TxtRecord } from './types'
+import type { ResolvedService, ScopedAddr, TxtRecord } from 'tauri-plugin-mdns-api'
 
-// Pure helpers ported from the former Leptos `src/app/browse.rs` and the
-// `matches_query` / display impls in `crates/models`.
+// Pure helpers ported from the former Leptos `src/app/browse.rs`,
+// operating on the `tauri-plugin-mdns-api` wire types.
 
 export type SortKind =
   | 'InstanceAsc'

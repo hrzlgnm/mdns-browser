@@ -4,7 +4,7 @@ import {
   check as checkAndroidUpdate,
   downloadAndInstall as installAndroidUpdate,
 } from 'tauri-plugin-android-update-api'
-import type { UpdateMetadata } from './types'
+import type { UpdateMetadata } from 'tauri-plugin-android-update-api'
 
 // Pending update handle. Desktop carries the `Update` resource (which owns
 // the backend `rid`); Android carries plain metadata since the pending

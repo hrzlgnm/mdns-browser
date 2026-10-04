@@ -3,7 +3,7 @@
   import { setInterfaces } from '$lib/api'
   import { interfaces } from '$lib/store'
   import { pushToast } from '$lib/toast'
-  import type { NetworkInterface } from '$lib/types'
+  import type { NetworkInterface } from 'tauri-plugin-mdns-api'
 
   let { disabled = false }: { disabled?: boolean } = $props()
 

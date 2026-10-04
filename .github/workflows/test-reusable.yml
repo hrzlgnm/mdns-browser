@@ -50,7 +50,7 @@ jobs:
         shell: bash
         working-directory: src-tauri
         run: |
-          cargo --locked nextest run --workspace --profile ci
+          cargo --locked nextest run --profile ci
 
       - name: 📋 JUnit Report
         if: always()
