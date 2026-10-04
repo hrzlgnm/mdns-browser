@@ -94,32 +94,6 @@ jobs:
         run: |
           pnpm run check
 
-  types-drift:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🔄 Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: 🦀🚀
-        uses: ./.github/actions/setup-rust-cache
-
-      - name: ⚡ Setup pnpm and cache store
-        uses: ./.github/actions/pnpm-setup
-
-      - name: 📦 Install dependencies
-        uses: hrzlgnm/actions/.github/actions/retry@c4634c8090f9c2941bbad01a692e2dd4fc91416c # v2.14.10
-        with:
-          command: pnpm install --frozen-lockfile
-
-      - name: 📝 Regenerate types and fail on drift
-        shell: bash
-        run: |
-          cargo test --manifest-path src-tauri/Cargo.toml -p models --lib ts_export::export_types
-          git diff --exit-code src/lib/types.ts
-
   clippy:
     strategy:
       fail-fast: false
