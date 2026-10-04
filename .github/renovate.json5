@@ -32,6 +32,15 @@
             minimumReleaseAge: null,
         },
         {
+            description: "Remove 3-day minimumReleaseAge for hrzlgnm Tauri plugin npm packages to stay in sync with Cargo crates (mirrors pnpm-workspace.yaml minimumReleaseAgeExclude)",
+            matchDatasources: ["npm"],
+            matchPackageNames: [
+                "tauri-plugin-android-update-api",
+                "tauri-plugin-mdns-api",
+            ],
+            minimumReleaseAge: null,
+        },
+        {
             description: "Group Tauri plugins-workspace with tauri monorepo (group:tauriMonorepo only covers tauri, not plugins)",
             matchSourceUrls: ["https://github.com/tauri-apps/plugins-workspace"],
             groupName: "tauri monorepo",
