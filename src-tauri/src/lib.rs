@@ -10,9 +10,6 @@ use tauri::{AppHandle, Manager};
 #[cfg(all(target_os = "linux", desktop))]
 use webkit2gtk_nvidia_quirk::{apply_workaround_with_options, ApplyWorkaroundOptions};
 
-#[cfg(mobile)]
-use tauri::Manager;
-
 #[tauri::command]
 #[cfg(mobile)]
 fn is_desktop() -> bool {
