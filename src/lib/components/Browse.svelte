@@ -206,9 +206,8 @@
   }
 
   function openSortList() {
-    // Using the sort control counts as interacting: stop the tutorial timer
-    // so it cannot steal focus back to the service-type field mid-use.
-    clearFocusTimer()
+    // Any interaction already stops the tutorial timer via the global
+    // listeners registered on mount.
     sortOpen = true
     sortActiveIndex = sortOptions.findIndex((o) => o.value === sortValue)
   }
