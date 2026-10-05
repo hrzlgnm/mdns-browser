@@ -112,7 +112,7 @@ body {
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 2px;
+  gap: 3px;
 }
 .metric-item {
   border: 1px solid var(--border-primary);
