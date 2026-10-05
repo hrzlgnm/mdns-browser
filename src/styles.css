@@ -504,3 +504,42 @@ label:has(input[type='checkbox']:disabled) input[type='checkbox']:disabled {
   font-weight: 600;
   white-space: nowrap;
 }
+/* Custom dropdowns (service-type suggestions, theme selector): native
+   popups (datalist, select) render with OS styling and cannot be opened
+   programmatically, so suggestions render as a themed listbox instead. */
+.themed-combobox {
+  position: relative;
+  display: inline-block;
+}
+.themed-listbox {
+  position: absolute;
+  z-index: 100;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 16rem;
+  overflow-y: auto;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  box-shadow: var(--shadow-elevated);
+}
+.themed-listbox button {
+  display: block;
+  width: 100%;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  background: transparent;
+  color: var(--text-primary);
+  border: 0;
+  cursor: pointer;
+}
+.themed-listbox li.active button,
+.themed-listbox button:hover {
+  background: var(--bg-tertiary);
+}
