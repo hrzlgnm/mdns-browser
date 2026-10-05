@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.2](https://github.com/hrzlgnm/mdns-browser/compare/v2.6.1...v2.6.2) (2026-10-05)
+
+
+### Dependencies
+
+* lock file maintenance ([#2828](https://github.com/hrzlgnm/mdns-browser/issues/2828)) ([16502c4](https://github.com/hrzlgnm/mdns-browser/commit/16502c4f7e03520d7fa6e9491f9ab2442139e781))
+* update tauri-plugin-android-update to v0.3.1 ([#2826](https://github.com/hrzlgnm/mdns-browser/issues/2826)) ([f1d48a7](https://github.com/hrzlgnm/mdns-browser/commit/f1d48a7cb0c88f95506c7e787b85471c9c34dd28))
+* update tauri-plugin-mdns to 0.4 ([#2824](https://github.com/hrzlgnm/mdns-browser/issues/2824)) ([54b3c0c](https://github.com/hrzlgnm/mdns-browser/commit/54b3c0c6030ffd4d03aa6a671ae4e856c874d161))
+* update tauri-plugin-mdns to v0.4.1 ([#2827](https://github.com/hrzlgnm/mdns-browser/issues/2827)) ([7202e3d](https://github.com/hrzlgnm/mdns-browser/commit/7202e3d24a27ccdb71d70287ef0f9f5a4b57bf11))
+
 ## [2.6.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.6.0...v2.6.1) (2026-10-04)
 
 
