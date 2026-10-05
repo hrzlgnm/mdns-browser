@@ -9,6 +9,7 @@ import type {
   ResolvedService,
 } from 'tauri-plugin-mdns-api'
 import {
+  browseMany,
   getProtocolFlags,
   isDesktop,
   localNetworkStatus,
@@ -17,9 +18,9 @@ import {
   onServiceRemoved,
   onServiceResolved,
   onServiceTypeFound,
+  stopBrowse,
   subscribeInterfaces,
   subscribeMetrics,
-  verifyInstance,
 } from './api'
 import { deadInstanceNames } from './browse-utils'
 import type { ServiceTypes } from './api'
@@ -303,25 +304,35 @@ export async function setupEventListeners(): Promise<Array<UnlistenFn>> {
 const REFRESH_COOLDOWN_MS = 5000
 let lastRefreshAt = 0
 
-// Re-verifies instances marked dead while the app was suspended, so
-// still-present services flip alive again instead of lingering grey.
+// Restarts instance browsing on foregrounding: the querier's query loop
+// stalls while suspended (expiring records), and a suspended browse can
+// stay wedged after resume, so recycle it. stopBrowse keeps service-type
+// discovery and the multicast lock; browseMany re-queries every known
+// type and still-present instances resolve alive again.
 // No-op unless browsing with dead entries; focus storms share one run.
-export async function refreshDeadServices(): Promise<void> {
+export async function restartBrowsing(): Promise<void> {
   if (!get(browsing)) return
-  const names = deadInstanceNames(get(resolved))
-  if (names.length === 0) return
+  if (deadInstanceNames(get(resolved)).length === 0) return
   const now = Date.now()
   if (now - lastRefreshAt < REFRESH_COOLDOWN_MS) return
   lastRefreshAt = now
   // A revocation mid-session silently starves discovery, so surface the
-  // blocking panel instead of verifying.
+  // blocking panel instead of restarting.
   if ((await initLocalNetworkAccess()) !== 'granted') return
-  console.debug('[mdns-browser] re-verifying dead services after resume:', names)
-  // verify() sends an active query per instance; answers arrive as
-  // service-resolved and overwrite the dead entry via putResolved.
-  const results = await Promise.allSettled(names.map((name) => verifyInstance(name)))
-  const failed = results.filter((result) => result.status === 'rejected').length
-  if (failed > 0) {
-    console.debug('[mdns-browser] verify failed for services:', failed, 'of', names.length)
+  // The user may have pressed Stop while the access check was pending.
+  if (!get(browsing)) return
+  const types = get(serviceTypes)
+  if (types.length === 0) return
+  console.debug('[mdns-browser] restarting instance browsing after resume')
+  try {
+    await stopBrowse()
+  } catch (e) {
+    console.warn('[mdns-browser] failed to stop browsing for restart:', e)
+  }
+  if (!get(browsing)) return
+  try {
+    await browseMany(types)
+  } catch (e) {
+    console.warn('[mdns-browser] failed to restart browsing after resume:', e)
   }
 }

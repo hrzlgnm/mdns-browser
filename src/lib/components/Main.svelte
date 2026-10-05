@@ -22,7 +22,7 @@
     initProtocolFlags,
     initTheme,
     localNetworkAccess,
-    refreshDeadServices,
+    restartBrowsing,
     setupEventListeners,
   } from '#lib/store.js'
 
@@ -85,15 +85,15 @@
     window.addEventListener('dragover', onDragOver)
     window.addEventListener('drop', onDrop)
 
-    // Re-verify dead entries on every foregrounding (see deadInstanceNames
+    // Restart instance browsing on every foregrounding (see restartBrowsing
     // for why suspension expires records). visibilitychange covers mobile
     // activity pause/resume; the Tauri focus event is the reliable signal
     // when a suspended WebView skips DOM visibility toggles.
     // focus/pageshow cover desktop and bfcache.
     const onVisibility = () => {
-      if (document.visibilityState === 'visible') void refreshDeadServices()
+      if (document.visibilityState === 'visible') void restartBrowsing()
     }
-    const onForeground = () => void refreshDeadServices()
+    const onForeground = () => void restartBrowsing()
     document.addEventListener('visibilitychange', onVisibility)
     window.addEventListener('focus', onForeground)
     window.addEventListener('pageshow', onForeground)
@@ -101,7 +101,7 @@
       try {
         const { getCurrentWindow } = await import('@tauri-apps/api/window')
         return await getCurrentWindow().onFocusChanged(({ payload: focused }) => {
-          if (focused) void refreshDeadServices()
+          if (focused) void restartBrowsing()
         })
       } catch (e) {
         console.warn('[mdns-browser] failed to listen for window focus:', e)
