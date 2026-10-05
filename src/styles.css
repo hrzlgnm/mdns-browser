@@ -112,12 +112,14 @@ body {
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0px;
+  gap: 3px;
 }
 .metric-item {
-  border: 1px solid #808080;
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
   padding: 2px 5px 2px 5px;
   min-width: 160px;
+  font-size: 13px;
 }
 .resolved-service-card-title {
   white-space: nowrap;
