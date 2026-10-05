@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.6.2...v2.7.0) (2026-10-05)
+
+
+### Features
+
+* use themed custom dropdown for theme selector ([#2836](https://github.com/hrzlgnm/mdns-browser/issues/2836)) ([68e0736](https://github.com/hrzlgnm/mdns-browser/commit/68e0736213238480d272424df55faefce43c8a38))
+
+
+### Bug Fixes
+
+* **aur:** drop removed models package from source build tests ([#2829](https://github.com/hrzlgnm/mdns-browser/issues/2829)) ([0fd7032](https://github.com/hrzlgnm/mdns-browser/commit/0fd70322b69ecb5e36b0bab7e7fc7fc82cb933f5))
+* **aur:** skip publish when AUR already matches the release ([#2831](https://github.com/hrzlgnm/mdns-browser/issues/2831)) ([9ad29af](https://github.com/hrzlgnm/mdns-browser/commit/9ad29af0e3670a91589b7a7cff17c41a5cd75ce2))
+* expand service-type suggestions on tutorial timer focus ([#2834](https://github.com/hrzlgnm/mdns-browser/issues/2834)) ([b8bac04](https://github.com/hrzlgnm/mdns-browser/commit/b8bac042c2a727dbdf3cd1983369b98ad9c5d70a))
+* **homebrew:** rebase tap checkout before pushing ([#2833](https://github.com/hrzlgnm/mdns-browser/issues/2833)) ([61cb740](https://github.com/hrzlgnm/mdns-browser/commit/61cb74008764dd5c8f4064fec80b44f9bde7d720))
+* show interface addresses as tooltip, not label text ([#2838](https://github.com/hrzlgnm/mdns-browser/issues/2838)) ([be8b310](https://github.com/hrzlgnm/mdns-browser/commit/be8b3102b1e51f41408c47d68228b982ed96db4e))
+* style metric items like themed inputs ([#2837](https://github.com/hrzlgnm/mdns-browser/issues/2837)) ([ec1f752](https://github.com/hrzlgnm/mdns-browser/commit/ec1f75261da164e460c82e298d2cdf75202e2428))
+
+
+### Dependencies
+
+* update hrzlgnm/actions action to v2.14.11 ([#2832](https://github.com/hrzlgnm/mdns-browser/issues/2832)) ([213e3c7](https://github.com/hrzlgnm/mdns-browser/commit/213e3c725b1a5a5069f84fa05d8bd7ad17facf29))
+* update mikepenz/action-junit-report digest to b7b80d7 ([#2840](https://github.com/hrzlgnm/mdns-browser/issues/2840)) ([daef856](https://github.com/hrzlgnm/mdns-browser/commit/daef85680bbfcc648b8dca36b6c8352855d70f51))
+
 ## [2.6.2](https://github.com/hrzlgnm/mdns-browser/compare/v2.6.1...v2.6.2) (2026-10-05)
 
 
