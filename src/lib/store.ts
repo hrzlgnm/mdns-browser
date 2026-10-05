@@ -311,6 +311,10 @@ let lastRefreshAt = 0
 // type and still-present instances resolve alive again.
 // No-op unless browsing with dead entries; focus storms share one run.
 export async function restartBrowsing(): Promise<void> {
+  // Mobile-only: only suspended phone apps stall the querier's query
+  // loop; desktop foregrounds must not recycle browsing (a naturally
+  // dead service would just re-query pointlessly on every focus).
+  if (get(desktop)) return
   if (!get(browsing)) return
   if (deadInstanceNames(get(resolved)).length === 0) return
   if (get(serviceTypes).length === 0) return
