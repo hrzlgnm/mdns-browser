@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.7.0...v2.8.0) (2026-10-05)
+
+
+### Features
+
+* fire service-type tutorial at most once ([#2843](https://github.com/hrzlgnm/mdns-browser/issues/2843)) ([9fadbaf](https://github.com/hrzlgnm/mdns-browser/commit/9fadbaf89fadc5586b17ba91d4726861075b1397))
+* use themed custom dropdown for sort order ([#2841](https://github.com/hrzlgnm/mdns-browser/issues/2841)) ([4a13b04](https://github.com/hrzlgnm/mdns-browser/commit/4a13b0472a443ee1ef1c5254277d9208f291bb0d))
+
+
+### Bug Fixes
+
+* expose theme dropdown state to assistive technology ([#2845](https://github.com/hrzlgnm/mdns-browser/issues/2845)) ([91b7704](https://github.com/hrzlgnm/mdns-browser/commit/91b77042de4bf0501356590d8e5fc710f3ede3b2))
+* make keyboard-navigated listbox option visible in light themes ([#2847](https://github.com/hrzlgnm/mdns-browser/issues/2847)) ([f4b94a7](https://github.com/hrzlgnm/mdns-browser/commit/f4b94a71d9d7388ed4c71cee480899ec7291ee45))
+* scroll listboxes to follow keyboard focus ([#2846](https://github.com/hrzlgnm/mdns-browser/issues/2846)) ([33c046e](https://github.com/hrzlgnm/mdns-browser/commit/33c046e3790b79d38527c4af629be605c09ed46e))
+* stop tutorial timer on first user interaction ([#2842](https://github.com/hrzlgnm/mdns-browser/issues/2842)) ([89e642c](https://github.com/hrzlgnm/mdns-browser/commit/89e642c4b022189f3714aecdc5cc0f3ee618cad6))
+
 ## [2.7.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.6.2...v2.7.0) (2026-10-05)
 
 
