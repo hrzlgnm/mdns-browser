@@ -175,7 +175,7 @@
     <ProtocolFlags disabled={$browsing} />
     <div>
       <span
-        class={`${inputStateClass} ${$inputClass} service-type-combobox`}
+        class={`${inputStateClass} ${$inputClass} themed-combobox`}
         onfocusout={onServiceTypeFocusOut}
       >
         <input
@@ -204,7 +204,7 @@
           onkeydown={onServiceTypeKeydown}
         />
         {#if dropdownVisible}
-          <ul id="service-type-listbox" class="service-type-listbox" role="listbox">
+          <ul id="service-type-listbox" class="themed-listbox" role="listbox">
             {#each suggestions as suggestion, i (suggestion)}
               <li
                 id={`service-type-option-${i}`}
@@ -272,42 +272,3 @@
     {/each}
   </div>
 </div>
-
-<style>
-  .service-type-combobox {
-    position: relative;
-    display: inline-block;
-  }
-  .service-type-listbox {
-    position: absolute;
-    z-index: 100;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin: 2px 0 0;
-    padding: 0;
-    list-style: none;
-    max-height: 16rem;
-    overflow-y: auto;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-primary);
-    border-radius: 4px;
-    box-shadow: var(--shadow-elevated);
-  }
-  .service-type-listbox button {
-    display: block;
-    width: 100%;
-    padding: 4px 8px;
-    font: inherit;
-    font-size: 14px;
-    text-align: left;
-    background: transparent;
-    color: var(--text-primary);
-    border: 0;
-    cursor: pointer;
-  }
-  .service-type-listbox li.active button,
-  .service-type-listbox button:hover {
-    background: var(--bg-tertiary);
-  }
-</style>
