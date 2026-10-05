@@ -31,6 +31,21 @@
 
   let serviceTypeInput = $state('')
   let sortValue = $state<SortKind>('HostnameAsc')
+  const sortOptions: Array<{ value: SortKind; label: string }> = [
+    { value: 'InstanceAsc', label: 'Instance (Ascending)' },
+    { value: 'InstanceDesc', label: 'Instance (Descending)' },
+    { value: 'HostnameAsc', label: 'Hostname (Ascending)' },
+    { value: 'HostnameDesc', label: 'Hostname (Descending)' },
+    { value: 'PortAsc', label: 'Port (Ascending)' },
+    { value: 'PortDesc', label: 'Port (Descending)' },
+    { value: 'ServiceTypeAsc', label: 'Service Type (Ascending)' },
+    { value: 'ServiceTypeDesc', label: 'Service Type (Descending)' },
+    { value: 'IpAddrAsc', label: 'IP (Ascending)' },
+    { value: 'IpAddrDesc', label: 'IP (Descending)' },
+    { value: 'TimestampAsc', label: 'Last Updated (Ascending)' },
+    { value: 'TimestampDesc', label: 'Last Updated (Descending)' },
+  ]
+  const sortLabel = $derived(sortOptions.find((o) => o.value === sortValue)?.label ?? sortValue)
   let query = $state('')
   let inputEl: HTMLInputElement | undefined = $state(undefined)
   let focusTimer: ReturnType<typeof setTimeout> | undefined = undefined
@@ -167,6 +182,56 @@
     if (next !== null && e.currentTarget instanceof Node && e.currentTarget.contains(next)) return
     closeDropdown()
   }
+
+  let sortOpen = $state(false)
+  let sortActiveIndex = $state(-1)
+  let sortButtonEl: HTMLButtonElement | undefined = $state(undefined)
+
+  function closeSort() {
+    sortOpen = false
+    sortActiveIndex = -1
+  }
+
+  function openSortList() {
+    sortOpen = true
+    sortActiveIndex = sortOptions.findIndex((o) => o.value === sortValue)
+  }
+
+  function chooseSort(value: SortKind) {
+    sortValue = value
+    closeSort()
+    sortButtonEl?.focus()
+  }
+
+  function onSortButtonKeydown(e: KeyboardEvent) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      if (!sortOpen) {
+        openSortList()
+      } else {
+        const delta = e.key === 'ArrowDown' ? 1 : -1
+        sortActiveIndex = (sortActiveIndex + delta + sortOptions.length) % sortOptions.length
+      }
+    } else if ((e.key === 'Enter' || e.key === ' ') && !sortOpen) {
+      e.preventDefault()
+      openSortList()
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      const selected = sortOptions[sortActiveIndex]
+      if (selected !== undefined) chooseSort(selected.value)
+      else closeSort()
+    } else if (e.key === 'Escape' && sortOpen) {
+      e.preventDefault()
+      closeSort()
+    }
+  }
+
+  function onSortFocusOut(e: FocusEvent) {
+    // Keep the listbox open while focus moves to one of its options.
+    const next = e.relatedTarget as Node | null
+    if (next !== null && e.currentTarget instanceof Node && e.currentTarget.contains(next)) return
+    closeSort()
+  }
 </script>
 
 <div class={$layoutClass}>
@@ -235,21 +300,44 @@
       <span class="themed-badge">{filtered.length}/{sortedServices.length}</span>
     </div>
     <div>
-      <span class="sort-label">Sort by</span>
-      <select class="themed-select" bind:value={sortValue}>
-        <option value="InstanceAsc">Instance (Ascending)</option>
-        <option value="InstanceDesc">Instance (Descending)</option>
-        <option value="HostnameAsc">Hostname (Ascending)</option>
-        <option value="HostnameDesc">Hostname (Descending)</option>
-        <option value="PortAsc">Port (Ascending)</option>
-        <option value="PortDesc">Port (Descending)</option>
-        <option value="ServiceTypeAsc">Service Type (Ascending)</option>
-        <option value="ServiceTypeDesc">Service Type (Descending)</option>
-        <option value="IpAddrAsc">IP (Ascending)</option>
-        <option value="IpAddrDesc">IP (Descending)</option>
-        <option value="TimestampAsc">Last Updated (Ascending)</option>
-        <option value="TimestampDesc">Last Updated (Descending)</option>
-      </select>
+      <span class="sort-label" id="sort-label">Sort by</span>
+      <span class="themed-combobox" onfocusout={onSortFocusOut}>
+        <button
+          type="button"
+          class="themed-select sort-button"
+          bind:this={sortButtonEl}
+          aria-labelledby="sort-label"
+          aria-haspopup="listbox"
+          aria-expanded={sortOpen}
+          aria-controls="sort-listbox"
+          onclick={() => (sortOpen ? closeSort() : openSortList())}
+          onkeydown={onSortButtonKeydown}
+        >
+          {sortLabel}
+        </button>
+        {#if sortOpen}
+          <ul id="sort-listbox" class="themed-listbox" role="listbox" aria-labelledby="sort-label">
+            {#each sortOptions as option, i (option.value)}
+              <li
+                id={`sort-option-${i}`}
+                role="option"
+                aria-selected={option.value === sortValue}
+                class:active={i === sortActiveIndex}
+              >
+                <button
+                  type="button"
+                  tabindex="-1"
+                  onmousedown={(e) => e.preventDefault()}
+                  onclick={() => chooseSort(option.value)}
+                  onmousemove={() => (sortActiveIndex = i)}
+                >
+                  {option.label}
+                </button>
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      </span>
       <input
         type="text"
         placeholder="Quick filter"
@@ -272,3 +360,12 @@
     {/each}
   </div>
 </div>
+
+<style>
+  .sort-button {
+    text-align: left;
+  }
+  .themed-listbox li[aria-selected='true'] button {
+    font-weight: 600;
+  }
+</style>
