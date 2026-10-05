@@ -44,6 +44,8 @@ jobs:
           repository: hrzlgnm/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           path: homebrew-tap
+          # Full history so the rebase below never hits a shallow boundary.
+          fetch-depth: 0
 
       - name: 📥 Download DMG Checksum
         uses: hrzlgnm/actions/.github/actions/retry@c4634c8090f9c2941bbad01a692e2dd4fc91416c # v2.14.10
@@ -89,4 +91,10 @@ jobs:
             else
               echo "No staged changes (already committed on previous retry or no update needed)"
             fi
-            git push
+            # Sibling repos push to the same tap repo concurrently, so a
+            # plain push can be rejected. Rebase onto the latest remote
+            # state first; each repo touches only its own cask file, so
+            # the rebase is conflict-free and a retried push converges.
+            git fetch origin
+            git rebase origin/main
+            git push origin HEAD:main
