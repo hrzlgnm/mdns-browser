@@ -37,6 +37,11 @@
     activeIndex = -1
   }
 
+  function openList() {
+    open = true
+    activeIndex = options.findIndex((o) => o.value === $currentTheme)
+  }
+
   function choose(value: ThemeName) {
     setTheme(value)
     close()
@@ -47,16 +52,14 @@
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault()
       if (!open) {
-        open = true
-        activeIndex = options.findIndex((o) => o.value === $currentTheme)
+        openList()
       } else {
         const delta = e.key === 'ArrowDown' ? 1 : -1
         activeIndex = (activeIndex + delta + options.length) % options.length
       }
     } else if ((e.key === 'Enter' || e.key === ' ') && !open) {
       e.preventDefault()
-      open = true
-      activeIndex = options.findIndex((o) => o.value === $currentTheme)
+      openList()
     } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       const selected = options[activeIndex]
