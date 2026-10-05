@@ -23,6 +23,7 @@ import {
   subscribeMetrics,
 } from './api'
 import { deadInstanceNames } from './browse-utils'
+import { pushToast } from './toast'
 import type { ServiceTypes } from './api'
 import { cssVarMap, defaultTheme, getThemeByName, isDarkTheme, themes } from './themes'
 import type { ThemeColors, ThemeName } from './themes'
@@ -338,5 +339,7 @@ export async function restartBrowsing(): Promise<void> {
     await browseMany(types)
   } catch (e) {
     console.warn('[mdns-browser] failed to restart browsing after resume:', e)
+    return
   }
+  pushToast('Browsing restarted', 'Service discovery resumed after the app was suspended')
 }
