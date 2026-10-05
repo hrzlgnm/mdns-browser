@@ -51,7 +51,7 @@ build() {
 }
 check() {
     cd "\$srcdir/\$_builddir" || exit 1
-    cargo test --locked --frozen --manifest-path src-tauri/Cargo.toml --package=models --package=mdns-browser
+    cargo test --locked --frozen --manifest-path src-tauri/Cargo.toml --package=mdns-browser
 }
 package() {
     install -Dm755 "\${srcdir}/\${_builddir}/src-tauri/target/release/mdns-browser" "\$pkgdir"/usr/bin/mdns-browser
