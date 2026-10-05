@@ -107,6 +107,9 @@
   }
 
   function onServiceTypeKeydown(e: KeyboardEvent) {
+    // Enter confirms an in-progress IME composition (keyCode 229 is the
+    // legacy Chromium marker), it must not select or browse.
+    if (e.key === 'Enter' && (e.isComposing || e.keyCode === 229)) return
     if (e.key === 'ArrowDown' && dropdownVisible) {
       e.preventDefault()
       activeIndex = (activeIndex + 1) % suggestions.length
