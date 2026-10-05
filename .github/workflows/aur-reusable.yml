@@ -35,7 +35,7 @@ jobs:
 
   lint-scripts:
     name: "🧹 Lint shell scripts"
-    uses: hrzlgnm/actions/.github/workflows/shell-lint-reusable.yml@c4634c8090f9c2941bbad01a692e2dd4fc91416c # v2.14.10
+    uses: hrzlgnm/actions/.github/workflows/shell-lint-reusable.yml@3b5eb26cd2ff15d176be2c8424f4e036550041a4 # v2.14.11
     with:
       runs-on: ubuntu-latest
       scripts-dir: packaging/aur
@@ -81,7 +81,7 @@ jobs:
           command: ./packaging/aur/resolve-sha256.sh
 
       - name: 📐 Generate PKGBUILD
-        uses: hrzlgnm/actions/.github/actions/retry@c4634c8090f9c2941bbad01a692e2dd4fc91416c # v2.14.10
+        uses: hrzlgnm/actions/.github/actions/retry@3b5eb26cd2ff15d176be2c8424f4e036550041a4 # v2.14.11
         env:
           SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}
@@ -95,20 +95,21 @@ jobs:
           command: su runner -c "./packaging/aur/lint-pkgbuild.sh"
 
       - name: 🧹 Check generated PKGBUILD
-        uses: hrzlgnm/actions/.github/actions/aur-makepkg-lint@c4634c8090f9c2941bbad01a692e2dd4fc91416c # v2.14.10
+        uses: hrzlgnm/actions/.github/actions/aur-makepkg-lint@3b5eb26cd2ff15d176be2c8424f4e036550041a4 # v2.14.11
         with:
           workdir: ~/lint
       - name: 🛠️ Setup AUR packaging
+        id: setup
         if: github.event.release.tag_name || inputs.tag_name
-        uses: hrzlgnm/actions/.github/actions/aur-setup@c4634c8090f9c2941bbad01a692e2dd4fc91416c # v2.14.10
+        uses: hrzlgnm/actions/.github/actions/aur-setup@3b5eb26cd2ff15d176be2c8424f4e036550041a4 # v2.14.11
         with:
           package-name: ${{ matrix.package.name }}
           release-version: ${{ needs.release-info.outputs.version }}
           deploy-key: ${{ secrets.AUR_DEPLOY_KEY }}
 
       - name: 🌀 Generate PKGBUILD update and publish
-        if: github.event.release.tag_name || inputs.tag_name
-        uses: hrzlgnm/actions/.github/actions/retry@c4634c8090f9c2941bbad01a692e2dd4fc91416c # v2.14.10
+        if: (github.event.release.tag_name || inputs.tag_name) && steps.setup.outputs.needs_update != 'false'
+        uses: hrzlgnm/actions/.github/actions/retry@3b5eb26cd2ff15d176be2c8424f4e036550041a4 # v2.14.11
         env:
           SHA256_EXE: ${{ steps.sha256sums.outputs.sha256_exe }}
           TAG_NAME: ${{ needs.release-info.outputs.tagName }}

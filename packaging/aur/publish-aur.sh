@@ -14,9 +14,9 @@
 #   TAG_NAME         release tag, e.g. v1.13.0
 #   NEEDS_EXE        "true" for mdns-browser-bin, anything else for mdns-browser
 #
-# Idempotent: regeneration overwrites and the commit happens only on actual
-# changes, while the push always runs, so a retry after a committed-but-
-# unpushed run just pushes instead of failing on an empty commit.
+# Idempotent: regeneration overwrites; a retry that finds the checkout
+# already in sync with origin exits before building, a retry after a
+# committed-but-unpushed run skips the second commit and just pushes.
 
 set -euo pipefail
 
@@ -33,18 +33,20 @@ else
     "$GENERATE_SCRIPT" "$RELEASE_VERSION" "$SHA256" "$TAG_NAME" >"${HOME}/aur/PKGBUILD"
 fi
 cd "${HOME}/aur" || exit 1
-if [[ -n "$(git status --porcelain)" ]]; then
+if [[ -z "$(git status --porcelain -- PKGBUILD .SRCINFO)" ]]; then
+    if git rev-parse --verify --quiet origin/master >/dev/null && [[ "$(git rev-parse HEAD)" == "$(git rev-parse origin/master)" ]]; then
+        echo "No changes (already published and up to date)"
+        exit 0
+    fi
+else
     makepkg --printsrcinfo >.SRCINFO
     makepkg
     makepkg --install --noconfirm
     git config user.name "hrzlgnm"
     git config user.email "hrzlgnm@users.noreply.github.com"
     git add PKGBUILD .SRCINFO
-    git commit -m "New upstream release $RELEASE_VERSION"
-else
-    echo "No changes (already committed on previous retry or up to date)"
+    if ! git diff --cached --quiet; then
+        git commit -m "New upstream release $RELEASE_VERSION"
+    fi
 fi
-# Always push: on retry after commit-but-push-failed the worktree is clean,
-# so exiting early would skip the push. A failed push stays a failed attempt
-# and is retried.
 git push origin master
