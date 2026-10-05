@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { dropLocalAndTrailingDot, dropTrailingDot, getOpenUrls } from './browse-utils'
+import {
+  deadInstanceNames,
+  dropLocalAndTrailingDot,
+  dropTrailingDot,
+  getOpenUrls,
+} from './browse-utils'
 import type { ResolvedService, ScopedAddr } from 'tauri-plugin-mdns-api'
 
 function addr(ip: string, scope_id?: string): ScopedAddr {
@@ -215,5 +220,28 @@ describe('getOpenUrls', () => {
       'http://192.168.1.10:8443/',
       'http://test.local:8443/',
     ])
+  })
+})
+
+describe('deadInstanceNames', () => {
+  it('returns an empty list when no services are dead', () => {
+    const services = new Map([
+      ['A._http._tcp.local.', service({ instance_fullname: 'A._http._tcp.local.' })],
+      ['B._http._tcp.local.', service({ instance_fullname: 'B._http._tcp.local.' })],
+    ])
+    expect(deadInstanceNames(services)).toEqual([])
+  })
+
+  it('returns only the dead instance names', () => {
+    const services = new Map([
+      ['A._http._tcp.local.', service({ instance_fullname: 'A._http._tcp.local.', dead: true })],
+      ['B._http._tcp.local.', service({ instance_fullname: 'B._http._tcp.local.' })],
+      ['C._http._tcp.local.', service({ instance_fullname: 'C._http._tcp.local.', dead: true })],
+    ])
+    expect(deadInstanceNames(services)).toEqual(['A._http._tcp.local.', 'C._http._tcp.local.'])
+  })
+
+  it('returns an empty list for an empty store', () => {
+    expect(deadInstanceNames(new Map())).toEqual([])
   })
 })

@@ -19,7 +19,9 @@ import {
   onServiceTypeFound,
   subscribeInterfaces,
   subscribeMetrics,
+  verifyInstance,
 } from './api'
+import { deadInstanceNames } from './browse-utils'
 import type { ServiceTypes } from './api'
 import { cssVarMap, defaultTheme, getThemeByName, isDarkTheme, themes } from './themes'
 import type { ThemeColors, ThemeName } from './themes'
@@ -295,4 +297,27 @@ export async function setupEventListeners(): Promise<Array<UnlistenFn>> {
   await subscribeInterfaces()
   await subscribeMetrics()
   return unlisteners
+}
+
+// Cooldown between refresh runs (focus events fire in storms).
+const REFRESH_COOLDOWN_MS = 5000
+let lastRefreshAt = 0
+
+// Re-verifies instances marked dead while the app was suspended, so
+// still-present services flip alive again instead of lingering grey.
+// No-op unless browsing with dead entries; focus storms share one run.
+export async function refreshDeadServices(): Promise<void> {
+  if (!get(browsing)) return
+  const now = Date.now()
+  if (now - lastRefreshAt < REFRESH_COOLDOWN_MS) return
+  lastRefreshAt = now
+  // A revocation mid-session silently starves discovery, so surface the
+  // blocking panel instead of verifying.
+  if ((await initLocalNetworkAccess()) !== 'granted') return
+  const names = deadInstanceNames(get(resolved))
+  if (names.length === 0) return
+  console.debug('[mdns-browser] re-verifying dead services after resume:', names)
+  // verify() sends an active query per instance; answers arrive as
+  // service-resolved and overwrite the dead entry via putResolved.
+  await Promise.allSettled(names.map((name) => verifyInstance(name)))
 }

@@ -22,6 +22,7 @@
     initProtocolFlags,
     initTheme,
     localNetworkAccess,
+    refreshDeadServices,
     setupEventListeners,
   } from '#lib/store.js'
 
@@ -84,6 +85,17 @@
     window.addEventListener('dragover', onDragOver)
     window.addEventListener('drop', onDrop)
 
+    // Records expire while the app is suspended, so re-verify dead
+    // entries on every foregrounding. visibilitychange covers mobile
+    // activity pause/resume; focus/pageshow cover desktop and bfcache.
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') void refreshDeadServices()
+    }
+    const onForeground = () => void refreshDeadServices()
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('focus', onForeground)
+    window.addEventListener('pageshow', onForeground)
+
     void (async () => {
       const unlistenLogger = await initLogger()
       await initDesktop()
@@ -101,6 +113,9 @@
     return () => {
       window.removeEventListener('dragover', onDragOver)
       window.removeEventListener('drop', onDrop)
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('focus', onForeground)
+      window.removeEventListener('pageshow', onForeground)
     }
   })
 

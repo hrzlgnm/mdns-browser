@@ -322,3 +322,14 @@ export function getInstanceName(service: ResolvedService): string {
   if (name.endsWith('.')) name = name.slice(0, -1)
   return name
 }
+
+// Instance names currently marked dead. Records expire while the app is
+// suspended (the Wi-Fi multicast lock keeps packets flowing but cannot
+// keep the CPU awake), so callers re-verify these on foregrounding.
+export function deadInstanceNames(services: Map<string, ResolvedService>): Array<string> {
+  const names: Array<string> = []
+  for (const [name, service] of services) {
+    if (service.dead) names.push(name)
+  }
+  return names
+}
