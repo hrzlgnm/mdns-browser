@@ -80,6 +80,20 @@
 
   onMount(() => {
     startFocusTimer()
+    // The tutorial ends at the first sign of the user: any pointer,
+    // keyboard, focus, or scroll interaction stops the auto-focus timer,
+    // so it can never steal focus from an in-use control.
+    const stopTutorial = () => clearFocusTimer()
+    window.addEventListener('pointerdown', stopTutorial)
+    window.addEventListener('keydown', stopTutorial)
+    window.addEventListener('focusin', stopTutorial)
+    window.addEventListener('wheel', stopTutorial, { passive: true })
+    return () => {
+      window.removeEventListener('pointerdown', stopTutorial)
+      window.removeEventListener('keydown', stopTutorial)
+      window.removeEventListener('focusin', stopTutorial)
+      window.removeEventListener('wheel', stopTutorial)
+    }
   })
 
   onDestroy(() => {
@@ -147,7 +161,6 @@
 
   function onBrowse() {
     if (browseDisabled) return
-    clearFocusTimer()
     closeDropdown()
     resolved.set(new Map())
     browsing.set(true)
@@ -355,7 +368,6 @@
         spellcheck="false"
         class={`${$inputClass} themed-input`}
         bind:value={query}
-        onfocus={() => clearFocusTimer()}
         onkeydown={(e) => {
           if (e.key === 'Enter') onBrowse()
         }}
