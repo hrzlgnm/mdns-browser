@@ -185,7 +185,7 @@
 
   let sortOpen = $state(false)
   let sortActiveIndex = $state(-1)
-  let sortButtonEl: HTMLButtonElement | undefined = $state(undefined)
+  let sortButtonEl: HTMLDivElement | undefined = $state(undefined)
 
   function closeSort() {
     sortOpen = false
@@ -305,19 +305,25 @@
     <div>
       <span class="sort-label" id="sort-label">Sort by</span>
       <span class="themed-combobox" onfocusout={onSortFocusOut}>
-        <button
-          type="button"
+        <div
+          role="combobox"
+          tabindex="0"
           class="themed-select sort-button"
           bind:this={sortButtonEl}
-          aria-labelledby="sort-label"
+          aria-labelledby="sort-label sort-value"
           aria-haspopup="listbox"
           aria-expanded={sortOpen}
           aria-controls="sort-listbox"
+          aria-activedescendant={sortActiveIndex >= 0
+            ? `sort-option-${sortActiveIndex}`
+            : undefined}
+          aria-autocomplete="list"
           onclick={() => (sortOpen ? closeSort() : openSortList())}
           onkeydown={onSortButtonKeydown}
         >
           {sortLabel}
-        </button>
+        </div>
+        <span id="sort-value" class="visually-hidden">{sortLabel}</span>
         {#if sortOpen}
           <ul id="sort-listbox" class="themed-listbox" role="listbox" aria-labelledby="sort-label">
             {#each sortOptions as option, i (option.value)}
@@ -367,6 +373,12 @@
 <style>
   .sort-button {
     text-align: left;
+  }
+  /* The select-style focus ring is suppressed by .themed-select; restore
+     a visible indicator since the combobox is keyboard-operated. */
+  .sort-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
   }
   .themed-listbox li[aria-selected='true'] button {
     font-weight: 600;
