@@ -166,6 +166,7 @@ body {
 .resolved-service-details-dialog-scrollarea {
   max-height: 90vh;
   overflow: auto;
+  overscroll-behavior: contain;
 }
 /* Color-blind-safe status pair (Okabe-Ito blue/vermillion): fixed across
    presets so the alive/dead distinction survives common vision deficiencies. */
@@ -537,6 +538,7 @@ label:has(input[type='checkbox']:disabled) input[type='checkbox']:disabled {
   list-style: none;
   max-height: 16rem;
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--bg-primary);
   border: 1px solid var(--border-primary);
   border-radius: 4px;

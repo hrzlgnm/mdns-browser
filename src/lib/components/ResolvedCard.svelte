@@ -306,6 +306,7 @@
     justify-content: center;
     padding: 1rem;
     overflow: auto;
+    overscroll-behavior: contain;
     background: rgba(0, 0, 0, 0.45);
   }
   .dialog-panel {
