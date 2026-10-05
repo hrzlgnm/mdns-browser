@@ -103,7 +103,7 @@ const THEME_STORE_FILE = 'theme-config.json'
 const THEME_CONFIG_KEY = 'theme'
 
 let themeStorePromise: Promise<Store> | null = null
-let themeSaveChain: Promise<void> = Promise.resolve()
+let configSaveChain: Promise<void> = Promise.resolve()
 
 function loadThemeStore(): Promise<Store> {
   if (!themeStorePromise) {
@@ -112,17 +112,21 @@ function loadThemeStore(): Promise<Store> {
   return themeStorePromise
 }
 
-function persistTheme(name: ThemeName) {
+function saveConfigValue(key: string, value: unknown) {
   if (!isTauri()) return
-  themeSaveChain = themeSaveChain.then(async () => {
+  configSaveChain = configSaveChain.then(async () => {
     try {
       const store = await loadThemeStore()
-      await store.set(THEME_CONFIG_KEY, name)
+      await store.set(key, value)
       await store.save()
     } catch (e) {
-      console.error('[mdns-browser] failed to save theme config:', e)
+      console.error('[mdns-browser] failed to save app config:', e)
     }
   })
+}
+
+function persistTheme(name: ThemeName) {
+  saveConfigValue(THEME_CONFIG_KEY, name)
 }
 
 let systemListenerCleanup: (() => void) | null = null
@@ -223,6 +227,35 @@ export async function initTheme() {
 
 export function setTheme(name: ThemeName) {
   currentTheme.set(name)
+}
+
+// ── Tutorial ───────────────────────────────────────────────────────────────
+// The service-type auto-focus tutorial fires at most once: the flag is set
+// when the timer expires or on first interaction, and persisted alongside
+// the theme config so later launches skip it.
+const TUTORIAL_SEEN_KEY = 'tutorial-seen'
+
+let tutorialSeen = false
+
+export function isTutorialSeen(): boolean {
+  return tutorialSeen
+}
+
+export async function initTutorialSeen(): Promise<boolean> {
+  if (!isTauri()) return tutorialSeen
+  try {
+    const store = await loadThemeStore()
+    if ((await store.get<boolean>(TUTORIAL_SEEN_KEY)) === true) tutorialSeen = true
+  } catch (e) {
+    console.warn('[mdns-browser] failed to load tutorial state:', e)
+  }
+  return tutorialSeen
+}
+
+export function markTutorialSeen() {
+  if (tutorialSeen) return
+  tutorialSeen = true
+  saveConfigValue(TUTORIAL_SEEN_KEY, true)
 }
 
 export async function initProtocolFlags() {

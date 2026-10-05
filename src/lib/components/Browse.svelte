@@ -17,6 +17,9 @@
     browsing,
     hasEnabledInterfaces,
     initLocalNetworkAccess,
+    initTutorialSeen,
+    isTutorialSeen,
+    markTutorialSeen,
     resolved,
     resolvedList,
     serviceTypes,
@@ -70,8 +73,11 @@
   }
 
   function startFocusTimer() {
+    // The tutorial fires at most once: skip entirely once seen.
+    if (isTutorialSeen()) return
     clearFocusTimer()
     focusTimer = setTimeout(() => {
+      markTutorialSeen()
       inputEl?.focus()
       // `focus()` is a no-op when already focused, so open explicitly.
       openDropdown()
@@ -79,11 +85,17 @@
   }
 
   onMount(() => {
-    startFocusTimer()
+    // Start only after the persisted flag loads, so a stored seen-state
+    // cannot lose a race against the timer. Interactions before that
+    // resolve mark the flag, which startFocusTimer then honors.
+    void initTutorialSeen().then(() => startFocusTimer())
     // The tutorial ends at the first sign of the user: any pointer,
     // keyboard, focus, or scroll interaction stops the auto-focus timer,
     // so it can never steal focus from an in-use control.
-    const stopTutorial = () => clearFocusTimer()
+    const stopTutorial = () => {
+      clearFocusTimer()
+      markTutorialSeen()
+    }
     window.addEventListener('pointerdown', stopTutorial)
     window.addEventListener('keydown', stopTutorial)
     window.addEventListener('focusin', stopTutorial)
