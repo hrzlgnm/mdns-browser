@@ -103,7 +103,7 @@ const THEME_STORE_FILE = 'theme-config.json'
 const THEME_CONFIG_KEY = 'theme'
 
 let themeStorePromise: Promise<Store> | null = null
-let configSaveChain: Promise<void> = Promise.resolve()
+let themeSaveChain: Promise<void> = Promise.resolve()
 
 function loadThemeStore(): Promise<Store> {
   if (!themeStorePromise) {
@@ -112,21 +112,17 @@ function loadThemeStore(): Promise<Store> {
   return themeStorePromise
 }
 
-function saveConfigValue(key: string, value: unknown) {
+function persistTheme(name: ThemeName) {
   if (!isTauri()) return
-  configSaveChain = configSaveChain.then(async () => {
+  themeSaveChain = themeSaveChain.then(async () => {
     try {
       const store = await loadThemeStore()
-      await store.set(key, value)
+      await store.set(THEME_CONFIG_KEY, name)
       await store.save()
     } catch (e) {
-      console.error('[mdns-browser] failed to save app config:', e)
+      console.error('[mdns-browser] failed to save theme config:', e)
     }
   })
-}
-
-function persistTheme(name: ThemeName) {
-  saveConfigValue(THEME_CONFIG_KEY, name)
 }
 
 let systemListenerCleanup: (() => void) | null = null
@@ -231,9 +227,20 @@ export function setTheme(name: ThemeName) {
 
 // ── Tutorial ───────────────────────────────────────────────────────────────
 // The service-type auto-focus tutorial fires at most once: the flag is set
-// when the timer expires or on first interaction, and persisted alongside
-// the theme config so later launches skip it.
-const TUTORIAL_SEEN_KEY = 'tutorial-seen'
+// when the timer expires or on first interaction, and persisted in its own
+// store file so later launches skip it.
+const TUTORIAL_STORE_FILE = 'tutorial-config.json'
+const TUTORIAL_SEEN_KEY = 'seen'
+
+let tutorialStorePromise: Promise<Store> | null = null
+let tutorialSaveChain: Promise<void> = Promise.resolve()
+
+function loadTutorialStore(): Promise<Store> {
+  if (!tutorialStorePromise) {
+    tutorialStorePromise = Store.load(TUTORIAL_STORE_FILE)
+  }
+  return tutorialStorePromise
+}
 
 let tutorialSeen = false
 
@@ -244,7 +251,7 @@ export function isTutorialSeen(): boolean {
 export async function initTutorialSeen(): Promise<boolean> {
   if (!isTauri()) return tutorialSeen
   try {
-    const store = await loadThemeStore()
+    const store = await loadTutorialStore()
     if ((await store.get<boolean>(TUTORIAL_SEEN_KEY)) === true) tutorialSeen = true
   } catch (e) {
     console.warn('[mdns-browser] failed to load tutorial state:', e)
@@ -255,7 +262,16 @@ export async function initTutorialSeen(): Promise<boolean> {
 export function markTutorialSeen() {
   if (tutorialSeen) return
   tutorialSeen = true
-  saveConfigValue(TUTORIAL_SEEN_KEY, true)
+  if (!isTauri()) return
+  tutorialSaveChain = tutorialSaveChain.then(async () => {
+    try {
+      const store = await loadTutorialStore()
+      await store.set(TUTORIAL_SEEN_KEY, true)
+      await store.save()
+    } catch (e) {
+      console.error('[mdns-browser] failed to save tutorial state:', e)
+    }
+  })
 }
 
 export async function initProtocolFlags() {
