@@ -9,6 +9,7 @@ import type {
   ResolvedService,
 } from 'tauri-plugin-mdns-api'
 import {
+  browseMany,
   getProtocolFlags,
   isDesktop,
   localNetworkStatus,
@@ -17,9 +18,12 @@ import {
   onServiceRemoved,
   onServiceResolved,
   onServiceTypeFound,
+  stopBrowse,
   subscribeInterfaces,
   subscribeMetrics,
 } from './api'
+import { deadInstanceNames } from './browse-utils'
+import { pushToast } from './toast'
 import type { ServiceTypes } from './api'
 import { cssVarMap, defaultTheme, getThemeByName, isDarkTheme, themes } from './themes'
 import type { ThemeColors, ThemeName } from './themes'
@@ -295,4 +299,47 @@ export async function setupEventListeners(): Promise<Array<UnlistenFn>> {
   await subscribeInterfaces()
   await subscribeMetrics()
   return unlisteners
+}
+
+// Cooldown between refresh runs (focus events fire in storms).
+const REFRESH_COOLDOWN_MS = 5000
+let lastRefreshAt = 0
+
+// Restarts instance browsing on foregrounding: the querier's query loop
+// stalls while suspended (expiring records), and a suspended browse can
+// stay wedged after resume, so recycle it. stopBrowse keeps service-type
+// discovery and the multicast lock; browseMany re-queries every known
+// type and still-present instances resolve alive again.
+// No-op unless browsing with dead entries; focus storms share one run.
+export async function restartBrowsing(): Promise<void> {
+  // Mobile-only: only suspended phone apps stall the querier's query
+  // loop; desktop foregrounds must not recycle browsing (a naturally
+  // dead service would just re-query pointlessly on every focus).
+  if (get(desktop)) return
+  if (!get(browsing)) return
+  if (deadInstanceNames(get(resolved)).length === 0) return
+  if (get(serviceTypes).length === 0) return
+  const now = Date.now()
+  if (now - lastRefreshAt < REFRESH_COOLDOWN_MS) return
+  lastRefreshAt = now
+  // A revocation mid-session silently starves discovery, so surface the
+  // blocking panel instead of restarting.
+  if ((await initLocalNetworkAccess()) !== 'granted') return
+  // The user may have pressed Stop while the access check was pending.
+  if (!get(browsing)) return
+  const types = get(serviceTypes)
+  console.debug('[mdns-browser] restarting instance browsing after resume')
+  try {
+    await stopBrowse()
+  } catch (e) {
+    console.warn('[mdns-browser] failed to stop browsing for restart:', e)
+  }
+  if (!get(browsing)) return
+  try {
+    await browseMany(types)
+  } catch (e) {
+    console.warn('[mdns-browser] failed to restart browsing after resume:', e)
+    return
+  }
+  pushToast('Browsing restarted', 'Service discovery resumed after the app was suspended')
 }

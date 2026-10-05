@@ -22,6 +22,7 @@
     initProtocolFlags,
     initTheme,
     localNetworkAccess,
+    restartBrowsing,
     setupEventListeners,
   } from '#lib/store.js'
 
@@ -84,6 +85,30 @@
     window.addEventListener('dragover', onDragOver)
     window.addEventListener('drop', onDrop)
 
+    // Restart instance browsing on every foregrounding (see restartBrowsing
+    // for why suspension expires records). visibilitychange covers mobile
+    // activity pause/resume; the Tauri focus event is the reliable signal
+    // when a suspended WebView skips DOM visibility toggles.
+    // focus/pageshow cover desktop and bfcache.
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') void restartBrowsing()
+    }
+    const onForeground = () => void restartBrowsing()
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('focus', onForeground)
+    window.addEventListener('pageshow', onForeground)
+    let unlistenWindowFocus: Promise<UnlistenFn | undefined> = (async () => {
+      try {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window')
+        return await getCurrentWindow().onFocusChanged(({ payload: focused }) => {
+          if (focused) void restartBrowsing()
+        })
+      } catch (e) {
+        console.warn('[mdns-browser] failed to listen for window focus:', e)
+        return undefined
+      }
+    })()
+
     void (async () => {
       const unlistenLogger = await initLogger()
       await initDesktop()
@@ -101,6 +126,10 @@
     return () => {
       window.removeEventListener('dragover', onDragOver)
       window.removeEventListener('drop', onDrop)
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('focus', onForeground)
+      window.removeEventListener('pageshow', onForeground)
+      void unlistenWindowFocus.then((unlisten) => unlisten?.())
     }
   })
 

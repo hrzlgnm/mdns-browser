@@ -322,3 +322,14 @@ export function getInstanceName(service: ResolvedService): string {
   if (name.endsWith('.')) name = name.slice(0, -1)
   return name
 }
+
+// Fullnames of instances marked dead. Records expire while the app is
+// suspended (the querier's query loop stalls with the CPU), so callers
+// restart instance browsing on foregrounding.
+export function deadInstanceNames(services: Map<string, ResolvedService>): Array<string> {
+  const names: Array<string> = []
+  for (const service of services.values()) {
+    if (service.dead) names.push(service.instance_fullname)
+  }
+  return names
+}
