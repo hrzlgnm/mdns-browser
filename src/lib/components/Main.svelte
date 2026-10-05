@@ -97,15 +97,15 @@
     document.addEventListener('visibilitychange', onVisibility)
     window.addEventListener('focus', onForeground)
     window.addEventListener('pageshow', onForeground)
-    let unlistenWindowFocus: UnlistenFn | undefined = undefined
-    void (async () => {
+    let unlistenWindowFocus: Promise<UnlistenFn | undefined> = (async () => {
       try {
         const { getCurrentWindow } = await import('@tauri-apps/api/window')
-        unlistenWindowFocus = await getCurrentWindow().onFocusChanged(({ payload: focused }) => {
+        return await getCurrentWindow().onFocusChanged(({ payload: focused }) => {
           if (focused) void refreshDeadServices()
         })
       } catch (e) {
         console.warn('[mdns-browser] failed to listen for window focus:', e)
+        return undefined
       }
     })()
 
@@ -129,7 +129,7 @@
       document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('focus', onForeground)
       window.removeEventListener('pageshow', onForeground)
-      unlistenWindowFocus?.()
+      void unlistenWindowFocus.then((unlisten) => unlisten?.())
     }
   })
 
