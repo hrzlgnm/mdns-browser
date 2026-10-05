@@ -89,7 +89,7 @@
     aria-haspopup="listbox"
     aria-expanded={open}
     aria-controls="theme-listbox"
-    onclick={() => (open ? close() : (open = true))}
+    onclick={() => (open ? close() : openList())}
     onkeydown={onButtonKeydown}
   >
     {selectedLabel}
