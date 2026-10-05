@@ -30,7 +30,7 @@
 
   let open = $state(false)
   let activeIndex = $state(-1)
-  let buttonEl: HTMLButtonElement | undefined = $state(undefined)
+  let triggerEl: HTMLDivElement | undefined = $state(undefined)
 
   function close() {
     open = false
@@ -45,10 +45,10 @@
   function choose(value: ThemeName) {
     setTheme(value)
     close()
-    buttonEl?.focus()
+    triggerEl?.focus()
   }
 
-  function onButtonKeydown(e: KeyboardEvent) {
+  function onTriggerKeydown(e: KeyboardEvent) {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault()
       if (!open) {
@@ -81,19 +81,22 @@
 
 <span class="theme-switcher themed-combobox" onfocusout={onFocusOut}>
   <span id="theme-label">Theme</span>
-  <button
-    type="button"
+  <div
+    role="combobox"
+    tabindex="0"
     class="themed-select theme-button"
-    bind:this={buttonEl}
-    aria-labelledby="theme-label"
+    bind:this={triggerEl}
+    aria-labelledby="theme-label theme-value"
     aria-haspopup="listbox"
     aria-expanded={open}
     aria-controls="theme-listbox"
+    aria-activedescendant={activeIndex >= 0 ? `theme-option-${activeIndex}` : undefined}
     onclick={() => (open ? close() : openList())}
-    onkeydown={onButtonKeydown}
+    onkeydown={onTriggerKeydown}
   >
     {selectedLabel}
-  </button>
+  </div>
+  <span id="theme-value" class="visually-hidden">{selectedLabel}</span>
   {#if open}
     <ul id="theme-listbox" class="themed-listbox" role="listbox" aria-labelledby="theme-label">
       {#each options as option, i (option.value)}
@@ -126,6 +129,12 @@
   }
   .theme-switcher > .theme-button {
     text-align: left;
+  }
+  /* The select-style focus ring is suppressed by .themed-select; restore
+     a visible indicator since the combobox is keyboard-operated. */
+  .theme-switcher > .theme-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
   }
   .themed-listbox li[aria-selected='true'] button {
     font-weight: 600;
