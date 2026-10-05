@@ -185,7 +185,7 @@
 
   let sortOpen = $state(false)
   let sortActiveIndex = $state(-1)
-  let sortButtonEl: HTMLDivElement | undefined = $state(undefined)
+  let sortTriggerEl: HTMLDivElement | undefined = $state(undefined)
 
   function closeSort() {
     sortOpen = false
@@ -203,10 +203,10 @@
   function chooseSort(value: SortKind) {
     sortValue = value
     closeSort()
-    sortButtonEl?.focus()
+    sortTriggerEl?.focus()
   }
 
-  function onSortButtonKeydown(e: KeyboardEvent) {
+  function onSortTriggerKeydown(e: KeyboardEvent) {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault()
       if (!sortOpen) {
@@ -309,7 +309,7 @@
           role="combobox"
           tabindex="0"
           class="themed-select sort-button"
-          bind:this={sortButtonEl}
+          bind:this={sortTriggerEl}
           aria-labelledby="sort-label sort-value"
           aria-haspopup="listbox"
           aria-expanded={sortOpen}
@@ -317,9 +317,8 @@
           aria-activedescendant={sortActiveIndex >= 0
             ? `sort-option-${sortActiveIndex}`
             : undefined}
-          aria-autocomplete="list"
           onclick={() => (sortOpen ? closeSort() : openSortList())}
-          onkeydown={onSortButtonKeydown}
+          onkeydown={onSortTriggerKeydown}
         >
           {sortLabel}
         </div>
