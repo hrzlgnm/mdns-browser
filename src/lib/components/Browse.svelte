@@ -147,6 +147,12 @@
     inputEl?.focus()
   }
 
+  // Keeps the keyboard-navigated option visible; `nearest` scrolls the
+  // listbox only, never the page.
+  function scrollOptionIntoView(idPrefix: string, index: number) {
+    document.getElementById(`${idPrefix}-${index}`)?.scrollIntoView({ block: 'nearest' })
+  }
+
   function onServiceTypeKeydown(e: KeyboardEvent) {
     // Enter confirms an in-progress IME composition (keyCode 229 is the
     // legacy Chromium marker), it must not select or browse.
@@ -154,9 +160,11 @@
     if (e.key === 'ArrowDown' && dropdownVisible) {
       e.preventDefault()
       activeIndex = (activeIndex + 1) % suggestions.length
+      scrollOptionIntoView('service-type-option', activeIndex)
     } else if (e.key === 'ArrowUp' && dropdownVisible) {
       e.preventDefault()
       activeIndex = (activeIndex - 1 + suggestions.length) % suggestions.length
+      scrollOptionIntoView('service-type-option', activeIndex)
     } else if (e.key === 'Enter' && !invalid) {
       if (dropdownVisible && activeIndex >= 0 && activeIndex < suggestions.length) {
         e.preventDefault()
@@ -238,6 +246,7 @@
       } else {
         const delta = e.key === 'ArrowDown' ? 1 : -1
         sortActiveIndex = (sortActiveIndex + delta + sortOptions.length) % sortOptions.length
+        scrollOptionIntoView('sort-option', sortActiveIndex)
       }
     } else if ((e.key === 'Enter' || e.key === ' ') && !sortOpen) {
       e.preventDefault()
