@@ -22,9 +22,9 @@
     items = backend.map((iface) => ({ ...iface }))
   })
 
-  function labelText(iface: NetworkInterface): string {
-    if (iface.addresses.length === 0) return iface.name
-    return `${iface.name} (${iface.addresses.join(', ')})`
+  function addressTooltip(iface: NetworkInterface): string | undefined {
+    if (iface.addresses.length === 0) return undefined
+    return iface.addresses.join(', ')
   }
 
   async function onToggle(name: string, checked: boolean) {
@@ -46,14 +46,14 @@
     <summary>Network interfaces</summary>
     <div class="interfaces-list">
       {#each items as iface (iface.name)}
-        <label>
+        <label title={addressTooltip(iface)}>
           <input
             type="checkbox"
             checked={iface.enabled}
             {disabled}
             onchange={(e) => onToggle(iface.name, e.currentTarget.checked)}
           />
-          {labelText(iface)}
+          {iface.name}
         </label>
       {/each}
     </div>
