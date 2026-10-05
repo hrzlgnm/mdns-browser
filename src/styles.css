@@ -119,6 +119,7 @@ body {
   border-radius: 4px;
   padding: 2px 5px 2px 5px;
   min-width: 160px;
+  font-size: 13px;
 }
 .resolved-service-card-title {
   white-space: nowrap;
