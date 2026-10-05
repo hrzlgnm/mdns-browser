@@ -225,6 +225,55 @@ export function setTheme(name: ThemeName) {
   currentTheme.set(name)
 }
 
+// ── Tutorial ───────────────────────────────────────────────────────────────
+// The service-type auto-focus tutorial fires at most once: the flag is set
+// when the timer expires or on first interaction, and persisted in its own
+// store file so later launches skip it.
+const TUTORIAL_STORE_FILE = 'tutorial-config.json'
+const TUTORIAL_SEEN_KEY = 'seen'
+
+let tutorialStorePromise: Promise<Store> | null = null
+let tutorialSaveChain: Promise<void> = Promise.resolve()
+
+function loadTutorialStore(): Promise<Store> {
+  if (!tutorialStorePromise) {
+    tutorialStorePromise = Store.load(TUTORIAL_STORE_FILE)
+  }
+  return tutorialStorePromise
+}
+
+let tutorialSeen = false
+
+export function isTutorialSeen(): boolean {
+  return tutorialSeen
+}
+
+export async function initTutorialSeen(): Promise<boolean> {
+  if (!isTauri()) return tutorialSeen
+  try {
+    const store = await loadTutorialStore()
+    if ((await store.get<boolean>(TUTORIAL_SEEN_KEY)) === true) tutorialSeen = true
+  } catch (e) {
+    console.warn('[mdns-browser] failed to load tutorial state:', e)
+  }
+  return tutorialSeen
+}
+
+export function markTutorialSeen() {
+  if (tutorialSeen) return
+  tutorialSeen = true
+  if (!isTauri()) return
+  tutorialSaveChain = tutorialSaveChain.then(async () => {
+    try {
+      const store = await loadTutorialStore()
+      await store.set(TUTORIAL_SEEN_KEY, true)
+      await store.save()
+    } catch (e) {
+      console.error('[mdns-browser] failed to save tutorial state:', e)
+    }
+  })
+}
+
 export async function initProtocolFlags() {
   try {
     protocolFlags.set(await getProtocolFlags())
