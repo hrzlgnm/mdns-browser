@@ -554,7 +554,14 @@ label:has(input[type='checkbox']:disabled) input[type='checkbox']:disabled {
   border: 0;
   cursor: pointer;
 }
-.themed-listbox li.active button,
 .themed-listbox button:hover {
   background: var(--bg-tertiary);
+}
+/* Keyboard-navigated option: a flat tertiary fill is nearly invisible on
+   light themes, so mark it with an inset accent outline that reads in
+   every theme and stays distinct from the hover fill. */
+.themed-listbox li.active button {
+  background: var(--bg-tertiary);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
