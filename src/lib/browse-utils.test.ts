@@ -236,7 +236,8 @@ describe('deadInstanceNames', () => {
     const services = new Map([
       ['A._http._tcp.local.', service({ instance_fullname: 'A._http._tcp.local.', dead: true })],
       ['B._http._tcp.local.', service({ instance_fullname: 'B._http._tcp.local.' })],
-      ['C._http._tcp.local.', service({ instance_fullname: 'C._http._tcp.local.', dead: true })],
+      // The wire fullname is queried, never the store key.
+      ['stale-key', service({ instance_fullname: 'C._http._tcp.local.', dead: true })],
     ])
     expect(deadInstanceNames(services)).toEqual(['A._http._tcp.local.', 'C._http._tcp.local.'])
   })

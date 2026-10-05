@@ -85,9 +85,11 @@
     window.addEventListener('dragover', onDragOver)
     window.addEventListener('drop', onDrop)
 
-    // Records expire while the app is suspended, so re-verify dead
-    // entries on every foregrounding. visibilitychange covers mobile
-    // activity pause/resume; focus/pageshow cover desktop and bfcache.
+    // Re-verify dead entries on every foregrounding (see deadInstanceNames
+    // for why suspension expires records). visibilitychange covers mobile
+    // activity pause/resume; the Tauri focus event is the reliable signal
+    // when a suspended WebView skips DOM visibility toggles.
+    // focus/pageshow cover desktop and bfcache.
     const onVisibility = () => {
       if (document.visibilityState === 'visible') void refreshDeadServices()
     }
@@ -95,6 +97,17 @@
     document.addEventListener('visibilitychange', onVisibility)
     window.addEventListener('focus', onForeground)
     window.addEventListener('pageshow', onForeground)
+    let unlistenWindowFocus: UnlistenFn | undefined = undefined
+    void (async () => {
+      try {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window')
+        unlistenWindowFocus = await getCurrentWindow().onFocusChanged(({ payload: focused }) => {
+          if (focused) void refreshDeadServices()
+        })
+      } catch (e) {
+        console.warn('[mdns-browser] failed to listen for window focus:', e)
+      }
+    })()
 
     void (async () => {
       const unlistenLogger = await initLogger()
@@ -116,6 +129,7 @@
       document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('focus', onForeground)
       window.removeEventListener('pageshow', onForeground)
+      unlistenWindowFocus?.()
     }
   })
 

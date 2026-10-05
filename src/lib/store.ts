@@ -308,14 +308,14 @@ let lastRefreshAt = 0
 // No-op unless browsing with dead entries; focus storms share one run.
 export async function refreshDeadServices(): Promise<void> {
   if (!get(browsing)) return
-  const now = Date.now()
-  if (now - lastRefreshAt < REFRESH_COOLDOWN_MS) return
-  lastRefreshAt = now
   // A revocation mid-session silently starves discovery, so surface the
   // blocking panel instead of verifying.
   if ((await initLocalNetworkAccess()) !== 'granted') return
   const names = deadInstanceNames(get(resolved))
   if (names.length === 0) return
+  const now = Date.now()
+  if (now - lastRefreshAt < REFRESH_COOLDOWN_MS) return
+  lastRefreshAt = now
   console.debug('[mdns-browser] re-verifying dead services after resume:', names)
   // verify() sends an active query per instance; answers arrive as
   // service-resolved and overwrite the dead entry via putResolved.
