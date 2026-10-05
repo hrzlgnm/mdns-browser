@@ -313,6 +313,7 @@ let lastRefreshAt = 0
 export async function restartBrowsing(): Promise<void> {
   if (!get(browsing)) return
   if (deadInstanceNames(get(resolved)).length === 0) return
+  if (get(serviceTypes).length === 0) return
   const now = Date.now()
   if (now - lastRefreshAt < REFRESH_COOLDOWN_MS) return
   lastRefreshAt = now
@@ -322,7 +323,6 @@ export async function restartBrowsing(): Promise<void> {
   // The user may have pressed Stop while the access check was pending.
   if (!get(browsing)) return
   const types = get(serviceTypes)
-  if (types.length === 0) return
   console.debug('[mdns-browser] restarting instance browsing after resume')
   try {
     await stopBrowse()
