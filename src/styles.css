@@ -115,7 +115,8 @@ body {
   gap: 0px;
 }
 .metric-item {
-  border: 1px solid #808080;
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
   padding: 2px 5px 2px 5px;
   min-width: 160px;
 }
