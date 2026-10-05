@@ -48,6 +48,12 @@
     triggerEl?.focus()
   }
 
+  // Keeps the keyboard-navigated option visible; `nearest` scrolls the
+  // listbox only, never the page.
+  function scrollOptionIntoView(index: number) {
+    document.getElementById(`theme-option-${index}`)?.scrollIntoView({ block: 'nearest' })
+  }
+
   function onTriggerKeydown(e: KeyboardEvent) {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault()
@@ -56,6 +62,7 @@
       } else {
         const delta = e.key === 'ArrowDown' ? 1 : -1
         activeIndex = (activeIndex + delta + options.length) % options.length
+        scrollOptionIntoView(activeIndex)
       }
     } else if ((e.key === 'Enter' || e.key === ' ') && !open) {
       e.preventDefault()
