@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.2](https://github.com/hrzlgnm/mdns-browser/compare/v2.8.1...v2.8.2) (2026-10-05)
+
+
+### Bug Fixes
+
+* restart instance browsing on app foreground ([#2851](https://github.com/hrzlgnm/mdns-browser/issues/2851)) ([d999fb2](https://github.com/hrzlgnm/mdns-browser/commit/d999fb2044b1b7d9232c52d5efe4525993c4737a))
+
+
+### Dependencies
+
+* update dependency eslint to v10.12.0 ([#2854](https://github.com/hrzlgnm/mdns-browser/issues/2854)) ([e071727](https://github.com/hrzlgnm/mdns-browser/commit/e071727c97d3aa9075b6bd1e761e805908da3885))
+* update tauri-plugin-mdns to v0.4.2 ([#2853](https://github.com/hrzlgnm/mdns-browser/issues/2853)) ([7007307](https://github.com/hrzlgnm/mdns-browser/commit/70073078a7393f91f340846aaf516cf6bb54c88d))
+
 ## [2.8.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.8.0...v2.8.1) (2026-10-05)
 
 

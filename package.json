@@ -1,6 +1,6 @@
 {
   "name": "mdns-browser-frontend",
-  "version": "2.8.1",
+  "version": "2.8.2",
   "description": "SvelteKit frontend for mdns-browser",
   "packageManager": "pnpm@12.8.2",
   "engines": {
