@@ -129,8 +129,9 @@ jobs:
 
   publish:
     # Flips the draft live only when every build job succeeded. A cancelled
-    # or failed build skips this job, so a partial release never goes live.
-    # This job is the only proper publisher: leave the draft alone. Events
+    # or failed build skips this job and runs publish-prerelease-on-failure
+    # below instead, so partial assets go live as pre-release.
+    # This job is the only full publisher: leave the draft alone. Events
     # fired with GITHUB_TOKEN never create workflow runs, so the downstream
     # packaging workflows are dispatched explicitly below instead of relying
     # on the `release: [released]` trigger.
@@ -174,3 +175,20 @@ jobs:
             failed=1
           fi
           exit "$failed"
+
+  publish-prerelease-on-failure:
+    # Publishes partial assets as pre-release when any build job failed.
+    # Mutually exclusive with publish above via failure() vs success().
+    needs: [release-please, source_checksums, build_android, build_desktop]
+    if: failure() && needs.release-please.outputs.release_created == 'true'
+    name: "⚠️ Publish Prerelease on Failure"
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write # to publish the draft as pre-release
+    steps:
+      - name: ⚠️ Publish partial draft as pre-release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
+        run: gh release edit "$TAG_NAME" --draft=false --prerelease
