@@ -177,10 +177,11 @@ jobs:
           exit "$failed"
 
   publish-prerelease-on-failure:
-    # Publishes partial assets as pre-release when any build job failed.
-    # Mutually exclusive with publish above via failure() vs success().
+    # Publishes partial assets as pre-release when any build job failed or
+    # was cancelled. Mutually exclusive with publish above via
+    # failure()/cancelled() vs success().
     needs: [release-please, source_checksums, build_android, build_desktop]
-    if: failure() && needs.release-please.outputs.release_created == 'true'
+    if: (failure() || cancelled()) && needs.release-please.outputs.release_created == 'true'
     name: "⚠️ Publish Prerelease on Failure"
     runs-on: ubuntu-slim
     permissions:
@@ -191,4 +192,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
-        run: gh release edit "$TAG_NAME" --draft=false --prerelease
+        run: gh release edit "$TAG_NAME" --repo "$GITHUB_REPOSITORY" --draft=false --prerelease
