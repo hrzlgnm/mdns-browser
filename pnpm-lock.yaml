@@ -189,7 +189,7 @@ importers:
         version: 2.5.0
       '@tauri-apps/plugin-updater':
         specifier: ^2.10.1
-        version: 2.13.1
+        version: 2.13.2
       tauri-plugin-android-update-api:
         specifier: ^0.3.0
         version: 0.3.1
@@ -610,8 +610,8 @@ packages:
   '@tauri-apps/plugin-store@2.5.0':
     resolution: {integrity: sha512-+ykjiQwMJCSk/U2enHA8peKBWgDKgrP7JfZnGwQpqzwA0nVtKTc0LCyxWr2whOrcQoQqtUdr9NVdDZpfKpT1Xw==}
 
-  '@tauri-apps/plugin-updater@2.13.1':
-    resolution: {integrity: sha512-+STDzJ0sdQLImjc63zkv6Nncimqeo6jyCWoTQtbSwgGLNj1qbP9I6LC4p5R5ocBk3gNKAZs6i/AJz0jxysytiw==}
+  '@tauri-apps/plugin-updater@2.13.2':
+    resolution: {integrity: sha512-ekGlOBis1gztzDVuLAI54p0117BJXzFiHzYlcq3slC0LKKsHNy6TvnIdcl9g5DLuGOnViVT6EShdQczCM50SZQ==}
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -1780,7 +1780,7 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.12.1
 
-  '@tauri-apps/plugin-updater@2.13.1':
+  '@tauri-apps/plugin-updater@2.13.2':
     dependencies:
       '@tauri-apps/api': 2.12.1
 
