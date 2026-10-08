@@ -201,7 +201,10 @@ export function getOpenUrls(service: ResolvedService): string[] {
 
   const scheme = httpScheme(service.service_type)
   if (scheme !== null) {
-    const path = normalizePath(service.txt.find((record) => record.key === 'path')?.val)
+    // TXT keys are case-insensitive (RFC 6763, section 6.4).
+    const path = normalizePath(
+      service.txt.find((record) => record.key.toLowerCase() === 'path')?.val,
+    )
     for (const addr of service.addresses) {
       const ip = usableIp(addr)
       if (ip === null) continue

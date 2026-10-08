@@ -140,6 +140,17 @@ describe('getOpenUrls', () => {
     ).toEqual(['http://192.168.1.10:8080/index.html', 'http://test.local:8080/index.html'])
   })
 
+  it('matches the TXT path key case-insensitively', () => {
+    expect(
+      getOpenUrls(
+        service({
+          addresses: [addr('192.168.1.10')],
+          txt: [{ key: 'Path', val: 'status' }],
+        }),
+      ),
+    ).toEqual(['http://192.168.1.10:8080/status', 'http://test.local:8080/status'])
+  })
+
   it('appends http(s) TXT values after the hostname URL', () => {
     expect(
       getOpenUrls(
