@@ -139,6 +139,16 @@ export function txtDisplay(record: TxtRecord): string {
   return `${record.key}=${record.val}`
 }
 
+// TXT keys are case-insensitive (RFC 6763, section 6.4), so the details
+// view orders them by case-folded key. Fold ties fall back to the raw key
+// for a deterministic order. Returns a copy; the store keeps wire order.
+export function sortTxtRecords(txt: Array<TxtRecord>): Array<TxtRecord> {
+  return [...txt].sort(
+    (a, b) =>
+      compareStrings(a.key.toLowerCase(), b.key.toLowerCase()) || compareStrings(a.key, b.key),
+  )
+}
+
 function isUnicastLinkLocalV6(ip: string): boolean {
   // fe80::/10 -> first hextet fe80..febf
   const first = ip.split(':')[0] ?? ''
@@ -191,7 +201,10 @@ export function getOpenUrls(service: ResolvedService): string[] {
 
   const scheme = httpScheme(service.service_type)
   if (scheme !== null) {
-    const path = normalizePath(service.txt.find((record) => record.key === 'path')?.val)
+    // TXT keys are case-insensitive (RFC 6763, section 6.4).
+    const path = normalizePath(
+      service.txt.find((record) => record.key.toLowerCase() === 'path')?.val,
+    )
     for (const addr of service.addresses) {
       const ip = usableIp(addr)
       if (ip === null) continue

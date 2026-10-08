@@ -15,6 +15,7 @@
     dropTrailingDot,
     getInstanceName,
     getOpenUrls,
+    sortTxtRecords,
     toLocalTimestamp,
     txtDisplay,
   } from '#lib/browse-utils.js'
@@ -52,7 +53,7 @@
   const updatedAt = $derived(toLocalTimestamp(service.updated_at_micros))
   const addrs = $derived(service.addresses.map((addr) => addrDisplay(addr)))
   const addrsForCopy = $derived(service.addresses.map((addr) => addrIpString(addr)))
-  const txts = $derived(service.txt.map((record) => txtDisplay(record)))
+  const txts = $derived(sortTxtRecords(service.txt).map((record) => txtDisplay(record)))
   const subtype = $derived(service.subtype === null ? [] : [service.subtype])
   const hostnameDisplay = $derived(dropTrailingDot(service.hostname))
   const serviceTypeDisplay = $derived(dropLocalAndTrailingDot(service.service_type))

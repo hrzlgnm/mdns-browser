@@ -4,6 +4,7 @@ import {
   dropLocalAndTrailingDot,
   dropTrailingDot,
   getOpenUrls,
+  sortTxtRecords,
 } from './browse-utils'
 import type { ResolvedService, ScopedAddr } from 'tauri-plugin-mdns-api'
 
@@ -139,6 +140,17 @@ describe('getOpenUrls', () => {
     ).toEqual(['http://192.168.1.10:8080/index.html', 'http://test.local:8080/index.html'])
   })
 
+  it('matches the TXT path key case-insensitively', () => {
+    expect(
+      getOpenUrls(
+        service({
+          addresses: [addr('192.168.1.10')],
+          txt: [{ key: 'Path', val: 'status' }],
+        }),
+      ),
+    ).toEqual(['http://192.168.1.10:8080/status', 'http://test.local:8080/status'])
+  })
+
   it('appends http(s) TXT values after the hostname URL', () => {
     expect(
       getOpenUrls(
@@ -244,5 +256,25 @@ describe('deadInstanceNames', () => {
 
   it('returns an empty list for an empty store', () => {
     expect(deadInstanceNames(new Map())).toEqual([])
+  })
+})
+
+describe('sortTxtRecords', () => {
+  it('orders keys case-insensitively (RFC 6763, section 6.4)', () => {
+    const txt = [
+      { key: 'banana', val: null },
+      { key: 'Apple', val: null },
+      { key: 'cherry', val: '1' },
+    ]
+    expect(sortTxtRecords(txt).map((record) => record.key)).toEqual(['Apple', 'banana', 'cherry'])
+  })
+
+  it('breaks case-fold ties by raw key without mutating the input', () => {
+    const txt = [
+      { key: 'b', val: null },
+      { key: 'B', val: null },
+    ]
+    expect(sortTxtRecords(txt).map((record) => record.key)).toEqual(['B', 'b'])
+    expect(txt.map((record) => record.key)).toEqual(['b', 'B'])
   })
 })
