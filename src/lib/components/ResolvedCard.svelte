@@ -15,6 +15,7 @@
     dropTrailingDot,
     getInstanceName,
     getOpenUrls,
+    sortAddresses,
     sortTxtRecords,
     toLocalTimestamp,
     txtDisplay,
@@ -51,8 +52,9 @@
   const hasMoreUrls = $derived(urls.length > 1)
   const menuVisible = $derived(menuOpen && hasMoreUrls)
   const updatedAt = $derived(toLocalTimestamp(service.updated_at_micros))
-  const addrs = $derived(service.addresses.map((addr) => addrDisplay(addr)))
-  const addrsForCopy = $derived(service.addresses.map((addr) => addrIpString(addr)))
+  const sortedAddresses = $derived(sortAddresses(service.addresses))
+  const addrs = $derived(sortedAddresses.map((addr) => addrDisplay(addr)))
+  const addrsForCopy = $derived(sortedAddresses.map((addr) => addrIpString(addr)))
   const txts = $derived(sortTxtRecords(service.txt).map((record) => txtDisplay(record)))
   const subtype = $derived(service.subtype === null ? [] : [service.subtype])
   const hostnameDisplay = $derived(dropTrailingDot(service.hostname))
@@ -60,9 +62,7 @@
   const firstAddress = $derived(addrs[0] ?? '')
   const firstAddressForCopy = $derived(addrsForCopy[0] ?? '')
   const firstAddressDisplay = $derived(
-    service.addresses.length > 1
-      ? `${firstAddress} (+${service.addresses.length - 1})`
-      : firstAddress,
+    sortedAddresses.length > 1 ? `${firstAddress} (+${sortedAddresses.length - 1})` : firstAddress,
   )
   const deadOrAliveClass = $derived(
     service.dead ? 'resolved-service-dead' : 'resolved-service-alive',
