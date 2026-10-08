@@ -193,9 +193,9 @@ function usableIp(address: ScopedAddr): string | null {
 }
 
 // Gathers every URL a service can be opened with, in priority order: for
-// http(s) services one per usable address (the first is the primary), then
-// the hostname variant, then any http(s) TXT values. Deduplicated in
-// insertion order; empty when the service is not openable.
+// http(s) services one per usable address in numeric order (the first is
+// the primary), then the hostname variant, then any http(s) TXT values.
+// Deduplicated in insertion order; empty when the service is not openable.
 export function getOpenUrls(service: ResolvedService): string[] {
   const urls = new Set<string>()
 
@@ -205,7 +205,7 @@ export function getOpenUrls(service: ResolvedService): string[] {
     const path = normalizePath(
       service.txt.find((record) => record.key.toLowerCase() === 'path')?.val,
     )
-    for (const addr of service.addresses) {
+    for (const addr of sortAddresses(service.addresses)) {
       const ip = usableIp(addr)
       if (ip === null) continue
       urls.add(`${scheme}://${formatAddress(ip)}:${service.port}${path}`)
@@ -377,8 +377,8 @@ function compareScopedAddrSingle(x: ScopedAddr, y: ScopedAddr): number {
   return 0
 }
 
-// Numerically sorted copy of a service's addresses for display. The
-// discovery order is preserved in the store.
+// Numerically sorted copy of a service's addresses, for display and for
+// opening URLs. The discovery order is preserved in the store.
 export function sortAddresses(addresses: Array<ScopedAddr>): Array<ScopedAddr> {
   return [...addresses].sort(compareScopedAddrSingle)
 }

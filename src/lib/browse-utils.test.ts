@@ -116,12 +116,18 @@ describe('getOpenUrls', () => {
     ).toEqual(['http://192.168.1.10:8080/', 'http://test.local:8080/'])
   })
 
-  it('keeps non-link-local fe-prefixed IPv6 addresses', () => {
+  it('keeps non-link-local fe-prefixed IPv6 addresses in numeric order', () => {
     expect(getOpenUrls(service({ addresses: [addr('fec0::1'), addr('fe7f::1')] }))).toEqual([
-      'http://[fec0::1]:8080/',
       'http://[fe7f::1]:8080/',
+      'http://[fec0::1]:8080/',
       'http://test.local:8080/',
     ])
+  })
+
+  it('lists open URLs in numeric address order (#2868)', () => {
+    expect(
+      getOpenUrls(service({ addresses: [addr('192.168.0.155'), addr('192.168.0.2')] })),
+    ).toEqual(['http://192.168.0.2:8080/', 'http://192.168.0.155:8080/', 'http://test.local:8080/'])
   })
 
   it('strips the scope id from scoped addresses', () => {
