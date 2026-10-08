@@ -274,21 +274,123 @@ function compareMicros(a: string, b: string): number {
   return compareStrings(a, b)
 }
 
+// Parses dotted-decimal IPv4 into four numeric octets. Leading zeros are
+// accepted and compared by value, so `192.168.0.002` equals `192.168.0.2`.
+function parseIpv4(s: string): Array<number> | null {
+  const parts = s.split('.')
+  if (parts.length !== 4) return null
+  const out: Array<number> = []
+  for (const part of parts) {
+    if (part === undefined || !/^\d{1,3}$/.test(part)) return null
+    const n = parseInt(part, 10)
+    if (n < 0 || n > 255) return null
+    out.push(n)
+  }
+  return out
+}
+
+function parseHextets(text: string): Array<number> | null {
+  if (text === '') return []
+  const parts = text.split(':')
+  const out: Array<number> = []
+  for (const part of parts) {
+    if (part === undefined || !/^[0-9a-fA-F]{1,4}$/.test(part)) return null
+    out.push(parseInt(part, 16))
+  }
+  return out
+}
+
+// Parses an IPv6 literal into sixteen bytes in network order. Handles `::`
+// compression and embedded IPv4 tails such as `::ffff:192.168.0.1`.
+function parseIpv6(s: string): Array<number> | null {
+  let text = s
+  if (text.includes('.')) {
+    const tail = text.slice(text.lastIndexOf(':') + 1)
+    const v4 = parseIpv4(tail)
+    if (v4 === null) return null
+    const prefix = text.slice(0, text.length - tail.length)
+    const high = ((v4[0] ?? 0) * 256 + (v4[1] ?? 0)).toString(16)
+    const low = ((v4[2] ?? 0) * 256 + (v4[3] ?? 0)).toString(16)
+    text = `${prefix}${high}:${low}`
+  }
+  const halves = text.split('::')
+  if (halves.length > 2) return null
+  let groups: Array<number>
+  if (halves.length === 2) {
+    const left = parseHextets(halves[0] ?? '')
+    const right = parseHextets(halves[1] ?? '')
+    if (left === null || right === null) return null
+    const fill = 8 - (left.length + right.length)
+    if (fill < 1) return null
+    groups = [...left, ...new Array<number>(fill).fill(0), ...right]
+  } else {
+    const parsed = parseHextets(text)
+    if (parsed === null || parsed.length !== 8) return null
+    groups = parsed
+  }
+  const out: Array<number> = []
+  for (const group of groups) {
+    out.push((group >> 8) & 0xff, group & 0xff)
+  }
+  return out
+}
+
+// Numeric IP ordering with a lexicographic fallback for non-IP strings.
+// IPv4 sorts before IPv6 so mixed families stay grouped deterministically.
+function compareIpStrings(a: string, b: string): number {
+  const sa = a.split('%')[0] ?? a
+  const sb = b.split('%')[0] ?? b
+  const a4 = parseIpv4(sa)
+  const b4 = parseIpv4(sb)
+  if (a4 !== null && b4 !== null) {
+    for (let i = 0; i < 4; i++) {
+      if (a4[i] !== b4[i]) return (a4[i] ?? 0) - (b4[i] ?? 0)
+    }
+    return 0
+  }
+  const a6 = parseIpv6(sa)
+  const b6 = parseIpv6(sb)
+  if (a6 !== null && b6 !== null) {
+    for (let i = 0; i < 16; i++) {
+      if (a6[i] !== b6[i]) return (a6[i] ?? 0) - (b6[i] ?? 0)
+    }
+    return 0
+  }
+  if (a4 !== null && b6 !== null) return -1
+  if (a6 !== null && b4 !== null) return 1
+  return compareStrings(a, b)
+}
+
+function compareScopedAddrSingle(x: ScopedAddr, y: ScopedAddr): number {
+  if (x.addr !== y.addr) {
+    const ipOrder = compareIpStrings(x.addr, y.addr)
+    if (ipOrder !== 0) return ipOrder
+  }
+  const xi = x.interfaces.map((iface) => `${iface.name}#${iface.index}`).join(',')
+  const yi = y.interfaces.map((iface) => `${iface.name}#${iface.index}`).join(',')
+  if (xi !== yi) return compareStrings(xi, yi)
+  const xs = x.scope_id ?? null
+  const ys = y.scope_id ?? null
+  if (xs === null && ys !== null) return -1
+  if (xs !== null && ys === null) return 1
+  if (xs !== null && ys !== null && xs !== ys) return compareStrings(xs, ys)
+  return 0
+}
+
+// Numerically sorted copy of a service's addresses for display. The
+// discovery order is preserved in the store.
+export function sortAddresses(addresses: Array<ScopedAddr>): Array<ScopedAddr> {
+  return [...addresses].sort(compareScopedAddrSingle)
+}
+
 function compareScopedAddrs(a: Array<ScopedAddr>, b: Array<ScopedAddr>): number {
   const len = Math.min(a.length, b.length)
   for (let i = 0; i < len; i++) {
     const x = a[i]
     const y = b[i]
     if (x === undefined || y === undefined) break
-    if (x.addr !== y.addr) return compareStrings(x.addr, y.addr)
-    const xi = x.interfaces.map((iface) => `${iface.name}#${iface.index}`).join(',')
-    const yi = y.interfaces.map((iface) => `${iface.name}#${iface.index}`).join(',')
-    if (xi !== yi) return compareStrings(xi, yi)
-    const xs = x.scope_id ?? null
-    const ys = y.scope_id ?? null
-    if (xs === null && ys !== null) return -1
-    if (xs !== null && ys === null) return 1
-    if (xs !== null && ys !== null && xs !== ys) return compareStrings(xs, ys)
+    const order = compareScopedAddrSingle(x, y)
+    if (order !== 0) return order
   }
   if (a.length !== b.length) return a.length < b.length ? -1 : 1
   return 0

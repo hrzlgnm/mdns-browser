@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
+  compareServices,
   deadInstanceNames,
   dropLocalAndTrailingDot,
   dropTrailingDot,
   getOpenUrls,
   sortTxtRecords,
+  sortAddresses,
 } from './browse-utils'
 import type { ResolvedService, ScopedAddr } from 'tauri-plugin-mdns-api'
 
@@ -276,5 +278,83 @@ describe('sortTxtRecords', () => {
     ]
     expect(sortTxtRecords(txt).map((record) => record.key)).toEqual(['B', 'b'])
     expect(txt.map((record) => record.key)).toEqual(['b', 'B'])
+  })
+})
+
+describe('compareServices IpAddr', () => {
+  function serviceWithIp(ip: string): ResolvedService {
+    return service({ addresses: [addr(ip)] })
+  }
+
+  function sortedIps(ips: Array<string>, sort: 'IpAddrAsc' | 'IpAddrDesc'): Array<string> {
+    return ips
+      .map((ip) => serviceWithIp(ip))
+      .sort((a, b) => compareServices(a, b, sort))
+      .map((s) => s.addresses[0]?.addr ?? '')
+  }
+
+  it('sorts IPv4 numerically, not lexicographically (#2868)', () => {
+    const shuffled = [
+      '192.168.0.155',
+      '192.168.0.163',
+      '192.168.0.2',
+      '192.168.0.200',
+      '192.168.0.7',
+      '192.168.0.77',
+    ]
+    expect(sortedIps(shuffled, 'IpAddrAsc')).toEqual([
+      '192.168.0.2',
+      '192.168.0.7',
+      '192.168.0.77',
+      '192.168.0.155',
+      '192.168.0.163',
+      '192.168.0.200',
+    ])
+  })
+
+  it('reverses IPv4 order for descending sort', () => {
+    const shuffled = ['192.168.0.7', '192.168.0.2', '192.168.0.155']
+    expect(sortedIps(shuffled, 'IpAddrDesc')).toEqual([
+      '192.168.0.155',
+      '192.168.0.7',
+      '192.168.0.2',
+    ])
+  })
+
+  it('treats leading zeros by numeric value', () => {
+    expect(
+      compareServices(serviceWithIp('192.168.0.002'), serviceWithIp('192.168.0.2'), 'IpAddrAsc'),
+    ).toBe(0)
+    expect(sortedIps(['10.0.0.10', '10.0.0.9'], 'IpAddrAsc')).toEqual(['10.0.0.9', '10.0.0.10'])
+  })
+
+  it('sorts IPv6 numerically', () => {
+    expect(sortedIps(['2001:db8::10', '2001:db8::1', '2001:db8::2'], 'IpAddrAsc')).toEqual([
+      '2001:db8::1',
+      '2001:db8::2',
+      '2001:db8::10',
+    ])
+    expect(sortedIps(['::1', '2001:db8::1'], 'IpAddrAsc')).toEqual(['::1', '2001:db8::1'])
+  })
+
+  it('sorts IPv4 before IPv6', () => {
+    expect(sortedIps(['2001:db8::1', '192.168.0.2'], 'IpAddrAsc')).toEqual([
+      '192.168.0.2',
+      '2001:db8::1',
+    ])
+  })
+})
+
+describe('sortAddresses', () => {
+  it('returns addresses in numeric order without mutating the input', () => {
+    const input = [addr('192.168.0.155'), addr('192.168.0.2'), addr('192.168.0.77')]
+    const sorted = sortAddresses(input).map((a) => a.addr)
+    expect(sorted).toEqual(['192.168.0.2', '192.168.0.77', '192.168.0.155'])
+    expect(input.map((a) => a.addr)).toEqual(['192.168.0.155', '192.168.0.2', '192.168.0.77'])
+  })
+
+  it('keeps scope tiebreakers for equal IPs', () => {
+    const sorted = sortAddresses([addr('192.168.0.2', '3'), addr('192.168.0.2')])
+    expect(sorted.map((a) => a.scope_id)).toEqual([null, '3'])
   })
 })
