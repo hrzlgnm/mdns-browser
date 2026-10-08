@@ -4,6 +4,7 @@ import {
   dropLocalAndTrailingDot,
   dropTrailingDot,
   getOpenUrls,
+  sortTxtRecords,
 } from './browse-utils'
 import type { ResolvedService, ScopedAddr } from 'tauri-plugin-mdns-api'
 
@@ -244,5 +245,25 @@ describe('deadInstanceNames', () => {
 
   it('returns an empty list for an empty store', () => {
     expect(deadInstanceNames(new Map())).toEqual([])
+  })
+})
+
+describe('sortTxtRecords', () => {
+  it('orders keys case-insensitively (RFC 6763, section 6.4)', () => {
+    const txt = [
+      { key: 'banana', val: null },
+      { key: 'Apple', val: null },
+      { key: 'cherry', val: '1' },
+    ]
+    expect(sortTxtRecords(txt).map((record) => record.key)).toEqual(['Apple', 'banana', 'cherry'])
+  })
+
+  it('breaks case-fold ties by raw key without mutating the input', () => {
+    const txt = [
+      { key: 'b', val: null },
+      { key: 'B', val: null },
+    ]
+    expect(sortTxtRecords(txt).map((record) => record.key)).toEqual(['B', 'b'])
+    expect(txt.map((record) => record.key)).toEqual(['b', 'B'])
   })
 })
