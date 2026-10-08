@@ -343,6 +343,13 @@ describe('compareServices IpAddr', () => {
       '2001:db8::1',
     ])
   })
+
+  it('ranks multi-address services by their sorted addresses', () => {
+    const a = service({ addresses: [addr('192.168.0.155'), addr('192.168.0.2')] })
+    const b = service({ addresses: [addr('192.168.0.7')] })
+    expect([a, b].sort((x, y) => compareServices(x, y, 'IpAddrAsc'))).toEqual([a, b])
+    expect([a, b].sort((x, y) => compareServices(x, y, 'IpAddrDesc'))).toEqual([b, a])
+  })
 })
 
 describe('sortAddresses', () => {

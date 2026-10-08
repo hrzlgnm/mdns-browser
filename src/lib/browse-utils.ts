@@ -384,15 +384,19 @@ export function sortAddresses(addresses: Array<ScopedAddr>): Array<ScopedAddr> {
 }
 
 function compareScopedAddrs(a: Array<ScopedAddr>, b: Array<ScopedAddr>): number {
-  const len = Math.min(a.length, b.length)
+  // Rank by the same numeric order the details view shows, so a service
+  // holding `192.168.0.155` and `192.168.0.2` sorts under `.2`.
+  const sa = sortAddresses(a)
+  const sb = sortAddresses(b)
+  const len = Math.min(sa.length, sb.length)
   for (let i = 0; i < len; i++) {
-    const x = a[i]
-    const y = b[i]
+    const x = sa[i]
+    const y = sb[i]
     if (x === undefined || y === undefined) break
     const order = compareScopedAddrSingle(x, y)
     if (order !== 0) return order
   }
-  if (a.length !== b.length) return a.length < b.length ? -1 : 1
+  if (sa.length !== sb.length) return sa.length < sb.length ? -1 : 1
   return 0
 }
 
