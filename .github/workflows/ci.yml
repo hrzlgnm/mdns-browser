@@ -250,7 +250,7 @@ jobs:
 
   all-required-green: # This job does nothing and is only used for the branch protection
     name: CI Status
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     needs:
       - check-release
       - typos
