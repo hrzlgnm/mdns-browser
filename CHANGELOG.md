@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.0...v2.9.1) (2026-10-10)
+
+
+### Dependencies
+
+* update dependency @sveltejs/kit to v3.0.1 ([#2816](https://github.com/hrzlgnm/mdns-browser/issues/2816)) ([b9b40d7](https://github.com/hrzlgnm/mdns-browser/commit/b9b40d70d23e339dc4d31c170ca567df11aca27b))
+* update dependency svelte to v5.57.2 ([#2879](https://github.com/hrzlgnm/mdns-browser/issues/2879)) ([98b6707](https://github.com/hrzlgnm/mdns-browser/commit/98b67073de65b0f6cdd76dbea6c257f65369882e))
+* update dependency typescript-eslint to v8.71.1 ([#2872](https://github.com/hrzlgnm/mdns-browser/issues/2872)) ([b320597](https://github.com/hrzlgnm/mdns-browser/commit/b320597a52507fca385855e469565fe662b2658f))
+* update dependency vite to v8.3.3 ([#2875](https://github.com/hrzlgnm/mdns-browser/issues/2875)) ([390ac3a](https://github.com/hrzlgnm/mdns-browser/commit/390ac3a261dcfaabe7aeb1c3f1712979bb099c5b))
+* update dtolnay/rust-toolchain digest to 686976e ([#2874](https://github.com/hrzlgnm/mdns-browser/issues/2874)) ([977bd26](https://github.com/hrzlgnm/mdns-browser/commit/977bd26ffe393dccd3f7389996c7ccdeebc354dd))
+* update mikepenz/action-junit-report digest to 6ef3fdc ([#2871](https://github.com/hrzlgnm/mdns-browser/issues/2871)) ([b25a121](https://github.com/hrzlgnm/mdns-browser/commit/b25a121636a0b21523eee0f70dad34690c7d7cce))
+* update pnpm to v12.10.0 ([#2877](https://github.com/hrzlgnm/mdns-browser/issues/2877)) ([f537ca1](https://github.com/hrzlgnm/mdns-browser/commit/f537ca1f53df2c5a7cf7596b23e2515c5b8662b3))
+* update pnpm to v12.10.1 ([#2880](https://github.com/hrzlgnm/mdns-browser/issues/2880)) ([0cdc7c8](https://github.com/hrzlgnm/mdns-browser/commit/0cdc7c8b502b3a0f68318c5dc9672a650f8a92ce))
+* update rust crate serde_json to v1.0.152 ([#2882](https://github.com/hrzlgnm/mdns-browser/issues/2882)) ([96f47ed](https://github.com/hrzlgnm/mdns-browser/commit/96f47edf62320d7ffc508f623c65468fa12fa17a))
+* update tauri monorepo ([#2881](https://github.com/hrzlgnm/mdns-browser/issues/2881)) ([5486506](https://github.com/hrzlgnm/mdns-browser/commit/548650635a6016e02b215aa0f43c7966cc554c3f))
+* update tauri monorepo to v2.12.2 ([#2876](https://github.com/hrzlgnm/mdns-browser/issues/2876)) ([e7845fd](https://github.com/hrzlgnm/mdns-browser/commit/e7845fdd4315276c5f34bebbe1bae30b7a43f697))
+
+
+### Miscellaneous Chores
+
+* use ubuntu-slim runner where safe ([#2878](https://github.com/hrzlgnm/mdns-browser/issues/2878)) ([bd44d80](https://github.com/hrzlgnm/mdns-browser/commit/bd44d80d138b4d9920fb842b192b9c702e406bbe))
+
 ## [2.9.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.8.2...v2.9.0) (2026-10-08)
 
 
