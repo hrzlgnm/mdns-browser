@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.2](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.1...v2.9.2) (2026-10-15)
+
+
+### Bug Fixes
+
+* attribute Inter font under SIL OFL 1.1 ([#2908](https://github.com/hrzlgnm/mdns-browser/issues/2908)) ([d2ee129](https://github.com/hrzlgnm/mdns-browser/commit/d2ee129386e7e7b997f0f68b2749e09192b0687b))
+* declare OFL-1.1 in mdns-browser-bin AUR license array ([#2909](https://github.com/hrzlgnm/mdns-browser/issues/2909)) ([cf0234b](https://github.com/hrzlgnm/mdns-browser/commit/cf0234b36402a6cbfe0ff49282ac598bc78e1ba8))
+
+
+### Dependencies
+
+* lock file maintenance ([#2890](https://github.com/hrzlgnm/mdns-browser/issues/2890)) ([c225107](https://github.com/hrzlgnm/mdns-browser/commit/c22510783e0852d15ead16098f45347d816185db))
+* update actions/setup-java digest to b843ebf ([#2901](https://github.com/hrzlgnm/mdns-browser/issues/2901)) ([270f322](https://github.com/hrzlgnm/mdns-browser/commit/270f322bfa07007319cd4ba74f9b05240519d12d))
+* update archlinux:base-devel docker digest to 0616799 ([#2895](https://github.com/hrzlgnm/mdns-browser/issues/2895)) ([a102613](https://github.com/hrzlgnm/mdns-browser/commit/a1026136f7690eecc84cc96392c083ceb70fb4d6))
+* update dependency @types/node to v26.6.5 ([#2896](https://github.com/hrzlgnm/mdns-browser/issues/2896)) ([8301f6c](https://github.com/hrzlgnm/mdns-browser/commit/8301f6cddf9fe5dc121f0c163fbfd3c5fc4ecd3f))
+* update dependency eslint-plugin-svelte to v3.23.1 ([#2892](https://github.com/hrzlgnm/mdns-browser/issues/2892)) ([32b84bc](https://github.com/hrzlgnm/mdns-browser/commit/32b84bc0f6ad725e10e09d5a86fe2aaf45e9af0c))
+* update dependency komac to v2.17.1 ([#2905](https://github.com/hrzlgnm/mdns-browser/issues/2905)) ([95a463c](https://github.com/hrzlgnm/mdns-browser/commit/95a463c40a976da89e7908b20bc18b8cbd50548c))
+* update dependency prettier to v3.9.10 ([#2899](https://github.com/hrzlgnm/mdns-browser/issues/2899)) ([c33dc60](https://github.com/hrzlgnm/mdns-browser/commit/c33dc60d1b5ffde27bfad20fe72a5b620c0e0a8f))
+* update dependency typescript-eslint to v8.71.2 ([#2907](https://github.com/hrzlgnm/mdns-browser/issues/2907)) ([b8f7cd2](https://github.com/hrzlgnm/mdns-browser/commit/b8f7cd230e10914ac821c09878c0bfb70c804230))
+* update dependency vitest to v5.0.4 ([#2906](https://github.com/hrzlgnm/mdns-browser/issues/2906)) ([f801e3b](https://github.com/hrzlgnm/mdns-browser/commit/f801e3b23e1f3b60b33dfc29bb5c7275db71b397))
+* update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 16cf499 ([#2898](https://github.com/hrzlgnm/mdns-browser/issues/2898)) ([4881861](https://github.com/hrzlgnm/mdns-browser/commit/488186172209857c060ec4939aea29054cc494d5))
+* update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 688d060 ([#2903](https://github.com/hrzlgnm/mdns-browser/issues/2903)) ([428cbe1](https://github.com/hrzlgnm/mdns-browser/commit/428cbe16808bd99c548c979d68c1dda4dfd92329))
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 6ab9b30 ([#2904](https://github.com/hrzlgnm/mdns-browser/issues/2904)) ([02b2d01](https://github.com/hrzlgnm/mdns-browser/commit/02b2d0167e2f189feda2c6c1e5be0e945841fd14))
+* update pnpm to v12.11.0 ([#2893](https://github.com/hrzlgnm/mdns-browser/issues/2893)) ([40242f7](https://github.com/hrzlgnm/mdns-browser/commit/40242f79e0e85eecc4893bb56c24d368bef9dca8))
+* update pnpm to v12.11.1 ([#2894](https://github.com/hrzlgnm/mdns-browser/issues/2894)) ([6ae0f77](https://github.com/hrzlgnm/mdns-browser/commit/6ae0f7778caf0367f83ce561c2a06e084b061a48))
+* update pnpm to v12.11.2 ([#2897](https://github.com/hrzlgnm/mdns-browser/issues/2897)) ([ab8ce00](https://github.com/hrzlgnm/mdns-browser/commit/ab8ce00f453f6c15d5e7f6f5f6b2ff37cd84d8ae))
+* update rust crate tokio to v1.53.3 ([#2900](https://github.com/hrzlgnm/mdns-browser/issues/2900)) ([6ffe538](https://github.com/hrzlgnm/mdns-browser/commit/6ffe53814086222fe3409e7ba5e9aa7c751f4563))
+* update tauri monorepo ([#2902](https://github.com/hrzlgnm/mdns-browser/issues/2902)) ([879033e](https://github.com/hrzlgnm/mdns-browser/commit/879033e9e42ad7a6c4051397c7e05bbb20dd31f5))
+
 ## [2.9.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.0...v2.9.1) (2026-10-11)
 
 
