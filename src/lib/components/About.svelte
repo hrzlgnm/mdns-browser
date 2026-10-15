@@ -5,7 +5,6 @@
   import MdiDownloadCircleOutline from '~icons/mdi/download-circle-outline'
   import MdiGithub from '~icons/mdi/github'
   import MdiInboxArrowDown from '~icons/mdi/inbox-arrow-down'
-  import MdiLicense from '~icons/mdi/license'
   import { canAutoUpdate, getVersion } from '#lib/api.js'
   import { desktop } from '#lib/store.js'
   import { pushToast } from '#lib/toast.js'
@@ -78,14 +77,6 @@
     <summary>About</summary>
     <div>
       <span>Version {version}</span>
-      <button type="button" class="themed-button" onclick={() => void openUrl(INTER_URL)}>
-        <MdiGithub width="1.2em" height="1.2em" aria-hidden="true" />
-        Inter Font
-      </button>
-      <button type="button" class="themed-button" onclick={() => void openUrl(OFL_URL)}>
-        <MdiLicense width="1.2em" height="1.2em" aria-hidden="true" />
-        Font License
-      </button>
       {#if $desktop}
         <button
           type="button"
@@ -139,7 +130,16 @@
           </button>
         {/if}
       {/if}
-      <span>Inter font © 2016 The Inter Project Authors, licensed under SIL OFL 1.1</span>
+      <span class="font-attribution">
+        Inter font by
+        <button type="button" class="attribution-link" onclick={() => void openUrl(INTER_URL)}>
+          The Inter Project Authors
+        </button>
+        ·
+        <button type="button" class="attribution-link" onclick={() => void openUrl(OFL_URL)}>
+          SIL OFL 1.1
+        </button>
+      </span>
     </div>
   </details>
 </div>
