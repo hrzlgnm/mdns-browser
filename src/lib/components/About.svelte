@@ -78,7 +78,6 @@
     <summary>About</summary>
     <div>
       <span>Version {version}</span>
-      <span>Inter font © 2016 The Inter Project Authors, licensed under SIL OFL 1.1</span>
       <button type="button" class="themed-button" onclick={() => void openUrl(INTER_URL)}>
         <MdiGithub width="1.2em" height="1.2em" aria-hidden="true" />
         Inter Font
@@ -140,6 +139,7 @@
           </button>
         {/if}
       {/if}
+      <span>Inter font © 2016 The Inter Project Authors, licensed under SIL OFL 1.1</span>
     </div>
   </details>
 </div>
