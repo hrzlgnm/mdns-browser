@@ -5,6 +5,7 @@
   import MdiDownloadCircleOutline from '~icons/mdi/download-circle-outline'
   import MdiGithub from '~icons/mdi/github'
   import MdiInboxArrowDown from '~icons/mdi/inbox-arrow-down'
+  import MdiLicense from '~icons/mdi/license'
   import { canAutoUpdate, getVersion } from '#lib/api.js'
   import { desktop } from '#lib/store.js'
   import { pushToast } from '#lib/toast.js'
@@ -83,7 +84,7 @@
         Inter Font
       </button>
       <button type="button" class="themed-button" onclick={() => void openUrl(OFL_URL)}>
-        <MdiGithub width="1.2em" height="1.2em" aria-hidden="true" />
+        <MdiLicense width="1.2em" height="1.2em" aria-hidden="true" />
         Font License
       </button>
       {#if $desktop}
