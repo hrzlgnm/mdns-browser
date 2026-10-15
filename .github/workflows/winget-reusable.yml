@@ -46,7 +46,7 @@ jobs:
         uses: baptiste0928/cargo-install@8195d4f734a149db85385bb4102b42efcd373759 # v3
         with:
           crate: komac
-          version: 2.16.0
+          version: 2.17.1
           locked: true
 
       - name: 🆙 sync our fork of winget-pkgs
