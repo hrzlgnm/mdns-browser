@@ -9,7 +9,9 @@
         "active": true,
         "licenseFile": "../LICENSE",
         "license": "MIT",
-        "resources": ["../LICENSES/Inter-OFL.txt"],
+        "resources": [
+            "../LICENSES/Inter-OFL.txt"
+        ],
         "targets": [
             "app",
             "deb",
@@ -56,7 +58,7 @@
         }
     },
     "productName": "mdns-browser",
-    "version": "2.9.1",
+    "version": "2.9.2",
     "identifier": "com.github.hrzlgnm.mdns-browser",
     "plugins": {
         "updater": {
