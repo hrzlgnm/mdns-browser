@@ -11,6 +11,8 @@
   import { checkUpdate, closeUpdate, downloadAndInstall, type PendingUpdate } from '#lib/updater.js'
 
   const GITHUB_BASE_URL = 'https://github.com/hrzlgnm/mdns-browser'
+  const INTER_URL = 'https://github.com/rsms/inter'
+  const OFL_URL = 'https://scripts.sil.org/OFL'
   const SHOW_NO_UPDATE_DURATION_MS = 3000
 
   let version = $state('')
@@ -128,6 +130,16 @@
           </button>
         {/if}
       {/if}
+      <span class="font-attribution">
+        Inter font by
+        <button type="button" class="attribution-link" onclick={() => void openUrl(INTER_URL)}>
+          The Inter Project Authors
+        </button>
+        ·
+        <button type="button" class="attribution-link" onclick={() => void openUrl(OFL_URL)}>
+          SIL OFL 1.1
+        </button>
+      </span>
     </div>
   </details>
 </div>
