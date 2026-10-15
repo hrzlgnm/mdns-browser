@@ -9,6 +9,7 @@
         "active": true,
         "licenseFile": "../LICENSE",
         "license": "MIT",
+        "resources": ["../LICENSES/Inter-OFL.txt"],
         "targets": [
             "app",
             "deb",
@@ -29,7 +30,8 @@
             "deb": {
                 "changelog": "../CHANGELOG.md",
                 "files": {
-                    "/usr/share/man/man1/mdns-browser.1": "../docs/mdns-browser.1"
+                    "/usr/share/man/man1/mdns-browser.1": "../docs/mdns-browser.1",
+                    "/usr/share/doc/mdns-browser/Inter-OFL.txt": "../LICENSES/Inter-OFL.txt"
                 }
             },
             "rpm": {
@@ -39,7 +41,8 @@
                 },
                 "files": {
                     "/usr/share/doc/mdns-browser/changelog": "../CHANGELOG.md",
-                    "/usr/share/man/man1/mdns-browser.1": "../docs/mdns-browser.1"
+                    "/usr/share/man/man1/mdns-browser.1": "../docs/mdns-browser.1",
+                    "/usr/share/doc/mdns-browser/Inter-OFL.txt": "../LICENSES/Inter-OFL.txt"
                 }
             }
         },

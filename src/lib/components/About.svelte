@@ -11,6 +11,8 @@
   import { checkUpdate, closeUpdate, downloadAndInstall, type PendingUpdate } from '#lib/updater.js'
 
   const GITHUB_BASE_URL = 'https://github.com/hrzlgnm/mdns-browser'
+  const INTER_URL = 'https://github.com/rsms/inter'
+  const OFL_URL = 'https://scripts.sil.org/OFL'
   const SHOW_NO_UPDATE_DURATION_MS = 3000
 
   let version = $state('')
@@ -75,6 +77,15 @@
     <summary>About</summary>
     <div>
       <span>Version {version}</span>
+      <span>Inter font © 2016 The Inter Project Authors, licensed under SIL OFL 1.1</span>
+      <button type="button" class="themed-button" onclick={() => void openUrl(INTER_URL)}>
+        <MdiGithub width="1.2em" height="1.2em" aria-hidden="true" />
+        Inter Font
+      </button>
+      <button type="button" class="themed-button" onclick={() => void openUrl(OFL_URL)}>
+        <MdiGithub width="1.2em" height="1.2em" aria-hidden="true" />
+        Font License
+      </button>
       {#if $desktop}
         <button
           type="button"
