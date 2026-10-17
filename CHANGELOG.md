@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.3](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.2...v2.9.3) (2026-10-17)
+
+
+### Dependencies
+
+* lock file maintenance ([#2913](https://github.com/hrzlgnm/mdns-browser/issues/2913)) ([7f73c50](https://github.com/hrzlgnm/mdns-browser/commit/7f73c5024b389c25ea140200febaf4fa061e1edf))
+* update dtolnay/rust-toolchain digest to b725eda ([#2910](https://github.com/hrzlgnm/mdns-browser/issues/2910)) ([c60bb35](https://github.com/hrzlgnm/mdns-browser/commit/c60bb35847885f84534029f9c98f077de2c909ed))
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 7919adb ([#2917](https://github.com/hrzlgnm/mdns-browser/issues/2917)) ([a7fd9cb](https://github.com/hrzlgnm/mdns-browser/commit/a7fd9cbd169625e3a2ce6f9d0c32b090342ad67d))
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to a2bdf33 ([#2915](https://github.com/hrzlgnm/mdns-browser/issues/2915)) ([2efb921](https://github.com/hrzlgnm/mdns-browser/commit/2efb921ec811c24462ee933bf3a51d6439823903))
+* update pnpm to v12.13.0 ([#2912](https://github.com/hrzlgnm/mdns-browser/issues/2912)) ([4c1f309](https://github.com/hrzlgnm/mdns-browser/commit/4c1f309ca25e93f29084f174fda5b629b43f9ada))
+* update ubuntu:latest docker digest to 2e27ff3 ([#2914](https://github.com/hrzlgnm/mdns-browser/issues/2914)) ([c440af5](https://github.com/hrzlgnm/mdns-browser/commit/c440af5a885b21a00071e56a7bd421f603fef8f5))
+* update ubuntu:latest docker digest to c098726 ([#2916](https://github.com/hrzlgnm/mdns-browser/issues/2916)) ([26fc495](https://github.com/hrzlgnm/mdns-browser/commit/26fc4956cc48ed5104469cae6d846fbc76868106))
+
 ## [2.9.2](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.1...v2.9.2) (2026-10-15)
 
 
