@@ -52,7 +52,10 @@ jobs:
 
       - name: 🔒 Sync Cargo.lock with the bumped Cargo.toml files
         shell: bash
-        run: cargo update --manifest-path src-tauri/Cargo.toml
+        # Minimal sync only: bump the workspace package version in the lock.
+        # Transitive upgrades belong to Renovate lock maintenance, not releases
+        # (bare `cargo update` would maximize everything, bloating release PRs).
+        run: cargo update --workspace --manifest-path src-tauri/Cargo.toml
 
       - name: 📤 Commit Cargo.lock if changed
         shell: bash
