@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.3](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.2...v2.9.3) (2026-10-19)
+
+
+### Dependencies
+
+* lock file maintenance ([#2913](https://github.com/hrzlgnm/mdns-browser/issues/2913)) ([7f73c50](https://github.com/hrzlgnm/mdns-browser/commit/7f73c5024b389c25ea140200febaf4fa061e1edf))
+* lock file maintenance ([#2921](https://github.com/hrzlgnm/mdns-browser/issues/2921)) ([171a2da](https://github.com/hrzlgnm/mdns-browser/commit/171a2da1af887c025df7fb0dc91d46fd2b9120bc))
+* lock file maintenance ([#2924](https://github.com/hrzlgnm/mdns-browser/issues/2924)) ([2f534bc](https://github.com/hrzlgnm/mdns-browser/commit/2f534bce95394901c74e88a1e19ef12787bbc714))
+* lock file maintenance ([#2926](https://github.com/hrzlgnm/mdns-browser/issues/2926)) ([fb17afb](https://github.com/hrzlgnm/mdns-browser/commit/fb17afbf16f89c218051c92b334f7ccaf2d0d177))
+* update dependency @sveltejs/kit to v3.1.0 ([#2918](https://github.com/hrzlgnm/mdns-browser/issues/2918)) ([77172c2](https://github.com/hrzlgnm/mdns-browser/commit/77172c2a724a2141fd3c934462a730e8cdf31db8))
+* update dependency tauri-plugin-mdns-api to v0.4.5 ([#2925](https://github.com/hrzlgnm/mdns-browser/issues/2925)) ([9495c40](https://github.com/hrzlgnm/mdns-browser/commit/9495c4082375d755a87680396308b8ed9f516957))
+* update dependency vitest to v5.0.5 ([#2919](https://github.com/hrzlgnm/mdns-browser/issues/2919)) ([a3296fe](https://github.com/hrzlgnm/mdns-browser/commit/a3296fecd58183056ffee523abbc400aefb4837c))
+* update dtolnay/rust-toolchain digest to b725eda ([#2910](https://github.com/hrzlgnm/mdns-browser/issues/2910)) ([c60bb35](https://github.com/hrzlgnm/mdns-browser/commit/c60bb35847885f84534029f9c98f077de2c909ed))
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 7919adb ([#2917](https://github.com/hrzlgnm/mdns-browser/issues/2917)) ([a7fd9cb](https://github.com/hrzlgnm/mdns-browser/commit/a7fd9cbd169625e3a2ce6f9d0c32b090342ad67d))
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to a2bdf33 ([#2915](https://github.com/hrzlgnm/mdns-browser/issues/2915)) ([2efb921](https://github.com/hrzlgnm/mdns-browser/commit/2efb921ec811c24462ee933bf3a51d6439823903))
+* update pnpm to v12.13.0 ([#2912](https://github.com/hrzlgnm/mdns-browser/issues/2912)) ([4c1f309](https://github.com/hrzlgnm/mdns-browser/commit/4c1f309ca25e93f29084f174fda5b629b43f9ada))
+* update pnpm to v12.14.0 ([#2920](https://github.com/hrzlgnm/mdns-browser/issues/2920)) ([17ea63a](https://github.com/hrzlgnm/mdns-browser/commit/17ea63a79ba874188aa215cfa375543f17855895))
+* update rust crate tauri-plugin-mdns to v0.4.5 ([#2922](https://github.com/hrzlgnm/mdns-browser/issues/2922)) ([bcc4b2d](https://github.com/hrzlgnm/mdns-browser/commit/bcc4b2dfded9cf20f6a081770b62a89b0e6feb57))
+* update tauri-plugin-android-update to v0.3.4 ([#2923](https://github.com/hrzlgnm/mdns-browser/issues/2923)) ([190647a](https://github.com/hrzlgnm/mdns-browser/commit/190647a7bbba9d5838d765158165c3d13e7c3660))
+* update ubuntu:latest docker digest to 2e27ff3 ([#2914](https://github.com/hrzlgnm/mdns-browser/issues/2914)) ([c440af5](https://github.com/hrzlgnm/mdns-browser/commit/c440af5a885b21a00071e56a7bd421f603fef8f5))
+* update ubuntu:latest docker digest to c098726 ([#2916](https://github.com/hrzlgnm/mdns-browser/issues/2916)) ([26fc495](https://github.com/hrzlgnm/mdns-browser/commit/26fc4956cc48ed5104469cae6d846fbc76868106))
+
 ## [2.9.2](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.1...v2.9.2) (2026-10-15)
 
 
