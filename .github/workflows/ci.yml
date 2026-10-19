@@ -248,6 +248,34 @@ jobs:
     with:
       branch: ${{ needs.changes.outputs.branch }}
 
+  lockfile-fresh:
+    name: "🔒 Lockfile Fresh"
+    needs:
+      - check-release
+    if: needs.check-release.outputs.is_release != 'true' && github.event_name == 'pull_request' && startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read # checkout only; the check never commits anything
+    steps:
+      - name: 🔄 Checkout PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: 🦀 Setup Rust
+        uses: ./.github/actions/setup-rust-cache
+
+      - name: 🔒 Verify lockfile is fully maximized
+        shell: bash
+        run: |
+          cargo update --manifest-path src-tauri/Cargo.toml
+          if ! git diff --quiet -- src-tauri/Cargo.lock; then
+            echo "::error::Cargo.lock is not fully maximized. Run Renovate lock maintenance, let release-please refresh this PR, then re-run CI."
+            git diff --stat -- src-tauri/Cargo.lock
+            exit 1
+          fi
+          echo "Cargo.lock is fully maximized"
+
   all-required-green: # This job does nothing and is only used for the branch protection
     name: CI Status
     runs-on: ubuntu-slim
@@ -263,6 +291,7 @@ jobs:
       - desktop
       - docker
       - cache-tools
+      - lockfile-fresh
     if: always()
     steps:
       - name: Check whether the needed jobs succeeded or failed
@@ -278,5 +307,6 @@ jobs:
             android,
             desktop,
             docker,
-            cache-tools
+            cache-tools,
+            lockfile-fresh
           jobs: ${{ toJSON(needs) }}
