@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.4](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.3...v2.9.4) (2026-10-21)
+
+
+### Dependencies
+
+* lock file maintenance ([#2935](https://github.com/hrzlgnm/mdns-browser/issues/2935)) ([88f0517](https://github.com/hrzlgnm/mdns-browser/commit/88f051722f7dad9684fced63978ad51831444abe))
+* lock file maintenance ([#2941](https://github.com/hrzlgnm/mdns-browser/issues/2941)) ([9144feb](https://github.com/hrzlgnm/mdns-browser/commit/9144feb4e5cb932f3048262dec9949640c306804))
+* update archlinux:base-devel docker digest to 0ccc8b2 ([#2933](https://github.com/hrzlgnm/mdns-browser/issues/2933)) ([15c73f6](https://github.com/hrzlgnm/mdns-browser/commit/15c73f69516c3de818d326f8fceb315982f051d2))
+* update dependency cargo-nextest to v0.9.149 ([#2939](https://github.com/hrzlgnm/mdns-browser/issues/2939)) ([e1b5339](https://github.com/hrzlgnm/mdns-browser/commit/e1b5339c5d5129d51526d38bd1cb480c87fcbc15))
+* update dependency eslint to v10.13.0 ([#2929](https://github.com/hrzlgnm/mdns-browser/issues/2929)) ([eb93b2a](https://github.com/hrzlgnm/mdns-browser/commit/eb93b2a16ea3e2d3cc1f1bb644ea13f34a09a99c))
+* update dependency svelte-check to v4.7.7 ([#2928](https://github.com/hrzlgnm/mdns-browser/issues/2928)) ([7f0840e](https://github.com/hrzlgnm/mdns-browser/commit/7f0840e25ee49484eaabf94f882fcd69bb8443a7))
+* update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 8279aeb ([#2936](https://github.com/hrzlgnm/mdns-browser/issues/2936)) ([4f8fb76](https://github.com/hrzlgnm/mdns-browser/commit/4f8fb76e050bc2abfd40e97865e1de11723d942e))
+* update rust crate tokio to v1.54.0 ([#2931](https://github.com/hrzlgnm/mdns-browser/issues/2931)) ([ed06c1f](https://github.com/hrzlgnm/mdns-browser/commit/ed06c1fb44ec7008e05322a5ad38cb34cef3cf44))
+* update rust crate webkit2gtk-nvidia-quirk to v2.3.0 ([#2938](https://github.com/hrzlgnm/mdns-browser/issues/2938)) ([0ee1851](https://github.com/hrzlgnm/mdns-browser/commit/0ee18510bb4f9bd1bb6f2734ee071d2ddeb2d9d5))
+* update swatinem/rust-cache digest to d1527c8 ([#2937](https://github.com/hrzlgnm/mdns-browser/issues/2937)) ([17a3cbc](https://github.com/hrzlgnm/mdns-browser/commit/17a3cbce736f6949bdc71ab510af29c8158dcbac))
+* update tauri-plugin-android-update to v0.3.5 ([#2940](https://github.com/hrzlgnm/mdns-browser/issues/2940)) ([eac3917](https://github.com/hrzlgnm/mdns-browser/commit/eac39173c0f47d62f7d65de2c6ccffef3643b879))
+
+
+### Miscellaneous Chores
+
+* gate release PRs on a fully maximized Cargo.lock ([#2934](https://github.com/hrzlgnm/mdns-browser/issues/2934)) ([9e26829](https://github.com/hrzlgnm/mdns-browser/commit/9e268297b0c81fc39fdb0e5b5f4530be67601d8c))
+* remove release-guard in favor of failure handler ([#2927](https://github.com/hrzlgnm/mdns-browser/issues/2927)) ([c64e243](https://github.com/hrzlgnm/mdns-browser/commit/c64e2433d024690758446063bdc75b2645b4a526))
+* sync Cargo.lock minimally in release workflow ([#2932](https://github.com/hrzlgnm/mdns-browser/issues/2932)) ([f3d047b](https://github.com/hrzlgnm/mdns-browser/commit/f3d047ba074b4fbb3bdda9b82b5cc72bb3c72903))
+
 ## [2.9.3](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.2...v2.9.3) (2026-10-19)
 
 
