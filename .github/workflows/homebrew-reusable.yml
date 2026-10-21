@@ -48,7 +48,7 @@ jobs:
           fetch-depth: 0
 
       - name: 📥 Download DMG Checksum
-        uses: hrzlgnm/actions/.github/actions/retry@3b5eb26cd2ff15d176be2c8424f4e036550041a4 # v2.14.11
+        uses: hrzlgnm/actions/.github/actions/retry@94777e03049567378cd9051863dbcbb606a06ab0 # v2.14.12
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.release-info.outputs.tagName }}
@@ -79,7 +79,7 @@ jobs:
           sed -i "s/sha256 \".*\"/sha256 \"$CHECKSUM\"/" "$CASK_PATH"
 
       - name: 💾 Commit & Push to Tap
-        uses: hrzlgnm/actions/.github/actions/retry@3b5eb26cd2ff15d176be2c8424f4e036550041a4 # v2.14.11
+        uses: hrzlgnm/actions/.github/actions/retry@94777e03049567378cd9051863dbcbb606a06ab0 # v2.14.12
         env:
           VERSION: ${{ needs.release-info.outputs.version }}
         with:
