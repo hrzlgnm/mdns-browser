@@ -27,20 +27,6 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  label-pr:
-    if: github.event_name == 'pull_request'
-    name: "🏷️ Label PR"
-    permissions:
-      contents: read # needed to read repository contents for labeler config
-      pull-requests: write # needed to apply labels to PRs
-      issues: write # needed to create non-existing labels
-    runs-on: ubuntu-slim
-
-    steps:
-      - uses: actions/labeler@bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13 # v7.0.0
-        with:
-          configuration-path: .github/labeler.yml
-
   check-release:
     name: "🏷️ Check release tag"
     runs-on: ubuntu-slim
