@@ -256,7 +256,7 @@ jobs:
         run: |
           cargo update --manifest-path src-tauri/Cargo.toml
           if ! git diff --quiet -- src-tauri/Cargo.lock; then
-            echo "::error::Cargo.lock is not fully maximized. Run Renovate lock maintenance, let release-please refresh this PR, then re-run CI."
+            echo "::error::Cargo.lock is not fully maximized. Run Renovate lock maintenance and let release-please refresh this PR (CI re-runs automatically on the update)."
             git diff --stat -- src-tauri/Cargo.lock
             exit 1
           fi
