@@ -192,7 +192,7 @@ importers:
         version: 2.14.0
       tauri-plugin-android-update-api:
         specifier: ^0.3.0
-        version: 0.3.5
+        version: 0.3.6
       tauri-plugin-mdns-api:
         specifier: ^0.4.0
         version: 0.4.5
@@ -1280,8 +1280,8 @@ packages:
     resolution: {integrity: sha512-1YiPCAXT0Ct6g1vOMmSLa0Nsc3QRMvtDF32ihgglGVrugIuIK38RyDiFNXVDhtQ81TJjSO57NdMw6DyYLqSGDQ==}
     engines: {node: '>=18'}
 
-  tauri-plugin-android-update-api@0.3.5:
-    resolution: {integrity: sha512-YfyvbClBImFm1lFCh+oOrwFfQWjaC9JiWG2UA9Bcn6OrqlUDBIMfY8vNMHhMY2cP/zPP5jdyU7oFv1DcmucAhA==}
+  tauri-plugin-android-update-api@0.3.6:
+    resolution: {integrity: sha512-pLFUk/bBKpoAk2/tFvGIE0Resrx3Bfaee4JHY1m30GWr6+CRf1H99EjcBsHNRje/tJpxyTvjQ3674wHywRj6hA==}
 
   tauri-plugin-mdns-api@0.4.5:
     resolution: {integrity: sha512-bz+3v8Vhz1LD+56m7UWKmsFEjF4ZFuEaOfQmJYayz4jpHOa/0doeiDZhwiNnXl6jtqPdqnuAffGBmDLgYL5pZA==}
@@ -2444,7 +2444,7 @@ snapshots:
     transitivePeerDependencies:
       - '@typescript-eslint/types'
 
-  tauri-plugin-android-update-api@0.3.5:
+  tauri-plugin-android-update-api@0.3.6:
     dependencies:
       '@tauri-apps/api': 2.12.4
 
