@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.5](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.4...v2.9.5) (2026-10-24)
+
+
+### Bug Fixes
+
+* drop redundant renovate managers behind built-in extraction ([#2956](https://github.com/hrzlgnm/mdns-browser/issues/2956)) ([6bd8b9a](https://github.com/hrzlgnm/mdns-browser/commit/6bd8b9ab79e44d2770f4d0e335b8b568f3288675))
+
+
+### Dependencies
+
+* lock file maintenance ([#2960](https://github.com/hrzlgnm/mdns-browser/issues/2960)) ([03ce225](https://github.com/hrzlgnm/mdns-browser/commit/03ce225ebaee5aeb93975aab7c91837397de3659))
+* update archlinux:base-devel docker digest to 3cbf69d ([#2946](https://github.com/hrzlgnm/mdns-browser/issues/2946)) ([eb9e33b](https://github.com/hrzlgnm/mdns-browser/commit/eb9e33bcb862d892fbf6b692073f559f68177317))
+* update dependency mozilla/sccache to v0.19.0 ([#2954](https://github.com/hrzlgnm/mdns-browser/issues/2954)) ([b33f061](https://github.com/hrzlgnm/mdns-browser/commit/b33f061c0e44ea542e57a6770130b096553f6b02))
+* update dependency tauri-plugin-android-update-api to v0.3.6 ([#2958](https://github.com/hrzlgnm/mdns-browser/issues/2958)) ([7447caf](https://github.com/hrzlgnm/mdns-browser/commit/7447caf3c6bd39a0143fe444361ee5a91f6194a2))
+* update dependency typescript-eslint to v8.72.0 ([#2949](https://github.com/hrzlgnm/mdns-browser/issues/2949)) ([b1649a5](https://github.com/hrzlgnm/mdns-browser/commit/b1649a56270582d504b35ab696517cf68fc6c703))
+* update dependency vite to v8.3.5 ([#2953](https://github.com/hrzlgnm/mdns-browser/issues/2953)) ([802ec8e](https://github.com/hrzlgnm/mdns-browser/commit/802ec8e9a655d42f5a0692fbb5bd0c57f7eed9bb))
+* update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 317b461 ([#2947](https://github.com/hrzlgnm/mdns-browser/issues/2947)) ([d2bc7e9](https://github.com/hrzlgnm/mdns-browser/commit/d2bc7e98cb1d3656d57e3b4d52f525b78bbd433d))
+* update hrzlgnm/actions action to v2.14.12 ([#2944](https://github.com/hrzlgnm/mdns-browser/issues/2944)) ([61d3d9a](https://github.com/hrzlgnm/mdns-browser/commit/61d3d9a9640df0d85e2dd2e286f6b35b29155361))
+* update pnpm to v12.15.0 ([#2957](https://github.com/hrzlgnm/mdns-browser/issues/2957)) ([90cc9dd](https://github.com/hrzlgnm/mdns-browser/commit/90cc9dd01d83cc6099b3ceaa1eaf741b4cb5b257))
+* update rust crate tauri-plugin-android-update to v0.3.6 ([#2959](https://github.com/hrzlgnm/mdns-browser/issues/2959)) ([c0ca912](https://github.com/hrzlgnm/mdns-browser/commit/c0ca9123c29d47f8aacb7986b014b357a4f13872))
+* update rust crate tokio to v1.54.1 ([#2945](https://github.com/hrzlgnm/mdns-browser/issues/2945)) ([deac421](https://github.com/hrzlgnm/mdns-browser/commit/deac421225498ac753ef93bf52c378f518df71a6))
+* update tauri monorepo ([#2942](https://github.com/hrzlgnm/mdns-browser/issues/2942)) ([ae86218](https://github.com/hrzlgnm/mdns-browser/commit/ae862181d8075cc067aec74f9d032b6d4544c45f))
+
+
+### Miscellaneous Chores
+
+* **ci:** only cancel in-progress runs off main ([#2950](https://github.com/hrzlgnm/mdns-browser/issues/2950)) ([f862a55](https://github.com/hrzlgnm/mdns-browser/commit/f862a55061c275383cc89befe655802e02309793))
+* **ci:** remove PR labeler ([#2951](https://github.com/hrzlgnm/mdns-browser/issues/2951)) ([16119ef](https://github.com/hrzlgnm/mdns-browser/commit/16119ef70054cf7532d1dc71846b50fa4e3e9ee5))
+* fix misleading re-run note in lockfile-fresh error ([#2952](https://github.com/hrzlgnm/mdns-browser/issues/2952)) ([c98ebe5](https://github.com/hrzlgnm/mdns-browser/commit/c98ebe5142e8bad8072f1a400c2170bf36ffded5))
+
 ## [2.9.4](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.3...v2.9.4) (2026-10-21)
 
 
