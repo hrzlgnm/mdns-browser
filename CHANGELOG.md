@@ -11,6 +11,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug Fixes
 
 * **ci:** install pnpm and Node via pnpm/setup for Node 26 ([#2973](https://github.com/hrzlgnm/mdns-browser/issues/2973)) ([476cb48](https://github.com/hrzlgnm/mdns-browser/commit/476cb484db5c76726f621b1155f0f1fc1e8dff3f))
+* **release:** don't publish release on failure to allow rebuilds ([#2976](https://github.com/hrzlgnm/mdns-browser/issues/2976)) ([2958eb6](https://github.com/hrzlgnm/mdns-browser/commit/2958eb6c951db7f5d97dd13dee99d88cfd9d5b8c))
+
+
+### Dependencies
+
+* lock file maintenance ([#2961](https://github.com/hrzlgnm/mdns-browser/issues/2961)) ([f067c9f](https://github.com/hrzlgnm/mdns-browser/commit/f067c9f508a80d4ede4bbefd960bf9e9e0bbaef9))
+* lock file maintenance ([#2972](https://github.com/hrzlgnm/mdns-browser/issues/2972)) ([b8562b8](https://github.com/hrzlgnm/mdns-browser/commit/b8562b85b07a21240b2f4e25ecb7516c9a22bed0))
+* update archlinux:base-devel docker digest to 624bdc7 ([#2966](https://github.com/hrzlgnm/mdns-browser/issues/2966)) ([dc63a0a](https://github.com/hrzlgnm/mdns-browser/commit/dc63a0adeca23d89548afad8a6b157eabf18acc0))
+* update dependency cargo-nextest to v0.9.150 ([#2963](https://github.com/hrzlgnm/mdns-browser/issues/2963)) ([e4590d2](https://github.com/hrzlgnm/mdns-browser/commit/e4590d22246ef5e28c8289705b0217cae705caf9))
+* update dependency node to v26 ([#2971](https://github.com/hrzlgnm/mdns-browser/issues/2971)) ([65ca507](https://github.com/hrzlgnm/mdns-browser/commit/65ca507f9c4792c5d4d67b6356d09392f68da432))
+* update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 60da229 ([#2967](https://github.com/hrzlgnm/mdns-browser/issues/2967)) ([1640d7f](https://github.com/hrzlgnm/mdns-browser/commit/1640d7f9f87c9b7ba505030a640294dbe1317659))
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 8649e37 ([#2965](https://github.com/hrzlgnm/mdns-browser/issues/2965)) ([c0275ec](https://github.com/hrzlgnm/mdns-browser/commit/c0275ecb3934b51f9c9a5305f500129808f403cc))
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 90210c4 ([#2969](https://github.com/hrzlgnm/mdns-browser/issues/2969)) ([c9a1166](https://github.com/hrzlgnm/mdns-browser/commit/c9a11664b979028ffa504c3b7cc51e8be58e61e2))
+* update tauri monorepo to v2.14.1 ([#2970](https://github.com/hrzlgnm/mdns-browser/issues/2970)) ([3381e20](https://github.com/hrzlgnm/mdns-browser/commit/3381e20c269ccdcd22a0c5e3cd4c91ea56fa3759))
+* update ubuntu:latest docker digest to 0e73b71 ([#2968](https://github.com/hrzlgnm/mdns-browser/issues/2968)) ([c93557f](https://github.com/hrzlgnm/mdns-browser/commit/c93557f34081b9e3dc5a012cd9156e7063c77023))
+* update ubuntu:latest docker digest to 19fcd1b ([#2964](https://github.com/hrzlgnm/mdns-browser/issues/2964)) ([ca31486](https://github.com/hrzlgnm/mdns-browser/commit/ca31486b6b76398cab549c3976e6e1a01b8ae9a3))
+
+
+### Miscellaneous Chores
+
+* **main:** release 2.9.6 ([#2962](https://github.com/hrzlgnm/mdns-browser/issues/2962)) ([451cd20](https://github.com/hrzlgnm/mdns-browser/commit/451cd20a006109a8431cc854fb128055511ec704))
+* **release:** rollback release manifest to 2.9.5 ([#2978](https://github.com/hrzlgnm/mdns-browser/issues/2978)) ([fd17c12](https://github.com/hrzlgnm/mdns-browser/commit/fd17c124ae42d7933e6bcd611d64e6981de8a1f3))
+
+## [2.9.6](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.5...v2.9.6) (2026-10-28)
+
+
+### Bug Fixes
+
+* **ci:** install pnpm and Node via pnpm/setup for Node 26 ([#2973](https://github.com/hrzlgnm/mdns-browser/issues/2973)) ([476cb48](https://github.com/hrzlgnm/mdns-browser/commit/476cb484db5c76726f621b1155f0f1fc1e8dff3f))
 
 
 ### Dependencies
