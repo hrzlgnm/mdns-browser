@@ -32,6 +32,9 @@ jobs:
           # verified signature. CI runs on the Release PR are approved
           # by the approve-release-pr job below. Tags are created by
           # release-please (force-tag-creation) alongside the draft.
+          # Nothing else may create them: the checksum and build jobs
+          # below download and check out the tag, so a missing or
+          # hand-pushed tag breaks the release.
           token: ${{ secrets.GITHUB_TOKEN }}
 
   sync-cargo-lock:
