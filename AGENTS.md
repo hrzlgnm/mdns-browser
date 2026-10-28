@@ -82,6 +82,7 @@ actionlint .github/workflows/*.yml
 - Android: building the Android app, adding/removing Tauri plugins, or touching `reqwest`/TLS features - read [docs/agents/android.md](docs/agents/android.md) first.
 - AUR packaging: testing the source or `-bin` AUR packages - see [docs/agents/aur.md](docs/agents/aur.md).
 - GitHub Actions: before modifying `.github/workflows/*.yml` or `.github/actions/*/action.yml`, read [docs/agents/github-actions.md](docs/agents/github-actions.md).
+- Releases: rebuilding or skipping a failed release - read [docs/agents/release.md](docs/agents/release.md) first.
 
 ## Development Workflow
 
@@ -293,4 +294,4 @@ When a task could be done by tacking onto existing code or by first restructurin
   updating an action pin, verify upstream that its runtime (`runs.using`)
   is `node24` or later. Node.js 20 and older are deprecated and emit a
   warning on every run.
-- Release versions and `CHANGELOG.md` entries are owned by release-please: never bump versions or hand-edit changelogs. The former in-repo library crates (`webkit2gtk-nvidia-quirk`, `tauri-plugin-android-update`) now release from their own repositories; updates arrive here as crates.io version bumps (Renovate proposes them). Only change source, tests, and docs.
+- Release versions and `CHANGELOG.md` entries are owned by release-please: never bump versions or hand-edit changelogs. The former in-repo library crates (`webkit2gtk-nvidia-quirk`, `tauri-plugin-android-update`) now release from their own repositories; updates arrive here as crates.io version bumps (Renovate proposes them). Only change source, tests, and docs. Sole exception: rewinding release bookkeeping to the last good version when skipping a failed release, exactly as described in [docs/agents/release.md](docs/agents/release.md) - never bump forward by hand.
