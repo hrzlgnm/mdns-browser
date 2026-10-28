@@ -111,6 +111,7 @@ jobs:
               - '.github/docker/**'
             tauri:
               - '.github/actions/setup-*/**'
+              - '.github/actions/pnpm-setup/**'
               - 'src/**'
               - 'static/**'
               - 'package.json'
