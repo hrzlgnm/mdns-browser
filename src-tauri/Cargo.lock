@@ -2424,7 +2424,7 @@ dependencies = [
 
 [[package]]
 name = "mdns-browser"
-version = "2.9.7"
+version = "2.9.8"
 dependencies = [
  "chrono",
  "clap",
