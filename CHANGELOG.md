@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.8](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.7...v2.9.8) (2026-10-31)
+
+
+### Bug Fixes
+
+* **release:** drop stale publish-prerelease-on-failure comment ([#2986](https://github.com/hrzlgnm/mdns-browser/issues/2986)) ([f2a18e5](https://github.com/hrzlgnm/mdns-browser/commit/f2a18e59f75b8be6c8ac5d4846b88df528112956))
+
+
+### Dependencies
+
+* update dependency svelte to v5.57.3 ([#2989](https://github.com/hrzlgnm/mdns-browser/issues/2989)) ([4090093](https://github.com/hrzlgnm/mdns-browser/commit/4090093145c9bef65a760ff4a3dc42034531bdce))
+* update dependency typescript-eslint to v8.72.1 ([#2990](https://github.com/hrzlgnm/mdns-browser/issues/2990)) ([df8047a](https://github.com/hrzlgnm/mdns-browser/commit/df8047a567b4c35888f5fb454084d827f367cc72))
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to 2f4fd30 ([#2988](https://github.com/hrzlgnm/mdns-browser/issues/2988)) ([4644db3](https://github.com/hrzlgnm/mdns-browser/commit/4644db3e3c72f3decf6b327f270b9cba408e8e07))
+* update mikepenz/action-junit-report digest to 8a133bf ([#2994](https://github.com/hrzlgnm/mdns-browser/issues/2994)) ([e532cc2](https://github.com/hrzlgnm/mdns-browser/commit/e532cc25375676cfd5b52810c1bce44e70256178))
+* update pnpm to v12.16.0 ([#2991](https://github.com/hrzlgnm/mdns-browser/issues/2991)) ([f6bd2b7](https://github.com/hrzlgnm/mdns-browser/commit/f6bd2b70724073ba5e19dc259e720be1f36cffa2))
+* update pnpm to v12.16.1 ([#2992](https://github.com/hrzlgnm/mdns-browser/issues/2992)) ([43310b9](https://github.com/hrzlgnm/mdns-browser/commit/43310b9ba211bb89510d148b30b850a786cd7ba6))
+* update rust crate log to v0.4.35 ([#2993](https://github.com/hrzlgnm/mdns-browser/issues/2993)) ([5c11fa5](https://github.com/hrzlgnm/mdns-browser/commit/5c11fa523f70f2588a07fe3aa1076f9af6738d40))
+* update ubuntu:latest docker digest to 6a06111 ([#2987](https://github.com/hrzlgnm/mdns-browser/issues/2987)) ([81912dc](https://github.com/hrzlgnm/mdns-browser/commit/81912dce913d1ffe55427ebb88412d17e25dd800))
+
+
+### Documentation
+
+* how to rebuild or skip a failed release ([#2984](https://github.com/hrzlgnm/mdns-browser/issues/2984)) ([991dab3](https://github.com/hrzlgnm/mdns-browser/commit/991dab317a842953fe53b6d4edaf31f5c18546e9))
+
 ## [2.9.7](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.5...v2.9.7) (2026-10-28)
 
 
