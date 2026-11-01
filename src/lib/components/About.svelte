@@ -19,6 +19,7 @@
   let update = $state<PendingUpdate>(null)
   let canUpdate = $state(false)
   let showNoUpdate = $state(false)
+  let installing = $state(false)
   let timer: ReturnType<typeof setTimeout> | undefined = undefined
 
   onMount(() => {
@@ -63,9 +64,14 @@
   }
 
   async function onInstallUpdate() {
+    if ($desktop) {
+      if (installing) return
+      installing = true
+    }
     try {
       await downloadAndInstall($desktop, update)
     } catch (e) {
+      if ($desktop) installing = false
       console.error('[mdns-browser] failed to install update:', e)
       pushToast('Update failed', String(e))
     }
@@ -119,9 +125,18 @@
         </button>
       {:else if canUpdate}
         {#if update}
-          <button type="button" class="themed-button" onclick={() => void onInstallUpdate()}>
+          <button
+            type="button"
+            class="themed-button"
+            disabled={installing && $desktop}
+            onclick={() => void onInstallUpdate()}
+          >
             <MdiInboxArrowDown width="1.2em" height="1.2em" aria-hidden="true" />
-            {$desktop ? 'Download and Install ' : 'Open release page '}{update.version}
+            {#if installing && $desktop}
+              Downloading and Installing... {update.version}
+            {:else}
+              {$desktop ? 'Download and Install ' : 'Open release page '}{update.version}
+            {/if}
           </button>
         {:else}
           <button type="button" class="themed-button" onclick={() => void onCheckUpdate()}>
