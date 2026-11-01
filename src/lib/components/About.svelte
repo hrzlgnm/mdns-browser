@@ -71,7 +71,10 @@
     try {
       await downloadAndInstall($desktop, update)
     } catch (e) {
-      if ($desktop) installing = false
+      if ($desktop) {
+        installing = false
+        update = null
+      }
       console.error('[mdns-browser] failed to install update:', e)
       pushToast('Update failed', String(e))
     }
