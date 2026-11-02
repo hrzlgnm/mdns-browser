@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.9](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.8...v2.9.9) (2026-11-02)
+
+
+### Dependencies
+
+* lock file maintenance ([#3001](https://github.com/hrzlgnm/mdns-browser/issues/3001)) ([ec74127](https://github.com/hrzlgnm/mdns-browser/commit/ec74127a7a9dd102181b2f5766e632334edacab7))
+* lock file maintenance ([#3003](https://github.com/hrzlgnm/mdns-browser/issues/3003)) ([0415c1d](https://github.com/hrzlgnm/mdns-browser/commit/0415c1d14417fdfa86f1a4fa89011454fc2e5519))
+* update dependency @sveltejs/adapter-static to v4.0.1 ([#2998](https://github.com/hrzlgnm/mdns-browser/issues/2998)) ([543276b](https://github.com/hrzlgnm/mdns-browser/commit/543276be902686e517d36b972eaf2ab478a86c08))
+* update dependency @sveltejs/kit to v3.1.1 ([#2999](https://github.com/hrzlgnm/mdns-browser/issues/2999)) ([2c8fc29](https://github.com/hrzlgnm/mdns-browser/commit/2c8fc29a8d568cff78dc935733493f350a0246d1))
+* update tauri-plugin-mdns to v0.4.6 ([#3002](https://github.com/hrzlgnm/mdns-browser/issues/3002)) ([edc16ec](https://github.com/hrzlgnm/mdns-browser/commit/edc16ece514fec3583964e154d3d89a6d0890f7f))
+
 ## [2.9.8](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.7...v2.9.8) (2026-11-01)
 
 
