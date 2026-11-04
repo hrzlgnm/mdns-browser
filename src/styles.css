@@ -208,7 +208,6 @@ body {
 }
 .mobile-resolved-service-value-cell {
   width: 350px;
-  overflow: hidden;
 }
 .mobile-resolved-service-card-title {
   max-width: 475px;
@@ -257,7 +256,6 @@ body {
 }
 .desktop-resolved-service-value-cell {
   width: 400px;
-  overflow: hidden;
 }
 .desktop-resolved-service-card-title {
   max-width: 510px;
