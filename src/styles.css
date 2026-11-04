@@ -208,6 +208,7 @@ body {
 }
 .mobile-resolved-service-value-cell {
   width: 350px;
+  overflow: hidden;
 }
 .mobile-resolved-service-card-title {
   max-width: 475px;
@@ -256,6 +257,7 @@ body {
 }
 .desktop-resolved-service-value-cell {
   width: 400px;
+  overflow: hidden;
 }
 .desktop-resolved-service-card-title {
   max-width: 510px;
@@ -519,6 +521,10 @@ label:has(input[type='checkbox']:disabled) input[type='checkbox']:disabled {
 .card-table {
   width: 100%;
   border-collapse: collapse;
+  /* Fixed layout keeps long unbroken values (e.g. hostnames) inside the
+     value cell so the inner ellipsis can engage instead of the cell
+     forcing the card wider. */
+  table-layout: fixed;
 }
 .card-table tr + tr > td {
   border-top: 1px solid var(--bg-secondary);
