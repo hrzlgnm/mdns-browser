@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.10](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.9...v2.9.10) (2026-11-04)
+
+
+### Bug Fixes
+
+* elide long hostnames in resolved service cards ([#3012](https://github.com/hrzlgnm/mdns-browser/issues/3012)) ([946707b](https://github.com/hrzlgnm/mdns-browser/commit/946707bb544dcfda382a8d8de925233812e41dbc))
+
+
+### Dependencies
+
+* lock file maintenance ([#3014](https://github.com/hrzlgnm/mdns-browser/issues/3014)) ([22a13d6](https://github.com/hrzlgnm/mdns-browser/commit/22a13d6c5927f365c0761f62a4f630f316e2b5a3))
+* update dependency cargo-nextest to v0.9.151 ([#3006](https://github.com/hrzlgnm/mdns-browser/issues/3006)) ([3814d39](https://github.com/hrzlgnm/mdns-browser/commit/3814d39d442b835025445e3667a222376e3e1039))
+* update dependency eslint to v10.14.0 ([#3004](https://github.com/hrzlgnm/mdns-browser/issues/3004)) ([de6bd90](https://github.com/hrzlgnm/mdns-browser/commit/de6bd90e1cc735596bf0f3348491a592a11d1dea))
+* update dependency globals to v17.14.0 ([#3010](https://github.com/hrzlgnm/mdns-browser/issues/3010)) ([d2e2dc1](https://github.com/hrzlgnm/mdns-browser/commit/d2e2dc175139f931b1bdd43e885c1a473825096c))
+* update dependency komac to v2.17.2 ([#3009](https://github.com/hrzlgnm/mdns-browser/issues/3009)) ([741ea66](https://github.com/hrzlgnm/mdns-browser/commit/741ea66e61824d3e115109fe4934395466c238d1))
+* update dependency svelte-check to v4.7.8 ([#3013](https://github.com/hrzlgnm/mdns-browser/issues/3013)) ([7849229](https://github.com/hrzlgnm/mdns-browser/commit/78492299c97194b52195b427b2cc33f0219b90ef))
+* update hrzlgnm/actions action to v2.14.13 ([#3008](https://github.com/hrzlgnm/mdns-browser/issues/3008)) ([9a99611](https://github.com/hrzlgnm/mdns-browser/commit/9a99611e20a18c00431b62d120e40b847c447f3e))
+* update mikepenz/action-junit-report digest to 4a26df3 ([#3007](https://github.com/hrzlgnm/mdns-browser/issues/3007)) ([90c176a](https://github.com/hrzlgnm/mdns-browser/commit/90c176adf30c230a9e5947302a67571ee4d1b088))
+
 ## [2.9.9](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.8...v2.9.9) (2026-11-02)
 
 
