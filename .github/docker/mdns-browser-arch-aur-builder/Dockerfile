@@ -15,7 +15,6 @@ RUN pacman -Syu --noconfirm \
     github-cli \
     gtk3 \
     jq \
-    libappindicator-gtk3 \
     librsvg \
     namcap \
     nodejs \
@@ -24,7 +23,6 @@ RUN pacman -Syu --noconfirm \
     rust \
     webkit2gtk-4.1 \
     sudo \
-    wget \
     libsoup3 \
     && useradd -m -G wheel -s /bin/bash runner \
     && echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers \
