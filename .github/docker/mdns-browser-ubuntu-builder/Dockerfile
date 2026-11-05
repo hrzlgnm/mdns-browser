@@ -11,14 +11,8 @@ RUN apt-get update \
     git \
     gh \
     jq \
-    libayatana-appindicator3-dev \
     librsvg2-dev \
-    libssl-dev \
     libwebkit2gtk-4.1-dev \
-    libxdo-dev \
-    rustup \
-    unzip \
-    wget \
     && rm -rf /var/lib/apt/lists/*
 
 LABEL org.opencontainers.image.source="https://github.com/hrzlgnm/mdns-browser"
