@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.11](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.10...v2.9.11) (2026-11-06)
+
+
+### Dependencies
+
+* update archlinux:base-devel docker digest to 2de8010 ([#3023](https://github.com/hrzlgnm/mdns-browser/issues/3023)) ([f2625f8](https://github.com/hrzlgnm/mdns-browser/commit/f2625f898a458569caf297e0d8bb27ff80f6610c))
+* update archlinux:base-devel docker digest to 767de6e ([#3015](https://github.com/hrzlgnm/mdns-browser/issues/3015)) ([7d30d77](https://github.com/hrzlgnm/mdns-browser/commit/7d30d77e59547597342a1605a46c6faccbba6563))
+* update dependency eslint-plugin-svelte to v3.24.0 ([#3028](https://github.com/hrzlgnm/mdns-browser/issues/3028)) ([1597a66](https://github.com/hrzlgnm/mdns-browser/commit/1597a662b928323a834af80341709d2724402ff2))
+* update dependency vitest to v5.1.0 ([#3018](https://github.com/hrzlgnm/mdns-browser/issues/3018)) ([e457ea4](https://github.com/hrzlgnm/mdns-browser/commit/e457ea4850a894d3c47878a9265d951acae958ae))
+* update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 217d4f2 ([#3024](https://github.com/hrzlgnm/mdns-browser/issues/3024)) ([7a3b0e6](https://github.com/hrzlgnm/mdns-browser/commit/7a3b0e6e76166e7731966c136c98a0cd62d30842))
+* update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 3c41a3d ([#3025](https://github.com/hrzlgnm/mdns-browser/issues/3025)) ([d938c62](https://github.com/hrzlgnm/mdns-browser/commit/d938c62f9694b17f58f58ef79997ba44f7263313))
+* update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 50be1cc ([#3017](https://github.com/hrzlgnm/mdns-browser/issues/3017)) ([ea8d62b](https://github.com/hrzlgnm/mdns-browser/commit/ea8d62b6138ac091ba581ee5fe8fc82eb0f35265))
+* update ghcr.io/hrzlgnm/mdns-browser-ubuntu-builder:v1 docker digest to cac9a2d ([#3022](https://github.com/hrzlgnm/mdns-browser/issues/3022)) ([8b5507c](https://github.com/hrzlgnm/mdns-browser/commit/8b5507c390f65123340d5f586800ef0c076224c6))
+* update mikepenz/action-junit-report digest to a16be3a ([#3027](https://github.com/hrzlgnm/mdns-browser/issues/3027)) ([c294da9](https://github.com/hrzlgnm/mdns-browser/commit/c294da95b022c61b5a43a846fe6eb7aca98f339e))
+* update pnpm to v12.17.0 ([#3026](https://github.com/hrzlgnm/mdns-browser/issues/3026)) ([1b53877](https://github.com/hrzlgnm/mdns-browser/commit/1b5387767bbd727fd03f87384eea3d6f3ef73eb9))
+
+
+### Miscellaneous Chores
+
+* drop unused packages from arch builder image ([#3021](https://github.com/hrzlgnm/mdns-browser/issues/3021)) ([645cdb0](https://github.com/hrzlgnm/mdns-browser/commit/645cdb0a163ab08e61010f9af2203b59ae344f51))
+* drop unused packages from ubuntu builder image ([#3020](https://github.com/hrzlgnm/mdns-browser/issues/3020)) ([feba15a](https://github.com/hrzlgnm/mdns-browser/commit/feba15a7a1287676338b1ac4c5180482225e653f))
+
 ## [2.9.10](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.9...v2.9.10) (2026-11-04)
 
 
