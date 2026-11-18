@@ -1,3 +1,6 @@
+// Copyright 2026 hrzlgnm
+// SPDX-License-Identifier: MIT
+
 import { derived, type Readable } from 'svelte/store'
 import { desktop } from './store'
 

@@ -1,3 +1,6 @@
+// Copyright 2026 hrzlgnm
+// SPDX-License-Identifier: MIT
+
 import { derived, get, writable } from 'svelte/store'
 import type { UnlistenFn } from '@tauri-apps/api/event'
 import { isTauri } from '@tauri-apps/api/core'

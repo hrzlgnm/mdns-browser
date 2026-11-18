@@ -1,3 +1,6 @@
+// Copyright 2026 hrzlgnm
+// SPDX-License-Identifier: MIT
+
 import { invoke } from '@tauri-apps/api/core'
 
 // mDNS discovery commands, events, and types live in tauri-plugin-mdns
