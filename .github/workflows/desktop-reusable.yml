@@ -217,25 +217,9 @@ jobs:
             fi
             BASE=$(basename "$REAL_DSYM")
             INFIX="${ARCH//-apple-darwin/}"
-            tar -czf "src-tauri/target/$ARCH/release/deps/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz" -C "src-tauri/target/$ARCH/release/deps" "$BASE"
-            echo "Compressed $REAL_DSYM -> src-tauri/target/$ARCH/release/deps/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz"
+            tar -czf "src-tauri/target/$ARCH/release/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz" -C "$(dirname "$REAL_DSYM")" "$BASE"
+            echo "Compressed $REAL_DSYM -> src-tauri/target/$ARCH/release/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz"
           done
-
-      - name: 🛑 Prepare debug symbol paths
-        id: debug-symbols
-        if: inputs.tagName
-        shell: bash
-        env:
-          VERSION: ${{ steps.get-version.outputs.current-version }}
-        run: |
-          {
-            echo "paths<<EOF"
-            echo "src-tauri/target/release/mdns-browser-$VERSION-debug-symbols-windows.zip"
-            echo "src-tauri/target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz"
-            echo "src-tauri/target/x86_64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-x86_64.tar.gz"
-            echo "src-tauri/target/aarch64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-aarch64.tar.gz"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
 
       - name: 📤 Publish debug symbols to release
         if: inputs.tagName
@@ -249,8 +233,8 @@ jobs:
           for file in \
             "src-tauri/target/release/mdns-browser-$VERSION-debug-symbols-windows.zip" \
             "src-tauri/target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz" \
-            "src-tauri/target/x86_64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-x86_64.tar.gz" \
-            "src-tauri/target/aarch64-apple-darwin/release/deps/mdns-browser-$VERSION-debug-symbols-macos-aarch64.tar.gz"; do
+            "src-tauri/target/x86_64-apple-darwin/release/mdns-browser-$VERSION-debug-symbols-macos-x86_64.tar.gz" \
+            "src-tauri/target/aarch64-apple-darwin/release/mdns-browser-$VERSION-debug-symbols-macos-aarch64.tar.gz"; do
             if [[ -n "$file" && -f "$file" ]]; then
               ASSETS+=("$file")
             fi
@@ -288,7 +272,5 @@ jobs:
             src-tauri/target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-windows.zip
             src-tauri/target/release/mdns-browser.dwp
             src-tauri/target/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-linux.tar.gz
-            src-tauri/target/x86_64-apple-darwin/release/deps/mdns-browser-*.dSYM
-            src-tauri/target/x86_64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-x86_64.tar.gz
-            src-tauri/target/aarch64-apple-darwin/release/deps/mdns-browser-*.dSYM
-            src-tauri/target/aarch64-apple-darwin/release/deps/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-aarch64.tar.gz
+            src-tauri/target/x86_64-apple-darwin/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-x86_64.tar.gz
+            src-tauri/target/aarch64-apple-darwin/release/mdns-browser-${{ steps.get-version.outputs.current-version }}-debug-symbols-macos-aarch64.tar.gz
