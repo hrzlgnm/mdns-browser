@@ -213,9 +213,9 @@ All source files must include:
 
 ### Attributing AI usage
 
-- Every commit gets both trailers in a trailer block at the end, after a blank line. Use `--trailer` on the command line so no wrapping or manual formatting is needed:
-  - `Co-authored-by: opencode <noreply@opencode.ai>`
-  - `Assisted-by: opencode (<model-name>)`
+- Every commit gets both trailers in a trailer block at the end, after a blank line, naming the agent tool that made the commit and the model it ran. Use `--trailer` on the command line so no wrapping or manual formatting is needed:
+  - `Co-authored-by: <tool> <noreply address>`: when your tool prescribes its own co-author line, use exactly that line as this trailer (e.g. opencode: `Co-authored-by: opencode <noreply@opencode.ai>`).
+  - `Assisted-by: <tool> (<model-name>)`, e.g. `Assisted-by: opencode (claude-opus-4-5)` or `Assisted-by: Claude Code (claude-opus-5-5)`.
 - Trailers are exempt from the 72-character body wrap.
 - Never use `--author` or `--committer` for this attribution. The release-notes tooling derives the credited `@username` from the commit author, so doing so would replace the user with the bot throughout the release notes.
 - `amend!` commits must repeat both trailers in the replacement message body. The replacement overwrites the target's message wholesale, so omitting them strips attribution from the target when the user folds the amend in with `--autosquash`. Plain `fixup!` commits need no special care: their message is discarded on autosquash and the target keeps its own trailers.
