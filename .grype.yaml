@@ -1,3 +1,6 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT
+
 ignore:
   # GHSA-wrw7-89jp-8q8g cannot be resolved until tauri upgrades to glib >= 0.20.0
   # tauri pins to ^0.18.0, an update project is tracked here:  https://github.com/orgs/tauri-apps/projects/34

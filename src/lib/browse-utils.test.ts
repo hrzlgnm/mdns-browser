@@ -1,3 +1,6 @@
+// Copyright 2026 hrzlgnm
+// SPDX-License-Identifier: MIT
+
 import { describe, expect, it } from 'vitest'
 import {
   compareServices,

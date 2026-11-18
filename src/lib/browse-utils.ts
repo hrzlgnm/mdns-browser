@@ -1,3 +1,6 @@
+// Copyright 2026 hrzlgnm
+// SPDX-License-Identifier: MIT
+
 import type { ResolvedService, ScopedAddr, TxtRecord } from 'tauri-plugin-mdns-api'
 
 // Pure helpers ported from the former Leptos `src/app/browse.rs`,

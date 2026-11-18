@@ -1,3 +1,6 @@
+// Copyright 2026 hrzlgnm
+// SPDX-License-Identifier: MIT
+
 import { writable } from 'svelte/store'
 
 export interface Toast {

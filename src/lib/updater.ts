@@ -1,3 +1,6 @@
+// Copyright 2026 hrzlgnm
+// SPDX-License-Identifier: MIT
+
 import { relaunch } from '@tauri-apps/plugin-process'
 import { check as checkDesktopUpdate, Update } from '@tauri-apps/plugin-updater'
 import {

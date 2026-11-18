@@ -1,3 +1,6 @@
+# Copyright 2026 hrzlgnm
+# SPDX-License-Identifier: MIT
+
 [profile.ci]
 
 [profile.ci.junit]
