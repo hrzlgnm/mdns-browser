@@ -77,6 +77,10 @@ pnpm run check && \
 actionlint .github/workflows/*.yml
 ```
 
+A commit that changes only Markdown (`*.md`) runs only
+`pnpm run format:check` and `typos`, in place of the full check and
+the release build.
+
 ### Task-specific guides
 
 - Android: building the Android app, adding/removing Tauri plugins, or touching `reqwest`/TLS features - read [docs/agents/android.md](docs/agents/android.md) first.
