@@ -221,22 +221,6 @@ jobs:
             echo "Compressed $REAL_DSYM -> src-tauri/target/$ARCH/release/mdns-browser-$VERSION-debug-symbols-macos-$INFIX.tar.gz"
           done
 
-      - name: 🛑 Prepare debug symbol paths
-        id: debug-symbols
-        if: inputs.tagName
-        shell: bash
-        env:
-          VERSION: ${{ steps.get-version.outputs.current-version }}
-        run: |
-          {
-            echo "paths<<EOF"
-            echo "src-tauri/target/release/mdns-browser-$VERSION-debug-symbols-windows.zip"
-            echo "src-tauri/target/release/mdns-browser-$VERSION-debug-symbols-linux.tar.gz"
-            echo "src-tauri/target/x86_64-apple-darwin/release/mdns-browser-$VERSION-debug-symbols-macos-x86_64.tar.gz"
-            echo "src-tauri/target/aarch64-apple-darwin/release/mdns-browser-$VERSION-debug-symbols-macos-aarch64.tar.gz"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-
       - name: 📤 Publish debug symbols to release
         if: inputs.tagName
         shell: bash
