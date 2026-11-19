@@ -1,7 +1,7 @@
 // Copyright 2026 hrzlgnm
 // SPDX-License-Identifier: MIT
 
-import type { ResolvedService, ScopedAddr, TxtRecord } from 'tauri-plugin-mdns-api'
+import type { DaemonStatus, ResolvedService, ScopedAddr, TxtRecord } from 'tauri-plugin-mdns-api'
 
 // Pure helpers ported from the former Leptos `src/app/browse.rs`,
 // operating on the `tauri-plugin-mdns-api` wire types.
@@ -454,4 +454,13 @@ export function deadInstanceNames(services: Map<string, ResolvedService>): Array
     if (service.dead) names.push(service.instance_fullname)
   }
   return names
+}
+
+// Whether the daemon can still discover anything. A shut-down daemon, or a
+// running one with no bound multicast socket, cannot answer queries, so
+// browsing is pointless. `null` (status not yet known) does not block, so
+// startup is not gated on the first status event.
+export function daemonAllowsBrowsing(status: DaemonStatus | null): boolean {
+  if (status === null) return true
+  return status.status === 'running' && (status.ipv4_socket.bound || status.ipv6_socket.bound)
 }
