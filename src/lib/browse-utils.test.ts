@@ -387,26 +387,50 @@ describe('sortAddresses', () => {
 
 describe('daemonAllowsBrowsing', () => {
   it('allows browsing before the daemon status is known', () => {
-    expect(daemonAllowsBrowsing(null)).toBe(true)
+    expect(daemonAllowsBrowsing(null, { ipv4: true, ipv6: true })).toBe(true)
   })
 
   it('refuses browsing when the daemon is shut down', () => {
-    expect(daemonAllowsBrowsing({ status: 'shutdown' })).toBe(false)
+    expect(daemonAllowsBrowsing({ status: 'shutdown' }, { ipv4: true, ipv6: true })).toBe(false)
   })
 
   it('allows browsing when both sockets are bound', () => {
-    expect(daemonAllowsBrowsing(runningStatus(true, true))).toBe(true)
+    expect(daemonAllowsBrowsing(runningStatus(true, true), { ipv4: true, ipv6: true })).toBe(true)
   })
 
   it('allows browsing when only the IPv4 socket is bound', () => {
-    expect(daemonAllowsBrowsing(runningStatus(true, false))).toBe(true)
+    expect(daemonAllowsBrowsing(runningStatus(true, false), { ipv4: true, ipv6: true })).toBe(true)
   })
 
   it('allows browsing when only the IPv6 socket is bound', () => {
-    expect(daemonAllowsBrowsing(runningStatus(false, true))).toBe(true)
+    expect(daemonAllowsBrowsing(runningStatus(false, true), { ipv4: true, ipv6: true })).toBe(true)
   })
 
   it('refuses browsing when no socket is bound', () => {
-    expect(daemonAllowsBrowsing(runningStatus(false, false))).toBe(false)
+    expect(daemonAllowsBrowsing(runningStatus(false, false), { ipv4: true, ipv6: true })).toBe(
+      false,
+    )
+  })
+
+  it('refuses browsing when the only enabled protocol has no bound socket', () => {
+    expect(daemonAllowsBrowsing(runningStatus(true, false), { ipv4: false, ipv6: true })).toBe(
+      false,
+    )
+  })
+
+  it('allows browsing when a bound socket serves an enabled protocol', () => {
+    expect(daemonAllowsBrowsing(runningStatus(true, false), { ipv4: true, ipv6: false })).toBe(true)
+  })
+
+  it('refuses browsing when the only enabled protocol family is unbound', () => {
+    expect(daemonAllowsBrowsing(runningStatus(false, true), { ipv4: true, ipv6: false })).toBe(
+      false,
+    )
+  })
+
+  it('refuses browsing when no protocol is enabled', () => {
+    expect(daemonAllowsBrowsing(runningStatus(true, true), { ipv4: false, ipv6: false })).toBe(
+      false,
+    )
   })
 })
