@@ -51,17 +51,15 @@
         <span>Daemon: {$daemonStatus.status}</span>
       </div>
     {/if}
-    <details>
-      <summary>mDNS-SD-metrics</summary>
-      <div class="diagnostics-grid">
-        {#each sorted as [name, value] (name)}
-          <div class="diagnostic-item">
-            <i>{name}</i>
-            <span class="diagnostic-badge">{value}</span>
-          </div>
-        {/each}
-      </div>
-    </details>
+    <h3 class="diagnostics-grid-title">mDNS-SD-metrics</h3>
+    <div class="diagnostics-grid">
+      {#each sorted as [name, value] (name)}
+        <div class="diagnostic-item">
+          <i>{name}</i>
+          <span class="diagnostic-badge">{value}</span>
+        </div>
+      {/each}
+    </div>
   </details>
 </div>
 
@@ -72,6 +70,10 @@
     gap: 0.25rem;
     align-items: flex-start;
     padding-bottom: 0.5rem;
+  }
+  .diagnostics-grid-title {
+    font-size: 1em;
+    margin: 0 0 0.25rem;
   }
   .diagnostic-item i {
     margin-right: 0.25em;
