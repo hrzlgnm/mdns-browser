@@ -299,3 +299,17 @@ When a task could be done by tacking onto existing code or by first restructurin
   is `node24` or later. Node.js 20 and older are deprecated and emit a
   warning on every run.
 - Release versions and `CHANGELOG.md` entries are owned by release-please: never bump versions or hand-edit changelogs. The former in-repo library crates (`webkit2gtk-nvidia-quirk`, `tauri-plugin-android-update`) now release from their own repositories; updates arrive here as crates.io version bumps (Renovate proposes them). Only change source, tests, and docs. Sole exception: rewinding release bookkeeping to the last good version when skipping a failed release, exactly as described in [docs/agents/release.md](docs/agents/release.md) - never bump forward by hand.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as GitHub issues in `hrzlgnm/mdns-browser` (via `gh`). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Five canonical roles mapped to identical label strings (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
