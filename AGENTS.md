@@ -90,7 +90,8 @@ the release build.
 
 ## Development Workflow
 
-1. Create a branch for your changes (see [Git Conventions](#git-conventions))
+1. Create a worktree and branch for your changes (see
+   [Git Conventions](#git-conventions))
 2. Make your changes
 3. Run the [full check](#full-check-run-before-every-commit); also run
    `PATH="$PWD/scripts:$PATH" pnpm tauri build --no-bundle --no-sign` to verify the release build
@@ -192,6 +193,24 @@ All source files must include:
 
 - Conventional commits: `feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, etc.
 - All changes land via pull requests on a branch (direct pushes to `main` are blocked). Create a `feat/...`, `fix/...`, etc. branch and open a PR.
+
+### Worktrees
+
+Agents always work in a separate worktree, never in the main checkout:
+
+- Create the worktree with a new branch based on `origin/<default-branch>`
+  (fetch first), e.g.
+  `git fetch origin && git worktree add ../mdns-browser-<branch> -b feat/... origin/main`.
+  If the agent harness provides a worktree feature, prefer it.
+- The main checkout stays on `main` and clean, so the user can keep
+  building from it while an agent works in parallel.
+- Make all changes, run all checks, and commit inside the worktree.
+- A fresh worktree has no `node_modules`; run `pnpm install` there before
+  the frontend commands (the shared pnpm store makes this fast). Cargo
+  rebuilds from scratch in a worktree — expect the first build to be slow.
+- Remove the worktree (`git worktree remove`) once the branch is merged
+  or the user is done with it; `--force` only discards uncommitted work
+  deliberately.
 
 ### Tags
 
