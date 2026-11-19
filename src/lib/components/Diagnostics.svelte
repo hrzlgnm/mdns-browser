@@ -51,14 +51,17 @@
         <span>Daemon: {$daemonStatus.status}</span>
       </div>
     {/if}
-    <div class="diagnostics-grid">
-      {#each sorted as [name, value] (name)}
-        <div class="diagnostic-item">
-          <i>{name}</i>
-          <span class="diagnostic-badge">{value}</span>
-        </div>
-      {/each}
-    </div>
+    <details>
+      <summary>mDNS-SD-metrics</summary>
+      <div class="diagnostics-grid">
+        {#each sorted as [name, value] (name)}
+          <div class="diagnostic-item">
+            <i>{name}</i>
+            <span class="diagnostic-badge">{value}</span>
+          </div>
+        {/each}
+      </div>
+    </details>
   </details>
 </div>
 
