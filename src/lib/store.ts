@@ -308,7 +308,15 @@ export async function setupEventListeners(): Promise<Array<UnlistenFn>> {
   // Subscribe after listening so no initial emission is missed.
   await subscribeInterfaces()
   await subscribeMetrics()
-  await subscribeDaemonStatus()
+  // A rejection (the daemon's command queue stays full on a re-subscribe)
+  // must not stall startup before the splash screen closes; the poller of
+  // the first subscription keeps emitting, so log and browse with unknown
+  // status instead.
+  try {
+    await subscribeDaemonStatus()
+  } catch (e) {
+    console.warn('[mdns-browser] failed to subscribe to daemon status:', e)
+  }
   return unlisteners
 }
 
