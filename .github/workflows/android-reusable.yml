@@ -79,15 +79,18 @@ jobs:
           distribution: "zulu"
           java-version: "21"
           # Tauri generates the Gradle project later in the build step, so
-          # there are no Gradle files to hash here; the Tauri CLI and Rust
-          # plugins that shape them are pinned in the lockfiles.
+          # there are no Gradle files to hash here; these files pin the
+          # toolchain, plugin versions, features and configuration that
+          # determine the generated project.
           cache: gradle
           cache-dependency-path: |
             pnpm-lock.yaml
             src-tauri/Cargo.lock
+            src-tauri/Cargo.toml
+            src-tauri/tauri.conf.json
           # Tauri writes the wrapper distribution after this step, so the
           # action's own wrapper cache (keyed on gradle-wrapper.properties)
-          # is skipped; include it in the main cache instead.
+          # is skipped; cache the distribution with the main cache.
           cache-path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
