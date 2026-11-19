@@ -10,6 +10,7 @@ export {
   browseTypes,
   getProtocolFlags,
   localNetworkStatus,
+  onDaemonStatusChanged,
   onInterfacesChanged,
   onMetricsChanged,
   onServiceRemoved,
@@ -19,11 +20,14 @@ export {
   setInterfaces,
   setProtocolFlags,
   stopBrowse,
+  subscribeDaemonStatus,
   subscribeInterfaces,
   subscribeMetrics,
   verifyInstance,
 } from 'tauri-plugin-mdns-api'
 export type {
+  DaemonStatus,
+  DaemonStatusChangedEvent,
   InterfacesChangedEvent,
   LocalNetworkState,
   MetricsChangedEvent,

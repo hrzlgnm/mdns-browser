@@ -9,7 +9,7 @@
   } from '#lib/api.js'
   import About from '#lib/components/About.svelte'
   import Browse from '#lib/components/Browse.svelte'
-  import Metrics from '#lib/components/Metrics.svelte'
+  import Diagnostics from '#lib/components/Diagnostics.svelte'
   import NetworkInterfaces from '#lib/components/NetworkInterfaces.svelte'
   import ThemeSwitcher from '#lib/components/ThemeSwitcher.svelte'
   import Toasts from '#lib/components/Toasts.svelte'
@@ -149,7 +149,7 @@
   {#if $localNetworkAccess === null}
     <!-- Permission state still resolving; render nothing yet. -->
   {:else if $localNetworkAccess === 'granted'}
-    <Metrics />
+    <Diagnostics />
     <NetworkInterfaces disabled={$browsing} />
     <Browse />
   {:else}

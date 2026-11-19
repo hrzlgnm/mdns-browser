@@ -4,6 +4,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   compareServices,
+  daemonAllowsBrowsing,
   deadInstanceNames,
   dropLocalAndTrailingDot,
   dropTrailingDot,
@@ -11,7 +12,7 @@ import {
   sortTxtRecords,
   sortAddresses,
 } from './browse-utils'
-import type { ResolvedService, ScopedAddr } from 'tauri-plugin-mdns-api'
+import type { DaemonStatus, ResolvedService, ScopedAddr } from 'tauri-plugin-mdns-api'
 
 function addr(ip: string, scope_id?: string): ScopedAddr {
   return { addr: ip, interfaces: [], scope_id: scope_id ?? null }
@@ -29,6 +30,15 @@ function service(overrides: Partial<ResolvedService> = {}): ResolvedService {
     updated_at_micros: '0',
     dead: false,
     ...overrides,
+  }
+}
+
+function runningStatus(ipv4Bound: boolean, ipv6Bound: boolean): DaemonStatus {
+  return {
+    status: 'running',
+    ipv4_socket: { bound: ipv4Bound, bind_error: null },
+    ipv6_socket: { bound: ipv6Bound, bind_error: null },
+    enabled_interfaces: [],
   }
 }
 
@@ -372,5 +382,55 @@ describe('sortAddresses', () => {
   it('keeps scope tiebreakers for equal IPs', () => {
     const sorted = sortAddresses([addr('192.168.0.2', '3'), addr('192.168.0.2')])
     expect(sorted.map((a) => a.scope_id)).toEqual([null, '3'])
+  })
+})
+
+describe('daemonAllowsBrowsing', () => {
+  it('allows browsing before the daemon status is known', () => {
+    expect(daemonAllowsBrowsing(null, { ipv4: true, ipv6: true })).toBe(true)
+  })
+
+  it('refuses browsing when the daemon is shut down', () => {
+    expect(daemonAllowsBrowsing({ status: 'shutdown' }, { ipv4: true, ipv6: true })).toBe(false)
+  })
+
+  it('allows browsing when both sockets are bound', () => {
+    expect(daemonAllowsBrowsing(runningStatus(true, true), { ipv4: true, ipv6: true })).toBe(true)
+  })
+
+  it('allows browsing when only the IPv4 socket is bound', () => {
+    expect(daemonAllowsBrowsing(runningStatus(true, false), { ipv4: true, ipv6: true })).toBe(true)
+  })
+
+  it('allows browsing when only the IPv6 socket is bound', () => {
+    expect(daemonAllowsBrowsing(runningStatus(false, true), { ipv4: true, ipv6: true })).toBe(true)
+  })
+
+  it('refuses browsing when no socket is bound', () => {
+    expect(daemonAllowsBrowsing(runningStatus(false, false), { ipv4: true, ipv6: true })).toBe(
+      false,
+    )
+  })
+
+  it('refuses browsing when the only enabled protocol has no bound socket', () => {
+    expect(daemonAllowsBrowsing(runningStatus(true, false), { ipv4: false, ipv6: true })).toBe(
+      false,
+    )
+  })
+
+  it('allows browsing when a bound socket serves an enabled protocol', () => {
+    expect(daemonAllowsBrowsing(runningStatus(true, false), { ipv4: true, ipv6: false })).toBe(true)
+  })
+
+  it('refuses browsing when the only enabled protocol family is unbound', () => {
+    expect(daemonAllowsBrowsing(runningStatus(false, true), { ipv4: true, ipv6: false })).toBe(
+      false,
+    )
+  })
+
+  it('refuses browsing when no protocol is enabled', () => {
+    expect(daemonAllowsBrowsing(runningStatus(true, true), { ipv4: false, ipv6: false })).toBe(
+      false,
+    )
   })
 })

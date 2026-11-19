@@ -6,6 +6,7 @@ import type { UnlistenFn } from '@tauri-apps/api/event'
 import { isTauri } from '@tauri-apps/api/core'
 import { Store } from '@tauri-apps/plugin-store'
 import type {
+  DaemonStatus,
   LocalNetworkState,
   NetworkInterface,
   ProtocolFlags,
@@ -16,12 +17,14 @@ import {
   getProtocolFlags,
   isDesktop,
   localNetworkStatus,
+  onDaemonStatusChanged,
   onInterfacesChanged,
   onMetricsChanged,
   onServiceRemoved,
   onServiceResolved,
   onServiceTypeFound,
   stopBrowse,
+  subscribeDaemonStatus,
   subscribeInterfaces,
   subscribeMetrics,
 } from './api'
@@ -38,6 +41,9 @@ export const serviceTypes = writable<ServiceTypes>([])
 export const resolved = writable<Map<string, ResolvedService>>(new Map())
 export const interfaces = writable<Array<NetworkInterface>>([])
 export const metrics = writable<Record<string, number>>({})
+// `null` until the first `daemon-status-changed` event; browsing is not
+// blocked while the status is unknown (see daemonAllowsBrowsing).
+export const daemonStatus = writable<DaemonStatus | null>(null)
 export const protocolFlags = writable<ProtocolFlags>({ ipv4: true, ipv6: true })
 export const desktop = writable<boolean>(true)
 export const browsing = writable<boolean>(false)
@@ -297,10 +303,20 @@ export async function setupEventListeners(): Promise<Array<UnlistenFn>> {
     await onServiceRemoved((payload) => markRemoved(payload.instance_name, payload.at_micros)),
     await onInterfacesChanged((payload) => interfaces.set(payload.interfaces)),
     await onMetricsChanged((payload) => metrics.set(payload.metrics)),
+    await onDaemonStatusChanged((payload) => daemonStatus.set(payload.status)),
   ]
   // Subscribe after listening so no initial emission is missed.
   await subscribeInterfaces()
   await subscribeMetrics()
+  // A rejection (the daemon's command queue stays full on a re-subscribe)
+  // must not stall startup before the splash screen closes; the poller of
+  // the first subscription keeps emitting, so log and browse with unknown
+  // status instead.
+  try {
+    await subscribeDaemonStatus()
+  } catch (e) {
+    console.warn('[mdns-browser] failed to subscribe to daemon status:', e)
+  }
   return unlisteners
 }
 

@@ -4,6 +4,7 @@
   import { browseMany, stopBrowse } from '#lib/api.js'
   import {
     compareServices,
+    daemonAllowsBrowsing,
     isValidServiceType,
     matchesQuery,
     serviceTypeMatches,
@@ -15,11 +16,13 @@
   import { cssClass } from '#lib/css.js'
   import {
     browsing,
+    daemonStatus,
     hasEnabledInterfaces,
     initLocalNetworkAccess,
     initTutorialSeen,
     isTutorialSeen,
     markTutorialSeen,
+    protocolFlags,
     resolved,
     resolvedList,
     serviceTypes,
@@ -117,7 +120,8 @@
   )
   const filtered = $derived(sortedServices.filter((service) => matchesQuery(service, query)))
   const invalid = $derived(serviceTypeInput !== '' && !isValidServiceType(serviceTypeInput))
-  const browseDisabled = $derived($browsing || invalid || !$hasEnabledInterfaces)
+  const daemonOk = $derived(daemonAllowsBrowsing($daemonStatus, $protocolFlags))
+  const browseDisabled = $derived($browsing || invalid || !$hasEnabledInterfaces || !daemonOk)
   const suggestions = $derived(
     $serviceTypes.filter((st) => serviceTypeMatches(serviceTypeInput, st)),
   )
