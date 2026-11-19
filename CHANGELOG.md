@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.13...v2.10.0) (2026-11-19)
+
+
+### Features
+
+* diagnostics view surfaces daemon status and gates browsing ([#3079](https://github.com/hrzlgnm/mdns-browser/issues/3079)) ([147f346](https://github.com/hrzlgnm/mdns-browser/commit/147f346308c07508263842f05243f62f680cf494))
+
+
+### Dependencies
+
+* lock file maintenance ([#3081](https://github.com/hrzlgnm/mdns-browser/issues/3081)) ([ba757a8](https://github.com/hrzlgnm/mdns-browser/commit/ba757a85134d71df1b11ad8928cbe88737d7122c))
+* update dependency typescript-eslint to v8.73.0 ([#3080](https://github.com/hrzlgnm/mdns-browser/issues/3080)) ([0d46539](https://github.com/hrzlgnm/mdns-browser/commit/0d465391f980824723de68c59b8ba5d356110a09))
+* update hrzlgnm/actions action to v2.15.0 ([#3075](https://github.com/hrzlgnm/mdns-browser/issues/3075)) ([2242f9d](https://github.com/hrzlgnm/mdns-browser/commit/2242f9ded0a48dbd91049af79ead11e8555803b5))
+* update tauri monorepo ([#3071](https://github.com/hrzlgnm/mdns-browser/issues/3071)) ([fe1a40c](https://github.com/hrzlgnm/mdns-browser/commit/fe1a40cea89434ec9ef4eb380c5676393f7c8cbc))
+
+
+### Documentation
+
+* agents always work in a separate worktree ([#3078](https://github.com/hrzlgnm/mdns-browser/issues/3078)) ([e6b182f](https://github.com/hrzlgnm/mdns-browser/commit/e6b182f4a9c41f4321608cf1624ce6eb9581dfac))
+
+
+### Miscellaneous Chores
+
+* add missing SPDX license headers ([#3072](https://github.com/hrzlgnm/mdns-browser/issues/3072)) ([7b5a81c](https://github.com/hrzlgnm/mdns-browser/commit/7b5a81c3ae82df038386dd12de7ae159eb499100))
+* configure Matt Pocock agent skills ([#3076](https://github.com/hrzlgnm/mdns-browser/issues/3076)) ([a4684c5](https://github.com/hrzlgnm/mdns-browser/commit/a4684c58c07dbc004afdebb5e58190fc4f9b4a6e))
+
+
+### Continuous Integration
+
+* check SPDX headers with the shared reusable workflow ([#3074](https://github.com/hrzlgnm/mdns-browser/issues/3074)) ([54b1aae](https://github.com/hrzlgnm/mdns-browser/commit/54b1aaeabff42230253bee65dcff1f28bf215c98))
+
 ## [2.9.13](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.11...v2.9.13) (2026-11-18)
 
 
