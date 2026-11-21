@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.10.0...v2.10.1) (2026-11-21)
+
+
+### Bug Fixes
+
+* cache the Gradle wrapper and key on all cache inputs ([#3084](https://github.com/hrzlgnm/mdns-browser/issues/3084)) ([f94e701](https://github.com/hrzlgnm/mdns-browser/commit/f94e7012dd66343ce3022c658d59df0df457425b))
+
+
+### Dependencies
+
+* update dependency @sveltejs/kit to v3.2.1 ([#3086](https://github.com/hrzlgnm/mdns-browser/issues/3086)) ([66232be](https://github.com/hrzlgnm/mdns-browser/commit/66232be4900eedb43383b192d46e0fb616af148c))
+* update dependency @sveltejs/kit to v3.3.0 ([#3087](https://github.com/hrzlgnm/mdns-browser/issues/3087)) ([72f26b0](https://github.com/hrzlgnm/mdns-browser/commit/72f26b0707a9d259c7162c07cac849be7816c7e6))
+* update dependency @sveltejs/kit to v3.3.1 ([#3088](https://github.com/hrzlgnm/mdns-browser/issues/3088)) ([0e6f37d](https://github.com/hrzlgnm/mdns-browser/commit/0e6f37dbe69f129faed2e0c3d79b7e87d49f38b9))
+* update dependency prettier-plugin-svelte to v4.2.0 ([#3089](https://github.com/hrzlgnm/mdns-browser/issues/3089)) ([b86963b](https://github.com/hrzlgnm/mdns-browser/commit/b86963bda16b76c68b0c86fb33ce9330fa832d7e))
+* update dependency svelte to v5.58.0 ([#3091](https://github.com/hrzlgnm/mdns-browser/issues/3091)) ([4e9d742](https://github.com/hrzlgnm/mdns-browser/commit/4e9d7420acf2c981861d5e4367cca44fab5a4f61))
+* update dependency vitest to v5.1.1 ([#3090](https://github.com/hrzlgnm/mdns-browser/issues/3090)) ([a3e8fb1](https://github.com/hrzlgnm/mdns-browser/commit/a3e8fb107f410a51c1c71a43f1952519c329252b))
+* update rust crate clap to v4.6.9 ([#3085](https://github.com/hrzlgnm/mdns-browser/issues/3085)) ([046091c](https://github.com/hrzlgnm/mdns-browser/commit/046091c7afd81245b6b1d467db89b5e97e1ffedc))
+
+
+### Miscellaneous Chores
+
+* cache Gradle dependencies in Android builds ([#3082](https://github.com/hrzlgnm/mdns-browser/issues/3082)) ([36be233](https://github.com/hrzlgnm/mdns-browser/commit/36be233bef4e65c3265f35fbe9095c902f90d693))
+
 ## [2.10.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.13...v2.10.0) (2026-11-19)
 
 
