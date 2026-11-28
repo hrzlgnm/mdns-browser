@@ -41,7 +41,7 @@
     "@sveltejs/load-config": "0.2.3",
     "@sveltejs/vite-plugin-svelte": "7.3.2",
     "@tauri-apps/cli": "2.12.6",
-    "@types/node": "26.6.6",
+    "@types/node": "26.6.7",
     "eslint": "10.15.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-svelte": "3.24.1",
