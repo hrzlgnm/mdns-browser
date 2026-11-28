@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.1](https://github.com/hrzlgnm/mdns-browser/compare/v2.10.0...v2.10.1) (2026-11-28)
+
+
+### Bug Fixes
+
+* cache the Gradle wrapper and key on all cache inputs ([#3084](https://github.com/hrzlgnm/mdns-browser/issues/3084)) ([f94e701](https://github.com/hrzlgnm/mdns-browser/commit/f94e7012dd66343ce3022c658d59df0df457425b))
+
+
+### Dependencies
+
+* lock file maintenance ([#3093](https://github.com/hrzlgnm/mdns-browser/issues/3093)) ([7f60681](https://github.com/hrzlgnm/mdns-browser/commit/7f606819d7a303115c5fc0bfcc518896b97300f7))
+* update anchore/scan-action action to v7.4.3 ([#3096](https://github.com/hrzlgnm/mdns-browser/issues/3096)) ([4799122](https://github.com/hrzlgnm/mdns-browser/commit/479912251a0c3b18995dc2f0f0fdcb56bb395275))
+* update archlinux:base-devel docker digest to 949ecb1 ([#3098](https://github.com/hrzlgnm/mdns-browser/issues/3098)) ([2e48463](https://github.com/hrzlgnm/mdns-browser/commit/2e48463b9638f7f2c50de50aba5db79d7a455030))
+* update dependency @sveltejs/kit to v3.2.1 ([#3086](https://github.com/hrzlgnm/mdns-browser/issues/3086)) ([66232be](https://github.com/hrzlgnm/mdns-browser/commit/66232be4900eedb43383b192d46e0fb616af148c))
+* update dependency @sveltejs/kit to v3.3.0 ([#3087](https://github.com/hrzlgnm/mdns-browser/issues/3087)) ([72f26b0](https://github.com/hrzlgnm/mdns-browser/commit/72f26b0707a9d259c7162c07cac849be7816c7e6))
+* update dependency @sveltejs/kit to v3.3.1 ([#3088](https://github.com/hrzlgnm/mdns-browser/issues/3088)) ([0e6f37d](https://github.com/hrzlgnm/mdns-browser/commit/0e6f37dbe69f129faed2e0c3d79b7e87d49f38b9))
+* update dependency @sveltejs/kit to v3.4.0 ([#3092](https://github.com/hrzlgnm/mdns-browser/issues/3092)) ([7e70db7](https://github.com/hrzlgnm/mdns-browser/commit/7e70db7ccd91d6fcff7a00d9632314600319d98d))
+* update dependency @sveltejs/vite-plugin-svelte to v7.3.2 ([#3105](https://github.com/hrzlgnm/mdns-browser/issues/3105)) ([2186bdd](https://github.com/hrzlgnm/mdns-browser/commit/2186bddbb2656a6e3c455ecf3c802875926e0240))
+* update dependency @types/node to v26.6.10 ([#3108](https://github.com/hrzlgnm/mdns-browser/issues/3108)) ([2e35fed](https://github.com/hrzlgnm/mdns-browser/commit/2e35fedb11547cb9e54ffe359aee38c5d42e1479))
+* update dependency @types/node to v26.6.7 ([#3107](https://github.com/hrzlgnm/mdns-browser/issues/3107)) ([2abb147](https://github.com/hrzlgnm/mdns-browser/commit/2abb147f8645fa2c26327aba24d013e26d9942da))
+* update dependency cargo-auditable to v0.7.8 ([#3103](https://github.com/hrzlgnm/mdns-browser/issues/3103)) ([281ae7e](https://github.com/hrzlgnm/mdns-browser/commit/281ae7e9517ea8e228decf44a0afca0601d490e4))
+* update dependency prettier-plugin-svelte to v4.2.0 ([#3089](https://github.com/hrzlgnm/mdns-browser/issues/3089)) ([b86963b](https://github.com/hrzlgnm/mdns-browser/commit/b86963bda16b76c68b0c86fb33ce9330fa832d7e))
+* update dependency sccache to v0.20.0 ([#3095](https://github.com/hrzlgnm/mdns-browser/issues/3095)) ([8f89803](https://github.com/hrzlgnm/mdns-browser/commit/8f89803deb1e120aa000aee850e7f950b48c7f2c))
+* update dependency sccache to v0.20.1 ([#3101](https://github.com/hrzlgnm/mdns-browser/issues/3101)) ([8df05dc](https://github.com/hrzlgnm/mdns-browser/commit/8df05dc959931b975c8aa1c1d64cd3b7448237e5))
+* update dependency svelte to v5.58.0 ([#3091](https://github.com/hrzlgnm/mdns-browser/issues/3091)) ([4e9d742](https://github.com/hrzlgnm/mdns-browser/commit/4e9d7420acf2c981861d5e4367cca44fab5a4f61))
+* update dependency svelte to v5.58.1 ([#3094](https://github.com/hrzlgnm/mdns-browser/issues/3094)) ([cec47f7](https://github.com/hrzlgnm/mdns-browser/commit/cec47f7da476574e27dbf98a512c33f82294e8e0))
+* update dependency svelte to v5.59.1 ([#3097](https://github.com/hrzlgnm/mdns-browser/issues/3097)) ([1fd71f5](https://github.com/hrzlgnm/mdns-browser/commit/1fd71f53e168f740f68ea8503afda0ee6151e19d))
+* update dependency typescript-eslint to v8.74.0 ([#3106](https://github.com/hrzlgnm/mdns-browser/issues/3106)) ([31df057](https://github.com/hrzlgnm/mdns-browser/commit/31df057e772bc443f5b378f805b4198513be5a9e))
+* update dependency vitest to v5.1.1 ([#3090](https://github.com/hrzlgnm/mdns-browser/issues/3090)) ([a3e8fb1](https://github.com/hrzlgnm/mdns-browser/commit/a3e8fb107f410a51c1c71a43f1952519c329252b))
+* update ghcr.io/hrzlgnm/mdns-browser-arch-aur-builder:v1 docker digest to 9b1f812 ([#3100](https://github.com/hrzlgnm/mdns-browser/issues/3100)) ([f40fbb3](https://github.com/hrzlgnm/mdns-browser/commit/f40fbb3d596a48372fb66c1f4efba13deffe46a8))
+* update pnpm to v12.22.0 ([#3099](https://github.com/hrzlgnm/mdns-browser/issues/3099)) ([4bde833](https://github.com/hrzlgnm/mdns-browser/commit/4bde8337e01cf6e8f5f4b782aa4593a06fe1b3bf))
+* update pnpm to v12.23.0 ([#3104](https://github.com/hrzlgnm/mdns-browser/issues/3104)) ([ae238d1](https://github.com/hrzlgnm/mdns-browser/commit/ae238d1ffc3b11a6e526e7ec25b20abf87da357a))
+* update rust crate clap to v4.6.10 ([#3102](https://github.com/hrzlgnm/mdns-browser/issues/3102)) ([072c8db](https://github.com/hrzlgnm/mdns-browser/commit/072c8dbd1b8050161a429f204c58f37c7af83ad6))
+* update rust crate clap to v4.6.9 ([#3085](https://github.com/hrzlgnm/mdns-browser/issues/3085)) ([046091c](https://github.com/hrzlgnm/mdns-browser/commit/046091c7afd81245b6b1d467db89b5e97e1ffedc))
+
+
+### Miscellaneous Chores
+
+* cache Gradle dependencies in Android builds ([#3082](https://github.com/hrzlgnm/mdns-browser/issues/3082)) ([36be233](https://github.com/hrzlgnm/mdns-browser/commit/36be233bef4e65c3265f35fbe9095c902f90d693))
+
 ## [2.10.0](https://github.com/hrzlgnm/mdns-browser/compare/v2.9.13...v2.10.0) (2026-11-19)
 
 
